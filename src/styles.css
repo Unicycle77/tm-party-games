@@ -536,6 +536,9 @@ body.idle-cursor .stage { cursor: none; }
 .camera-setup { max-height: 92vh; overflow-y: auto; }
 /* grid items would otherwise grow to the video's full width */
 .camera-setup > * { min-width: 0; }
-.camera-preview { position: relative; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; aspect-ratio: 16 / 9; display: grid; place-items: center; }
+.camera-preview { position: relative; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; display: grid; place-items: center; overflow: hidden; }
 .camera-preview video { width: 100%; height: 100%; max-height: none; object-fit: contain; border: 0; }
+/* the heads being read: solid green where a face is read, dashed where only the head is found */
+.camera-head { position: absolute; border: 2px dashed var(--gold-bright); border-radius: 4px; pointer-events: none; }
+.camera-head.read { border: 3px solid #34c759; }
 .camera-count { position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%); background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.1rem 0.8rem; font-family: var(--typewriter); white-space: nowrap; }

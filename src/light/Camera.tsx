@@ -6,7 +6,7 @@ import faceModel from "../assets/light/face_landmarker.task?url";
 import poseModel from "../assets/light/pose_landmarker_full.task?url";
 import type { LightState } from "../types";
 import { type CameraSettings, isVirtualCamera } from "./CameraSetup";
-import { type Person, type Trigger, facePeople, posePeople } from "./triggers";
+import { type FaceReading, type Person, type Trigger, facePeople, faceReadings, heads, posePeople } from "./triggers";
 
 type Status = NonNullable<LightState["camera"]>;
 
@@ -14,6 +14,11 @@ type Status = NonNullable<LightState["camera"]>;
 const MAX_PEOPLE = 8;
 /** How often a frame is checked. */
 const FRAME_MS = 100;
+/** Each head is cut out of the picture at this size (pixels) for the face reading. */
+const CLOSE_UP = 256;
+
+/** A head the camera is reading, for the settings panel's preview: a square (0–1 of the picture), and whether a face was read in it. */
+export interface HeadBox { x: number; y: number; w: number; h: number; read: boolean }
 /** A change (in or out) has to last this long to count, so a flicker doesn't set the light off. */
 const HOLD_MS = 300;
 /** Someone who moves less than this (a share of the picture's width) between frames is the same person. */
@@ -29,7 +34,7 @@ interface Track { x: number; y: number; in: boolean; changingSince?: number; see
  * (e.g. stops smiling). `onStatus` hears how many people it sees and, per trigger, how many are "in"
  * (e.g. smiling), or what went wrong.
  */
-export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
+export function Camera({ triggers, settings, onTrigger, onStatus, onStream, onHeads }: {
   triggers: Trigger[];
   /** Which camera, and whether the detection may use the graphics card (see CameraSetup). */
   settings: CameraSettings;
@@ -37,13 +42,18 @@ export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
   onStatus: (status: Status) => void;
   /** The camera's picture and what the detection runs on, for the settings panel's preview. */
   onStream?: (stream: MediaStream | undefined, runsOn: "GPU" | "CPU" | undefined) => void;
+  /** Every frame, the heads being read (only while something shows them). */
+  onHeads?: (heads: HeadBox[]) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
-  const latest = useRef({ triggers, onTrigger, onStatus, onStream });
-  latest.current = { triggers, onTrigger, onStatus, onStream };
+  const latest = useRef({ triggers, onTrigger, onStatus, onStream, onHeads });
+  latest.current = { triggers, onTrigger, onStatus, onStream, onHeads };
   const { deviceId, processor } = settings;
-  // Which detectors the triggers need; the camera starts again with them when that changes.
-  const models = [...new Set(triggers.map((t) => t.model))].sort().join("+");
+  // Which detectors the triggers need; the camera starts again with them when that changes. Face triggers
+  // need the body detector too: it finds people much further away, and their heads are then read close up.
+  const needs = new Set(triggers.map((t) => t.model));
+  if (needs.has("face")) needs.add("pose");
+  const models = [...needs].sort().join("+");
 
   useEffect(() => {
     let stopped = false;
@@ -68,7 +78,8 @@ export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
 
     async function start() {
       report({ starting: true });
-      const size = { width: { ideal: 1280 }, height: { ideal: 720 } };
+      // As sharp as the camera goes (up to 1080p), for close-ups of faces across the room.
+      const size = { width: { ideal: 1920 }, height: { ideal: 1080 } };
       const open = (id?: string) => navigator.mediaDevices.getUserMedia({ video: id ? { ...size, deviceId: { exact: id } } : size, audio: false });
       try {
         // The chosen camera; if none is chosen, or it's gone (unplugged), the computer's default one.
@@ -116,8 +127,9 @@ export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
           }));
         }
         if (models.includes("face")) {
+          // One picture at a time: a close-up of each head in turn (or the whole picture), not a video.
           face = await either((delegate) => FaceLandmarker.createFromOptions(files, {
-            baseOptions: { modelAssetPath: faceModel, delegate }, runningMode: "VIDEO", numFaces: MAX_PEOPLE, outputFaceBlendshapes: true,
+            baseOptions: { modelAssetPath: faceModel, delegate }, runningMode: "IMAGE", numFaces: MAX_PEOPLE, outputFaceBlendshapes: true,
           }));
         }
         if (!stopped) latest.current.onStream?.(stream, runsOn);
@@ -126,22 +138,47 @@ export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
         return;
       }
       if (stopped) { face?.close(); pose?.close(); return; }
+      const closeUp = document.createElement("canvas");
+      closeUp.width = closeUp.height = CLOSE_UP;
+      const closeUpCtx = closeUp.getContext("2d")!;
+
+      /**
+       * The face detector only finds faces that fill a good part of the picture, so each head the body
+       * detector found is cut out and read on its own. If it found nobody, the whole picture is read
+       * (someone sitting right in front of the camera).
+       */
+      const readFaces = (detector: FaceLandmarker, boxes: ReturnType<typeof heads>): { faces: FaceReading[]; shown: HeadBox[] } => {
+        const w = v.videoWidth, h = v.videoHeight;
+        if (!boxes.length) return { faces: faceReadings(detector.detect(v)), shown: [] };
+        const faces: FaceReading[] = [];
+        const shown: HeadBox[] = [];
+        for (const b of boxes) {
+          const side = Math.min(b.side, w, h);
+          const sx = Math.min(Math.max(b.cx - side / 2, 0), w - side), sy = Math.min(Math.max(b.cy - side / 2, 0), h - side);
+          closeUpCtx.drawImage(v, sx, sy, side, side, 0, 0, CLOSE_UP, CLOSE_UP);
+          // The face nearest the middle of the close-up is this person's.
+          const found = faceReadings(detector.detect(closeUp), (x, y) => ({ x: (sx + x * side) / w, y: (sy + y * side) / h }))
+            .sort((a, c) => Math.hypot(a.x * w - b.cx, a.y * h - b.cy) - Math.hypot(c.x * w - b.cx, c.y * h - b.cy))[0];
+          if (found) faces.push(found);
+          shown.push({ x: sx / w, y: sy / h, w: side / w, h: side / h, read: !!found });
+        }
+        return { faces, shown };
+      };
 
       const step = () => {
         if (stopped) return;
         if (v.readyState >= 2) {
           const { triggers: ts, onTrigger: fire } = latest.current;
           const now = performance.now();
-          const faces = face?.detectForVideo(v, now);
           const poses = pose?.detectForVideo(v, now);
+          const read = face ? readFaces(face, poses ? heads(poses, v.videoWidth, v.videoHeight) : []) : undefined;
+          latest.current.onHeads?.(read?.shown ?? []);
           const next: Record<string, Track[]> = {};
           const each: Record<string, number> = {};
-          let seen = 0;
+          const seen = Math.max(poses?.landmarks.length ?? 0, read?.faces.length ?? 0);
           for (const t of ts) {
-            const result = t.model === "face" ? faces : poses;
-            if (!result) continue;
-            const people = t.model === "face" ? facePeople(faces!, t) : posePeople(poses!, t);
-            seen = Math.max(seen, people.length);
+            if (t.model === "face" ? !read : !poses) continue;
+            const people = t.model === "face" ? facePeople(read!.faces, t) : posePeople(poses!, t);
             next[t.id] = follow(tracks[t.id] ?? [], people, t, now, () => fire(t.id));
             each[t.id] = next[t.id]!.filter((k) => k.seenAt === now && k.in).length;
           }

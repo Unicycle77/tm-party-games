@@ -57,16 +57,43 @@ export const MODES: Mode[] = [
 ];
 export const findMode = (id: string | undefined): Mode | undefined => MODES.find((m) => m.id === id);
 
-/** Face triggers: scores from the face's expression readings (0–1). */
-export function facePeople(result: FaceLandmarkerResult, trigger: Trigger): Person[] {
+/** Face triggers: a face's score from its expression readings (0–1). */
+export function faceScore(shapes: { categoryName: string; score: number }[], trigger: Trigger): number {
+  const shape = (name: string) => shapes.find((c) => c.categoryName === name)?.score ?? 0;
+  return trigger.id === "eyebrows"
+    ? (shape("browInnerUp") + (shape("browOuterUpLeft") + shape("browOuterUpRight")) / 2) / 2
+    : (shape("mouthSmileLeft") + shape("mouthSmileRight")) / 2;
+}
+
+/** A face the camera has read: where it is in the picture (0–1, its nose) and its expression readings. */
+export interface FaceReading { x: number; y: number; shapes: { categoryName: string; score: number }[] }
+
+/** Face triggers: everyone's score, from their face readings. */
+export const facePeople = (faces: FaceReading[], trigger: Trigger): Person[] =>
+  faces.map((f) => ({ x: f.x, y: f.y, score: faceScore(f.shapes, trigger) }));
+
+/** The face readings in a face landmarker result, placed in the picture by `place` (for a close-up's own 0–1). */
+export function faceReadings(result: FaceLandmarkerResult, place = (x: number, y: number) => ({ x, y })): FaceReading[] {
   return result.faceLandmarks.map((points, i) => {
-    const shapes = result.faceBlendshapes[i]?.categories ?? [];
-    const shape = (name: string) => shapes.find((c) => c.categoryName === name)?.score ?? 0;
     const nose = points[1] ?? points[0] ?? { x: 0, y: 0 };
-    const score = trigger.id === "eyebrows"
-      ? (shape("browInnerUp") + (shape("browOuterUpLeft") + shape("browOuterUpRight")) / 2) / 2
-      : (shape("mouthSmileLeft") + shape("mouthSmileRight")) / 2;
-    return { x: nose.x, y: nose.y, score };
+    return { ...place(nose.x, nose.y), shapes: result.faceBlendshapes[i]?.categories ?? [] };
+  });
+}
+
+/**
+ * Where each person's head is, from the body detector (which finds people much further away than the
+ * face detector): a square in picture pixels, centred on the nose and big enough for the whole face.
+ */
+export function heads(result: PoseLandmarkerResult, width: number, height: number): { cx: number; cy: number; side: number }[] {
+  return result.landmarks.flatMap((p) => {
+    const px = (i: number) => (p[i] ? { x: p[i]!.x * width, y: p[i]!.y * height } : undefined);
+    const nose = px(0);
+    if (!nose) return [];
+    const gap = (a?: { x: number; y: number }, b?: { x: number; y: number }) => (a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0);
+    // The head's width, from whichever of these the detector has: ears, eyes, shoulders.
+    const head = Math.max(gap(px(7), px(8)), gap(px(2), px(5)) * 2.4, gap(px(11), px(12)) * 0.55);
+    if (head < 8) return [];
+    return [{ cx: nose.x, cy: nose.y, side: head * 2.2 }];
   });
 }
 

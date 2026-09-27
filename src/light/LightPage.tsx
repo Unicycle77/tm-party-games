@@ -12,7 +12,7 @@ import {
 import { RED, type HueConfig, loadHue } from "./hue";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
 import { HueSetup, useHueLamps } from "./HueSetup";
-import { Camera } from "./Camera";
+import { Camera, type HeadBox } from "./Camera";
 
 const KEY = "ba.lightCode";
 
@@ -53,6 +53,8 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(loadCameraSettings);
   // The camera's picture and what the detection runs on, for the camera panel's preview.
   const [feed, setFeed] = useState<{ stream?: MediaStream; runsOn?: "GPU" | "CPU" }>({});
+  // The heads being read, only while the camera panel shows them.
+  const [heads, setHeads] = useState<HeadBox[]>([]);
   // The Hue lamp flashes with it, in the same colour.
   const lampColour = flash === ONE ? RED : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
   const hueError = useHueLamps(hue, lampColour);
@@ -103,11 +105,12 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
       </div>
       <Camera triggers={watchedTriggers(light)} settings={cameraSettings}
         onStream={(stream, runsOn) => setFeed({ stream, runsOn })}
+        onHeads={settingUp === "camera" ? setHeads : undefined}
         onTrigger={(id) => { if (armedNow.current) timers.current.push(mode ? lightOneLater(code, id) : lightLater(code)); }}
         onStatus={(status) => void setCamera(code, status)} />
       {settingUp === "hue" && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(undefined)} />}
       {settingUp === "camera" && (
-        <CameraSetup settings={cameraSettings} onChange={setCameraSettings} stream={feed.stream} runsOn={feed.runsOn}
+        <CameraSetup settings={cameraSettings} onChange={setCameraSettings} stream={feed.stream} runsOn={feed.runsOn} heads={heads}
           people={light.camera?.people} onClose={() => setSettingUp(undefined)} />
       )}
     </main>
