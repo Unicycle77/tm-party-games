@@ -2,22 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { HueError, type HueConfig, type HueLight, type LampState, findBridges, lampsOn, listLights, pair, reach, readLamps, restoreLamps, saveHue } from "./hue";
 
 /**
- * Keeps the Hue lamps in step with the light: when it goes on, remembers how each lamp was and turns it
- * on (red); when it goes off, puts each lamp back as it was. Otherwise the lamps are left alone.
- * Returns what went wrong last, if anything.
+ * Keeps the Hue lamps in step with the light: `colour` is what the light is showing (undefined = off).
+ * When it comes on, remembers how each lamp was and turns it on in that colour; a new colour while it's on
+ * just changes the lamp; when it goes off, puts each lamp back as it was. Otherwise the lamps are left
+ * alone. Returns what went wrong last, if anything.
  */
-export function useHueLamps(config: HueConfig | undefined, lit: boolean): string | undefined {
+export function useHueLamps(config: HueConfig | undefined, colour: string | undefined): string | undefined {
   const [error, setError] = useState<string>();
   const saved = useRef<Record<string, LampState>>();
   // One command at a time, in order, so a restore never overtakes the flash it belongs to.
   const queue = useRef(Promise.resolve());
   useEffect(() => {
     if (!config?.lights.length) { setError(undefined); return; }
-    const job = lit
-      ? async () => { saved.current = await readLamps(config); await lampsOn(config); }
+    const job = colour
+      ? async () => { saved.current ??= await readLamps(config); await lampsOn(config, colour); }
       : async () => { if (!saved.current) return; const was = saved.current; saved.current = undefined; await restoreLamps(config, was); };
     queue.current = queue.current.then(job).then(() => setError(undefined), (e: unknown) => setError(e instanceof HueError ? e.message : "The Hue lamp didn't respond."));
-  }, [config, lit]);
+  }, [config, colour]);
   return error;
 }
 

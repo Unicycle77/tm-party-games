@@ -6,8 +6,11 @@ import { RecentList, WATCHED_KEY, HOSTED_KEY, loadRecent, mergeRecent } from "..
 import { JoinError, store, useSession, useUid } from "../session";
 import type { LightState, Session } from "../types";
 import { Bulb } from "./Bulb";
-import { claimLight, isArmed, lightLater, lightNow, lightOf, releaseLight, setArmed, setCamera, triggerOf, useLit } from "./data";
-import { type HueConfig, loadHue } from "./hue";
+import {
+  claimLight, isAllMode, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, releaseLight, setArmed, setCamera, useLit, useLitBulbs, watchedTriggers,
+} from "./data";
+import { RED, type HueConfig, loadHue } from "./hue";
+import { TRIGGERS } from "./triggers";
 import { HueSetup, useHueLamps } from "./HueSetup";
 import { Camera } from "./Camera";
 
@@ -41,12 +44,18 @@ export function LightPage() {
 function Running({ code, session, onStop }: { code: string; session: Session; onStop: () => void }) {
   const light = lightOf(session);
   const armed = isArmed(light);
+  const all = isAllMode(light);
+  // One secret: the red bulb. All at once: a bulb per trigger, in its colour.
   const lit = useLit(light.litAt);
+  const bulbs = useLitBulbs(light.lit);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
   const [settingUp, setSettingUp] = useState(false);
-  const hueError = useHueLamps(hue, lit);
+  // The Hue lamp shows the latest bulb to come on, in its colour.
+  const latest = Object.entries(bulbs).sort(([, a], [, b]) => b - a)[0]?.[0];
+  const lampColour = all ? TRIGGERS.find((t) => t.id === latest)?.colour : lit ? RED : undefined;
+  const hueError = useHueLamps(hue, lampColour);
 
-  // Each time someone does the trigger, the light goes on a little later (unless paused).
+  // Each time someone does a trigger, its light goes on a little later (unless paused).
   const armedNow = useRef(armed);
   armedNow.current = armed;
   const timers = useRef<number[]>([]);
@@ -64,27 +73,31 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
 
   useKeepAwake();
 
-  // Players may see this screen, so it shows just the bulb. What it's doing, and its buttons, only
+  // Players may see this screen, so it shows just the bulbs (never what they mean). What it's doing, and its buttons, only
   // appear while the mouse moves (like the main screen's backup controls).
   const barVisible = useStageBarVisible();
   const tab = barVisible ? 0 : -1;
   return (
     <main className="stage light-stage">
-      <Bulb lit={lit} />
+      {all ? (
+        <div className="light-bulbs">
+          {TRIGGERS.map((t) => <Bulb key={t.id} lit={!!bulbs[t.id]} colour={t.colour} />)}
+        </div>
+      ) : <Bulb lit={lit} />}
       <div className={barVisible || settingUp ? "stage-controls light-bar show" : "stage-controls light-bar"} aria-hidden={!barVisible}>
         <p className="light-bar-status">
           💡 {code} · {cameraStatus(light)} · {!hue?.lights.length ? "No Hue lamp" : `Hue lamp: ${hueError ?? hue.lights.map((l) => l.name).join(", ")}`}
         </p>
         <button onClick={() => setSettingUp(true)} tabIndex={tab}>💡 Hue lamp</button>
-        <button onClick={() => void lightNow(code)} tabIndex={tab}>Light it now</button>
+        <button onClick={() => void (all ? lightAllNow(code) : lightNow(code))} tabIndex={tab}>{all ? "Light them all now" : "Light it now"}</button>
         <button className={armed ? undefined : "active"} onClick={() => void setArmed(code, !armed)} tabIndex={tab}>
           {armed ? "⏸ Pause" : "▶ Resume"}
         </button>
         <button onClick={onStop} tabIndex={tab}>Stop the light</button>
         <p className="light-bar-status small">Keep this window in front all evening (not a background tab, minimised or covered). The host phone shows what the camera sees.</p>
       </div>
-      <Camera trigger={triggerOf(light)}
-        onTrigger={() => { if (armedNow.current) timers.current.push(lightLater(code)); }}
+      <Camera triggers={watchedTriggers(light)}
+        onTrigger={(id) => { if (armedNow.current) timers.current.push(all ? lightOneLater(code, id) : lightLater(code)); }}
         onStatus={(status) => void setCamera(code, status)} />
       {settingUp && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(false)} />}
     </main>

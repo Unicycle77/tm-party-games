@@ -488,23 +488,26 @@ body.idle-cursor .stage { cursor: none; }
 /* ---- The light (/light): a red bulb on a wooden box that lights up for a second ---- */
 /* just the bulb, full screen; the bar with its status and buttons appears while the mouse moves */
 .stage.light-stage .bulb { height: 80vh; }
+/* "All at once": a bulb per trigger, three across, two down, as big as fits */
+.light-bulbs { display: grid; grid-template-columns: repeat(3, auto); gap: 2vh 6vw; justify-content: center; align-content: center; }
+.stage.light-stage .light-bulbs .bulb { height: 40vh; }
 .light-bar { max-width: min(94vw, 900px); }
 .light-bar-status { flex-basis: 100%; margin: 0; text-align: center; color: var(--fg); font-family: var(--typewriter); }
 .light-bar-status.small { font-family: system-ui, sans-serif; color: var(--muted); }
 /* sized by its height; the width follows from the drawing's shape */
 .bulb { position: relative; aspect-ratio: 240 / 300; justify-self: center; }
 .bulb svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
-/* the glow: a red halo around the glass that fades up while the light is on */
+/* the glow: a halo in the bulb's colour (red, or --bulb) that fades up while the light is on */
 .bulb::before {
   content: ""; position: absolute; left: 50%; top: 30%; width: 130%; aspect-ratio: 1; transform: translate(-50%, -50%);
-  border-radius: 50%; background: radial-gradient(circle, var(--bulb-red), rgba(232, 65, 46, 0) 62%);
+  border-radius: 50%; background: radial-gradient(circle, var(--bulb, var(--bulb-red)), transparent 62%);
   opacity: 0; transition: opacity 0.12s;
 }
 .bulb.on::before { opacity: 0.9; }
-.bulb-glass { fill: rgba(232, 65, 46, 0.22); stroke: var(--bulb-red); stroke-opacity: 0.6; stroke-width: 3; transition: fill 0.12s; }
+.bulb-glass { fill: color-mix(in srgb, var(--bulb, var(--bulb-red)) 22%, transparent); stroke: var(--bulb, var(--bulb-red)); stroke-opacity: 0.6; stroke-width: 3; transition: fill 0.12s; }
 .bulb-wire, .bulb-filament { fill: none; stroke: #7a6a55; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .bulb-base { fill: var(--gold-dark); stroke: var(--gold-edge); stroke-width: 2; }
-.bulb.on .bulb-glass { fill: var(--bulb-red); stroke: #ffd2c8; stroke-opacity: 1; }
+.bulb.on .bulb-glass { fill: var(--bulb, var(--bulb-red)); stroke: #fff; stroke-opacity: 0.8; }
 .bulb.on .bulb-filament { stroke: #fff; }
 .bulb-box { fill: var(--wood); stroke: var(--wood-dark); stroke-width: 2; }
 .bulb-box-lid { fill: var(--wood-dark); }
@@ -517,6 +520,9 @@ body.idle-cursor .stage { cursor: none; }
 /* the host phone's light controls */
 .light-remote { display: grid; gap: 0.6rem; }
 .light-remote p { margin: 0; }
+/* "All at once" on the host phone: each action with its bulb's colour */
+.light-key { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.light-key .swatch { width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--bulb); border: 2px solid var(--gold-dark); }
 
 /* the light: setting up a real Hue lamp, on the /light page */
 .hue-setup { width: min(92vw, 520px); text-align: left; }

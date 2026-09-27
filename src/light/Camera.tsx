@@ -23,26 +23,29 @@ const FORGET_MS = 1000;
 interface Track { x: number; y: number; in: boolean; changingSince?: number; seenAt: number }
 
 /**
- * Watches the room through this computer's camera (the picture is never shown or sent anywhere) and
- * calls `onTrigger` each time someone does the trigger (e.g. stops smiling). `onStatus` hears how many
- * people it sees and how many are "in" (e.g. smiling), or what went wrong.
+ * Watches the room through this computer's camera (the picture is never shown or sent anywhere) for
+ * every trigger in `triggers` at once, and calls `onTrigger` with its id each time someone does one
+ * (e.g. stops smiling). `onStatus` hears how many people it sees and, per trigger, how many are "in"
+ * (e.g. smiling), or what went wrong.
  */
-export function Camera({ trigger, onTrigger, onStatus }: {
-  trigger: Trigger; onTrigger: () => void; onStatus: (status: Status) => void;
+export function Camera({ triggers, onTrigger, onStatus }: {
+  triggers: Trigger[]; onTrigger: (id: string) => void; onStatus: (status: Status) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
-  const latest = useRef({ trigger, onTrigger, onStatus });
-  latest.current = { trigger, onTrigger, onStatus };
+  const latest = useRef({ triggers, onTrigger, onStatus });
+  latest.current = { triggers, onTrigger, onStatus };
+  // Which detectors the triggers need; the camera starts again with them when that changes.
+  const models = [...new Set(triggers.map((t) => t.model))].sort().join("+");
 
   useEffect(() => {
     let stopped = false;
     let stream: MediaStream | undefined;
-    // One or the other, depending on the trigger.
+    // Whichever the triggers need (or both).
     let face: FaceLandmarker | undefined;
     let pose: PoseLandmarker | undefined;
     let timer: number | undefined;
-    let tracks: Track[] = [];
-    let trackedFor = latest.current.trigger.id;
+    // Who's "in" for each trigger, tracked separately (a trigger that's dropped is forgotten).
+    let tracks: Record<string, Track[]> = {};
     let reported = "";
     let reportedAt = 0;
     const report = (status: Status) => {
@@ -74,11 +77,12 @@ export function Camera({ trigger, onTrigger, onStatus }: {
         const files = { wasmLoaderPath, wasmBinaryPath };
         // The graphics card if it can, otherwise the processor.
         const either = async <T,>(create: (delegate: "GPU" | "CPU") => Promise<T>) => create("GPU").catch(() => create("CPU"));
-        if (latest.current.trigger.model === "pose") {
+        if (models.includes("pose")) {
           pose = await either((delegate) => PoseLandmarker.createFromOptions(files, {
             baseOptions: { modelAssetPath: poseModel, delegate }, runningMode: "VIDEO", numPoses: MAX_PEOPLE,
           }));
-        } else {
+        }
+        if (models.includes("face")) {
           face = await either((delegate) => FaceLandmarker.createFromOptions(files, {
             baseOptions: { modelAssetPath: faceModel, delegate }, runningMode: "VIDEO", numFaces: MAX_PEOPLE, outputFaceBlendshapes: true,
           }));
@@ -92,13 +96,23 @@ export function Camera({ trigger, onTrigger, onStatus }: {
       const step = () => {
         if (stopped) return;
         if (v.readyState >= 2) {
-          const { trigger: t, onTrigger: fire } = latest.current;
-          // A different trigger (same detector): everyone starts afresh.
-          if (t.id !== trackedFor) { tracks = []; trackedFor = t.id; }
+          const { triggers: ts, onTrigger: fire } = latest.current;
           const now = performance.now();
-          const people = face ? facePeople(face.detectForVideo(v, now), t) : pose ? posePeople(pose.detectForVideo(v, now), t) : [];
-          tracks = follow(tracks, people, t, now, fire);
-          report({ people: people.length, active: tracks.filter((k) => k.seenAt === now && k.in).length });
+          const faces = face?.detectForVideo(v, now);
+          const poses = pose?.detectForVideo(v, now);
+          const next: Record<string, Track[]> = {};
+          const each: Record<string, number> = {};
+          let seen = 0;
+          for (const t of ts) {
+            const result = t.model === "face" ? faces : poses;
+            if (!result) continue;
+            const people = t.model === "face" ? facePeople(faces!, t) : posePeople(poses!, t);
+            seen = Math.max(seen, people.length);
+            next[t.id] = follow(tracks[t.id] ?? [], people, t, now, () => fire(t.id));
+            each[t.id] = next[t.id]!.filter((k) => k.seenAt === now && k.in).length;
+          }
+          tracks = next;
+          report({ people: seen, each });
         }
         timer = window.setTimeout(step, FRAME_MS);
       };
@@ -122,8 +136,7 @@ export function Camera({ trigger, onTrigger, onStatus }: {
       face?.close();
       pose?.close();
     };
-    // A trigger that needs the other detector starts the camera again with it.
-  }, [trigger.model]);
+  }, [models]);
 
   return <video ref={video} className="light-camera" muted playsInline aria-hidden />;
 }

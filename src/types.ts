@@ -61,10 +61,14 @@ export interface LightState {
   armed?: boolean;
   /** The secret trigger's id (see light/triggers.ts); "stop-smiling" when absent. */
   trigger?: string;
+  /** "all": every trigger at once, each with its own coloured bulb. Absent: just `trigger`, with the red bulb. */
+  mode?: "all";
   /** When the light last went on; the light page lights up (for a second) when it changes. */
   litAt?: number;
-  /** What the light computer's camera sees (people in view, how many are "in", e.g. smiling), for the host phone. */
-  camera?: { starting?: boolean; people?: number; active?: number; error?: string };
+  /** "All at once" mode: when each trigger's bulb last went on, by trigger id. */
+  lit?: Record<string, number>;
+  /** What the light computer's camera sees (people in view; per trigger, how many are "in", e.g. smiling), for the host phone. */
+  camera?: { starting?: boolean; people?: number; each?: Record<string, number>; error?: string };
 }
 
 /** One game's submissions within a session. */

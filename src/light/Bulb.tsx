@@ -1,7 +1,11 @@
-/** The prop: a red light bulb on a small wooden box with a hole in the front. Coloured from styles.css. */
-export function Bulb({ lit }: { lit: boolean }) {
+/**
+ * The prop: a light bulb on a small wooden box with a hole in the front. Red unless `colour` says
+ * otherwise (each trigger's own colour, in "All at once" mode); the rest is coloured from styles.css.
+ */
+export function Bulb({ lit, colour }: { lit: boolean; colour?: string }) {
   return (
-    <div className={lit ? "bulb on" : "bulb"} role="img" aria-label={lit ? "The light bulb is on" : "The light bulb is off"}>
+    <div className={lit ? "bulb on" : "bulb"} style={colour ? ({ "--bulb": colour } as React.CSSProperties) : undefined}
+      role="img" aria-label={lit ? "The light bulb is on" : "The light bulb is off"}>
       <svg viewBox="0 0 240 300" aria-hidden>
         <g transform="translate(40 4) scale(0.8)">
           <path className="bulb-glass" d="M100 12C46 12 18 54 18 100c0 38 26 60 42 86 8 13 10 24 10 36h60c0-12 2-23 10-36 16-26 42-48 42-86 0-46-28-88-82-88Z" />

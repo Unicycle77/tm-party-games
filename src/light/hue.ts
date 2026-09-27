@@ -86,8 +86,21 @@ export interface LampState {
   sat?: number;
 }
 
-/** The lamps' red (in Hue's colour space). */
-const RED: [number, number] = [0.675, 0.322];
+/** The classic red bulb's colour. */
+export const RED = "#e8412e";
+
+/** A screen colour ("#e8412e") in Hue's colour space (Philips' conversion; the lamp gets as close as it can). */
+export function hexToXy(hex: string): [number, number] {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c > 0.04045 ? ((c + 0.055) / 1.055) ** 2.4 : c / 12.92;
+  }) as [number, number, number];
+  const X = r * 0.664511 + g * 0.154324 + b * 0.162028;
+  const Y = r * 0.283881 + g * 0.668433 + b * 0.047685;
+  const Z = r * 0.000088 + g * 0.07231 + b * 0.986039;
+  const sum = X + Y + Z || 1;
+  return [Number((X / sum).toFixed(4)), Number((Y / sum).toFixed(4))];
+}
 
 /** Reads how each lamp is right now (on or off, brightness, colour), by lamp id. */
 export async function readLamps(config: HueConfig): Promise<Record<string, LampState>> {
@@ -96,10 +109,11 @@ export async function readLamps(config: HueConfig): Promise<Record<string, LampS
   return Object.fromEntries(states);
 }
 
-/** Switches the lamps on: full brightness, instantly, red on colour lamps. */
-export async function lampsOn(config: HueConfig) {
+/** Switches the lamps on: full brightness, instantly, in `colour` on colour lamps (white lamps just go on). */
+export async function lampsOn(config: HueConfig, colour = RED) {
+  const xy = hexToXy(colour);
   await Promise.all(config.lights.map((l) =>
-    call(config, `/${config.username}/lights/${l.id}/state`, "PUT", { on: true, bri: 254, transitiontime: 0, ...(l.color ? { xy: RED } : {}) })));
+    call(config, `/${config.username}/lights/${l.id}/state`, "PUT", { on: true, bri: 254, transitiontime: 0, ...(l.color ? { xy } : {}) })));
 }
 
 /** Puts the lamps back exactly as `readLamps` found them (off, or on at the same brightness and colour). */

@@ -35,6 +35,7 @@ Rule of thumb: text never sits on a flat grey or white box. If it needs a surfac
 | `--muted` | `#c9b48f` | Secondary text on the curtain, labels, link buttons |
 | `--ok` | `#9be08a` | Reserved; not used yet. Prefer the gold stamp for "done". |
 | `--bulb-red` | `#e8412e` | The light's red bulb (`/light`) and its glow. Not for text or UI. |
+| (per trigger) | see `src/light/triggers.ts` | "All at once" bulbs: each trigger's `colour`, passed to the bulb as `--bulb`. They live in code, not here, because the Hue lamps need them too. |
 | `--wood` / `--wood-dark` | `#9a6634` / `#5e3a18` | The wooden box under the bulb (fill / edges and grain). |
 
 Colours in use that don't have a token yet. Reuse these exact values, and promote them to tokens if you touch them:
