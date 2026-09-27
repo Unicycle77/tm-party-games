@@ -7,7 +7,7 @@ import { JoinError, store, useSession, useUid } from "../session";
 import type { LightState, Session } from "../types";
 import { Bulb } from "./Bulb";
 import {
-  claimLight, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, ONE, MIN_CHANGE_MS, releaseLight, SPIN_STEP_MS, setArmed, setCamera, useFlash, watchedTriggers,
+  claimLight, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, ONE, releaseLight, SPIN_STEP_MS, setArmed, setCamera, useFlash, watchedTriggers,
 } from "./data";
 import { RED, type HueConfig, loadHue } from "./hue";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
@@ -59,10 +59,11 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   // The heads being read, only while the camera panel shows them.
   const [heads, setHeads] = useState<HeadBox[]>([]);
   // The Hue lamp flashes with it, in the same colour.
-  const lampColour = flash === ONE ? RED
-    : spinning && mode ? mode.bulbs[Math.floor(spun / MIN_CHANGE_MS) % mode.bulbs.length]?.colour
-    : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
   const spinBulb = spinning && mode ? spinOrder(mode.bulbs.length)[Math.floor(spun / SPIN_STEP_MS) % mode.bulbs.length] : undefined;
+  // The Hue lamp shows the lit bulb's colour (in a spin, following it round as fast as the bridge can).
+  const lampColour = flash === ONE ? RED
+    : spinBulb !== undefined ? mode?.bulbs[spinBulb]?.colour
+    : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
   const hueError = useHueLamps(hue, lampColour);
 
   // Each time someone does a trigger, its light goes on a little later (unless paused).

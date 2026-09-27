@@ -5,19 +5,43 @@ import { HueError, type HueConfig, type HueLight, type LampState, findBridges, l
  * Keeps the Hue lamps in step with the light: `colour` is what the light is showing (undefined = off).
  * When it comes on, remembers how each lamp was and turns it on in that colour; a new colour while it's on
  * just changes the lamp; when it goes off, puts each lamp back as it was. Otherwise the lamps are left
- * alone. Returns what went wrong last, if anything.
+ * alone. Commands go one at a time, and while one is on its way only the latest wish is kept, so a fast
+ * rainbow spin never builds up a backlog: the lamp shows the newest colour as soon as the bridge can.
+ * Returns what went wrong last, if anything.
  */
 export function useHueLamps(config: HueConfig | undefined, colour: string | undefined): string | undefined {
   const [error, setError] = useState<string>();
   const saved = useRef<Record<string, LampState>>();
-  // One command at a time, in order, so a restore never overtakes the flash it belongs to.
-  const queue = useRef(Promise.resolve());
+  const latest = useRef({ config, colour });
+  latest.current = { config, colour };
+  // What the lamps were last set to, and whether a command is on its way.
+  const shown = useRef<string>();
+  const busy = useRef(false);
+
+  const run = useRef(async () => {
+    if (busy.current) return;
+    busy.current = true;
+    try {
+      while (latest.current.colour !== shown.current) {
+        const { config: c, colour: want } = latest.current;
+        if (!c?.lights.length) break;
+        try {
+          if (want) { saved.current ??= await readLamps(c); await lampsOn(c, want); }
+          else if (saved.current) { const was = saved.current; saved.current = undefined; await restoreLamps(c, was); }
+          setError(undefined);
+        } catch (e) {
+          setError(e instanceof HueError ? e.message : "The Hue lamp didn't respond.");
+        }
+        shown.current = want;
+      }
+    } finally {
+      busy.current = false;
+    }
+  });
+
   useEffect(() => {
     if (!config?.lights.length) { setError(undefined); return; }
-    const job = colour
-      ? async () => { saved.current ??= await readLamps(config); await lampsOn(config, colour); }
-      : async () => { if (!saved.current) return; const was = saved.current; saved.current = undefined; await restoreLamps(config, was); };
-    queue.current = queue.current.then(job).then(() => setError(undefined), (e: unknown) => setError(e instanceof HueError ? e.message : "The Hue lamp didn't respond."));
+    void run.current();
   }, [config, colour]);
   return error;
 }
