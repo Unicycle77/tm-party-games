@@ -10,6 +10,8 @@ Players join with a 4-letter code (or QR) on their phone. A session has several 
 
   **Adding objects:** drop a picture into `src/assets/box-objects/` and deploy. The file name is the object's name (`rubber-duck.jpg` → "Rubber duck in a Box"). A photo replaces a drawing with the same name, so `carrot.jpg` takes over from the placeholder `carrot.svg`.
 
+- **What's the Buzz?**: a light bulb on the main screen lights up (with a buzzer) for a second, seemingly at random; the players have to work out why. The secret: the main screen's webcam watches the room, and the light and buzzer go on **3 seconds after anyone stops smiling**. Face detection ([MediaPipe Face Landmarker](https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker), model in `src/assets/smile/`) runs in the main screen's browser; the picture is never shown, saved or uploaded. The camera only runs while the light bulb is on the main screen, and Chrome asks once for permission. The host phone shows the secret, how many faces the camera sees and how many are smiling, and has **Pause camera**, **Buzz in 3 s** (for a smile the camera missed), **Buzz now** (a test) and **Reveal the answer**. Extra screens light up and buzz too.
+
 In Before & After and Photos a submission locks until the host unlocks that player. Each game lives in `src/games/<id>/`; `src/games/index.ts` lists what a game provides to the shared screens.
 
 - `/` — main screen (shared display). `/play` — players' phones. `/host` — host remote. `/screen` — an extra, view-only copy of the main screen (e.g. in another room): same lobby, reveals and videos with sound, but no music (the songs stay on the main screen's PC) and no controls. After a refresh it asks for one click so video sound is allowed.

@@ -68,13 +68,29 @@
               ".validate": false
             }
           },
+          "smile": {
+            ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            "armed": { ".validate": "newData.isBoolean()" },
+            "revealed": { ".validate": "newData.isBoolean()" },
+            "buzzAt": { ".validate": "newData.isNumber()" },
+            "camera": {
+              "starting": { ".validate": "newData.isBoolean()" },
+              "faces": { ".validate": "newData.isNumber()" },
+              "smiling": { ".validate": "newData.isNumber()" },
+              "error": { ".validate": "newData.isString() && newData.val().length <= 200" },
+              "$other": { ".validate": false }
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "$other": {
             ".validate": false
           }
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'smile'"
         },
         "jukebox": {
           "tracks": {

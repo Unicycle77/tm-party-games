@@ -479,3 +479,44 @@ body.idle-cursor .stage { cursor: none; }
 .box-setup p { margin: 0; }
 .box-object { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
 .box-object img { width: 2.4rem; height: 2.4rem; object-fit: cover; border-radius: 3px; }
+
+/* ---- What's the Buzz?: a light bulb that lights up (and buzzes) for a second ---- */
+.stage.light { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; padding: 2.5vh 0; }
+.light-title { font-size: clamp(2rem, 7vmin, 5rem); margin: 0; text-align: center; }
+.bulb { position: relative; display: grid; place-items: center; }
+.stage .bulb { height: 62vh; }
+.bulb svg { height: 100%; width: auto; overflow: visible; }
+/* the glow: a halo behind the glass that fades up while the light is on */
+.bulb::before {
+  content: ""; position: absolute; left: 50%; top: 34%; width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%; background: radial-gradient(circle, var(--gold-bright), rgba(243, 211, 122, 0) 65%);
+  opacity: 0; transition: opacity 0.15s;
+}
+.bulb.on::before { opacity: 1; }
+.bulb-glass { fill: rgba(239, 230, 210, 0.14); stroke: var(--paper); stroke-opacity: 0.55; stroke-width: 3; transition: fill 0.15s; }
+.bulb-wire, .bulb-filament { fill: none; stroke: #7a6a55; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.bulb-base { fill: var(--gold-dark); stroke: var(--gold-edge); stroke-width: 2; }
+.bulb.on .bulb-glass { fill: var(--gold-bright); stroke: #fff; stroke-opacity: 0.9; }
+.bulb.on .bulb-filament { stroke: #fff; }
+.bulb.on svg { filter: drop-shadow(0 0 1.5vmin #fff) drop-shadow(0 0 6vmin var(--gold-bright)); animation: buzz 0.06s linear infinite alternate; }
+/* the buzzer rattles the bulb */
+@keyframes buzz { from { transform: translateX(-0.3vmin) rotate(-0.4deg); } to { transform: translateX(0.3vmin) rotate(0.4deg); } }
+.light-answer {
+  max-width: 80vw; text-align: center;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark);
+  padding: 0.4rem 1.6rem; font-family: var(--typewriter); font-size: clamp(1.2rem, 3.4vmin, 2.4rem);
+  box-shadow: 0 4px 10px #000a;
+  animation: hang 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
+}
+.light-camera { align-self: center; color: var(--fg); font-family: var(--typewriter); padding: 0 0.5rem; }
+/* the camera's picture is only read, never shown */
+.smile-camera { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .bulb.on svg, .light-answer { animation: none; }
+  .bulb::before, .bulb-glass { transition: none; }
+}
+
+/* What's the Buzz? on phones */
+.slot .bulb { height: 30vh; }
+.smile-host { display: grid; gap: 0.6rem; }
+.smile-host p { margin: 0; }
