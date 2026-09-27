@@ -34,6 +34,8 @@ Rule of thumb: text never sits on a flat grey or white box. If it needs a surfac
 | `--fg` | `#f6ecd6` | Body text on the curtain |
 | `--muted` | `#c9b48f` | Secondary text on the curtain, labels, link buttons |
 | `--ok` | `#9be08a` | Reserved; not used yet. Prefer the gold stamp for "done". |
+| `--bulb-red` | `#e8412e` | The Light Bulb's red bulb and its glow. Not for text or UI. |
+| `--wood` / `--wood-dark` | `#9a6634` / `#5e3a18` | The wooden box under the bulb (fill / edges and grain). |
 
 Colours in use that don't have a token yet. Reuse these exact values, and promote them to tokens if you touch them:
 

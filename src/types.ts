@@ -5,7 +5,7 @@ export type GameId = (typeof GAME_IDS)[number];
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "light" = What's the Buzz?).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "light" = The Light Bulb).
  */
 export type Step = "list" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "light";
 
@@ -52,14 +52,16 @@ export interface BoxRound {
 export interface BoxSecret { inBox: BoxKey }
 
 /**
- * What's the Buzz?: the main screen's camera lights the bulb (and sounds the buzzer) 3 seconds after
- * anyone stops smiling. Players have to work out what sets it off.
+ * The Light Bulb: the main screen's camera turns the bulb on 2 seconds after anyone stops smiling.
+ * Players have to work out what turns it on, as fast as they can.
  */
 export interface SmileGame {
-  /** Whether the camera sets the buzzer off. Treated as on when absent; the host can pause it. */
+  /** Whether the camera turns the light on. Treated as on when absent; the host can pause it. */
   armed?: boolean;
-  /** When the light and buzzer last went on; every screen lights up (for a second) when it changes. */
-  buzzAt?: number;
+  /** When the light last went on; every screen lights up (for a second) when it changes. */
+  litAt?: number;
+  /** The task's clock, in server time: running from `startedAt`, frozen once `stoppedAt` is set. */
+  timer?: { startedAt?: number; stoppedAt?: number };
   /** The answer is shown on the main screen and the players' phones. */
   revealed?: boolean;
   /** What the main screen's camera sees, for the host phone. */

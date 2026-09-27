@@ -5,14 +5,14 @@ import { PlayerView } from "./PlayerView";
 import { Stage } from "./Stage";
 
 /**
- * A light bulb and a buzzer go on for a second, seemingly at random; the players have to work out why.
- * The secret: the main screen's camera sets them off 3 seconds after anyone stops smiling.
+ * A red light bulb goes on for a second, seemingly at random; the players have to work out why, fastest wins.
+ * The secret: the main screen's camera turns it on 2 seconds after anyone stops smiling.
  * The host runs it; nobody submits anything.
  */
 export const smile: Game = {
   id: "smile",
   name: TITLE,
-  blurb: "What sets off the light and the buzzer?",
+  blurb: "Why does the light bulb turn on?",
   heading: () => TITLE,
   firstStep: "light",
   photoUrls: () => [],

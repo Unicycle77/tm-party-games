@@ -72,7 +72,12 @@
             ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
             "armed": { ".validate": "newData.isBoolean()" },
             "revealed": { ".validate": "newData.isBoolean()" },
-            "buzzAt": { ".validate": "newData.isNumber()" },
+            "litAt": { ".validate": "newData.isNumber()" },
+            "timer": {
+              "startedAt": { ".validate": "newData.isNumber()" },
+              "stoppedAt": { ".validate": "newData.isNumber()" },
+              "$other": { ".validate": false }
+            },
             "camera": {
               "starting": { ".validate": "newData.isBoolean()" },
               "faces": { ".validate": "newData.isNumber()" },

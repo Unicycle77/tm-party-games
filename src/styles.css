@@ -20,6 +20,9 @@
   --ink: #2b1d12;
   --fg: #f6ecd6;
   --muted: #c9b48f;
+  --bulb-red: #e8412e;
+  --wood: #9a6634;
+  --wood-dark: #5e3a18;
   --ok: #9be08a;
   --typewriter: "Typewriter", "Courier New", monospace;
   --bg-image: url("./assets/curtains.webp");
@@ -480,43 +483,60 @@ body.idle-cursor .stage { cursor: none; }
 .box-object { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
 .box-object img { width: 2.4rem; height: 2.4rem; object-fit: cover; border-radius: 3px; }
 
-/* ---- What's the Buzz?: a light bulb that lights up (and buzzes) for a second ---- */
-.stage.light { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; padding: 2.5vh 0; }
+/* ---- The Light Bulb: a red bulb on a wooden box that lights up for a second, beside the task card ---- */
+.stage.light { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; padding: 2.5vh 3vw; }
 .light-title { font-size: clamp(2rem, 7vmin, 5rem); margin: 0; text-align: center; }
-.bulb { position: relative; display: grid; place-items: center; }
-.stage .bulb { height: 62vh; }
-.bulb svg { height: 100%; width: auto; overflow: visible; }
-/* the glow: a halo behind the glass that fades up while the light is on */
+.light-table { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6vw; }
+/* sized by its height; the width follows from the drawing's shape */
+.bulb { position: relative; aspect-ratio: 240 / 300; justify-self: center; }
+.stage .bulb { height: 66vh; }
+.bulb svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
+/* the glow: a red halo around the glass that fades up while the light is on */
 .bulb::before {
-  content: ""; position: absolute; left: 50%; top: 34%; width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%);
-  border-radius: 50%; background: radial-gradient(circle, var(--gold-bright), rgba(243, 211, 122, 0) 65%);
-  opacity: 0; transition: opacity 0.15s;
+  content: ""; position: absolute; left: 50%; top: 30%; width: 130%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  border-radius: 50%; background: radial-gradient(circle, var(--bulb-red), rgba(232, 65, 46, 0) 62%);
+  opacity: 0; transition: opacity 0.12s;
 }
-.bulb.on::before { opacity: 1; }
-.bulb-glass { fill: rgba(239, 230, 210, 0.14); stroke: var(--paper); stroke-opacity: 0.55; stroke-width: 3; transition: fill 0.15s; }
+.bulb.on::before { opacity: 0.9; }
+.bulb-glass { fill: rgba(232, 65, 46, 0.22); stroke: var(--bulb-red); stroke-opacity: 0.6; stroke-width: 3; transition: fill 0.12s; }
 .bulb-wire, .bulb-filament { fill: none; stroke: #7a6a55; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .bulb-base { fill: var(--gold-dark); stroke: var(--gold-edge); stroke-width: 2; }
-.bulb.on .bulb-glass { fill: var(--gold-bright); stroke: #fff; stroke-opacity: 0.9; }
+.bulb.on .bulb-glass { fill: var(--bulb-red); stroke: #ffd2c8; stroke-opacity: 1; }
 .bulb.on .bulb-filament { stroke: #fff; }
-.bulb.on svg { filter: drop-shadow(0 0 1.5vmin #fff) drop-shadow(0 0 6vmin var(--gold-bright)); animation: buzz 0.06s linear infinite alternate; }
-/* the buzzer rattles the bulb */
-@keyframes buzz { from { transform: translateX(-0.3vmin) rotate(-0.4deg); } to { transform: translateX(0.3vmin) rotate(0.4deg); } }
+.bulb-box { fill: var(--wood); stroke: var(--wood-dark); stroke-width: 2; }
+.bulb-box-lid { fill: var(--wood-dark); }
+.bulb-box-grain { fill: none; stroke: var(--wood-dark); stroke-opacity: 0.5; stroke-width: 1.5; }
+.bulb-box-hole { fill: #1a0f08; }
+/* the task card: the brief, the clock, then the answer */
+.light-task {
+  width: min(40vw, 64vh); display: grid; gap: 2vh;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 3px;
+  padding: 3vh 3vh; transform: rotate(1deg);
+  box-shadow: 0 10px 22px #000a;
+}
+.light-task p { margin: 0; }
+.light-brief { font-family: var(--typewriter); font-size: clamp(1.1rem, 3.6vmin, 2.6rem); line-height: 1.35; }
+.light-clock { font-family: var(--typewriter); color: var(--burgundy); font-size: clamp(1.6rem, 7vmin, 5rem); font-variant-numeric: tabular-nums; text-align: center; }
+.light-clock.stopped { opacity: 0.75; }
 .light-answer {
-  max-width: 80vw; text-align: center;
-  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark);
-  padding: 0.4rem 1.6rem; font-family: var(--typewriter); font-size: clamp(1.2rem, 3.4vmin, 2.4rem);
-  box-shadow: 0 4px 10px #000a;
+  border-top: 2px solid var(--burgundy); padding-top: 1.5vh;
+  font-family: var(--typewriter); color: var(--burgundy); font-size: clamp(1rem, 3vmin, 2.2rem);
   animation: hang 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
 }
 .light-camera { align-self: center; color: var(--fg); font-family: var(--typewriter); padding: 0 0.5rem; }
 /* the camera's picture is only read, never shown */
 .smile-camera { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
-  .bulb.on svg, .light-answer { animation: none; }
+  .light-answer { animation: none; }
   .bulb::before, .bulb-glass { transition: none; }
 }
 
-/* What's the Buzz? on phones */
-.slot .bulb { height: 30vh; }
+/* The Light Bulb on phones: the task card sits flat inside the slot */
+.slot .bulb { height: 26vh; }
+.slot .light-task { width: auto; transform: none; box-shadow: none; border: 0; padding: 0; background: none; gap: 0.6rem; }
+.slot .light-brief { font-size: 1.05rem; }
+.slot .light-clock { font-size: 2rem; }
+.slot .light-answer { font-size: 1.05rem; padding-top: 0.6rem; }
 .smile-host { display: grid; gap: 0.6rem; }
 .smile-host p { margin: 0; }
+.light-host-clock { font-family: var(--typewriter); font-variant-numeric: tabular-nums; color: var(--gold-bright); }

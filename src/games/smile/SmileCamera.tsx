@@ -117,7 +117,7 @@ function facesIn(result: FaceLandmarkerResult): Face[] {
 
 /**
  * Matches this frame's faces to the people seen before (nearest first), updates who's smiling, and
- * calls `onStop` for each person whose smile has just ended. Someone new starts as they are (no buzz).
+ * calls `onStop` for each person whose smile has just ended. Someone new starts as they are (no light).
  */
 function follow(tracks: Track[], faces: Face[], now: number, onStop: () => void): Track[] {
   const free = [...tracks];
