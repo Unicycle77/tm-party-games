@@ -11,6 +11,7 @@ import {
 } from "./data";
 import { RED, type HueConfig, loadHue } from "./hue";
 import { TRIGGERS } from "./triggers";
+import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
 import { HueSetup, useHueLamps } from "./HueSetup";
 import { Camera } from "./Camera";
 
@@ -49,7 +50,10 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   const lit = useLit(light.litAt);
   const bulbs = useLitBulbs(light.lit);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
-  const [settingUp, setSettingUp] = useState(false);
+  const [settingUp, setSettingUp] = useState<"hue" | "camera">();
+  const [cameraSettings, setCameraSettings] = useState<CameraSettings>(loadCameraSettings);
+  // The camera's picture and what the detection runs on, for the camera panel's preview.
+  const [feed, setFeed] = useState<{ stream?: MediaStream; runsOn?: "GPU" | "CPU" }>({});
   // The Hue lamp shows the latest bulb to come on, in its colour.
   const latest = Object.entries(bulbs).sort(([, a], [, b]) => b - a)[0]?.[0];
   const lampColour = all ? TRIGGERS.find((t) => t.id === latest)?.colour : lit ? RED : undefined;
@@ -88,7 +92,8 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         <p className="light-bar-status">
           💡 {code} · {cameraStatus(light)} · {!hue?.lights.length ? "No Hue lamp" : `Hue lamp: ${hueError ?? hue.lights.map((l) => l.name).join(", ")}`}
         </p>
-        <button onClick={() => setSettingUp(true)} tabIndex={tab}>💡 Hue lamp</button>
+        <button onClick={() => setSettingUp("camera")} tabIndex={tab}>Camera</button>
+        <button onClick={() => setSettingUp("hue")} tabIndex={tab}>💡 Hue lamp</button>
         <button onClick={() => void (all ? lightAllNow(code) : lightNow(code))} tabIndex={tab}>{all ? "Light them all now" : "Light it now"}</button>
         <button className={armed ? undefined : "active"} onClick={() => void setArmed(code, !armed)} tabIndex={tab}>
           {armed ? "⏸ Pause" : "▶ Resume"}
@@ -96,10 +101,15 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         <button onClick={onStop} tabIndex={tab}>Stop the light</button>
         <p className="light-bar-status small">Keep this window in front all evening (not a background tab, minimised or covered). The host phone shows what the camera sees.</p>
       </div>
-      <Camera triggers={watchedTriggers(light)}
+      <Camera triggers={watchedTriggers(light)} settings={cameraSettings}
+        onStream={(stream, runsOn) => setFeed({ stream, runsOn })}
         onTrigger={(id) => { if (armedNow.current) timers.current.push(all ? lightOneLater(code, id) : lightLater(code)); }}
         onStatus={(status) => void setCamera(code, status)} />
-      {settingUp && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(false)} />}
+      {settingUp === "hue" && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(undefined)} />}
+      {settingUp === "camera" && (
+        <CameraSetup settings={cameraSettings} onChange={setCameraSettings} stream={feed.stream} runsOn={feed.runsOn}
+          people={light.camera?.people} onClose={() => setSettingUp(undefined)} />
+      )}
     </main>
   );
 }

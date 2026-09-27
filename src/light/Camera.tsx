@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import faceModel from "../assets/light/face_landmarker.task?url";
 import poseModel from "../assets/light/pose_landmarker_full.task?url";
 import type { LightState } from "../types";
+import type { CameraSettings } from "./CameraSetup";
 import { type Person, type Trigger, facePeople, posePeople } from "./triggers";
 
 type Status = NonNullable<LightState["camera"]>;
@@ -28,12 +29,19 @@ interface Track { x: number; y: number; in: boolean; changingSince?: number; see
  * (e.g. stops smiling). `onStatus` hears how many people it sees and, per trigger, how many are "in"
  * (e.g. smiling), or what went wrong.
  */
-export function Camera({ triggers, onTrigger, onStatus }: {
-  triggers: Trigger[]; onTrigger: (id: string) => void; onStatus: (status: Status) => void;
+export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
+  triggers: Trigger[];
+  /** Which camera, and whether the detection may use the graphics card (see CameraSetup). */
+  settings: CameraSettings;
+  onTrigger: (id: string) => void;
+  onStatus: (status: Status) => void;
+  /** The camera's picture and what the detection runs on, for the settings panel's preview. */
+  onStream?: (stream: MediaStream | undefined, runsOn: "GPU" | "CPU" | undefined) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null);
-  const latest = useRef({ triggers, onTrigger, onStatus });
-  latest.current = { triggers, onTrigger, onStatus };
+  const latest = useRef({ triggers, onTrigger, onStatus, onStream });
+  latest.current = { triggers, onTrigger, onStatus, onStream };
+  const { deviceId, processor } = settings;
   // Which detectors the triggers need; the camera starts again with them when that changes.
   const models = [...new Set(triggers.map((t) => t.model))].sort().join("+");
 
@@ -60,11 +68,21 @@ export function Camera({ triggers, onTrigger, onStatus }: {
 
     async function start() {
       report({ starting: true });
+      const size = { width: { ideal: 1280 }, height: { ideal: 720 } };
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+        // The chosen camera; if it's gone (unplugged), the computer's default one.
+        stream = await navigator.mediaDevices.getUserMedia({ video: deviceId ? { ...size, deviceId: { exact: deviceId } } : size, audio: false })
+          .catch((e: unknown) => {
+            if (deviceId && e instanceof DOMException && (e.name === "OverconstrainedError" || e.name === "NotFoundError")) {
+              return navigator.mediaDevices.getUserMedia({ video: size, audio: false });
+            }
+            throw e;
+          });
       } catch (e) {
-        const blocked = e instanceof DOMException && e.name === "NotAllowedError";
-        report({ error: blocked ? "Camera blocked. Allow it in the /light page's address bar, then reload." : "No camera found on the light computer." });
+        const name = e instanceof DOMException ? e.name : "";
+        report({ error: name === "NotAllowedError" ? "Camera blocked. Allow it in the /light page's address bar, then reload."
+          : name === "NotReadableError" ? "The camera is in use by another app (Teams, Zoom, the Camera app…). Close it, then reload /light."
+          : "No camera found on the light computer." });
         return;
       }
       const v = video.current;
@@ -75,8 +93,11 @@ export function Camera({ triggers, onTrigger, onStatus }: {
       try {
         const { FaceLandmarker, PoseLandmarker } = await import("@mediapipe/tasks-vision");
         const files = { wasmLoaderPath, wasmBinaryPath };
-        // The graphics card if it can, otherwise the processor.
-        const either = async <T,>(create: (delegate: "GPU" | "CPU") => Promise<T>) => create("GPU").catch(() => create("CPU"));
+        // The graphics card if allowed and it starts, otherwise the processor. (Some graphics cards start but
+        // then find nobody, which is why the host can choose the processor in the camera settings.)
+        let runsOn: "GPU" | "CPU" = processor === "cpu" ? "CPU" : "GPU";
+        const either = async <T,>(create: (delegate: "GPU" | "CPU") => Promise<T>) =>
+          runsOn === "CPU" ? create("CPU") : create("GPU").catch(() => { runsOn = "CPU"; return create("CPU"); });
         if (models.includes("pose")) {
           pose = await either((delegate) => PoseLandmarker.createFromOptions(files, {
             baseOptions: { modelAssetPath: poseModel, delegate }, runningMode: "VIDEO", numPoses: MAX_PEOPLE,
@@ -87,6 +108,7 @@ export function Camera({ triggers, onTrigger, onStatus }: {
             baseOptions: { modelAssetPath: faceModel, delegate }, runningMode: "VIDEO", numFaces: MAX_PEOPLE, outputFaceBlendshapes: true,
           }));
         }
+        if (!stopped) latest.current.onStream?.(stream, runsOn);
       } catch {
         report({ error: "Couldn't load the detection. Reload the /light page to try again." });
         return;
@@ -135,8 +157,9 @@ export function Camera({ triggers, onTrigger, onStatus }: {
       stream?.getTracks().forEach((t) => t.stop());
       face?.close();
       pose?.close();
+      latest.current.onStream?.(undefined, undefined);
     };
-  }, [models]);
+  }, [models, deviceId, processor]);
 
   return <video ref={video} className="light-camera" muted playsInline aria-hidden />;
 }
