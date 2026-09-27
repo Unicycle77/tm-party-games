@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import faceModel from "../assets/light/face_landmarker.task?url";
 import poseModel from "../assets/light/pose_landmarker_full.task?url";
 import type { LightState } from "../types";
-import type { CameraSettings } from "./CameraSetup";
+import { type CameraSettings, isVirtualCamera } from "./CameraSetup";
 import { type Person, type Trigger, facePeople, posePeople } from "./triggers";
 
 type Status = NonNullable<LightState["camera"]>;
@@ -69,15 +69,27 @@ export function Camera({ triggers, settings, onTrigger, onStatus, onStream }: {
     async function start() {
       report({ starting: true });
       const size = { width: { ideal: 1280 }, height: { ideal: 720 } };
+      const open = (id?: string) => navigator.mediaDevices.getUserMedia({ video: id ? { ...size, deviceId: { exact: id } } : size, audio: false });
       try {
-        // The chosen camera; if it's gone (unplugged), the computer's default one.
-        stream = await navigator.mediaDevices.getUserMedia({ video: deviceId ? { ...size, deviceId: { exact: deviceId } } : size, audio: false })
-          .catch((e: unknown) => {
-            if (deviceId && e instanceof DOMException && (e.name === "OverconstrainedError" || e.name === "NotFoundError")) {
-              return navigator.mediaDevices.getUserMedia({ video: size, audio: false });
-            }
-            throw e;
-          });
+        // The chosen camera; if none is chosen, or it's gone (unplugged), the computer's default one.
+        let chosen = !!deviceId;
+        stream = await open(deviceId).catch((e: unknown) => {
+          if (deviceId && e instanceof DOMException && (e.name === "OverconstrainedError" || e.name === "NotFoundError")) {
+            chosen = false;
+            return open();
+          }
+          throw e;
+        });
+        // A default that's a virtual camera (DroidCam, OBS…) doesn't see the room: use a real one instead.
+        // (Cameras only have names once the page may use one, hence after opening the default.)
+        if (!chosen && isVirtualCamera(stream.getVideoTracks()[0]?.label ?? "")) {
+          const real = (await navigator.mediaDevices.enumerateDevices())
+            .find((d) => d.kind === "videoinput" && d.label && !isVirtualCamera(d.label));
+          if (real) {
+            stream.getTracks().forEach((t) => t.stop());
+            stream = await open(real.deviceId);
+          }
+        }
       } catch (e) {
         const name = e instanceof DOMException ? e.name : "";
         report({ error: name === "NotAllowedError" ? "Camera blocked. Allow it in the /light page's address bar, then reload."

@@ -11,6 +11,14 @@ export interface CameraSettings {
 
 const KEY = "ba.lightCamera";
 
+/*
+ * Cameras that aren't really a webcam looking at the room: virtual cameras from streaming and
+ * phone-as-webcam apps, and the infrared camera Windows Hello uses. When nobody has chosen a camera,
+ * the light skips these (a PC often lists one of them first).
+ */
+const NOT_A_WEBCAM = /virtual|\bobs\b|droidcam|snap camera|manycam|xsplit|splitcam|\bndi\b|streamlabs|mmhmm|\bcamo\b|epoccam|iriun|ivcam|e2esoft|nvidia broadcast|\bir camera|infrared|windows hello/i;
+export const isVirtualCamera = (label: string) => NOT_A_WEBCAM.test(label);
+
 export function loadCameraSettings(): CameraSettings {
   try { return (JSON.parse(store.get(KEY)) as CameraSettings) || {}; } catch { return {}; }
 }
@@ -57,7 +65,9 @@ export function CameraSetup({ settings, onChange, stream, runsOn, people, onClos
         <div className="steps">
           {cameras.map((c, i) => (
             <button key={c.deviceId} className={c.deviceId === current ? "step active" : "step"}
-              onClick={() => update({ ...settings, deviceId: c.deviceId })}>{c.label || `Camera ${i + 1}`}</button>
+              onClick={() => update({ ...settings, deviceId: c.deviceId })}>
+              {c.label || `Camera ${i + 1}`}{isVirtualCamera(c.label) ? " (virtual, skipped unless picked)" : ""}
+            </button>
           ))}
         </div>
 
