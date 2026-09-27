@@ -54,6 +54,14 @@ export function LightRemote({ code, session }: { code: string; session: Session 
               </button>
             ))}
           </div>
+          {mode.spins?.map((t) => (
+            <button key={t.id} className="step light-key"
+              style={{ "--bulb": `conic-gradient(${mode.bulbs.map((b) => b.colour).join(", ")}, ${mode.bulbs[0]?.colour})` } as React.CSSProperties}
+              disabled={!running || pendingOne.includes(t.id)} onClick={() => lightOneSoon(t.id)}>
+              <span className="swatch" aria-hidden />{pendingOne.includes(t.id) ? "Lighting…" : t.label}
+              <span className="muted small">rainbow spin round every bulb</span>
+            </button>
+          ))}
           <p>{cameraText(session)}</p>
           <button disabled={!running} onClick={() => lightAllNow(code, mode)}>Light them all now</button>
         </>

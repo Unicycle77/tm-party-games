@@ -8,6 +8,9 @@ import { type Mode, type Trigger, findMode, findTrigger } from "./triggers";
 /** How long after someone does the trigger the light goes on, and for how long. */
 export const DELAY_MS = 2000;
 export const ON_MS = 1000;
+/** The rainbow spin: each bulb in turn for this long, twice round. */
+export const SPIN_STEP_MS = 170;
+export const SPIN_LAPS = 2;
 
 export const lightOf = (session: Session): LightState => session.light ?? {};
 
@@ -31,7 +34,12 @@ export const triggerOf = (light: LightState) => findTrigger(light.trigger);
 export const modeOf = (light: LightState): Mode | undefined => findMode(light.mode);
 export const setMode = (code: string, mode: Mode["id"] | null) => set(path(code, "mode"), mode);
 /** The triggers the camera watches for. */
-export const watchedTriggers = (light: LightState): Trigger[] => modeOf(light)?.bulbs.map((b) => b.trigger) ?? [triggerOf(light)];
+export const watchedTriggers = (light: LightState): Trigger[] => {
+  const mode = modeOf(light);
+  return mode ? [...mode.bulbs.map((b) => b.trigger), ...(mode.spins ?? [])] : [triggerOf(light)];
+};
+/** How long a mode's rainbow spin lasts. */
+export const spinMs = (mode: Mode) => SPIN_STEP_MS * mode.bulbs.length * SPIN_LAPS;
 
 /** A mode with several bulbs: turns one trigger's bulb on, now or after the delay (returns the timer). */
 export const lightOneNow = (code: string, id: string) => set(ref(db(), `sessions/${code}/light/lit/${id}`), Date.now());
@@ -69,16 +77,17 @@ export const ONE = "one";
 /**
  * Which light is on right now: ONE, a trigger's id, or undefined. Each lighting event (a new time in
  * `litAt`, or in `lit` in a mode with several bulbs) wants its light on for a second from when it
- * arrives; when several overlap, the newest wins. To keep it readable the light changes at most once
- * every MIN_CHANGE_MS: a change that comes sooner waits for the rest of that time (so nothing is ever
- * more than that late), and one overtaken by a newer event meanwhile is skipped. Times already there
- * when the page opens are old, and so are other modes'.
+ * arrives (a rainbow spin: for the whole spin); when several overlap, the newest wins, except that a
+ * spin wins over plain flashes while it lasts. To keep it readable the light changes at most once every
+ * MIN_CHANGE_MS: a change that comes sooner waits for the rest of that time (so nothing is ever more than
+ * that late), and one overtaken by a newer event meanwhile is skipped. Times already there when the page
+ * opens are old, and so are other modes'.
  */
 export function useFlash(light: LightState): string | undefined {
   const mode = modeOf(light);
   const seen = useRef({ litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id });
-  // Each event's second: when it arrived here, and which light.
-  const events = useRef<{ id: string; at: number }[]>([]);
+  // Each event: which light, when it arrived here, until when it wants the light, and whether it's a spin.
+  const events = useRef<{ id: string; at: number; until: number; spin: boolean }[]>([]);
   const shown = useRef<string>();
   const changedAt = useRef(0);
   const timer = useRef<number>();
@@ -87,9 +96,11 @@ export function useFlash(light: LightState): string | undefined {
   const update = useRef(() => {
     window.clearTimeout(timer.current);
     const now = Date.now();
-    events.current = events.current.filter((e) => now < e.at + ON_MS);
-    // The newest event that's still within its second.
-    const want = events.current.reduce<{ id: string; at: number } | undefined>((w, e) => (e.at <= now && (!w || e.at >= w.at) ? e : w), undefined)?.id;
+    events.current = events.current.filter((e) => now < e.until);
+    // The newest spin still going, or else the newest event still within its second.
+    type Event = (typeof events.current)[number];
+    const newest = (list: Event[]) => list.reduce<Event | undefined>((w, e) => (e.at <= now && (!w || e.at >= w.at) ? e : w), undefined);
+    const want = (newest(events.current.filter((e) => e.spin)) ?? newest(events.current))?.id;
     if (want !== shown.current) {
       const wait = changedAt.current + MIN_CHANGE_MS - now;
       if (wait > 0) { timer.current = window.setTimeout(update.current, wait); return; }
@@ -98,7 +109,7 @@ export function useFlash(light: LightState): string | undefined {
       setCurrent(want);
     }
     // Look again when the next event's second ends.
-    const next = Math.min(...events.current.map((e) => e.at + ON_MS));
+    const next = Math.min(...events.current.map((e) => e.until));
     if (next !== Infinity) timer.current = window.setTimeout(update.current, next - now);
   });
 
@@ -106,13 +117,17 @@ export function useFlash(light: LightState): string | undefined {
     // Switching modes drops the old mode's lights.
     if (seen.current.mode !== mode?.id) events.current = [];
     const now = Date.now();
-    if (!mode && light.litAt !== undefined && light.litAt !== seen.current.litAt) events.current.push({ id: ONE, at: now });
+    if (!mode && light.litAt !== undefined && light.litAt !== seen.current.litAt) events.current.push({ id: ONE, at: now, until: now + ON_MS, spin: false });
     // (Several in one update: the newest time wins.)
-    const fresh = (mode?.bulbs ?? [])
-      .map((b) => ({ id: b.trigger.id, t: light.lit?.[b.trigger.id] }))
+    const spins = new Set(mode?.spins?.map((t) => t.id));
+    const fresh = [...(mode?.bulbs.map((b) => b.trigger.id) ?? []), ...spins]
+      .map((id) => ({ id, t: light.lit?.[id] }))
       .filter((e): e is { id: string; t: number } => e.t !== undefined && e.t !== seen.current.lit[e.id])
       .sort((x, y) => x.t - y.t);
-    fresh.forEach((e, i) => events.current.push({ id: e.id, at: now + i }));
+    fresh.forEach((e, i) => {
+      const spin = spins.has(e.id);
+      events.current.push({ id: e.id, at: now + i, until: now + i + (spin && mode ? spinMs(mode) : ON_MS), spin });
+    });
     seen.current = { litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id };
     update.current();
   }, [light.litAt, light.lit, mode?.id]);

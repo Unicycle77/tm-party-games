@@ -7,7 +7,7 @@ import { JoinError, store, useSession, useUid } from "../session";
 import type { LightState, Session } from "../types";
 import { Bulb } from "./Bulb";
 import {
-  claimLight, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, ONE, releaseLight, setArmed, setCamera, useFlash, watchedTriggers,
+  claimLight, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, ONE, MIN_CHANGE_MS, releaseLight, SPIN_STEP_MS, setArmed, setCamera, useFlash, watchedTriggers,
 } from "./data";
 import { RED, type HueConfig, loadHue } from "./hue";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
@@ -48,6 +48,9 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   // One secret: the red bulb. All at once: a bulb per trigger, in its colour.
   // One flash at a time, each for its full second (see useFlash).
   const flash = useFlash(light);
+  // A rainbow spin: which bulb is lit, and the lamp's colour, step with the time since it started.
+  const spinning = !!mode?.spins?.some((t) => t.id === flash);
+  const spun = useSpinTime(spinning);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
   const [settingUp, setSettingUp] = useState<"hue" | "camera">();
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(loadCameraSettings);
@@ -56,7 +59,10 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   // The heads being read, only while the camera panel shows them.
   const [heads, setHeads] = useState<HeadBox[]>([]);
   // The Hue lamp flashes with it, in the same colour.
-  const lampColour = flash === ONE ? RED : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
+  const lampColour = flash === ONE ? RED
+    : spinning && mode ? mode.bulbs[Math.floor(spun / MIN_CHANGE_MS) % mode.bulbs.length]?.colour
+    : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
+  const spinBulb = spinning && mode ? spinOrder(mode.bulbs.length)[Math.floor(spun / SPIN_STEP_MS) % mode.bulbs.length] : undefined;
   const hueError = useHueLamps(hue, lampColour);
 
   // Each time someone does a trigger, its light goes on a little later (unless paused).
@@ -87,7 +93,7 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         // Up to three across; a mode with few bulbs gets bigger ones in a single row.
         <div className={mode.bulbs.length > 3 ? "light-bulbs" : "light-bulbs few"}
           style={{ gridTemplateColumns: `repeat(${Math.min(3, mode.bulbs.length)}, auto)` }}>
-          {mode.bulbs.map((b) => <Bulb key={b.trigger.id} lit={flash === b.trigger.id} colour={b.colour} />)}
+          {mode.bulbs.map((b, i) => <Bulb key={b.trigger.id} lit={spinning ? spinBulb === i : flash === b.trigger.id} colour={b.colour} />)}
         </div>
       ) : <Bulb lit={flash === ONE} />}
       <div className={barVisible || settingUp ? "stage-controls light-bar show" : "stage-controls light-bar"} aria-hidden={!barVisible}>
@@ -123,6 +129,25 @@ function cameraStatus(light: LightState): string {
   if (camera?.error) return `Camera: ${camera.error}`;
   if (!camera || camera.starting) return "Camera starting…";
   return isArmed(light) ? "Camera on" : "Camera paused";
+}
+
+/** Milliseconds since `on` became true (0 while it's false), updated often enough to animate. */
+function useSpinTime(on: boolean): number {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    setElapsed(0);
+    if (!on) return;
+    const start = Date.now();
+    const tick = window.setInterval(() => setElapsed(Date.now() - start), 40);
+    return () => window.clearInterval(tick);
+  }, [on]);
+  return elapsed;
+}
+
+/** The order the spin lights the bulbs in: round the grid (three across), clockwise. */
+function spinOrder(count: number): number[] {
+  if (count !== 6) return [...Array(count).keys()];
+  return [0, 1, 2, 5, 4, 3];
 }
 
 /** Stops the computer's screen going to sleep while the light runs (asked again whenever the page comes back). */

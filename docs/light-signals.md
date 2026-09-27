@@ -35,7 +35,7 @@ The face model gives each face 52 readings from 0 (not at all) to 1 (fully), nam
 | `cheekSquintLeft` / `Right` | Cheeks pushed up | 0.00 | ~ |
 | `noseSneerLeft` / `Right` | Nose wrinkled | 0.00 | ~ |
 | **Jaw** | | | |
-| `jawOpen` | Mouth open (jaw dropped) | 0.12 | ✓ for a wide-open mouth (set `on` high, ~0.6, or talking sets it off) |
+| `jawOpen` | Mouth open (jaw dropped) | 0.12 | ✓ used by *Opens mouth wide* (`on` 0.6, so talking doesn't set it off) |
 | `jawForward` / `jawLeft` / `jawRight` | Jaw pushed forward or sideways | 0.00 | ~ |
 | **Mouth** | | | |
 | `mouthSmileLeft` / `Right` | Smiling | 0.96 / 0.93 | ✓ used by the smile triggers |
@@ -81,7 +81,7 @@ Measure things in **shoulder widths** (the distance between points 11 and 12), s
 
 ## What the camera can't detect
 
-- **Tongue out**: no face reading for it (MediaPipe left out ARKit's `tongueOut`).
+- **Tongue out**: no face reading for it (MediaPipe left out ARKit's `tongueOut`). *Opens mouth wide* is the stand-in.
 - **Emotions as such** (happy, angry): only the muscle movements above.
 - **Who someone is**: people are told apart only by where they are in the picture, frame to frame.
 - **Talking**: `jawOpen` moves with speech, which is why mouth triggers need a high threshold.
@@ -100,5 +100,5 @@ Both need hands fairly close to the camera and clearly in view, so they're less 
 
 1. Add it to `TRIGGERS` in `src/light/triggers.ts`: an `id`, the host's `label`, the `secret` wording, `model` (`"face"` or `"pose"`), `on` / `off` thresholds, `fires` (`"in"` or `"out"`), the readout's `state` word, and a `colour` / `colourName` for "All at once".
 2. Score it: face triggers in `faceScore`, body triggers in `posePeople`.
-3. Add it to a mode's `bulbs` in `MODES` if it should have its own bulb there.
+3. Add it to a mode's `bulbs` in `MODES` if it should have its own bulb there, or to its `spins` to send the light round every bulb in a rainbow instead (like *Opens mouth wide* in "All at once").
 4. To tune `on` / `off`, watch the host phone's readout ("… 1 smiling") while doing the action at the distance people will sit.

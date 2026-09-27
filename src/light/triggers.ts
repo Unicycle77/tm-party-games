@@ -34,6 +34,7 @@ export const TRIGGERS: Trigger[] = [
   { id: "eyebrows", label: "Raises eyebrows", secret: "raises their eyebrows", model: "face", on: 0.5, off: 0.25, fires: "in", state: "with eyebrows up", colour: "#ffa000", colourName: "orange" },
   { id: "arm-up", label: "Raises an arm", secret: "raises an arm above their shoulder", model: "pose", on: 0.3, off: 0, fires: "in", state: "with an arm up", colour: "#2f7bf5", colourName: "blue" },
   { id: "arm-down", label: "Lowers an arm", secret: "lowers a raised arm", model: "pose", on: 0.3, off: 0, fires: "out", state: "with an arm up", colour: "#8a3ffc", colourName: "violet" },
+  { id: "mouth-open", label: "Opens mouth wide", secret: "opens their mouth wide", model: "face", on: 0.6, off: 0.3, fires: "in", state: "with mouth wide open", colour: "#e8412e", colourName: "red" },
   { id: "touch-face", label: "Touches their face", secret: "touches their face", model: "pose", on: 2.2, off: 1.4, fires: "in", state: "touching their face", colour: "#ffd400", colourName: "yellow" },
 ];
 
@@ -43,8 +44,11 @@ export const findTrigger = (id: string | undefined): Trigger => TRIGGERS.find((t
 /** A bulb in a mode with several: which trigger lights it, and its colour (on screen and on colour Hue lamps). */
 export interface BulbSpec { trigger: Trigger; colour: string; colourName: string }
 
-/** The modes with a bulb per trigger ("One secret", the red bulb for the picked trigger, is the default). */
-export interface Mode { id: "smiles" | "all"; label: string; bulbs: BulbSpec[] }
+/**
+ * The modes with a bulb per trigger ("One secret", the red bulb for the picked trigger, is the default).
+ * `spins`: triggers that send the light spinning round every bulb in a rainbow, instead of a bulb of their own.
+ */
+export interface Mode { id: "smiles" | "all"; label: string; bulbs: BulbSpec[]; spins?: Trigger[] }
 
 const own = (t: Trigger): BulbSpec => ({ trigger: t, colour: t.colour, colourName: t.colourName });
 export const MODES: Mode[] = [
@@ -54,16 +58,17 @@ export const MODES: Mode[] = [
     { trigger: findTrigger("stop-smiling"), colour: "#e8412e", colourName: "red" },
   ] },
   // Every trigger, its bulbs in rainbow order. Green and red mean the same as in "Smiles".
-  { id: "all", label: "All at once", bulbs: ["stop-smiling", "eyebrows", "touch-face", "start-smiling", "arm-up", "arm-down"].map((id) => own(findTrigger(id))) },
+  { id: "all", label: "All at once", bulbs: ["stop-smiling", "eyebrows", "touch-face", "start-smiling", "arm-up", "arm-down"].map((id) => own(findTrigger(id))),
+    spins: [findTrigger("mouth-open")] },
 ];
 export const findMode = (id: string | undefined): Mode | undefined => MODES.find((m) => m.id === id);
 
 /** Face triggers: a face's score from its expression readings (0–1). */
 export function faceScore(shapes: { categoryName: string; score: number }[], trigger: Trigger): number {
   const shape = (name: string) => shapes.find((c) => c.categoryName === name)?.score ?? 0;
-  return trigger.id === "eyebrows"
-    ? (shape("browInnerUp") + (shape("browOuterUpLeft") + shape("browOuterUpRight")) / 2) / 2
-    : (shape("mouthSmileLeft") + shape("mouthSmileRight")) / 2;
+  if (trigger.id === "eyebrows") return (shape("browInnerUp") + (shape("browOuterUpLeft") + shape("browOuterUpRight")) / 2) / 2;
+  if (trigger.id === "mouth-open") return shape("jawOpen");
+  return (shape("mouthSmileLeft") + shape("mouthSmileRight")) / 2;
 }
 
 /** A face the camera has read: where it is in the picture (0–1, its nose) and its expression readings. */
