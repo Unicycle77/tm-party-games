@@ -12,13 +12,9 @@ export function HostPlayer({ code, session, display, uid }: { code: string; sess
       <div className="steps two">
         <button className={cls("before")} onClick={() => show("before")}>Before</button>
         <button className={cls("after")} onClick={() => show("after")}>After</button>
-      </div>
-      <div className="steps">
         <button className={cls("both")} onClick={() => show("both")}>◫ Side by side</button>
-      </div>
-      <div className="steps">
         <button className={cls("video")} disabled={!hasVideo} onClick={() => void setDisplay(code, { uid, step: "video", playing: true })}>
-          {hasVideo ? "▶ Video" : "No video submitted"}
+          {hasVideo ? "▶ Video" : "No video"}
         </button>
       </div>
       {/* Always rendered, so every control keeps its position on every view. */}

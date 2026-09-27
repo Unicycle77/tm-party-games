@@ -56,24 +56,24 @@ function Setup({ code, session }: { code: string; session: Session }) {
       </div>
       <p className="muted small">2. Pick two players{here.length === 2 ? "" : ` (${here.length} of 2)`}</p>
       {players.length < 2 && <p className="muted small">Waiting for at least two players to join…</p>}
-      <div className="steps two">
+      <div className="choices">
         {players.map(([uid, p]) => (
-          <button key={uid} className={here.includes(uid) ? "step active" : "step"} onClick={() => toggle(uid)}>{p.name}</button>
+          <button key={uid} className={here.includes(uid) ? "active" : ""} aria-pressed={here.includes(uid)} onClick={() => toggle(uid)}>{p.name}</button>
         ))}
       </div>
       {a && b && (
         <>
           <p className="muted small">3. Who can look inside their box?</p>
-          <div className="steps two">
+          <div className="choices">
             {[a, b].map((uid) => (
-              <button key={uid} className={uid === peeker ? "step active" : "step"} onClick={() => setPeeker(uid)}>👀 {nameOf(uid)}</button>
+              <button key={uid} className={uid === peeker ? "active" : ""} aria-pressed={uid === peeker} onClick={() => setPeeker(uid)}>👀 {nameOf(uid)}</button>
             ))}
           </div>
           <p className="muted small">4. Whose box is the {objectName.toLowerCase()} in?</p>
-          <div className="steps three">
-            <button className={placement === "a" ? "step active" : "step"} onClick={() => setPlacement("a")}>{nameOf(a)}</button>
-            <button className={placement === "random" ? "step active" : "step"} onClick={() => setPlacement("random")}>🎲 Random</button>
-            <button className={placement === "b" ? "step active" : "step"} onClick={() => setPlacement("b")}>{nameOf(b)}</button>
+          <div className="choices">
+            <button className={placement === "a" ? "active" : ""} onClick={() => setPlacement("a")}>{nameOf(a)}</button>
+            <button className={placement === "random" ? "active" : ""} onClick={() => setPlacement("random")}>🎲 Random</button>
+            <button className={placement === "b" ? "active" : ""} onClick={() => setPlacement("b")}>{nameOf(b)}</button>
           </div>
         </>
       )}

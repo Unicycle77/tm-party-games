@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { GAMES, activeGame } from "./games";
-import { LightRemote } from "./light/LightRemote";
 import { removePlayer, setDisplay, setGame, setGameHidden, setHideBlurbs, setShowDownload, setUnlocked, store } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
-const GAMES_OPEN_KEY = "ba.hostGamesOpen";
 const SETTINGS_OPEN_KEY = "ba.hostSettingsOpen";
-const LIGHT_OPEN_KEY = "ba.hostLightOpen";
 
 /** A section the host can fold away; this phone remembers whether it's open. */
 function useFold(key: string, openByDefault: boolean) {
@@ -24,15 +21,13 @@ function useFold(key: string, openByDefault: boolean) {
 }
 
 /**
- * The host's phone: pick a game, then a player, then the game's controls choose what the main screen shows.
- * The game section stays at the top of every view, so the host can switch games directly (or go back to picking one).
+ * The host's phone (Screen tab): pick a game, then a player, then the game's controls choose what the main screen shows.
+ * The game row stays at the top of every view, so the host can switch games directly (or go back to picking one).
+ * The light has its own tab (it runs all evening, whatever game is on).
  */
 export function HostRemote({ code, session }: { code: string; session: Session }) {
   const game = activeGame(session);
-  // Both can be folded away to leave room for the players.
-  const gamesFold = useFold(GAMES_OPEN_KEY, true);
   const settingsFold = useFold(SETTINGS_OPEN_KEY, false);
-  const lightFold = useFold(LIGHT_OPEN_KEY, false);
   const players = Object.entries(session.players ?? {});
   const display = session.display ?? { step: "list" as const };
   const current = display.uid ? session.players?.[display.uid] : undefined;
@@ -40,21 +35,25 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   const remove = (uid: string, name: string) => {
     if (confirm(`Remove ${name} and everything they submitted? They can then rejoin fresh.`)) void removePlayer(code, uid);
   };
-  // Always first, so it keeps its place on every view. Inside a game its heading names the game.
+  // Always first, so it keeps its place on every view: one compact row, the game on now in gold.
   const gamePicker = (
-    <details className="fold" {...gamesFold}>
-      <summary><h2>{game ? `Game: ${game.name}` : "Pick a game"}</h2></summary>
-      <div className="steps">
+    <div className="remote-game">
+      <div className="remote-head">
+        <h2>Game</h2>
+        {/* Back to the main screen's game picker. Disabled, not removed, so the row never changes shape. */}
+        <button className="link" disabled={!game} onClick={() => void setGame(code, null)}>← All games</button>
+      </div>
+      <div className="choices" role="group" aria-label="Game">
         {Object.values(GAMES).map((g) => (
-          <button key={g.id} className={g.id === game?.id ? "step active" : "step"}
+          <button key={g.id} className={g.id === game?.id ? "active" : ""} aria-pressed={g.id === game?.id}
             onClick={() => { if (g.id !== game?.id) void setGame(code, g.id); }}>{g.name}</button>
         ))}
       </div>
-    </details>
+    </div>
   );
-  // Session-wide settings for the main screen, under the games on every view.
+  // Session-wide settings for the main screen: set once, so folded away at the bottom (under the players on a phone).
   const settings = (
-    <details className="fold" {...settingsFold}>
+    <details className="fold remote-settings" {...settingsFold}>
       <summary><h2>Settings (main screen)</h2></summary>
       <div className="toggles">
         <Toggle label="Game descriptions" on={!session.hideBlurbs} onChange={(on) => void setHideBlurbs(code, !on)} />
@@ -70,20 +69,12 @@ export function HostRemote({ code, session }: { code: string; session: Session }
     </details>
   );
 
-  // The light runs all evening, whatever game is on, so its controls are on every view too.
-  const light = (
-    <details className="fold" {...lightFold}>
-      <summary><h2>💡 The light</h2></summary>
-      <LightRemote code={code} session={session} />
-    </details>
-  );
-
-  // Games on one side, players on the other: two columns on a wide screen (an iPad in landscape),
-  // one column (games first) on a phone.
-  const layout = (gameSide: React.ReactNode, playerSide: React.ReactNode) => (
+  // Phone: game, players, settings. Wide screen (an iPad in landscape): game and settings on the left, players on the right.
+  const layout = (playerSide: React.ReactNode) => (
     <section className="remote split">
-      <div className="remote-col">{gamePicker}{gameSide}{settings}{light}</div>
-      <div className="remote-col">{playerSide}</div>
+      {gamePicker}
+      <div className="remote-players">{playerSide}</div>
+      {settings}
     </section>
   );
 
@@ -104,7 +95,6 @@ export function HostRemote({ code, session }: { code: string; session: Session }
 
   if (!game) {
     return layout(
-      null,
       <>
         <h2>Players ({players.length})</h2>
         {plainList}
@@ -114,7 +104,6 @@ export function HostRemote({ code, session }: { code: string; session: Session }
 
   if (display.step !== "list" && display.uid && current) {
     return layout(
-      null,
       <>
         <h2>{current.name}</h2>
         <game.HostPlayer code={code} session={session} display={display} uid={display.uid} />
@@ -124,7 +113,6 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   }
 
   return layout(
-    <button className="link" onClick={() => void setGame(code, null)}>← Games</button>,
     <>
       <h2>Players ({players.length})</h2>
       <game.HostLobby code={code} session={session} display={display} />

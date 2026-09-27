@@ -1,18 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { HostRemote } from "./HostRemote";
 import { JukeboxRemote } from "./JukeboxRemote";
+import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { JoinError, claimController, extractCode, releaseController, store, useSession, useUid } from "./session";
 
 const KEY = "ba.remoteCode";
+const TAB_KEY = "ba.hostTab";
+type Tab = "screen" | "music" | "light";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
   const uid = useUid();
   const [code, setCode] = useState(() => store.get(KEY));
   const session = useSession(code || undefined);
-  const [tab, setTab] = useState<"screen" | "music">("screen");
+  // This phone remembers its tab, so a refresh mid-game lands where the host was.
+  const [tab, setTabState] = useState<Tab>(() => {
+    const saved = store.get(TAB_KEY);
+    return saved === "music" || saved === "light" ? saved : "screen";
+  });
+  const setTab = (t: Tab) => { setTabState(t); store.set(TAB_KEY, t); };
 
   const disconnect = () => { store.set(KEY, ""); setCode(""); };
 
@@ -37,8 +45,11 @@ export function HostPage() {
       <nav className="tabs">
         <button className={tab === "screen" ? "active" : ""} onClick={() => setTab("screen")}>📺 Screen</button>
         <button className={tab === "music" ? "active" : ""} onClick={() => setTab("music")}>🎵 Jukebox</button>
+        <button className={tab === "light" ? "active" : ""} onClick={() => setTab("light")}>💡 Light</button>
       </nav>
-      {tab === "screen" ? <HostRemote code={code} session={session} /> : <JukeboxRemote code={code} session={session} />}
+      {tab === "screen" ? <HostRemote code={code} session={session} />
+        : tab === "music" ? <JukeboxRemote code={code} session={session} />
+        : <LightRemote code={code} session={session} />}
       <button className="link" onClick={() => { void releaseController(code); disconnect(); }}>Disconnect</button>
     </main>
   );

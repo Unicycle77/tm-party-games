@@ -54,6 +54,7 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Default** is paper: typewriter font, 2px `--gold-dark` border, 6px radius, a `0 3px 0` hard shadow that "presses in" on `:active` (`translateY(2px)`). Already styled on the bare `button` element, so a plain `<button>` needs no class.
 - **Primary** (`.big`): the one main action on a screen (Start a session, Join, Submit). Full-width gold gradient, uppercase, bold. **One per screen.**
 - **Selected / active** (`button.active`): the same gold as the primary button, for what's currently on screen or playing (stage steps, tabs, the current track, the backup stage controls). One shared rule, `button.big, button.active`, supplies the gold; adding `active` to any button is all it takes.
+- **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
 - **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Leave session, Disconnect, End session, Back to players, Reset.
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
@@ -105,6 +106,9 @@ Each screen has its own rules. Know which one you're designing for.
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
+- **Tabs** split it by what runs independently: 📺 Screen (the games), 🎵 Jukebox, 💡 Light. Each keeps running whatever tab is showing. A new all-evening feature gets a tab, not another section on Screen.
+- **Screen tab order:** the game row, then what the host does most (the players, or the chosen player's show controls), then set-once things folded away at the bottom (Settings). On a wide screen, players move to a right-hand column.
+- **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
 - Header: `🎮 Host remote · CODE` in the typewriter font.
 
@@ -132,7 +136,7 @@ Each screen has its own rules. Know which one you're designing for.
 | ✓ | Submitted |
 | 🔒 🔓 | Locked / may resubmit |
 | 🔇 | Sound blocked |
-| 💡 | The light (`/light`) and its Hue lamp |
+| 💡 | The light (`/light`), its Hue lamp and its host-remote tab |
 | … | In progress (`Joining…`, `sending…`) |
 
 **Copy voice:**

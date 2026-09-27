@@ -286,11 +286,21 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .slot h2 { color: var(--burgundy); margin: 0; }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
 progress { width: 100%; accent-color: var(--burgundy); }
-.remote, .remote-col { display: grid; gap: 0.75rem; align-content: start; }
-/* wide screens (an iPad in landscape): games on the left, players on the right */
+.remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }
+.remote.split { row-gap: 1.25rem; }
+/* a section heading with a quiet action on its right (e.g. "Game" · "← All games") */
+.remote-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.remote-head h2 { margin: 0; }
+/* wide screens (an iPad in landscape): the game and settings on the left, players on the right */
 @media (min-width: 900px) {
   .phone.host { max-width: 1100px; }
-  .remote.split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); column-gap: 2.5rem; align-items: start; }
+  .remote.split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-rows: auto 1fr;
+    grid-template-areas: "game players" "settings players"; column-gap: 2.5rem; align-items: start;
+  }
+  .remote-game { grid-area: game; }
+  .remote-players { grid-area: players; }
+  .remote-settings { grid-area: settings; }
 }
 .picker li { display: flex; gap: 0.5rem; }
 .picker li > button:first-child { flex: 1; display: flex; flex-direction: column; text-align: left; }
@@ -302,7 +312,12 @@ button .muted { color: #7a6a55; }
 /* host remote: what the main screen is showing */
 .steps { display: grid; gap: 0.6rem; }
 .steps.two { grid-template-columns: 1fr 1fr; }
-.steps button { padding: 1.1rem 0.5rem; font-size: 1.2rem; }
+.steps button { padding: 0.9rem 0.5rem; font-size: 1.15rem; }
+/* choosing one of several settings (the game, the light's mode, its secret): a compact row of paper chips, the chosen one gold.
+   Smaller than .steps, which are for what the stage shows right now. Wraps onto two columns when there are many. */
+.choices { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.choices button { flex: 1 1 6rem; padding: 0.5rem 0.5rem; font-size: 0.95rem; line-height: 1.2; }
+.choices.two button { flex-basis: 9rem; }
 
 /* a section the host can fold away: the h2 is the handle, with a gold ▸ / ▾ in front */
 .fold > summary { list-style: none; cursor: pointer; }
@@ -350,7 +365,7 @@ body.idle-cursor .stage { cursor: none; }
   background: rgba(20, 0, 0, 0.65); color: var(--fg); padding: 0.4rem 0.8rem; border-radius: 8px; font-family: var(--typewriter); font-size: 0.9rem; }
 .jukebox-chip button:not(.link) { padding: 0.4rem 0.8rem; }
 .tabs { display: flex; gap: 0.5rem; }
-.tabs button { flex: 1; }
+.tabs button { flex: 1; padding: 0.6rem 0.4rem; }
 .steps.three { grid-template-columns: 1fr 1.3fr 1fr; }
 .now-playing { font-family: var(--typewriter); color: var(--gold-bright); font-size: 1.15rem; margin: 0; min-height: 1.5em; overflow-wrap: anywhere; }
 .volume { display: grid; gap: 0.3rem; }
@@ -539,11 +554,12 @@ body.idle-cursor .stage { cursor: none; }
 @media (prefers-reduced-motion: reduce) { .bulb::before, .bulb-glass { transition: none; } }
 
 /* the host phone's light controls */
-.light-remote { display: grid; gap: 0.6rem; }
 .light-remote p { margin: 0; }
-/* "All at once" on the host phone: each action with its bulb's colour */
-.light-key { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-.light-key .swatch { width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--bulb); border: 2px solid var(--gold-dark); }
+/* a mode with several bulbs: each action beside a dot of its bulb's colour, two to a row */
+.light-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.light-key { display: flex; align-items: center; gap: 0.5rem; text-align: left; padding: 0.6rem 0.7rem; line-height: 1.2; }
+.light-key.wide { grid-column: 1 / -1; }
+.light-key .swatch { flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--bulb); border: 2px solid var(--gold-dark); }
 
 /* the light: setting up a real Hue lamp, on the /light page */
 .hue-setup { width: min(92vw, 520px); text-align: left; }
