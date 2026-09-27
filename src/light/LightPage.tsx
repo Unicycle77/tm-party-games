@@ -4,6 +4,7 @@ import { db } from "../firebase";
 import { useStageBarVisible } from "../stageBar";
 import { RecentList, WATCHED_KEY, HOSTED_KEY, loadRecent, mergeRecent } from "../recent";
 import { JoinError, store, useSession, useUid } from "../session";
+import { Toggle } from "../Toggle";
 import type { LightState, Session } from "../types";
 import { Bulb } from "./Bulb";
 import {
@@ -104,9 +105,7 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         <button onClick={() => setSettingUp("camera")} tabIndex={tab}>Camera</button>
         <button onClick={() => setSettingUp("hue")} tabIndex={tab}>💡 Hue lamp</button>
         <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)} tabIndex={tab}>{mode ? "Light them all now" : "Light it now"}</button>
-        <button className={armed ? undefined : "active"} onClick={() => void setArmed(code, !armed)} tabIndex={tab}>
-          {armed ? "⏸ Pause" : "▶ Resume"}
-        </button>
+        <Toggle label="Camera watching" on={armed} onChange={(on) => void setArmed(code, on)} tabIndex={tab} />
         <button onClick={onStop} tabIndex={tab}>Stop the light</button>
         <p className="light-bar-status small">Keep this window in front all evening (not a background tab, minimised or covered). The host phone shows what the camera sees.</p>
       </div>

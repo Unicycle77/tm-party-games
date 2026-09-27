@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { setJukeboxState } from "./session";
+import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 /** m:ss (or h:mm:ss); blank when unknown. */
@@ -49,11 +50,11 @@ export function JukeboxRemote({ code, session }: { code: string; session: Sessio
     <section className="remote">
       <h2>Jukebox</h2>
       <p className="now-playing">{current !== undefined && tracks[current] ? `${playing ? "♪" : "⏸"} ${tracks[current]}` : "Pick a song"}</p>
-      <div className="steps two">
+      <div className="steps">
         <button className={playing ? "step active" : "step"} onClick={toggle}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-        <button className={repeat ? "step active" : "step"} onClick={() => void setJukeboxState(code, { repeat: !repeat })}>
-          🔁 Repeat {repeat ? "on" : "off"}
-        </button>
+      </div>
+      <div className="toggles">
+        <Toggle label="🔁 Repeat" on={repeat} onChange={(on) => void setJukeboxState(code, { repeat: on })} />
       </div>
       <label className="volume">🔈 Volume
         <input type="range" min={0} max={1} step={0.02} value={vol} onChange={(e) => onVolume(Number(e.target.value))} />

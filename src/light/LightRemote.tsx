@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Toggle } from "../Toggle";
 import type { Session } from "../types";
 import {
   DELAY_MS, cameraText, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, releaseLight, setArmed, setMode, setTrigger, triggerOf,
@@ -86,9 +87,9 @@ export function LightRemote({ code, session }: { code: string; session: Session 
         </>
       )}
       {(mode ? mode.bulbs.some((b) => b.trigger.model === "pose") : trigger.model === "pose") && <p className="muted small">The camera needs to see people's arms and shoulders, not just faces.</p>}
-      <button className={armed ? undefined : "active"} disabled={!running} onClick={() => void setArmed(code, !armed)}>
-        {armed ? "⏸ Pause camera" : "▶ Resume camera"}
-      </button>
+      <div className="toggles">
+        <Toggle label="Camera watching" on={armed} disabled={!running} onChange={(on) => void setArmed(code, on)} />
+      </div>
       {running && (
         <button className="link" onClick={() => { if (confirm("Reset the light? The computer running it stops, and another one can take over.")) void releaseLight(code); }}>
           Reset the light computer

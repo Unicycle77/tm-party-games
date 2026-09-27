@@ -2,6 +2,7 @@ import { useState } from "react";
 import { GAMES, activeGame } from "./games";
 import { LightRemote } from "./light/LightRemote";
 import { removePlayer, setDisplay, setGame, setGameHidden, setHideBlurbs, setShowDownload, setUnlocked, store } from "./session";
+import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 const GAMES_OPEN_KEY = "ba.hostGamesOpen";
@@ -55,25 +56,16 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   const settings = (
     <details className="fold" {...settingsFold}>
       <summary><h2>Settings (main screen)</h2></summary>
-      <div className="steps">
-        <button onClick={() => void setHideBlurbs(code, !session.hideBlurbs)}>
-          {session.hideBlurbs ? "Show" : "Hide"} game descriptions
-        </button>
-        <button onClick={() => void setShowDownload(code, !session.showDownload)}>
-          {session.showDownload ? "Hide" : "Show"} download button
-        </button>
+      <div className="toggles">
+        <Toggle label="Game descriptions" on={!session.hideBlurbs} onChange={(on) => void setHideBlurbs(code, !on)} />
+        <Toggle label="Download button" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>
       {/* Only the main screen's picker leaves hidden games out; they stay above, so the host can still start one. */}
-      <p className="muted small">Games on the main screen&apos;s picker:</p>
-      <div className="steps">
-        {Object.values(GAMES).map((g) => {
-          const hidden = !!session.hiddenGames?.[g.id];
-          return (
-            <button key={g.id} onClick={() => void setGameHidden(code, g.id, !hidden)}>
-              {hidden ? `Show ${g.name}` : `Hide ${g.name}`}
-            </button>
-          );
-        })}
+      <p className="muted small">Games on the main screen's picker:</p>
+      <div className="toggles">
+        {Object.values(GAMES).map((g) => (
+          <Toggle key={g.id} label={g.name} on={!session.hiddenGames?.[g.id]} onChange={(on) => void setGameHidden(code, g.id, !on)} />
+        ))}
       </div>
     </details>
   );

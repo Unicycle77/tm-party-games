@@ -58,6 +58,9 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
 
+### Toggles
+Any on/off setting is a **switch**, not a button whose label flips between "Show" and "Hide". Use `<Toggle label on onChange />` (`src/Toggle.tsx`) and stack them in a `.toggles` list: typewriter label on the left, a switch on the right (a wooden slot that fills gold when on, with a paper knob). Label it with what it controls, stated positively, so on means "shown" or "running" ("Game descriptions", "🔁 Repeat", "Camera watching"). Buttons stay for actions and for choosing one of several (`.active`).
+
 ### Inputs
 Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `<label>`: labels are a grid with `--muted` text above the field. Game-code inputs use the typewriter font with wide letter spacing (`0.3em`), uppercase, `maxLength={4}`, `placeholder="ABCD"`, plus a 📷 scan button beside them in a `.row`.
 
