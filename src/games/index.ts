@@ -5,7 +5,6 @@ import type { Display, GameId, Session, Step } from "../types";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
 import { photos } from "./photos";
-import { smile } from "./smile";
 
 /**
  * What a game plugs into the shared screens. The session, its players, the lobby, the jukebox and
@@ -40,7 +39,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, smile };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box };
 
 /** The game being played; undefined on the game selection screen. */
 export const activeGame = (session: Session): Game | undefined => {

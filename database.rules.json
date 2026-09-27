@@ -68,34 +68,13 @@
               ".validate": false
             }
           },
-          "smile": {
-            ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-            "armed": { ".validate": "newData.isBoolean()" },
-            "revealed": { ".validate": "newData.isBoolean()" },
-            "litAt": { ".validate": "newData.isNumber()" },
-            "timer": {
-              "startedAt": { ".validate": "newData.isNumber()" },
-              "stoppedAt": { ".validate": "newData.isNumber()" },
-              "$other": { ".validate": false }
-            },
-            "camera": {
-              "starting": { ".validate": "newData.isBoolean()" },
-              "faces": { ".validate": "newData.isNumber()" },
-              "smiling": { ".validate": "newData.isNumber()" },
-              "error": { ".validate": "newData.isString() && newData.val().length <= 200" },
-              "$other": { ".validate": false }
-            },
-            "$other": {
-              ".validate": false
-            }
-          },
           "$other": {
             ".validate": false
           }
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'smile'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box'"
         },
         "jukebox": {
           "tracks": {
@@ -115,6 +94,24 @@
         "showDownload": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"
+        },
+        "lightUid": {
+          ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()) || (!newData.exists() && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)))",
+          ".validate": "newData.isString()"
+        },
+        "light": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid || root.child('sessions').child($code).child('lightUid').val() === auth.uid)",
+          "armed": { ".validate": "newData.isBoolean()" },
+          "trigger": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "litAt": { ".validate": "newData.isNumber()" },
+          "camera": {
+            "starting": { ".validate": "newData.isBoolean()" },
+            "people": { ".validate": "newData.isNumber()" },
+            "active": { ".validate": "newData.isNumber()" },
+            "error": { ".validate": "newData.isString() && newData.val().length <= 200" },
+            "$other": { ".validate": false }
+          },
+          "$other": { ".validate": false }
         },
         "display": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"

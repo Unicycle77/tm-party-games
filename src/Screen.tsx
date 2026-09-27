@@ -89,6 +89,11 @@ export function Screen({ code, session, viewOnly = false, footer }: {
           <p className="muted small">
             📺 To show this on another screen too, open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/screen</strong> there and enter the same code.
           </p>
+          <p className="muted small">
+            {session.lightUid
+              ? "💡 The light is running."
+              : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{PUBLIC_URL.replace(/^https?:\/\//, "")}/light</a> on a computer with a webcam that can see everyone.</>}
+          </p>
           {game && <button className="link" onClick={() => void setGame(code, null)}>← Games</button>}
           {session.showDownload && <DownloadZip code={code} session={session} />}
         </>

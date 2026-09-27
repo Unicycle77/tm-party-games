@@ -1,13 +1,13 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box", "smile"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "light" = The Light Bulb).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box).
  */
-export type Step = "list" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "light";
+export type Step = "list" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
 
 export interface Display {
   uid?: string;
@@ -52,20 +52,19 @@ export interface BoxRound {
 export interface BoxSecret { inBox: BoxKey }
 
 /**
- * The Light Bulb: the main screen's camera turns the bulb on 2 seconds after anyone stops smiling.
- * Players have to work out what turns it on, as fast as they can.
+ * The light, which runs all evening alongside the games: a computer at /light watches the room and
+ * turns the light (and a real Hue lamp) on 2 seconds after anyone does the secret trigger (e.g. stops
+ * smiling). Players have to work out why.
  */
-export interface SmileGame {
+export interface LightState {
   /** Whether the camera turns the light on. Treated as on when absent; the host can pause it. */
   armed?: boolean;
-  /** When the light last went on; every screen lights up (for a second) when it changes. */
+  /** The secret trigger's id (see light/triggers.ts); "stop-smiling" when absent. */
+  trigger?: string;
+  /** When the light last went on; the light page lights up (for a second) when it changes. */
   litAt?: number;
-  /** The task's clock, in server time: running from `startedAt`, frozen once `stoppedAt` is set. */
-  timer?: { startedAt?: number; stoppedAt?: number };
-  /** The answer is shown on the main screen and the players' phones. */
-  revealed?: boolean;
-  /** What the main screen's camera sees, for the host phone. */
-  camera?: { starting?: boolean; faces?: number; smiling?: number; error?: string };
+  /** What the light computer's camera sees (people in view, how many are "in", e.g. smiling), for the host phone. */
+  camera?: { starting?: boolean; people?: number; active?: number; error?: string };
 }
 
 /** One game's submissions within a session. */
@@ -91,13 +90,16 @@ export interface Session {
   players?: Record<string, Player>;
   /** The game players see and the main screen shows. Absent = the game selection screen (where every session starts). */
   game?: GameId;
-  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound }; smile?: SmileGame };
+  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound } };
   display?: Display;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
   /** Host remote toggles this to hide the one-line descriptions on the main screen's game cards. */
   hideBlurbs?: boolean;
   jukebox?: Jukebox;
+  /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
+  lightUid?: string;
+  light?: LightState;
   /** Where Before & After kept its data before there were games. Moved into `games` when a main screen opens the session. */
   media?: Record<string, BeforeAfterMedia>;
   unlocked?: Record<string, boolean>;

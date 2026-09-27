@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { GAMES, activeGame } from "./games";
+import { LightRemote } from "./light/LightRemote";
 import { removePlayer, setDisplay, setGame, setHideBlurbs, setShowDownload, setUnlocked, store } from "./session";
 import type { Session } from "./types";
 
 const GAMES_OPEN_KEY = "ba.hostGamesOpen";
 const SETTINGS_OPEN_KEY = "ba.hostSettingsOpen";
+const LIGHT_OPEN_KEY = "ba.hostLightOpen";
 
 /** A section the host can fold away; this phone remembers whether it's open. */
 function useFold(key: string, openByDefault: boolean) {
@@ -29,6 +31,7 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   // Both can be folded away to leave room for the players.
   const gamesFold = useFold(GAMES_OPEN_KEY, true);
   const settingsFold = useFold(SETTINGS_OPEN_KEY, false);
+  const lightFold = useFold(LIGHT_OPEN_KEY, false);
   const players = Object.entries(session.players ?? {});
   const display = session.display ?? { step: "list" as const };
   const current = display.uid ? session.players?.[display.uid] : undefined;
@@ -63,11 +66,19 @@ export function HostRemote({ code, session }: { code: string; session: Session }
     </details>
   );
 
+  // The light runs all evening, whatever game is on, so its controls are on every view too.
+  const light = (
+    <details className="fold" {...lightFold}>
+      <summary><h2>💡 The light</h2></summary>
+      <LightRemote code={code} session={session} />
+    </details>
+  );
+
   // Games on one side, players on the other: two columns on a wide screen (an iPad in landscape),
   // one column (games first) on a phone.
   const layout = (gameSide: React.ReactNode, playerSide: React.ReactNode) => (
     <section className="remote split">
-      <div className="remote-col">{gamePicker}{gameSide}{settings}</div>
+      <div className="remote-col">{gamePicker}{gameSide}{settings}{light}</div>
       <div className="remote-col">{playerSide}</div>
     </section>
   );
