@@ -94,7 +94,7 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         </p>
         <button onClick={() => setSettingUp("camera")} tabIndex={tab}>Camera</button>
         <button onClick={() => setSettingUp("hue")} tabIndex={tab}>💡 Hue lamp</button>
-        <button onClick={() => void (mode ? lightAllNow(code, mode) : lightNow(code))} tabIndex={tab}>{mode ? "Light them all now" : "Light it now"}</button>
+        <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)} tabIndex={tab}>{mode ? "Light them all now" : "Light it now"}</button>
         <button className={armed ? undefined : "active"} onClick={() => void setArmed(code, !armed)} tabIndex={tab}>
           {armed ? "⏸ Pause" : "▶ Resume"}
         </button>

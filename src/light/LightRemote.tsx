@@ -55,7 +55,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
             ))}
           </div>
           <p>{cameraText(session)}</p>
-          <button disabled={!running} onClick={() => void lightAllNow(code, mode)}>Light them all now</button>
+          <button disabled={!running} onClick={() => lightAllNow(code, mode)}>Light them all now</button>
         </>
       ) : (
         <>

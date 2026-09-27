@@ -36,11 +36,10 @@ export const watchedTriggers = (light: LightState): Trigger[] => modeOf(light)?.
 /** A mode with several bulbs: turns one trigger's bulb on, now or after the delay (returns the timer). */
 export const lightOneNow = (code: string, id: string) => set(ref(db(), `sessions/${code}/light/lit/${id}`), Date.now());
 export const lightOneLater = (code: string, id: string) => window.setTimeout(() => void lightOneNow(code, id), DELAY_MS);
-/** Every bulb of a mode (a test); a millisecond apart, so they take their turns in the mode's order. */
-export const lightAllNow = (code: string, mode: Mode) => {
-  const now = Date.now();
-  return update(ref(db(), `sessions/${code}/light/lit`), Object.fromEntries(mode.bulbs.map((b, i) => [b.trigger.id, now + i])));
-};
+/** Every bulb of a mode in turn, a little slower than the light may change (a test). */
+export const lightAllNow = (code: string, mode: Mode) =>
+  mode.bulbs.forEach((b, i) => window.setTimeout(() => void lightOneNow(code, b.trigger.id), i * (MIN_CHANGE_MS + 100)));
+
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 
 /** The light page: becomes the session's light computer (one per session; this browser may already be it). */
@@ -62,50 +61,60 @@ export async function claimLight(rawCode: string): Promise<string> {
  */
 export const releaseLight = (code: string) => update(ref(db(), `sessions/${code}`), { lightUid: null, "light/camera": null });
 
-/** The dark pause between two flashes, so back-to-back ones can be told apart. */
-export const GAP_MS = 400;
+/** The light never changes (on, off, or to another colour) more often than this. */
+export const MIN_CHANGE_MS = 500;
 /** The flash of the one red bulb ("One secret" mode); in the other modes a flash is a trigger's id. */
 export const ONE = "one";
 
 /**
- * Which light is flashing right now: ONE, a trigger's id, or undefined. Each lighting event (a new time in
- * `litAt`, or in `lit` in a mode with several bulbs) gets its full second and a short gap after it;
- * events that arrive meanwhile wait their turn, in order, and never cut a flash short. A light that's
- * already waiting isn't queued twice, so a busy moment can't build up a backlog. Times already there
+ * Which light is on right now: ONE, a trigger's id, or undefined. Each lighting event (a new time in
+ * `litAt`, or in `lit` in a mode with several bulbs) wants its light on for a second from when it
+ * arrives; when several overlap, the newest wins. To keep it readable the light changes at most once
+ * every MIN_CHANGE_MS: a change that comes sooner waits for the rest of that time (so nothing is ever
+ * more than that late), and one overtaken by a newer event meanwhile is skipped. Times already there
  * when the page opens are old, and so are other modes'.
  */
 export function useFlash(light: LightState): string | undefined {
   const mode = modeOf(light);
   const seen = useRef({ litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id });
-  const queue = useRef<string[]>([]);
-  const playing = useRef(false);
+  // Each event's second: when it arrived here, and which light.
+  const events = useRef<{ id: string; at: number }[]>([]);
+  const shown = useRef<string>();
+  const changedAt = useRef(0);
   const timer = useRef<number>();
   const [current, setCurrent] = useState<string>();
 
-  const playNext = useRef(() => {
-    const id = queue.current.shift();
-    if (id === undefined) { playing.current = false; return; }
-    playing.current = true;
-    setCurrent(id);
-    timer.current = window.setTimeout(() => {
-      setCurrent(undefined);
-      timer.current = window.setTimeout(playNext.current, GAP_MS);
-    }, ON_MS);
+  const update = useRef(() => {
+    window.clearTimeout(timer.current);
+    const now = Date.now();
+    events.current = events.current.filter((e) => now < e.at + ON_MS);
+    // The newest event that's still within its second.
+    const want = events.current.reduce<{ id: string; at: number } | undefined>((w, e) => (e.at <= now && (!w || e.at >= w.at) ? e : w), undefined)?.id;
+    if (want !== shown.current) {
+      const wait = changedAt.current + MIN_CHANGE_MS - now;
+      if (wait > 0) { timer.current = window.setTimeout(update.current, wait); return; }
+      shown.current = want;
+      changedAt.current = now;
+      setCurrent(want);
+    }
+    // Look again when the next event's second ends.
+    const next = Math.min(...events.current.map((e) => e.at + ON_MS));
+    if (next !== Infinity) timer.current = window.setTimeout(update.current, next - now);
   });
 
   useEffect(() => {
-    // Switching modes drops what was waiting for the old one.
-    if (seen.current.mode !== mode?.id) queue.current = [];
-    const fresh: [string, number][] = [];
-    if (!mode && light.litAt !== undefined && light.litAt !== seen.current.litAt) fresh.push([ONE, light.litAt]);
-    for (const b of mode?.bulbs ?? []) {
-      const at = light.lit?.[b.trigger.id];
-      if (at !== undefined && at !== seen.current.lit[b.trigger.id]) fresh.push([b.trigger.id, at]);
-    }
+    // Switching modes drops the old mode's lights.
+    if (seen.current.mode !== mode?.id) events.current = [];
+    const now = Date.now();
+    if (!mode && light.litAt !== undefined && light.litAt !== seen.current.litAt) events.current.push({ id: ONE, at: now });
+    // (Several in one update: the newest time wins.)
+    const fresh = (mode?.bulbs ?? [])
+      .map((b) => ({ id: b.trigger.id, t: light.lit?.[b.trigger.id] }))
+      .filter((e): e is { id: string; t: number } => e.t !== undefined && e.t !== seen.current.lit[e.id])
+      .sort((x, y) => x.t - y.t);
+    fresh.forEach((e, i) => events.current.push({ id: e.id, at: now + i }));
     seen.current = { litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id };
-    fresh.sort(([, a], [, b]) => a - b);
-    for (const [id] of fresh) if (!queue.current.includes(id)) queue.current.push(id);
-    if (!playing.current) playNext.current();
+    update.current();
   }, [light.litAt, light.lit, mode?.id]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
