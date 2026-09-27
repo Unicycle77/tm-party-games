@@ -71,6 +71,9 @@ Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `
 - **Slot** (`.slot`): the phone's paper panel. The heading is `--burgundy`, the hints are `#6b5a44`.
 - **Floating label** (`.stage-label`, `.review-name`, `.review-loading`, `.sound-hint`): a paper strip over the stage, typewriter font, centred, with a drop shadow.
 
+### Hidden menu
+`.lobby-menu` (`LobbyMenu` in `Screen.tsx`, borrowed from tm-scoreboard): a paper `☰ Menu` button fixed in the top-left corner, invisible until the mouse comes near. It opens a burgundy panel with a 3px `--gold` border for setup hints and quiet exits (host remote status, `/screen` and `/light` hints, End session). Escape or a click outside closes it. Put anything the room doesn't need to read here instead of under the players.
+
 ### Stamp
 `.stamp` is a gold rubber stamp tilted `-4deg`: uppercase, bold, 3px `--gold-edge` border, a translucent gold fill. It's the **one** visual for "done" (✓ Submitted). Don't invent a second "success" style.
 
@@ -127,6 +130,7 @@ Each screen has its own rules. Know which one you're designing for.
 | Symbol | Meaning |
 |---|---|
 | 🎮 | Host remote |
+| ☰ | The main screen's hidden menu |
 | 📺 / 🎵 | Screen tab / Jukebox |
 | 📷 | Scan a QR code |
 | ◫ | Side by side, review everyone |

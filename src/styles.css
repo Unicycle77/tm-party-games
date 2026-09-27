@@ -120,6 +120,20 @@ input::placeholder { color: #8b7a63; }
 .qrs figure { margin: 0; display: grid; gap: 0.4rem; justify-items: center; }
 .qrs figcaption { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.05em; }
 .host-qr svg { border-color: var(--paper); }
+/* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the
+   mouse comes near (the padding is an invisible hover buffer); it opens a burgundy panel with gold trim */
+.lobby-menu { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 6; padding: 1.5rem; margin: -1.5rem; }
+.lobby-menu-button { padding: 0.45rem 0.9rem; opacity: 0; transition: opacity 0.2s, transform 0.08s, box-shadow 0.08s, filter 0.15s; }
+.lobby-menu:hover .lobby-menu-button, .lobby-menu:focus-within .lobby-menu-button, .lobby-menu.open .lobby-menu-button { opacity: 1; }
+.lobby-menu-panel {
+  margin-top: 0.6rem; width: min(30rem, calc(100vw - 1.5rem)); max-height: calc(100vh - 5rem); overflow-y: auto;
+  display: grid; gap: 0.6rem; justify-items: start; padding: 1rem 1.2rem;
+  background: linear-gradient(rgba(20, 0, 0, 0.35), rgba(20, 0, 0, 0.6)), var(--burgundy);
+  border: 3px solid var(--gold); border-radius: 6px; box-shadow: 0 10px 30px #000b;
+}
+.lobby-menu-panel p { margin: 0; }
+.lobby-menu-panel a { color: var(--gold-bright); }
+@media (prefers-reduced-motion: reduce) { .lobby-menu-button { transition: none; } }
 /* game picker: 3x5 index cards scattered on the table (--tilt, --dx, --dy picked at random per card) */
 .game-picks { list-style: none; margin: 0 0 2.5rem; padding: 1rem 0.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
 @media (max-width: 900px) { .game-picks { grid-template-columns: repeat(3, 1fr); } }

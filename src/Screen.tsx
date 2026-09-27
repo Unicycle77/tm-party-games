@@ -1,5 +1,5 @@
 import { QRCodeSVG } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
 import { GAMES, activeGame } from "./games";
 import { preloadImages } from "./preload";
@@ -22,7 +22,7 @@ export function screenState(session: Session) {
 /**
  * The lobby or the stage, as the main screen shows them. `viewOnly` is for extra screens (`/screen`):
  * the same picture, but nothing to click and no host setup (QR, remote status, download).
- * `footer` goes at the bottom of the lobby (e.g. End session).
+ * `footer` goes in the lobby's hidden menu (e.g. End session), or at the bottom of a view-only lobby.
  */
 export function Screen({ code, session, viewOnly = false, footer }: {
   code: string; session: Session; viewOnly?: boolean; footer?: React.ReactNode;
@@ -81,26 +81,53 @@ export function Screen({ code, session, viewOnly = false, footer }: {
       </ul>
       {!viewOnly && (
         <>
-          <p className="muted small">
-            {session.controllerUid
-              ? <>🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></>
-              : <>Host: open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/host</strong> on your phone and enter the same code to control this screen.</>}
-            {" "}{!game ? "You can also pick a game here." : game.status ? "You can also click a player here." : ""}
-          </p>
-          <p className="muted small">
-            📺 To show this on another screen too, open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/screen</strong> there and enter the same code.
-          </p>
-          <p className="muted small">
-            {session.lightUid
-              ? "💡 The light is running."
-              : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{PUBLIC_URL.replace(/^https?:\/\//, "")}/light</a> on a computer with a webcam that can see everyone.</>}
-          </p>
           {game && <button className="link" onClick={() => void setGame(code, null)}>← Games</button>}
           {session.showDownload && <DownloadZip code={code} session={session} />}
+          {/* Setup hints and End session: out of sight until the mouse goes near the top-left corner. */}
+          <LobbyMenu>
+            <p className="muted small">
+              {session.controllerUid
+                ? <>🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></>
+                : <>Host: open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/host</strong> on your phone and enter the same code to control this screen.</>}
+              {" "}{!game ? "You can also pick a game here." : game.status ? "You can also click a player here." : ""}
+            </p>
+            <p className="muted small">
+              📺 To show this on another screen too, open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/screen</strong> there and enter the same code.
+            </p>
+            <p className="muted small">
+              {session.lightUid
+                ? "💡 The light is running."
+                : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{PUBLIC_URL.replace(/^https?:\/\//, "")}/light</a> on a computer with a webcam that can see everyone.</>}
+            </p>
+            {footer}
+          </LobbyMenu>
         </>
       )}
-      {footer}
+      {viewOnly && footer}
     </main>
+  );
+}
+
+/**
+ * The main screen's hidden menu (like tm-scoreboard's): a paper "☰ Menu" button in the top-left corner that stays
+ * invisible until the mouse comes near it, and opens a panel of setup hints. Escape or a click outside closes it.
+ */
+function LobbyMenu({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const zone = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onDown = (e: PointerEvent) => { if (!zone.current?.contains(e.target as Node)) setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("pointerdown", onDown); };
+  }, [open]);
+  return (
+    <div ref={zone} className={open ? "lobby-menu open" : "lobby-menu"}>
+      <button className="lobby-menu-button" aria-expanded={open} onClick={() => setOpen((o) => !o)}>☰ Menu</button>
+      {open && <div className="lobby-menu-panel">{children}</div>}
+    </div>
   );
 }
 
