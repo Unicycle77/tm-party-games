@@ -35,7 +35,12 @@ body {
   min-height: 100vh;
   color: var(--fg);
   font: 16px/1.4 system-ui, sans-serif;
-  background: linear-gradient(rgba(20, 0, 0, 0.25), rgba(20, 0, 0, 0.45)), var(--bg-image) center / cover fixed no-repeat, var(--burgundy-deep);
+  background: var(--burgundy-deep);
+}
+/* the curtain: a fixed layer behind the page, so only the content scrolls (iOS Safari ignores background-attachment: fixed) */
+body::before {
+  content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(20, 0, 0, 0.25), rgba(20, 0, 0, 0.45)), var(--bg-image) center / cover no-repeat;
 }
 h1, h2 { margin: 0 0 0.5rem; font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.04em; }
 h1 { color: var(--gold-bright); text-shadow: 0 2px 0 #0007; }
