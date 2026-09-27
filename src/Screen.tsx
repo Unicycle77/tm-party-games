@@ -60,7 +60,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
         </div>
       </header>
 
-      {!game && (
+      {/* With every game hidden by the host, the picker (heading and all) is left out. */}
+      {!game && Object.values(GAMES).some((g) => !session.hiddenGames?.[g.id]) && (
         <>
           <h2>Pick a game</h2>
           <GamePicks showBlurbs={!session.hideBlurbs} hidden={session.hiddenGames ?? {}} onPick={viewOnly ? undefined : (id) => void setGame(code, id)} />
@@ -115,9 +116,6 @@ function GamePicks({ showBlurbs, hidden, onPick }: {
     "--dx": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
     "--dy": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
   })));
-  if (Object.values(GAMES).every((g) => hidden[g.id])) {
-    return <p className="muted">Every game is hidden. Show one from the host remote's settings.</p>;
-  }
   return (
     <ul className="game-picks">
       {Object.values(GAMES).map((g, i) => !hidden[g.id] && (
