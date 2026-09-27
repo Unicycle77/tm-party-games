@@ -95,7 +95,7 @@ export function HueSetup({ config, onChange, onClose }: {
     <div className="start-overlay" onClick={onClose}>
       <section className="slot hue-setup" onClick={(e) => e.stopPropagation()}>
         <h2>💡 Hue lamp</h2>
-        <p className="slot-hint">A real Philips Hue lamp can flash with the light. Afterwards it goes back to exactly how it was: off, or on at the same brightness and colour.</p>
+        <p className="slot-hint">A real Philips Hue lamp can flash with the light. Afterwards it goes back to how it was: straight off if it was off, or on at the same brightness and colour.</p>
 
         {!bridge ? (
           <>

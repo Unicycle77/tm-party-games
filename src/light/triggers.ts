@@ -30,11 +30,11 @@ export interface Trigger {
 
 export const TRIGGERS: Trigger[] = [
   { id: "stop-smiling", label: "Stops smiling", secret: "stops smiling", model: "face", on: 0.45, off: 0.2, fires: "out", state: "smiling", colour: "#e8412e", colourName: "red" },
-  { id: "start-smiling", label: "Starts smiling", secret: "starts smiling", model: "face", on: 0.45, off: 0.2, fires: "in", state: "smiling", colour: "#f5c518", colourName: "yellow" },
-  { id: "eyebrows", label: "Raises eyebrows", secret: "raises their eyebrows", model: "face", on: 0.5, off: 0.25, fires: "in", state: "with eyebrows up", colour: "#34c759", colourName: "green" },
-  { id: "arm-up", label: "Raises an arm", secret: "raises an arm above their shoulder", model: "pose", on: 0.3, off: 0, fires: "in", state: "with an arm up", colour: "#2f7bf5", colourName: "blue" },
-  { id: "arm-down", label: "Lowers an arm", secret: "lowers a raised arm", model: "pose", on: 0.3, off: 0, fires: "out", state: "with an arm up", colour: "#b84df9", colourName: "purple" },
-  { id: "touch-face", label: "Touches their face", secret: "touches their face", model: "pose", on: 2.2, off: 1.4, fires: "in", state: "touching their face", colour: "#fff4dc", colourName: "white" },
+  { id: "start-smiling", label: "Starts smiling", secret: "starts smiling", model: "face", on: 0.45, off: 0.2, fires: "in", state: "smiling", colour: "#ffa000", colourName: "orange" },
+  { id: "eyebrows", label: "Raises eyebrows", secret: "raises their eyebrows", model: "face", on: 0.5, off: 0.25, fires: "in", state: "with eyebrows up", colour: "#ffd400", colourName: "yellow" },
+  { id: "arm-up", label: "Raises an arm", secret: "raises an arm above their shoulder", model: "pose", on: 0.3, off: 0, fires: "in", state: "with an arm up", colour: "#34c759", colourName: "green" },
+  { id: "arm-down", label: "Lowers an arm", secret: "lowers a raised arm", model: "pose", on: 0.3, off: 0, fires: "out", state: "with an arm up", colour: "#2f7bf5", colourName: "blue" },
+  { id: "touch-face", label: "Touches their face", secret: "touches their face", model: "pose", on: 2.2, off: 1.4, fires: "in", state: "touching their face", colour: "#8a3ffc", colourName: "violet" },
 ];
 
 export const DEFAULT_TRIGGER = TRIGGERS[0]!;

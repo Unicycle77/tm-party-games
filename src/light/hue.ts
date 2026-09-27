@@ -116,7 +116,7 @@ export async function lampsOn(config: HueConfig, colour = RED) {
     call(config, `/${config.username}/lights/${l.id}/state`, "PUT", { on: true, bri: 254, transitiontime: 0, ...(l.color ? { xy } : {}) })));
 }
 
-/** Puts the lamps back exactly as `readLamps` found them (off, or on at the same brightness and colour). */
+/** Puts the lamps back as `readLamps` found them: off, or on at the same brightness and colour. */
 export async function restoreLamps(config: HueConfig, saved: Record<string, LampState>) {
   await Promise.all(config.lights.map((l) => {
     const was = saved[l.id];
@@ -124,9 +124,7 @@ export async function restoreLamps(config: HueConfig, saved: Record<string, Lamp
     const colour = was.colormode === "ct" ? { ct: was.ct } : was.colormode === "hs" ? { hue: was.hue, sat: was.sat } : was.colormode === "xy" ? { xy: was.xy } : {};
     const state = `/${config.username}/lights/${l.id}/state`;
     if (was.on) return call(config, state, "PUT", { on: true, bri: was.bri, transitiontime: 0, ...colour });
-    // It was off: put its brightness and colour back while it's still on (a lamp that's off won't take them),
-    // then switch it off, so it comes on as before next time.
-    return call(config, state, "PUT", { bri: was.bri, transitiontime: 0, ...colour })
-      .then(() => call(config, state, "PUT", { on: false, transitiontime: 0 }));
+    // It was off: straight off. (Putting its old colour back first would show that colour for a moment.)
+    return call(config, state, "PUT", { on: false, transitiontime: 0 });
   }));
 }
