@@ -203,6 +203,12 @@ export const setShowDownload = (code: string, show: boolean) =>
 export const setHideBlurbs = (code: string, hide: boolean) =>
   set(ref(db(), `sessions/${code}/hideBlurbs`), hide);
 
+/** Host: hides a game from the main screen's game picker, or shows it again. */
+export const setGameHidden = (code: string, game: GameId, hidden: boolean) => {
+  const r = ref(db(), `sessions/${code}/hiddenGames/${game}`);
+  return hidden ? set(r, true) : remove(r);
+};
+
 /** Main screen: publishes the song titles found in the chosen music folder. */
 export const publishTracks = (code: string, titles: string[]) =>
   set(ref(db(), `sessions/${code}/jukebox/tracks`), titles);

@@ -63,7 +63,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
       {!game && (
         <>
           <h2>Pick a game</h2>
-          <GamePicks showBlurbs={!session.hideBlurbs} onPick={viewOnly ? undefined : (id) => void setGame(code, id)} />
+          <GamePicks showBlurbs={!session.hideBlurbs} hidden={session.hiddenGames ?? {}} onPick={viewOnly ? undefined : (id) => void setGame(code, id)} />
         </>
       )}
 
@@ -105,17 +105,22 @@ export function Screen({ code, session, viewOnly = false, footer }: {
 
 /**
  * The game picker: index cards scattered at random angles (picked once, so they don't jump around).
- * Without `onPick` (a view-only screen) the cards are just shown.
+ * Games the host has hidden are left out. Without `onPick` (a view-only screen) the cards are just shown.
  */
-function GamePicks({ showBlurbs, onPick }: { showBlurbs: boolean; onPick?: (id: GameId) => void }) {
+function GamePicks({ showBlurbs, hidden, onPick }: {
+  showBlurbs: boolean; hidden: Partial<Record<GameId, true>>; onPick?: (id: GameId) => void;
+}) {
   const [scatter] = useState(() => Object.values(GAMES).map(() => ({
     "--tilt": `${(Math.random() * 7 - 3.5).toFixed(1)}deg`,
     "--dx": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
     "--dy": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
   })));
+  if (Object.values(GAMES).every((g) => hidden[g.id])) {
+    return <p className="muted">Every game is hidden. Show one from the host remote's settings.</p>;
+  }
   return (
     <ul className="game-picks">
-      {Object.values(GAMES).map((g, i) => (
+      {Object.values(GAMES).map((g, i) => !hidden[g.id] && (
         <li key={g.id}>
           <button className={onPick ? "game-card" : "game-card static"} style={scatter[i] as React.CSSProperties}
             tabIndex={onPick ? undefined : -1} onClick={() => onPick?.(g.id)}>

@@ -91,6 +91,12 @@
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"
         },
+        "hiddenGames": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          "$game": {
+            ".validate": "($game === 'beforeAfter' || $game === 'photos' || $game === 'box') && newData.val() === true"
+          }
+        },
         "showDownload": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"

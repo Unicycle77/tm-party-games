@@ -104,6 +104,8 @@ export interface Session {
   showDownload?: boolean;
   /** Host remote toggles this to hide the one-line descriptions on the main screen's game cards. */
   hideBlurbs?: boolean;
+  /** Games the host has hidden from the main screen's game picker (e.g. ones this party won't play). */
+  hiddenGames?: Partial<Record<GameId, true>>;
   jukebox?: Jukebox;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
   lightUid?: string;

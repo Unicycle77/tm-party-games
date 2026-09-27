@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GAMES, activeGame } from "./games";
 import { LightRemote } from "./light/LightRemote";
-import { removePlayer, setDisplay, setGame, setHideBlurbs, setShowDownload, setUnlocked, store } from "./session";
+import { removePlayer, setDisplay, setGame, setGameHidden, setHideBlurbs, setShowDownload, setUnlocked, store } from "./session";
 import type { Session } from "./types";
 
 const GAMES_OPEN_KEY = "ba.hostGamesOpen";
@@ -62,6 +62,18 @@ export function HostRemote({ code, session }: { code: string; session: Session }
         <button onClick={() => void setShowDownload(code, !session.showDownload)}>
           {session.showDownload ? "Hide" : "Show"} download button
         </button>
+      </div>
+      {/* Only the main screen's picker leaves hidden games out; they stay above, so the host can still start one. */}
+      <p className="muted small">Games on the main screen&apos;s picker:</p>
+      <div className="steps">
+        {Object.values(GAMES).map((g) => {
+          const hidden = !!session.hiddenGames?.[g.id];
+          return (
+            <button key={g.id} onClick={() => void setGameHidden(code, g.id, !hidden)}>
+              {hidden ? `Show ${g.name}` : `Hide ${g.name}`}
+            </button>
+          );
+        })}
       </div>
     </details>
   );
