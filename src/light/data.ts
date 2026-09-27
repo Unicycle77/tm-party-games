@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { PUBLIC_URL, db } from "../firebase";
 import { JoinError, ensureSignedIn } from "../session";
 import type { LightState, Session } from "../types";
-import { TRIGGERS, type Trigger, findTrigger } from "./triggers";
+import { type Mode, type Trigger, findMode, findTrigger } from "./triggers";
 
 /** How long after someone does the trigger the light goes on, and for how long. */
 export const DELAY_MS = 2000;
@@ -27,18 +27,20 @@ export const setTrigger = (code: string, trigger: string) => set(path(code, "tri
 /** The secret trigger the host has picked (in "One secret" mode). */
 export const triggerOf = (light: LightState) => findTrigger(light.trigger);
 
-/** "All at once": every trigger, each with its own coloured bulb. */
-export const isAllMode = (light: LightState) => light.mode === "all";
-export const setAllMode = (code: string, all: boolean) => set(path(code, "mode"), all ? "all" : null);
+/** The mode with a bulb per trigger ("Smiles", "All at once"), or undefined for "One secret" (the red bulb). */
+export const modeOf = (light: LightState): Mode | undefined => findMode(light.mode);
+export const setMode = (code: string, mode: Mode["id"] | null) => set(path(code, "mode"), mode);
 /** The triggers the camera watches for. */
-export const watchedTriggers = (light: LightState): Trigger[] => (isAllMode(light) ? TRIGGERS : [triggerOf(light)]);
+export const watchedTriggers = (light: LightState): Trigger[] => modeOf(light)?.bulbs.map((b) => b.trigger) ?? [triggerOf(light)];
 
-/** "All at once": turns one trigger's bulb on, now or after the delay (returns the timer). */
+/** A mode with several bulbs: turns one trigger's bulb on, now or after the delay (returns the timer). */
 export const lightOneNow = (code: string, id: string) => set(ref(db(), `sessions/${code}/light/lit/${id}`), Date.now());
 export const lightOneLater = (code: string, id: string) => window.setTimeout(() => void lightOneNow(code, id), DELAY_MS);
-/** "All at once": every bulb on at once (a test). */
-export const lightAllNow = (code: string) =>
-  update(ref(db(), `sessions/${code}/light/lit`), Object.fromEntries(TRIGGERS.map((t) => [t.id, Date.now()])));
+/** Every bulb of a mode (a test); a millisecond apart, so they take their turns in the mode's order. */
+export const lightAllNow = (code: string, mode: Mode) => {
+  const now = Date.now();
+  return update(ref(db(), `sessions/${code}/light/lit`), Object.fromEntries(mode.bulbs.map((b, i) => [b.trigger.id, now + i])));
+};
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 
 /** The light page: becomes the session's light computer (one per session; this browser may already be it). */
@@ -60,43 +62,54 @@ export async function claimLight(rawCode: string): Promise<string> {
  */
 export const releaseLight = (code: string) => update(ref(db(), `sessions/${code}`), { lightUid: null, "light/camera": null });
 
-/**
- * Whether the light is on: for a second each time `litAt` changes (lighting it again restarts the second).
- * The value already there when the page opens is from before, so it doesn't light up.
- */
-export function useLit(litAt: number | undefined): boolean {
-  const seen = useRef(litAt);
-  const [lit, setLit] = useState(false);
-  useEffect(() => {
-    if (litAt === undefined || litAt === seen.current) { setLit(false); return; }
-    seen.current = litAt;
-    setLit(true);
-    const off = window.setTimeout(() => setLit(false), ON_MS);
-    return () => window.clearTimeout(off);
-  }, [litAt]);
-  return lit;
-}
+/** The dark pause between two flashes, so back-to-back ones can be told apart. */
+export const GAP_MS = 400;
+/** The flash of the one red bulb ("One secret" mode); in the other modes a flash is a trigger's id. */
+export const ONE = "one";
 
 /**
- * "All at once": which bulbs are on, by trigger id, with when each came on (so the latest one is known).
- * Each stays on for a second after its time in `lit` changes; times already there when the page opens are old.
+ * Which light is flashing right now: ONE, a trigger's id, or undefined. Each lighting event (a new time in
+ * `litAt`, or in `lit` in a mode with several bulbs) gets its full second and a short gap after it;
+ * events that arrive meanwhile wait their turn, in order, and never cut a flash short. A light that's
+ * already waiting isn't queued twice, so a busy moment can't build up a backlog. Times already there
+ * when the page opens are old, and so are other modes'.
  */
-export function useLitBulbs(lit: Record<string, number> | undefined): Record<string, number> {
-  const seen = useRef(lit ?? {});
-  const [on, setOn] = useState<Record<string, number>>({});
-  const timers = useRef<Record<string, number>>({});
+export function useFlash(light: LightState): string | undefined {
+  const mode = modeOf(light);
+  const seen = useRef({ litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id });
+  const queue = useRef<string[]>([]);
+  const playing = useRef(false);
+  const timer = useRef<number>();
+  const [current, setCurrent] = useState<string>();
+
+  const playNext = useRef(() => {
+    const id = queue.current.shift();
+    if (id === undefined) { playing.current = false; return; }
+    playing.current = true;
+    setCurrent(id);
+    timer.current = window.setTimeout(() => {
+      setCurrent(undefined);
+      timer.current = window.setTimeout(playNext.current, GAP_MS);
+    }, ON_MS);
+  });
+
   useEffect(() => {
-    const now = lit ?? {};
-    for (const [id, at] of Object.entries(now)) {
-      if (seen.current[id] === at) continue;
-      window.clearTimeout(timers.current[id]);
-      setOn((o) => ({ ...o, [id]: Date.now() }));
-      timers.current[id] = window.setTimeout(() => setOn(({ [id]: _, ...rest }) => rest), ON_MS);
+    // Switching modes drops what was waiting for the old one.
+    if (seen.current.mode !== mode?.id) queue.current = [];
+    const fresh: [string, number][] = [];
+    if (!mode && light.litAt !== undefined && light.litAt !== seen.current.litAt) fresh.push([ONE, light.litAt]);
+    for (const b of mode?.bulbs ?? []) {
+      const at = light.lit?.[b.trigger.id];
+      if (at !== undefined && at !== seen.current.lit[b.trigger.id]) fresh.push([b.trigger.id, at]);
     }
-    seen.current = now;
-  }, [lit]);
-  useEffect(() => () => Object.values(timers.current).forEach((t) => window.clearTimeout(t)), []);
-  return on;
+    seen.current = { litAt: light.litAt, lit: light.lit ?? {}, mode: mode?.id };
+    fresh.sort(([, a], [, b]) => a - b);
+    for (const [id] of fresh) if (!queue.current.includes(id)) queue.current.push(id);
+    if (!playing.current) playNext.current();
+  }, [light.litAt, light.lit, mode?.id]);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  return current;
 }
 
 /** What the light computer's camera sees, in words, for the host (this gives the secret away). */
@@ -113,6 +126,6 @@ export function cameraText(session: Session): string {
   // Per state ("smiling" is shared by the two smile triggers, "with an arm up" by the two arm ones).
   const states = new Map<string, number>();
   for (const t of watchedTriggers(light)) states.set(t.state, camera.each?.[t.id] ?? 0);
-  if (!isAllMode(light)) return `${seen}, ${[...states.values()][0] ?? 0} ${triggerOf(light).state}.${paused}`;
+  if (!modeOf(light)) return `${seen}, ${[...states.values()][0] ?? 0} ${triggerOf(light).state}.${paused}`;
   return `${seen}: ${[...states].map(([state, n]) => `${n} ${state}`).join(", ")}.${paused}`;
 }

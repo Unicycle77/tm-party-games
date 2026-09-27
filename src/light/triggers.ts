@@ -22,7 +22,7 @@ export interface Trigger {
   state: string;
   /**
    * Its bulb's colour in "All at once" mode, on screen and on colour Hue lamps (so it lives here, not
-   * in styles.css), and its name for the host.
+   * in styles.css), and its name for the host. Other modes can colour it differently (see MODES).
    */
   colour: string;
   colourName: string;
@@ -39,6 +39,23 @@ export const TRIGGERS: Trigger[] = [
 
 export const DEFAULT_TRIGGER = TRIGGERS[0]!;
 export const findTrigger = (id: string | undefined): Trigger => TRIGGERS.find((t) => t.id === id) ?? DEFAULT_TRIGGER;
+
+/** A bulb in a mode with several: which trigger lights it, and its colour (on screen and on colour Hue lamps). */
+export interface BulbSpec { trigger: Trigger; colour: string; colourName: string }
+
+/** The modes with a bulb per trigger ("One secret", the red bulb for the picked trigger, is the default). */
+export interface Mode { id: "smiles" | "all"; label: string; bulbs: BulbSpec[] }
+
+const own = (t: Trigger): BulbSpec => ({ trigger: t, colour: t.colour, colourName: t.colourName });
+export const MODES: Mode[] = [
+  // Green when a smile starts, red when it stops.
+  { id: "smiles", label: "Smiles", bulbs: [
+    { trigger: findTrigger("start-smiling"), colour: "#34c759", colourName: "green" },
+    { trigger: findTrigger("stop-smiling"), colour: "#e8412e", colourName: "red" },
+  ] },
+  { id: "all", label: "All at once", bulbs: TRIGGERS.map(own) },
+];
+export const findMode = (id: string | undefined): Mode | undefined => MODES.find((m) => m.id === id);
 
 /** Face triggers: scores from the face's expression readings (0–1). */
 export function facePeople(result: FaceLandmarkerResult, trigger: Trigger): Person[] {

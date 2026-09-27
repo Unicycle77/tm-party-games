@@ -103,7 +103,7 @@
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid || root.child('sessions').child($code).child('lightUid').val() === auth.uid)",
           "armed": { ".validate": "newData.isBoolean()" },
           "trigger": { ".validate": "newData.isString() && newData.val().length <= 40" },
-          "mode": { ".validate": "newData.val() === 'all'" },
+          "mode": { ".validate": "newData.val() === 'all' || newData.val() === 'smiles'" },
           "litAt": { ".validate": "newData.isNumber()" },
           "lit": {
             "$trigger": { ".validate": "$trigger.length <= 40 && newData.isNumber()" }

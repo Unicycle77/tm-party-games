@@ -488,9 +488,10 @@ body.idle-cursor .stage { cursor: none; }
 /* ---- The light (/light): a red bulb on a wooden box that lights up for a second ---- */
 /* just the bulb, full screen; the bar with its status and buttons appears while the mouse moves */
 .stage.light-stage .bulb { height: 80vh; }
-/* "All at once": a bulb per trigger, three across, two down, as big as fits */
-.light-bulbs { display: grid; grid-template-columns: repeat(3, auto); gap: 2vh 6vw; justify-content: center; align-content: center; }
+/* modes with a bulb per trigger: up to three across (columns set inline), as big as fits */
+.light-bulbs { display: grid; gap: 2vh 6vw; justify-content: center; align-content: center; }
 .stage.light-stage .light-bulbs .bulb { height: 40vh; }
+.stage.light-stage .light-bulbs.few .bulb { height: 66vh; }
 .light-bar { max-width: min(94vw, 900px); }
 .light-bar-status { flex-basis: 100%; margin: 0; text-align: center; color: var(--fg); font-family: var(--typewriter); }
 .light-bar-status.small { font-family: system-ui, sans-serif; color: var(--muted); }

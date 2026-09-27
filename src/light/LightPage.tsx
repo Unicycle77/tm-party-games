@@ -7,10 +7,9 @@ import { JoinError, store, useSession, useUid } from "../session";
 import type { LightState, Session } from "../types";
 import { Bulb } from "./Bulb";
 import {
-  claimLight, isAllMode, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, releaseLight, setArmed, setCamera, useLit, useLitBulbs, watchedTriggers,
+  claimLight, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, ONE, releaseLight, setArmed, setCamera, useFlash, watchedTriggers,
 } from "./data";
 import { RED, type HueConfig, loadHue } from "./hue";
-import { TRIGGERS } from "./triggers";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
 import { HueSetup, useHueLamps } from "./HueSetup";
 import { Camera } from "./Camera";
@@ -45,18 +44,17 @@ export function LightPage() {
 function Running({ code, session, onStop }: { code: string; session: Session; onStop: () => void }) {
   const light = lightOf(session);
   const armed = isArmed(light);
-  const all = isAllMode(light);
+  const mode = modeOf(light);
   // One secret: the red bulb. All at once: a bulb per trigger, in its colour.
-  const lit = useLit(light.litAt);
-  const bulbs = useLitBulbs(light.lit);
+  // One flash at a time, each for its full second (see useFlash).
+  const flash = useFlash(light);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
   const [settingUp, setSettingUp] = useState<"hue" | "camera">();
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(loadCameraSettings);
   // The camera's picture and what the detection runs on, for the camera panel's preview.
   const [feed, setFeed] = useState<{ stream?: MediaStream; runsOn?: "GPU" | "CPU" }>({});
-  // The Hue lamp shows the latest bulb to come on, in its colour.
-  const latest = Object.entries(bulbs).sort(([, a], [, b]) => b - a)[0]?.[0];
-  const lampColour = all ? TRIGGERS.find((t) => t.id === latest)?.colour : lit ? RED : undefined;
+  // The Hue lamp flashes with it, in the same colour.
+  const lampColour = flash === ONE ? RED : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
   const hueError = useHueLamps(hue, lampColour);
 
   // Each time someone does a trigger, its light goes on a little later (unless paused).
@@ -83,18 +81,20 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   const tab = barVisible ? 0 : -1;
   return (
     <main className="stage light-stage">
-      {all ? (
-        <div className="light-bulbs">
-          {TRIGGERS.map((t) => <Bulb key={t.id} lit={!!bulbs[t.id]} colour={t.colour} />)}
+      {mode ? (
+        // Up to three across; a mode with few bulbs gets bigger ones in a single row.
+        <div className={mode.bulbs.length > 3 ? "light-bulbs" : "light-bulbs few"}
+          style={{ gridTemplateColumns: `repeat(${Math.min(3, mode.bulbs.length)}, auto)` }}>
+          {mode.bulbs.map((b) => <Bulb key={b.trigger.id} lit={flash === b.trigger.id} colour={b.colour} />)}
         </div>
-      ) : <Bulb lit={lit} />}
+      ) : <Bulb lit={flash === ONE} />}
       <div className={barVisible || settingUp ? "stage-controls light-bar show" : "stage-controls light-bar"} aria-hidden={!barVisible}>
         <p className="light-bar-status">
           💡 {code} · {cameraStatus(light)} · {!hue?.lights.length ? "No Hue lamp" : `Hue lamp: ${hueError ?? hue.lights.map((l) => l.name).join(", ")}`}
         </p>
         <button onClick={() => setSettingUp("camera")} tabIndex={tab}>Camera</button>
         <button onClick={() => setSettingUp("hue")} tabIndex={tab}>💡 Hue lamp</button>
-        <button onClick={() => void (all ? lightAllNow(code) : lightNow(code))} tabIndex={tab}>{all ? "Light them all now" : "Light it now"}</button>
+        <button onClick={() => void (mode ? lightAllNow(code, mode) : lightNow(code))} tabIndex={tab}>{mode ? "Light them all now" : "Light it now"}</button>
         <button className={armed ? undefined : "active"} onClick={() => void setArmed(code, !armed)} tabIndex={tab}>
           {armed ? "⏸ Pause" : "▶ Resume"}
         </button>
@@ -103,7 +103,7 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
       </div>
       <Camera triggers={watchedTriggers(light)} settings={cameraSettings}
         onStream={(stream, runsOn) => setFeed({ stream, runsOn })}
-        onTrigger={(id) => { if (armedNow.current) timers.current.push(all ? lightOneLater(code, id) : lightLater(code)); }}
+        onTrigger={(id) => { if (armedNow.current) timers.current.push(mode ? lightOneLater(code, id) : lightLater(code)); }}
         onStatus={(status) => void setCamera(code, status)} />
       {settingUp === "hue" && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(undefined)} />}
       {settingUp === "camera" && (

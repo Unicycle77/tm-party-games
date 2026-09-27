@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { Session } from "../types";
 import {
-  DELAY_MS, cameraText, isAllMode, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, releaseLight, setAllMode, setArmed, setTrigger, triggerOf,
+  DELAY_MS, cameraText, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, releaseLight, setArmed, setMode, setTrigger, triggerOf,
 } from "./data";
-import { TRIGGERS } from "./triggers";
+import { MODES, TRIGGERS } from "./triggers";
 
 /**
- * The host phone's light controls (on every view): one secret trigger or all at once, what the camera
- * sees, pause and manual lights.
+ * The host phone's light controls (on every view): the mode (one secret trigger, or a bulb per trigger),
+ * what the camera sees, pause and manual lights.
  */
 export function LightRemote({ code, session }: { code: string; session: Session }) {
   const light = lightOf(session);
   const armed = isArmed(light);
   const running = !!session.lightUid;
   const trigger = triggerOf(light);
-  const all = isAllMode(light);
+  const mode = modeOf(light);
   // Manual lights counting down (for someone the camera missed).
   const [pending, setPending] = useState(0);
   const timers = useRef<number[]>([]);
@@ -24,7 +24,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
     setPending((n) => n + 1);
     timers.current.push(lightLater(code), window.setTimeout(() => setPending((n) => n - 1), DELAY_MS));
   }
-  // All at once: one colour's bulb, after the delay (for something the camera missed).
+  // A mode with several bulbs: one colour's bulb, after the delay (for something the camera missed).
   const [pendingOne, setPendingOne] = useState<string[]>([]);
   function lightOneSoon(id: string) {
     setPendingOne((p) => [...p, id]);
@@ -33,27 +33,29 @@ export function LightRemote({ code, session }: { code: string; session: Session 
 
   return (
     <div className="light-remote">
-      <div className="steps two">
-        <button className={all ? "step" : "step active"} onClick={() => { if (all) void setAllMode(code, false); }}>One secret</button>
-        <button className={all ? "step active" : "step"} onClick={() => { if (!all) void setAllMode(code, true); }}>All at once</button>
+      <div className="steps three">
+        <button className={mode ? "step" : "step active"} onClick={() => { if (mode) void setMode(code, null); }}>One secret</button>
+        {MODES.map((m) => (
+          <button key={m.id} className={m.id === mode?.id ? "step active" : "step"} onClick={() => { if (m.id !== mode?.id) void setMode(code, m.id); }}>{m.label}</button>
+        ))}
       </div>
-      {all ? (
+      {mode ? (
         <>
           <p className="muted small">
             Only you know: each bulb goes on {DELAY_MS / 1000} seconds after anyone does its action. The players see the colours, not the names.
             Tap one to light it in {DELAY_MS / 1000} s (for something the camera missed).
           </p>
           <div className="steps two">
-            {TRIGGERS.map((t) => (
-              <button key={t.id} className="step light-key" style={{ "--bulb": t.colour } as React.CSSProperties}
+            {mode.bulbs.map(({ trigger: t, colour, colourName }) => (
+              <button key={t.id} className="step light-key" style={{ "--bulb": colour } as React.CSSProperties}
                 disabled={!running || pendingOne.includes(t.id)} onClick={() => lightOneSoon(t.id)}>
                 <span className="swatch" aria-hidden />{pendingOne.includes(t.id) ? "Lighting…" : t.label}
-                <span className="muted small">{t.colourName}</span>
+                <span className="muted small">{colourName}</span>
               </button>
             ))}
           </div>
           <p>{cameraText(session)}</p>
-          <button disabled={!running} onClick={() => void lightAllNow(code)}>Light them all now</button>
+          <button disabled={!running} onClick={() => void lightAllNow(code, mode)}>Light them all now</button>
         </>
       ) : (
         <>
@@ -75,7 +77,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
           <p className="muted small">"Light in {DELAY_MS / 1000} s" is for something the camera missed; "Light it now" is a test.</p>
         </>
       )}
-      {(all || trigger.model === "pose") && <p className="muted small">The camera needs to see people's arms and shoulders, not just faces.</p>}
+      {(mode ? mode.bulbs.some((b) => b.trigger.model === "pose") : trigger.model === "pose") && <p className="muted small">The camera needs to see people's arms and shoulders, not just faces.</p>}
       <button className={armed ? undefined : "active"} disabled={!running} onClick={() => void setArmed(code, !armed)}>
         {armed ? "⏸ Pause camera" : "▶ Resume camera"}
       </button>
