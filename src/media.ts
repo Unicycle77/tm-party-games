@@ -30,7 +30,8 @@ export async function submitMedia(
   kind: string,
   file: Blob,
   onProgress: (fraction: number) => void,
-  opts: { alreadySized?: boolean } = {}, // true for frames we already resized/encoded ourselves
+  // alreadySized: frames we already resized/encoded ourselves. signal: aborting it cancels the upload.
+  opts: { alreadySized?: boolean; signal?: AbortSignal } = {},
 ): Promise<void> {
   const body = kind === "video" || opts.alreadySized ? file : await shrinkImage(file as File);
   const contentType = kind === "video" ? file.type || "video/mp4" : body.type || "image/jpeg";
@@ -39,9 +40,16 @@ export async function submitMedia(
     // File names are unique per upload, so a cached copy is never stale.
     cacheControl: "public, max-age=31536000, immutable",
   });
-  await new Promise<void>((resolve, reject) => {
-    task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
-  });
+  const cancel = () => task.cancel();
+  opts.signal?.addEventListener("abort", cancel);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
+    });
+  } finally {
+    opts.signal?.removeEventListener("abort", cancel);
+  }
+  opts.signal?.throwIfAborted();
   const url = await getDownloadURL(task.snapshot.ref);
   await update(dbRef(db(), `sessions/${code}/games/${game}/media/${uid}`), { [kind]: url });
 }

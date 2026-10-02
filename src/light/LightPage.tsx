@@ -14,6 +14,7 @@ import { RED, type HueConfig, loadHue } from "./hue";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
 import { HueSetup, useHueLamps } from "./HueSetup";
 import { Camera, type HeadBox } from "./Camera";
+import { useKeepAwake } from "../keepAwake";
 
 const KEY = "ba.lightCode";
 
@@ -148,19 +149,6 @@ function useSpinTime(on: boolean): number {
 function spinOrder(count: number): number[] {
   if (count !== 6) return [...Array(count).keys()];
   return [0, 1, 2, 5, 4, 3];
-}
-
-/** Stops the computer's screen going to sleep while the light runs (asked again whenever the page comes back). */
-function useKeepAwake() {
-  useEffect(() => {
-    let lock: WakeLockSentinel | undefined;
-    const request = () => {
-      if (document.visibilityState === "visible") navigator.wakeLock?.request("screen").then((l) => { lock = l; }, () => {});
-    };
-    request();
-    document.addEventListener("visibilitychange", request);
-    return () => { document.removeEventListener("visibilitychange", request); void lock?.release(); };
-  }, []);
 }
 
 function Connect({ onConnected }: { onConnected: (code: string) => void }) {

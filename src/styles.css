@@ -321,7 +321,23 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .slot h2 { color: var(--burgundy); margin: 0; }
 /* the phone's resting card: joined, or between games */
 .slot.waiting { justify-items: center; text-align: center; padding: 1.5rem 1rem; }
-.slot.waiting .stamp { align-self: center; font-size: 1.2rem; }
+.slot.waiting .stamp { align-self: center; }
+.slot > .stamp { justify-self: start; font-size: 1.2rem; }
+.slot.waiting .stamp { justify-self: center; }
+/* problems on paper: plain burgundy text, never stamp-shaped */
+.slot .error { color: var(--burgundy); margin: 0; }
+/* quiet links on paper (the curtain's --muted is too faint there) */
+.slot button.link { color: #6b5a44; justify-self: center; }
+/* a task card: the main button keeps its spot while the card changes state */
+.slot.task .frame-play { padding: 0; border: 0; background: none; box-shadow: none; cursor: pointer; }
+/* the picked video is only ever watched full screen */
+.offscreen { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.sending { display: grid; gap: 0.3rem; justify-items: center; font-family: var(--typewriter); color: var(--burgundy); font-variant-numeric: tabular-nums; }
+/* the progress bar takes the Submit button's place and size */
+.sending progress { appearance: none; -webkit-appearance: none; height: 3rem; border: 2px solid var(--gold-dark); border-radius: 6px; background: #e3d6ba; overflow: hidden; }
+.sending progress::-webkit-progress-bar { background: #e3d6ba; }
+.sending progress::-webkit-progress-value { background: var(--burgundy); }
+.sending progress::-moz-progress-bar { background: var(--burgundy); }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }
