@@ -16,7 +16,7 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   if (!round) {
     return (
       <main className="stage boxes">
-        <p className="muted">Waiting for the host to set up the boxes…</p>
+        {/* the empty curtain while the host sets up: the room looks at the host */}
         {!viewOnly && <StageControls code={code} round={undefined} nameOf={nameOf} />}
       </main>
     );
@@ -55,7 +55,13 @@ function Round({ code, round, nameOf, viewOnly }: { code: string; round: BoxRoun
           );
         })}
         {([["left", round.players.a], ["right", round.players.b]] as const).map(([side, uid]) => (
-          <div key={side} className={`box-name ${side}`}>{nameOf(uid)}{uid === round.peeker && <span title="Looked inside"> 👀</span>}</div>
+          <div key={side} className={`box-name ${side}`}>
+            <span className="label">
+              {nameOf(uid)}
+              {/* readable across the room, unlike the old 👀 */}
+              {uid === round.peeker && <small>looked inside</small>}
+            </span>
+          </div>
         ))}
       </div>
       {!viewOnly && <StageControls code={code} round={round} nameOf={nameOf} />}

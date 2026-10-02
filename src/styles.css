@@ -582,21 +582,27 @@ body.idle-cursor .stage { cursor: none; }
   font-size: clamp(1.1rem, 3.6vmin, 2.4rem);
   box-shadow: 0 4px 10px #000a;
 }
-.box-name {
-  position: absolute; bottom: 5%; width: 42%;
-  text-align: center;
+/* the players' names: paper labels under the boxes, slightly askew like the tiles */
+.box-name { position: absolute; top: 79%; width: 42%; display: flex; justify-content: center; }
+.box-name .label {
+  display: grid; justify-items: center; max-width: 100%;
   background: var(--paper); color: var(--ink);
-  border: 2px solid var(--gold-dark);
-  font-family: var(--typewriter); font-size: clamp(1.2rem, 4vmin, 2.6rem);
-  padding: 0.2rem 0.8rem;
+  border: 2px solid var(--gold-dark); border-radius: 3px;
+  font-family: var(--typewriter); font-size: clamp(1.4rem, 4.4vmin, 3rem); line-height: 1.15;
+  padding: 0.3rem 1.4rem;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  box-shadow: 0 4px 10px #000a;
+  box-shadow: 0 6px 14px #0009; transform: rotate(-1.5deg);
 }
+.box-name.right .label { transform: rotate(1.2deg); }
+.box-name small { font-size: 0.5em; color: var(--burgundy); letter-spacing: 0.08em; text-transform: uppercase; }
+/* a round opens with the boxes dropping onto the curtain */
+.box-spot > img { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.box-spot.right > img { animation-delay: 0.2s; }
 .box-name.left { left: 4%; }
 .box-name.right { left: 54%; }
 @media (prefers-reduced-motion: reduce) {
   .box-spot { transition: none; }
-  .box-spot.cross-over, .box-spot.cross-under, .box-reveal, .box-announce { animation: none; }
+  .box-spot.cross-over, .box-spot.cross-under, .box-reveal, .box-announce, .box-spot > img { animation: none; }
 }
 
 /* [BLANK] in a Box on phones: the box art has no frame of its own; a peeked-at object gets the preview border */
