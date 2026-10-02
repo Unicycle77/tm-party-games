@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
 import { QrScannerModal } from "./QrScannerModal";
-import { JoinError, extractCode, joinSession, store, useSession, useUid } from "./session";
+import { JoinError, SameNameError, askToMove, cancelMove, extractCode, joinSession, sameName, store, useSession, useUid } from "./session";
 
 const CODE_KEY = "ba.playCode";
 const NAME_KEY = "ba.playName";
@@ -25,7 +25,10 @@ export function Play() {
       history.replaceState(null, "", location.pathname);
       leave("That party has ended.");
     }
-    else if (!session.players?.[uid]) leave("You were removed from the party.");
+    else if (!session.players?.[uid]) {
+      const moved = Object.values(session.moves ?? {}).some((m) => m.from === uid && m.status === "allowed");
+      leave(moved ? "You've moved to another phone." : "You were removed from the party.");
+    }
   }, [uid, session]);
 
   if (!code) return <Join notice={dropped} onJoined={(c) => { store.set(CODE_KEY, c); setCode(c); setDropped(undefined); }} />;
@@ -65,6 +68,20 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
   const [scanning, setScanning] = useState(false);
   // Arrived from the big screen's QR: the code is already right, so show it as a fact, not a field.
   const [editingCode, setEditingCode] = useState(() => code.length !== 4);
+  // Someone here already has this name: maybe this guest, on a new phone.
+  const [clash, setClash] = useState<string>();
+  const [moving, setMoving] = useState(false);
+  const clashes = !!clash && sameName(name, clash);
+
+  async function askMove() {
+    setBusy(true);
+    setError(undefined);
+    try { await askToMove(code, name); setMoving(true); }
+    catch (err) { setError(err instanceof JoinError ? err.message : "Something went wrong. Try again."); }
+    finally { setBusy(false); }
+  }
+
+  if (moving) return <MoveWait code={code} onJoined={(c) => { store.set(NAME_KEY, name.trim()); onJoined(c); }} onBack={() => setMoving(false)} />;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -75,6 +92,8 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       store.set(NAME_KEY, name.trim());
       onJoined(c);
     } catch (err) {
+      // Same name: not an error, a question (shown under the field).
+      if (err instanceof SameNameError) { setClash(err.taken); return; }
       // A wrong code needs the code field back to fix it.
       if (err instanceof JoinError && err.message.startsWith("No session found")) setEditingCode(true);
       setError(err instanceof JoinError ? err.message : "Something went wrong. Try again.");
@@ -101,8 +120,14 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={20}
             autoCapitalize="words" autoComplete="given-name" placeholder="e.g. Alex" required />
         </label>
-        <p className="muted small join-hint">This is how you'll appear on the big screen.</p>
-        <button type="submit" className="big" disabled={busy || code.length !== 4}>{busy ? "Joining…" : "Join"}</button>
+        {clashes ? (
+          <div className="same-name">
+            <p>There's already a {clash} here. Is that you on another phone?</p>
+            <button type="button" disabled={busy} onClick={() => void askMove()}>That's me, move me here</button>
+            <p className="muted small">Someone else? Add your last initial, like "{clash} B".</p>
+          </div>
+        ) : <p className="muted small join-hint">This is how you'll appear on the big screen.</p>}
+        <button type="submit" className="big" disabled={busy || code.length !== 4 || clashes}>{busy ? "Joining…" : "Join"}</button>
         {error && <p className="error">{error}</p>}
       </form>
       {!editingCode && <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>}
@@ -111,6 +136,40 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
         const c = extractCode(t);
         if (c) { setCode(c); setError(undefined); }
       }} />}
+    </main>
+  );
+}
+
+/**
+ * A new phone waiting for the host to allow a move. The host's phone shows a card; once allowed, this
+ * phone becomes the player (entries and all) and the old phone says it has moved.
+ */
+function MoveWait({ code, onJoined, onBack }: { code: string; onJoined: (code: string) => void; onBack: () => void }) {
+  const uid = useUid();
+  const session = useSession(code);
+  const status = uid ? session?.moves?.[uid]?.status : undefined;
+  const moved = status === "allowed" && !!uid && !!session?.players?.[uid];
+  useEffect(() => { if (moved) onJoined(code); }, [moved]);
+  const back = () => { void cancelMove(code); onBack(); };
+
+  return (
+    <main className="join">
+      <h1>Taskmaster</h1>
+      <section className="slot waiting">
+        {status === "declined" ? (
+          <>
+            <h2>The host said no.</h2>
+            <p className="slot-hint">If that's a mistake, have a word with them.</p>
+            <button className="link" onClick={back}>Back</button>
+          </>
+        ) : (
+          <>
+            <h2>Asked the host to move you here.</h2>
+            <p className="slot-hint">Waiting for their OK…</p>
+            <button className="link" onClick={back}>Cancel</button>
+          </>
+        )}
+      </section>
     </main>
   );
 }

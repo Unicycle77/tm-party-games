@@ -5,7 +5,7 @@ import { isArmed, lightOf, releaseLight } from "./light/data";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, claimController, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, allowMove, claimController, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
@@ -57,6 +57,7 @@ export function HostPage() {
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
+      <MoveRequests code={code} session={session} />
       {view === "show" ? (
         <>
           <HostRemote code={code} session={session} />
@@ -69,6 +70,30 @@ export function HostPage() {
         </>
       )}
     </main>
+  );
+}
+
+/**
+ * Guests asking to move to a new phone, at the top of every view. It blocks nothing and makes no
+ * sound: the guest will usually be standing next to the host asking anyway.
+ */
+function MoveRequests({ code, session }: { code: string; session: Session }) {
+  const asks = Object.entries(session.moves ?? {}).filter(([, m]) => m.status === "asked" && session.players?.[m.from]);
+  return (
+    <>
+      {asks.map(([to, m]) => {
+        const name = session.players![m.from]!.name;
+        return (
+          <section key={to} className="move-request">
+            <p><strong>{name}</strong> wants to move to a new phone. Allow it if {name} asked you. Their entries move with them.</p>
+            <div className="row">
+              <button onClick={() => void allowMove(code, session, to)}>Allow</button>
+              <button onClick={() => void declineMove(code, to)}>Decline</button>
+            </div>
+          </section>
+        );
+      })}
+    </>
   );
 }
 

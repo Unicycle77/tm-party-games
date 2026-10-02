@@ -2,7 +2,7 @@ import { onAuthStateChanged, signInAnonymously, type User } from "firebase/auth"
 import { get, onValue, ref, remove, serverTimestamp, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
-import { type BeforeAfterMedia, type Display, type GameId, type Jukebox, type Session } from "./types";
+import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type Session } from "./types";
 
 let signIn: Promise<User> | undefined;
 
@@ -60,6 +60,17 @@ export async function createSession(): Promise<string> {
 
 export class JoinError extends Error {}
 
+/** Joining with a name someone already has (ignoring capitals and spaces): maybe them, on another phone. */
+export class SameNameError extends JoinError {
+  constructor(readonly taken: string) { super(`There's already a ${taken} here. Is that you on another phone?`); }
+}
+
+/** Names match ignoring capitals and spaces ("sam " is Sam). */
+export const sameName = (a: string, b: string) => {
+  const key = (n: string) => n.toLowerCase().replace(/\s+/g, "");
+  return key(a) === key(b);
+};
+
 /**
  * Main screen: picks up an existing session by its code, e.g. after "End session" or on another computer.
  * Taking it over moves `hostUid` to this browser, which sends the previous screen back to its start page.
@@ -94,6 +105,9 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   if (!(await get(ref(db(), `sessions/${code}/hostUid`))).exists()) {
     throw new JoinError(`No session found for code ${code}.`);
   }
+  const players = ((await get(ref(db(), `sessions/${code}/players`))).val() ?? {}) as Record<string, Player>;
+  const clash = Object.entries(players).find(([uid, p]) => uid !== user.uid && sameName(p.name, name));
+  if (clash) throw new SameNameError(clash[1].name);
   // A brand-new player starts clean: clear anything left behind by an earlier stint or a partial removal.
   // (Someone reconnecting with their player record still in place keeps their submission.)
   if (!(await get(ref(db(), `sessions/${code}/players/${user.uid}`))).exists()) {
@@ -105,6 +119,51 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   });
   return code;
 }
+
+/** New phone: asks the host to move the player with this name here (see MoveRequest). */
+export async function askToMove(rawCode: string, name: string): Promise<void> {
+  const code = rawCode.trim().toUpperCase();
+  const user = await ensureSignedIn();
+  const players = ((await get(ref(db(), `sessions/${code}/players`))).val() ?? {}) as Record<string, Player>;
+  const from = Object.entries(players).find(([uid, p]) => uid !== user.uid && sameName(p.name, name))?.[0];
+  if (!from) throw new JoinError("That name isn't taken any more. Try joining again.");
+  await set(ref(db(), `sessions/${code}/moves/${user.uid}`), { from, status: "asked" });
+}
+
+/** New phone: withdraws its request (or clears a declined one). */
+export const cancelMove = async (code: string) =>
+  remove(ref(db(), `sessions/${code}/moves/${(await ensureSignedIn()).uid}`));
+
+/**
+ * Host: moves a player to the phone that asked, with everything they've submitted, in one write.
+ * Their place in the show (on screen now, shown, a Box round) moves with them.
+ */
+export async function allowMove(code: string, session: Session, to: string) {
+  const from = session.moves?.[to]?.from;
+  const player = from && session.players?.[from];
+  if (!from || !player) return;
+  const u: Record<string, unknown> = { [`players/${to}`]: player, [`players/${from}`]: null, [`moves/${to}/status`]: "allowed" };
+  const carry = (path: string, value: unknown) => {
+    if (value === undefined) return;
+    u[`${path}/${to}`] = value;
+    u[`${path}/${from}`] = null;
+  };
+  for (const game of SUBMISSION_GAMES) {
+    const data = session.games?.[game] as GameData<unknown> | undefined;
+    carry(`games/${game}/media`, data?.media?.[from]);
+    carry(`games/${game}/unlocked`, data?.unlocked?.[from]);
+    carry(`games/${game}/shown`, data?.shown?.[from]);
+  }
+  carry("games/box/played", session.games?.box?.played?.[from]);
+  const round = session.games?.box?.round;
+  if (round?.players.a === from) u["games/box/round/players/a"] = to;
+  if (round?.players.b === from) u["games/box/round/players/b"] = to;
+  if (round?.peeker === from) u["games/box/round/peeker"] = to;
+  if (session.display?.uid === from) u["display/uid"] = to;
+  await update(ref(db(), `sessions/${code}`), u);
+}
+
+export const declineMove = (code: string, to: string) => set(ref(db(), `sessions/${code}/moves/${to}/status`), "declined");
 
 /** Host phone: connects to a session as its remote controller (one per session). */
 export async function claimController(rawCode: string): Promise<string> {

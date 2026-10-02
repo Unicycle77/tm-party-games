@@ -726,3 +726,10 @@ h2.contestant .muted { font-size: 0.6em; }
 .box-setup .choices > p { margin: 0.3rem 0; }
 .box-wait { font-family: var(--typewriter); color: var(--fg); font-size: 1.15rem; }
 .box-setup .remote-head .link { white-space: nowrap; }
+/* join form: the name is taken, maybe by this guest on another phone (plain text, not an error) */
+.same-name { display: grid; gap: 0.5rem; }
+.same-name p { margin: 0; }
+/* host phone: a guest asking to move to a new phone. Paper with a burgundy edge; blocks nothing */
+.move-request { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-top: 6px solid var(--burgundy); border-radius: 6px; padding: 0.8rem; display: grid; gap: 0.6rem; box-shadow: 0 4px 10px #0008; }
+.move-request p { margin: 0; }
+.move-request .row button { flex: 1; }

@@ -134,6 +134,14 @@
           },
           "$other": { ".validate": false }
         },
+        "moves": {
+          "$uid": {
+            ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || (!data.exists() && newData.child('status').val() === 'asked'))) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            "from": { ".validate": "newData.isString()" },
+            "status": { ".validate": "newData.val() === 'asked' || newData.val() === 'allowed' || newData.val() === 'declined'" },
+            "$other": { ".validate": false }
+          }
+        },
         "display": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
         },

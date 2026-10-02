@@ -75,6 +75,17 @@ export interface LightState {
   camera?: { starting?: boolean; off?: boolean; people?: number; each?: Record<string, number>; error?: string };
 }
 
+/**
+ * A guest on a new phone (or browser) asking to take over their player, entries and all. Only the
+ * host can allow it, so nobody can take someone else's spot. Allowed requests stay, so the old phone
+ * can say where its player went.
+ */
+export interface MoveRequest {
+  /** The player being moved. */
+  from: string;
+  status: "asked" | "allowed" | "declined";
+}
+
 /** One game's submissions within a session. */
 export interface GameData<M> {
   media?: Record<string, M>;
@@ -107,6 +118,8 @@ export interface Session {
   jukebox?: Jukebox;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
   lightUid?: string;
+  /** Guests asking to move to a new phone, by the new phone's uid (see MoveRequest). */
+  moves?: Record<string, MoveRequest>;
   light?: LightState;
   /** Where Before & After kept its data before there were games. Moved into `games` when a main screen opens the session. */
   media?: Record<string, BeforeAfterMedia>;
