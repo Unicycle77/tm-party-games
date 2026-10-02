@@ -4,6 +4,7 @@ import {
   readDurations, rememberFolder, requestAccess, scanFolder,
 } from "./musicFolder";
 import { publishDurations, publishTracks, setJukeboxState } from "./session";
+import { MUSIC_READY } from "./StageGate";
 import type { Jukebox as JukeboxData } from "./types";
 
 /**
@@ -44,15 +45,20 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
     }
   }
 
-  // On startup, reconnect to the remembered folder if Chrome still allows it.
+  // On startup, reconnect to the remembered folder if Chrome still allows it; again whenever the
+  // setup gate gets access to a folder (or a new one is chosen there).
   useEffect(() => {
     if (!folderPickerSupported()) return;
-    void (async () => {
+    const connect = async () => {
       const dir = await recallFolder();
       if (!dir) return;
       if (await hasAccess(dir)) await load(dir);
       else setSaved(dir);
-    })();
+    };
+    void connect();
+    const onReady = () => void connect();
+    window.addEventListener(MUSIC_READY, onReady);
+    return () => window.removeEventListener(MUSIC_READY, onReady);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

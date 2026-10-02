@@ -1,4 +1,4 @@
-import { ref as dbRef, update } from "firebase/database";
+import { ref as dbRef, set, update } from "firebase/database";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "./firebase";
 import type { GameId } from "./types";
@@ -22,6 +22,22 @@ async function shrinkImage(file: File, maxDim = 1600): Promise<Blob> {
   return file;
 }
 
+/**
+ * Host phone: uploads this party's Taskmaster portrait (under the host phone's own uid, like any
+ * upload) and publishes it for the big screen.
+ */
+export async function uploadPortrait(code: string, uid: string, file: File, onProgress: (fraction: number) => void): Promise<void> {
+  const body = await shrinkImage(file);
+  const task = uploadBytesResumable(ref(storage(), `sessions/${code}/${uid}/portrait-${Date.now()}`), body, {
+    contentType: body.type || "image/jpeg",
+    cacheControl: "public, max-age=31536000, immutable",
+  });
+  await new Promise<void>((resolve, reject) => {
+    task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
+  });
+  await set(dbRef(db(), `sessions/${code}/portrait`), await getDownloadURL(task.snapshot.ref));
+}
+
 /** Uploads a file to Storage, then publishes its URL as the player's `kind` in that game. */
 export async function submitMedia(
   code: string,
@@ -30,7 +46,8 @@ export async function submitMedia(
   kind: string,
   file: Blob,
   onProgress: (fraction: number) => void,
-  opts: { alreadySized?: boolean } = {}, // true for frames we already resized/encoded ourselves
+  // alreadySized: frames we already resized/encoded ourselves. signal: aborting it cancels the upload.
+  opts: { alreadySized?: boolean; signal?: AbortSignal } = {},
 ): Promise<void> {
   const body = kind === "video" || opts.alreadySized ? file : await shrinkImage(file as File);
   const contentType = kind === "video" ? file.type || "video/mp4" : body.type || "image/jpeg";
@@ -39,9 +56,16 @@ export async function submitMedia(
     // File names are unique per upload, so a cached copy is never stale.
     cacheControl: "public, max-age=31536000, immutable",
   });
-  await new Promise<void>((resolve, reject) => {
-    task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
-  });
+  const cancel = () => task.cancel();
+  opts.signal?.addEventListener("abort", cancel);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
+    });
+  } finally {
+    opts.signal?.removeEventListener("abort", cancel);
+  }
+  opts.signal?.throwIfAborted();
   const url = await getDownloadURL(task.snapshot.ref);
   await update(dbRef(db(), `sessions/${code}/games/${game}/media/${uid}`), { [kind]: url });
 }

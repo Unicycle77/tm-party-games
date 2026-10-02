@@ -21,6 +21,7 @@
   --fg: #f6ecd6;
   --muted: #c9b48f;
   --bulb-red: #e8412e;
+  --stamp-red: #a8201a;
   --wood: #9a6634;
   --wood-dark: #5e3a18;
   --ok: #9be08a;
@@ -107,11 +108,6 @@ input::placeholder { color: #8b7a63; }
 .row input { flex: 3; }
 
 /* ---- main screen: lobby ---- */
-/* links in the lobby's hints (e.g. to /light) are gold, like the other ink on the curtain */
-.lobby p a { color: var(--gold-bright); }
-.lobby { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-.lobby header { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
-.lobby h1 { font-size: 3rem; }
 .code {
   font-family: var(--typewriter);
   font-size: 5.5rem;
@@ -120,11 +116,83 @@ input::placeholder { color: #8b7a63; }
   color: var(--gold-bright);
   text-shadow: 0 3px 0 #0008, 0 0 24px #d9b24c55;
 }
-.lobby svg { flex-shrink: 0; border-radius: 4px; border: 6px solid var(--gold); background: #fff; box-shadow: 0 6px 18px #000a; }
-.qrs { display: flex; align-items: flex-end; gap: 1.5rem; }
-.qrs figure { margin: 0; display: grid; gap: 0.4rem; justify-items: center; }
-.qrs figcaption { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.05em; }
-.host-qr svg { border-color: var(--paper); }
+/* welcome: two halves, joining on the left, the contestants on the right */
+.welcome { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 3vw; padding: 3vh 3vw; align-items: start; }
+.welcome-join { display: grid; justify-items: center; align-content: center; gap: 1rem; min-height: 90vh; text-align: center; }
+.welcome-join h1 { font-size: clamp(3rem, 7vh, 5rem); margin: 0; }
+.welcome-join p { margin: 0; }
+.welcome-join .code { font-size: clamp(5.5rem, 12vh, 9rem); }
+.welcome-join .muted { font-size: clamp(1rem, 2.2vh, 1.5rem); }
+.join-qr { margin: 0; display: grid; gap: 0.4rem; justify-items: center; }
+.join-qr svg { width: 40vh; height: auto; border-radius: 4px; border: 6px solid var(--gold); background: #fff; box-shadow: 0 6px 18px #000a; }
+.join-qr figcaption, .host-qr figcaption { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.05em; }
+.join-qr figcaption { font-size: clamp(1.3rem, 3vh, 2rem); }
+.welcome-contestants h2 { font-size: clamp(2.2rem, 5vh, 3.4rem); margin: 2vh 0 1rem; }
+.welcome-contestants .tiles { grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 15vw, 320px), 1fr)); }
+.welcome-contestants .tile .name { font-size: clamp(1.5rem, 3.4vh, 2.4rem); }
+/* a new contestant drops onto the board with a gold glow */
+.welcome-contestants .tiles li { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.welcome-contestants .tile { animation: arrive 2.4s ease-out; }
+@keyframes arrive { 0%, 30% { box-shadow: 0 0 0 4px var(--gold-bright), 0 0 32px var(--gold); } 100% { box-shadow: 0 0 0 0 transparent, 0 6px 14px #0009; } }
+@media (prefers-reduced-motion: reduce) { .welcome-contestants .tiles li, .welcome-contestants .tile { animation: none; } }
+@media (max-width: 800px) { .welcome { grid-template-columns: 1fr; } .welcome-join { min-height: 0; } }
+.host-qr { margin: 0; display: grid; gap: 0.4rem; justify-items: start; }
+.host-qr svg { border-radius: 4px; border: 6px solid var(--paper); background: #fff; }
+/* collecting: the task card is the star, the contestants a column on the right */
+.collecting { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) clamp(260px, 22vw, 380px); gap: 3vw; padding: 4vh 3vw 6vh; align-items: center; }
+.collecting-main { display: grid; place-items: center; }
+.collecting-title { font-size: clamp(4rem, 12vh, 8rem); margin: 0; }
+.collecting-side { align-self: start; display: grid; gap: 1rem; }
+.collecting-side h2 { margin: 0; font-size: clamp(1.6rem, 3.6vh, 2.4rem); font-variant-numeric: tabular-nums; }
+.collecting-side .tiles { grid-template-columns: 1fr; gap: 0.7rem; }
+.collecting-side .tile { flex-direction: row; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; }
+.collecting-side .tile .name { font-size: clamp(1.3rem, 2.8vh, 1.9rem); }
+/* Photos has no task card: its tiles stay large, as on the welcome screen */
+.collecting.no-task { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; }
+.collecting.no-task .collecting-main { min-height: 80vh; }
+.collecting.no-task .collecting-side .tiles { grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 15vw, 320px), 1fr)); }
+.collecting.no-task .collecting-side .tile { flex-direction: column; align-items: flex-start; padding: 1.1rem; }
+.collecting.no-task .collecting-side .tile .name { font-size: clamp(1.5rem, 3.4vh, 2.4rem); }
+.corner-code { position: fixed; right: 1.2rem; bottom: 0.8rem; margin: 0; color: var(--muted); font-size: clamp(0.9rem, 1.8vh, 1.2rem); }
+.corner-code strong { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.2em; }
+.corner-download { position: fixed; left: 1.2rem; bottom: 0.8rem; }
+/* the task card: aged, torn paper in typewriter with the red TM wax seal */
+.task-card {
+  position: relative; width: min(100%, 120vh); padding: 6vh 7vh 15vh;
+  background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c);
+  color: #1f1a14; font-family: var(--typewriter); font-size: clamp(1.1rem, 3vh, 2.1rem); line-height: 1.35;
+  box-shadow: 0 14px 40px #000c;
+  /* torn edges */
+  clip-path: polygon(0% 2%, 4% 0%, 9% 1.5%, 15% 0.3%, 22% 1.8%, 30% 0.5%, 38% 1.4%, 46% 0%, 55% 1.6%, 63% 0.4%, 71% 1.7%, 79% 0.2%, 87% 1.5%, 94% 0.3%, 100% 1.8%,
+    99.3% 12%, 100% 25%, 99.1% 40%, 100% 55%, 99.4% 70%, 100% 86%, 99.2% 98%,
+    93% 100%, 86% 98.6%, 78% 100%, 70% 98.4%, 61% 99.8%, 52% 98.5%, 44% 100%, 35% 98.7%, 27% 99.9%, 18% 98.4%, 10% 99.8%, 3% 98.6%, 0% 100%,
+    0.7% 85%, 0% 70%, 0.9% 55%, 0.2% 40%, 0.8% 25%, 0% 12%);
+}
+.task-card p { margin: 0 0 1.1em; }
+.task-card .task-label { text-transform: uppercase; }
+.wax-seal {
+  position: absolute; right: 6vh; bottom: 3vh; width: 13vh; height: 13vh; border-radius: 50%;
+  display: grid; place-items: center; font-family: Georgia, serif; font-size: 5vh; color: #7d0f0b;
+  background: radial-gradient(circle at 38% 32%, #e2433a, #b51d17 45%, #7d0f0b 75%);
+  box-shadow: inset 0 0 0 1.4vh #a81a14, inset 0 0 0 1.7vh #6c0c08, 0 4px 10px #0007;
+  text-shadow: 1px 1px 0 #e0574e, -1px -1px 0 #5a0906;
+}
+/* everyone's in: a big red stamp lands across the card */
+.task-card .all-in { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-8deg); font-size: clamp(2.4rem, 9vh, 6rem); padding: 0.2rem 1.4rem; border-width: 0.6vh; background: rgba(168, 32, 26, 0.06); white-space: nowrap; animation: stamp-down 0.35s cubic-bezier(0.3, 1.6, 0.6, 1) backwards; }
+@keyframes stamp-down { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.8); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .task-card .all-in { animation: none; } }
+@media (max-width: 800px) { .collecting, .collecting.no-task { grid-template-columns: 1fr; } }
+.curtain-empty { min-height: 100vh; min-height: 100dvh; }
+/* the setup gate: the closed curtain, one gold click, and what it will do */
+.gate { min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 1.6rem; padding: 2rem; text-align: center; }
+.gate h1 { font-size: clamp(3rem, 9vh, 6rem); margin: 0; }
+.gate .raise { font-size: clamp(1.4rem, 3.4vh, 2.2rem); padding: 0.9rem 2.6rem; width: auto; }
+.gate-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; justify-items: start; font-family: var(--typewriter); color: var(--fg); font-size: 1.15rem; }
+.gate-checks li { display: flex; gap: 0.6rem; align-items: baseline; }
+.gate-checks li.done { color: var(--gold-bright); }
+.gate-checks li.failed { color: var(--muted); }
+.gate .host-qr { justify-items: center; }
+.gate-quiet { margin: 0; }
 /* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the
    mouse comes near (the padding is an invisible hover buffer); it opens a burgundy panel with gold trim */
 .lobby-menu { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 6; padding: 1.5rem; margin: -1.5rem; }
@@ -139,34 +207,6 @@ input::placeholder { color: #8b7a63; }
 .lobby-menu-panel p { margin: 0; }
 .lobby-menu-panel a { color: var(--gold-bright); }
 @media (prefers-reduced-motion: reduce) { .lobby-menu-button { transition: none; } }
-/* game picker: 3x5 index cards scattered on the table (--tilt, --dx, --dy picked at random per card) */
-.game-picks { list-style: none; margin: 0 0 2.5rem; padding: 1rem 0.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
-@media (max-width: 900px) { .game-picks { grid-template-columns: repeat(3, 1fr); } }
-.game-card {
-  width: 100%;
-  aspect-ratio: 5 / 3;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  text-align: left;
-  padding: 0.9rem 1.1rem;
-  border-radius: 3px;
-  /* a red rule under the title line, then faint ruled lines, like a real index card */
-  background:
-    linear-gradient(transparent 2.9rem, var(--burgundy) 2.9rem, var(--burgundy) calc(2.9rem + 2px), transparent calc(2.9rem + 2px)),
-    repeating-linear-gradient(transparent 0 calc(1.5rem - 1px), #6b5a4433 calc(1.5rem - 1px) 1.5rem) 0 2.9rem / 100% calc(100% - 2.9rem) no-repeat,
-    var(--paper);
-  border: 2px solid var(--gold-dark);
-  box-shadow: 0 8px 16px #0009;
-  transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--tilt, -1deg));
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.game-card:not(:disabled):hover { transform: rotate(0deg) scale(1.05); border-color: var(--gold-bright); box-shadow: 0 12px 24px #000c, 0 0 0 3px var(--gold); }
-.game-card:not(:disabled):active { transform: rotate(0deg) scale(1.02); }
-.game-card .name { font-size: 1.6rem; line-height: 1.9rem; color: var(--burgundy); white-space: nowrap; }
-.game-card .name.long { font-size: 1.2rem; }
-.game-card .blurb { font-size: 1rem; line-height: 1.5rem; color: var(--ink); }
-@media (prefers-reduced-motion: reduce) { .game-card { transition: none; } }
 .tiles, .picker { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
 .tiles { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; padding-top: 0.5rem; }
 
@@ -188,18 +228,18 @@ input::placeholder { color: #8b7a63; }
 .tiles li:nth-child(3n) .tile { transform: rotate(-0.4deg); }
 .tile:disabled { opacity: 0.7; }
 /* on a view-only screen: looks the same, but nothing reacts to the mouse */
-.tile.static, .game-card.static { pointer-events: none; }
+.tile.static { pointer-events: none; }
 .tile:not(:disabled):hover { transform: rotate(0deg) scale(1.04); border-color: var(--gold-bright); box-shadow: 0 10px 22px #000c, 0 0 0 3px var(--gold); }
 .tile .name { font-size: 1.5rem; }
 .status { font-size: 0.85rem; color: #7a6a55; text-transform: uppercase; letter-spacing: 0.06em; }
-/* a gold rubber stamp, slightly tilted, once a player's submission is in */
+/* a red-ink rubber stamp, slightly tilted: something is done (joined, submitted) */
 .stamp {
   align-self: flex-start;
   padding: 0.05rem 0.7rem;
-  border: 3px solid var(--gold-edge);
+  border: 3px solid var(--stamp-red);
   border-radius: 4px;
-  color: var(--gold-edge);
-  background: rgba(217, 178, 76, 0.22);
+  color: var(--stamp-red);
+  background: rgba(168, 32, 26, 0.08);
   font-weight: bold;
   font-size: 0.95rem;
   text-transform: uppercase;
@@ -290,6 +330,23 @@ input::placeholder { color: #8b7a63; }
 .join.watch h1 { font-size: 2rem; }
 .nowrap { white-space: nowrap; }
 .join form { display: grid; gap: 1rem; text-align: left; }
+/* the code from the QR, shown as a paper label rather than a field */
+.joining {
+  justify-self: center;
+  margin: 0;
+  padding: 0.4rem 1rem;
+  font-family: var(--typewriter);
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--gold-dark);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 #0006;
+}
+.joining strong { font-size: 1.2rem; letter-spacing: 0.3em; }
+/* why the phone is back on the join form (removed, party ended): a plain line, not an error */
+.notice { margin: 0; text-align: center; color: var(--fg); }
+/* sits right under the name field it explains */
+.join-hint { margin: -0.6rem 0 0; }
 label { display: grid; gap: 0.3rem; color: var(--muted); }
 .phone > header { font-family: var(--typewriter); font-size: 1.3rem; color: var(--gold-bright); }
 .slot {
@@ -303,6 +360,27 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
   box-shadow: 0 6px 14px #0008;
 }
 .slot h2 { color: var(--burgundy); margin: 0; }
+/* the phone's resting card: joined, or between games */
+.slot.waiting { justify-items: center; text-align: center; padding: 1.5rem 1rem; }
+.slot.waiting .stamp { align-self: center; }
+.slot > .stamp { justify-self: start; font-size: 1.2rem; }
+.slot.waiting .stamp { justify-self: center; }
+/* problems on paper: plain burgundy text, never stamp-shaped */
+.slot .error { color: var(--burgundy); margin: 0; }
+/* quiet links on paper (the curtain's --muted is too faint there) */
+.slot button.link { color: #6b5a44; justify-self: center; }
+/* a task card: the main button keeps its spot while the card changes state */
+.slot.task .frame-play { padding: 0; border: 0; background: none; box-shadow: none; cursor: pointer; }
+/* two equal choices side by side (Photos: take or choose) */
+.slot.task .row button { white-space: nowrap; padding-inline: 0.4rem; }
+/* the picked video is only ever watched full screen */
+.offscreen { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.sending { display: grid; gap: 0.3rem; justify-items: center; font-family: var(--typewriter); color: var(--burgundy); font-variant-numeric: tabular-nums; }
+/* the progress bar takes the Submit button's place and size */
+.sending progress { appearance: none; -webkit-appearance: none; height: 3rem; border: 2px solid var(--gold-dark); border-radius: 6px; background: #e3d6ba; overflow: hidden; }
+.sending progress::-webkit-progress-bar { background: #e3d6ba; }
+.sending progress::-webkit-progress-value { background: var(--burgundy); }
+.sending progress::-moz-progress-bar { background: var(--burgundy); }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }
@@ -383,8 +461,6 @@ body.idle-cursor .stage { cursor: none; }
 .jukebox-chip { position: fixed; left: 1rem; bottom: 1rem; z-index: 3; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; max-width: 60vw;
   background: rgba(20, 0, 0, 0.65); color: var(--fg); padding: 0.4rem 0.8rem; border-radius: 8px; font-family: var(--typewriter); font-size: 0.9rem; }
 .jukebox-chip button:not(.link) { padding: 0.4rem 0.8rem; }
-.tabs { display: flex; gap: 0.5rem; }
-.tabs button { flex: 1; padding: 0.6rem 0.4rem; }
 .steps.three { grid-template-columns: 1fr 1.3fr 1fr; }
 .now-playing { font-family: var(--typewriter); color: var(--gold-bright); font-size: 1.15rem; margin: 0; min-height: 1.5em; overflow-wrap: anywhere; }
 .volume { display: grid; gap: 0.3rem; }
@@ -514,26 +590,42 @@ body.idle-cursor .stage { cursor: none; }
   font-size: clamp(1.1rem, 3.6vmin, 2.4rem);
   box-shadow: 0 4px 10px #000a;
 }
-.box-name {
-  position: absolute; bottom: 5%; width: 42%;
-  text-align: center;
+/* the players' names: paper labels under the boxes, slightly askew like the tiles */
+.box-name { position: absolute; top: 79%; width: 42%; display: flex; justify-content: center; }
+.box-name .label {
+  display: grid; justify-items: center; max-width: 100%;
   background: var(--paper); color: var(--ink);
-  border: 2px solid var(--gold-dark);
-  font-family: var(--typewriter); font-size: clamp(1.2rem, 4vmin, 2.6rem);
-  padding: 0.2rem 0.8rem;
+  border: 2px solid var(--gold-dark); border-radius: 3px;
+  font-family: var(--typewriter); font-size: clamp(1.4rem, 4.4vmin, 3rem); line-height: 1.15;
+  padding: 0.3rem 1.4rem;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  box-shadow: 0 4px 10px #000a;
+  box-shadow: 0 6px 14px #0009; transform: rotate(-1.5deg);
 }
+.box-name.right .label { transform: rotate(1.2deg); }
+.box-name small { font-size: 0.5em; color: var(--burgundy); letter-spacing: 0.08em; text-transform: uppercase; }
+/* a round opens with the boxes dropping onto the curtain */
+.box-spot > img { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.box-spot.right > img { animation-delay: 0.2s; }
 .box-name.left { left: 4%; }
 .box-name.right { left: 54%; }
 @media (prefers-reduced-motion: reduce) {
   .box-spot { transition: none; }
-  .box-spot.cross-over, .box-spot.cross-under, .box-reveal, .box-announce { animation: none; }
+  .box-spot.cross-over, .box-spot.cross-under, .box-reveal, .box-announce, .box-spot > img { animation: none; }
 }
 
 /* [BLANK] in a Box on phones: the box art has no frame of its own; a peeked-at object gets the preview border */
 .slot img.box-art { border: 0; background: none; max-height: 34vh; }
-.slot img.box-peek { width: auto; max-width: 100%; height: auto; max-height: 34vh; justify-self: center; background: none; }
+.slot .box-view { height: 34vh; display: grid; place-items: center; }
+.slot .box-view img { max-height: 100%; }
+.slot .box-peeked { position: relative; height: 100%; display: grid; place-items: center; }
+.slot .box-peeked img.box-art { height: 100%; width: auto; }
+/* the object seen through the front of the box, small and in shadow */
+.slot .box-peeked img.box-peek { position: absolute; left: 50%; top: 52%; height: 35%; width: auto; transform: translateX(-50%); border: 0; border-radius: 3px; background: none; filter: brightness(0.6) saturate(0.7); }
+/* hold-to-peek: no text selection or long-press menu while the thumb is down */
+.slot button.hold { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.slot .peek-says { margin: 0; text-align: center; font-family: var(--typewriter); color: var(--burgundy); }
+/* the decider's pick, in big letters before it's locked in */
+.slot .pick { margin: 0; text-align: center; font-family: var(--typewriter); font-size: 2.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--burgundy); }
 .box-setup { display: grid; gap: 0.6rem; }
 .box-setup p { margin: 0; }
 .box-object { display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
@@ -542,6 +634,12 @@ body.idle-cursor .stage { cursor: none; }
 /* ---- The light (/light): a red bulb on a wooden box that lights up for a second ---- */
 /* just the bulb, full screen; the bar with its status and buttons appears while the mouse moves */
 .stage.light-stage .bulb { height: 80vh; }
+/* switching the light on: the bulb fades in onto the bare curtain */
+.light-show { display: contents; }
+.light-show > .bulb, .light-show > .light-bulbs { animation: light-in 1.6s ease-out; }
+@keyframes light-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .light-show > * { animation: none; } }
+.gate.light-check { min-height: 0; }
 /* modes with a bulb per trigger: up to three across (columns set inline), as big as fits */
 .light-bulbs { display: grid; gap: 2vh 6vw; justify-content: center; align-content: center; }
 .stage.light-stage .light-bulbs .bulb { height: 40vh; }
@@ -597,3 +695,48 @@ body.idle-cursor .stage { cursor: none; }
 .camera-head { position: absolute; border: 2px dashed var(--gold-bright); border-radius: 4px; pointer-events: none; }
 .camera-head.read { border: 3px solid #34c759; }
 .camera-count { position: absolute; bottom: 0.4rem; left: 50%; transform: translateX(-50%); background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.1rem 0.8rem; font-family: var(--typewriter); white-space: nowrap; }
+
+/* host phone: header with the music and light one tap away */
+.host-head { display: flex; align-items: center; gap: 0.5rem; }
+.host-head > span:first-child { flex: 1; }
+.head-icon { padding: 0.35rem 0.6rem; font-size: 1.2rem; line-height: 1; filter: grayscale(0.7); opacity: 0.75; }
+.head-icon.lit { filter: none; opacity: 1; box-shadow: 0 3px 0 var(--gold-dark), 0 0 12px var(--gold-bright); }
+.head-icon.open { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
+.phone.host .link.back { justify-self: start; }
+/* host phone: what the big screen shows right now, in one line */
+.on-screen { margin: 0; font-family: var(--typewriter); color: var(--gold-bright); }
+/* the running order: shown contestants dimmed, the next one outlined in gold */
+.picker.running li.shown > button:first-child { opacity: 0.55; }
+.picker.running li.next > button:first-child { outline: 3px solid var(--gold); outline-offset: 1px; }
+.picker.running li > button:first-child { flex-direction: row; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.picker.running .stamp { font-size: 0.75rem; align-self: center; }
+/* the resubmit column keeps its width on every row, so names line up */
+.picker .lock { width: 3.4rem; flex: none; display: grid; place-items: center; }
+span.lock { padding: 0; }
+.party-settings { display: grid; gap: 0.6rem; justify-items: start; }
+.party-settings .toggles { justify-self: stretch; }
+/* host phone, a contestant on the big screen */
+h2.contestant { font-size: 1.8rem; margin: 0.2rem 0 0; }
+h2.contestant .muted { font-size: 0.6em; }
+.phone.host button.lower { padding: 0.8rem; margin-top: 0.75rem; }
+.box-setup h3 { margin: 0.4rem 0 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold); font-size: 1.05rem; }
+.box-setup .remote-head h3 { margin: 0; }
+.box-setup .choices .played { margin-left: 0.4rem; font-size: 0.75rem; color: #7a6a55; text-transform: uppercase; letter-spacing: 0.06em; }
+.box-setup .choices .active .played { color: var(--ink); }
+.box-setup .choices > p { margin: 0.3rem 0; }
+.box-wait { font-family: var(--typewriter); color: var(--fg); font-size: 1.15rem; }
+.box-setup .remote-head .link { white-space: nowrap; }
+/* join form: the name is taken, maybe by this guest on another phone (plain text, not an error) */
+.same-name { display: grid; gap: 0.5rem; }
+.same-name p { margin: 0; }
+/* host phone: a guest asking to move to a new phone. Paper with a burgundy edge; blocks nothing */
+.move-request { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-top: 6px solid var(--burgundy); border-radius: 6px; padding: 0.8rem; display: grid; gap: 0.6rem; box-shadow: 0 4px 10px #0008; }
+.move-request p { margin: 0; }
+.move-request .row button { flex: 1; }
+/* between games: the party's Taskmaster portrait, centred, the frame half the screen's height */
+.between-games { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; }
+.between-games .frame img { width: auto; height: calc(50vh - 2 * var(--bw)); max-width: calc(100vw - 2 * var(--bw) - var(--pad)); }
+.portrait-setting { display: flex; gap: 0.8rem; align-items: center; justify-self: stretch; }
+.portrait-setting img, .portrait-setting .ph { width: 5rem; height: 6.5rem; object-fit: cover; border: 3px solid var(--gold); border-radius: 2px; flex: none; }
+.portrait-setting .ph { display: grid; place-items: center; text-align: center; font-size: 0.8rem; color: var(--muted); border-style: dashed; }
+.portrait-text { display: grid; gap: 0.3rem; justify-items: start; font-family: var(--typewriter); }

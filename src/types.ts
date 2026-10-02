@@ -4,10 +4,10 @@ export type GameId = (typeof GAME_IDS)[number];
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
- * "list" = the lobby. The other steps belong to the active game; a step without a uid shows everyone
+ * "list" = the lobby. "curtain" = the empty curtain between contestants. The other steps belong to the active game; a step without a uid shows everyone
  * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box).
  */
-export type Step = "list" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
+export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
 
 export interface Display {
   uid?: string;
@@ -57,7 +57,7 @@ export interface BoxSecret { inBox: BoxKey }
  * smiling). Players have to work out why.
  */
 export interface LightState {
-  /** Whether the camera turns the light on. Treated as on when absent; the host can pause it. */
+  /** Whether the light is on: the camera watches and turns it on. Off when absent (the host switches it on later). */
   armed?: boolean;
   /** The secret trigger's id (see light/triggers.ts); "stop-smiling" when absent. */
   trigger?: string;
@@ -72,7 +72,18 @@ export interface LightState {
   /** A mode with several bulbs: when each trigger's bulb last went on, by trigger id. */
   lit?: Record<string, number>;
   /** What the light computer's camera sees (people in view; per trigger, how many are "in", e.g. smiling), for the host phone. */
-  camera?: { starting?: boolean; people?: number; each?: Record<string, number>; error?: string };
+  camera?: { starting?: boolean; off?: boolean; people?: number; each?: Record<string, number>; error?: string };
+}
+
+/**
+ * A guest on a new phone (or browser) asking to take over their player, entries and all. Only the
+ * host can allow it, so nobody can take someone else's spot. Allowed requests stay, so the old phone
+ * can say where its player went.
+ */
+export interface MoveRequest {
+  /** The player being moved. */
+  from: string;
+  status: "asked" | "allowed" | "declined";
 }
 
 /** One game's submissions within a session. */
@@ -80,6 +91,8 @@ export interface GameData<M> {
   media?: Record<string, M>;
   /** Players the host has let resubmit. Everyone else is locked once their submission is in. */
   unlocked?: Record<string, boolean>;
+  /** Contestants the host has put on the main screen in this game, for the running order's "Next". */
+  shown?: Record<string, boolean>;
 }
 
 export interface Jukebox {
@@ -98,17 +111,19 @@ export interface Session {
   players?: Record<string, Player>;
   /** The game players see and the main screen shows. Absent = the game selection screen (where every session starts). */
   game?: GameId;
-  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound } };
+  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound; played?: Record<string, boolean> } };
   display?: Display;
+  /** Set once the host has started a first game: from then on, "no game" means between games, not the welcome. */
+  begun?: boolean;
+  /** This party's portrait of the Taskmaster (a download URL), shown framed on the big screen between games. */
+  portrait?: string;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
-  /** Host remote toggles this to hide the one-line descriptions on the main screen's game cards. */
-  hideBlurbs?: boolean;
-  /** Games the host has hidden from the main screen's game picker (e.g. ones this party won't play). */
-  hiddenGames?: Partial<Record<GameId, true>>;
   jukebox?: Jukebox;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
   lightUid?: string;
+  /** Guests asking to move to a new phone, by the new phone's uid (see MoveRequest). */
+  moves?: Record<string, MoveRequest>;
   light?: LightState;
   /** Where Before & After kept its data before there were games. Moved into `games` when a main screen opens the session. */
   media?: Record<string, BeforeAfterMedia>;

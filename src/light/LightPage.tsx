@@ -14,6 +14,7 @@ import { RED, type HueConfig, loadHue } from "./hue";
 import { CameraSetup, type CameraSettings, loadCameraSettings } from "./CameraSetup";
 import { HueSetup, useHueLamps } from "./HueSetup";
 import { Camera, type HeadBox } from "./Camera";
+import { useKeepAwake } from "../keepAwake";
 
 const KEY = "ba.lightCode";
 
@@ -54,6 +55,11 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   const spun = useSpinTime(spinning);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
   const [settingUp, setSettingUp] = useState<"hue" | "camera">();
+  // The setup checklist comes first on every load, so a broken camera shows before guests arrive.
+  const [checking, setChecking] = useState(true);
+  // Off means the camera is off too; it runs only while the light is on, or while setting it up.
+  const cameraOn = armed || checking || settingUp === "camera";
+  useEffect(() => { if (!cameraOn) void setCamera(code, { off: true }).catch(() => {}); }, [cameraOn, code]);
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(loadCameraSettings);
   // The camera's picture and what the detection runs on, for the camera panel's preview.
   const [feed, setFeed] = useState<{ stream?: MediaStream; runsOn?: "GPU" | "CPU" }>({});
@@ -89,15 +95,22 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
   // appear while the mouse moves (like the main screen's backup controls).
   const barVisible = useStageBarVisible();
   const tab = barVisible ? 0 : -1;
-  return (
-    <main className="stage light-stage">
-      {mode ? (
+  const bulbs = mode ? (
         // Up to three across; a mode with few bulbs gets bigger ones in a single row.
         <div className={mode.bulbs.length > 3 ? "light-bulbs" : "light-bulbs few"}
           style={{ gridTemplateColumns: `repeat(${Math.min(3, mode.bulbs.length)}, auto)` }}>
           {mode.bulbs.map((b, i) => <Bulb key={b.trigger.id} lit={spinning ? spinBulb === i : flash === b.trigger.id} colour={b.colour} />)}
         </div>
-      ) : <Bulb lit={flash === ONE} />}
+      ) : <Bulb lit={flash === ONE} />;
+  const cameraLabel = feed.stream?.getVideoTracks()[0]?.label;
+  return (
+    <main className="stage light-stage">
+      {checking ? (
+        <LightChecklist cameraLabel={cameraLabel} camera={light.camera} hue={hue}
+          onCamera={() => setSettingUp("camera")} onHue={() => setSettingUp("hue")} onTest={() => void lightNow(code)}
+          lit={!!flash} onDone={() => setChecking(false)} />
+      // While off, only the curtain (a test still flashes the bulb); switching on fades the bulb in.
+      ) : (armed || flash) && <div className="light-show">{bulbs}</div>}
       <div className={barVisible || settingUp ? "stage-controls light-bar show" : "stage-controls light-bar"} aria-hidden={!barVisible}>
         <p className="light-bar-status">
           💡 {code} · {cameraStatus(light)} · {!hue?.lights.length ? "No Hue lamp" : `Hue lamp: ${hueError ?? hue.lights.map((l) => l.name).join(", ")}`}
@@ -105,21 +118,57 @@ function Running({ code, session, onStop }: { code: string; session: Session; on
         <button onClick={() => setSettingUp("camera")} tabIndex={tab}>Camera</button>
         <button onClick={() => setSettingUp("hue")} tabIndex={tab}>💡 Hue lamp</button>
         <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)} tabIndex={tab}>{mode ? "Light them all now" : "Light it now"}</button>
-        <Toggle label="Camera watching" on={armed} onChange={(on) => void setArmed(code, on)} tabIndex={tab} />
+        <Toggle label="Light on" on={armed} onChange={(on) => void setArmed(code, on)} tabIndex={tab} />
         <button onClick={onStop} tabIndex={tab}>Stop the light</button>
         <p className="light-bar-status small">Keep this window in front all evening (not a background tab, minimised or covered). The host phone shows what the camera sees.</p>
       </div>
-      <Camera triggers={watchedTriggers(light)} settings={cameraSettings}
+      {cameraOn && <Camera triggers={watchedTriggers(light)} settings={cameraSettings}
         onStream={(stream, runsOn) => setFeed({ stream, runsOn })}
         onHeads={settingUp === "camera" ? setHeads : undefined}
         onTrigger={(id) => { if (armedNow.current) timers.current.push(mode ? lightOneLater(code, id) : lightLater(code)); }}
-        onStatus={(status) => void setCamera(code, status)} />
+        onStatus={(status) => void setCamera(code, status)} />}
       {settingUp === "hue" && <HueSetup config={hue} onChange={setHue} onClose={() => setSettingUp(undefined)} />}
       {settingUp === "camera" && (
         <CameraSetup settings={cameraSettings} onChange={setCameraSettings} stream={feed.stream} runsOn={feed.runsOn} heads={heads}
           people={light.camera?.people} onClose={() => setSettingUp(undefined)} />
       )}
     </main>
+  );
+}
+
+/**
+ * The light computer's setup, on the curtain: the camera (with what it sees), the Hue lamp, and full screen,
+ * which also keeps this window in front for the camera. Then it settles on the bare curtain.
+ */
+function LightChecklist({ cameraLabel, camera, hue, lit, onCamera, onHue, onTest, onDone }: {
+  cameraLabel?: string; camera: LightState["camera"]; hue?: HueConfig; lit: boolean;
+  onCamera: () => void; onHue: () => void; onTest: () => void; onDone: () => void;
+}) {
+  const [skipLamp, setSkipLamp] = useState(false);
+  const cameraOk = !!camera && !camera.error && !camera.starting && !camera.off;
+  const lamp = hue?.lights.length ? hue.lights.map((l) => l.name).join(", ") : undefined;
+  function start() {
+    void document.documentElement.requestFullscreen?.().catch(() => {});
+    onDone();
+  }
+  return (
+    <section className="gate light-check">
+      <h1>The Light</h1>
+      <ul className="gate-checks">
+        <li className={cameraOk ? "done" : camera?.error ? "failed" : "todo"}>
+          {cameraOk ? "✓" : "○"} Camera: {camera?.error ?? (cameraOk ? `${cameraLabel ?? "on"}, sees ${camera.people ?? 0}` : "starting…")}
+          <button className="link" onClick={onCamera}>Change</button>
+        </li>
+        <li className={lamp || skipLamp ? "done" : "todo"}>
+          {lamp || skipLamp ? "✓" : "○"} Hue lamp: {lamp ?? (skipLamp ? "none tonight" : "not set up")}
+          {lamp && <button className="link" onClick={onTest}>{lit ? "Lit" : "Test"}</button>}
+          <button className="link" onClick={onHue}>{lamp ? "Change" : "Set up"}</button>
+          {!lamp && !skipLamp && <button className="link" onClick={() => setSkipLamp(true)}>Skip, no lamp tonight</button>}
+        </li>
+      </ul>
+      <button className="big raise" onClick={start}>Go full screen</button>
+      <p className="muted small">Full screen keeps this window in front, which the camera needs all evening.</p>
+    </section>
   );
 }
 
@@ -148,19 +197,6 @@ function useSpinTime(on: boolean): number {
 function spinOrder(count: number): number[] {
   if (count !== 6) return [...Array(count).keys()];
   return [0, 1, 2, 5, 4, 3];
-}
-
-/** Stops the computer's screen going to sleep while the light runs (asked again whenever the page comes back). */
-function useKeepAwake() {
-  useEffect(() => {
-    let lock: WakeLockSentinel | undefined;
-    const request = () => {
-      if (document.visibilityState === "visible") navigator.wakeLock?.request("screen").then((l) => { lock = l; }, () => {});
-    };
-    request();
-    document.addEventListener("visibilitychange", request);
-    return () => { document.removeEventListener("visibilitychange", request); void lock?.release(); };
-  }, []);
 }
 
 function Connect({ onConnected }: { onConnected: (code: string) => void }) {

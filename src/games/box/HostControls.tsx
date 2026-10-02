@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { setDisplay } from "../../session";
 import type { BoxKey, BoxRound, Display, Session } from "../../types";
-import { decider, holderOf, newRound, openBox, roundOf, startRound, titleOf, useBoxSecret } from "./data";
+import { decider, holderOf, newRound, openBox, roundOf, startRound, useBoxSecret } from "./data";
 import { OBJECTS, findObject } from "./objects";
 
 /** Not used: this game never shows one player on their own. */
@@ -15,16 +14,14 @@ export function HostLobby({ code, session, display }: { code: string; session: S
     : <Setup code={code} session={session} />;
 }
 
-type Placement = "random" | "a" | "b";
-
 function Setup({ code, session }: { code: string; session: Session }) {
   const players = Object.entries(session.players ?? {}).sort(([, x], [, y]) => (x.joinedAt ?? 0) - (y.joinedAt ?? 0));
   const nameOf = (uid: string) => session.players?.[uid]?.name ?? "?";
+  const played = session.games?.box?.played ?? {};
   const [object, setObject] = useState(OBJECTS[0]?.id);
   // The two players, left then right on the stage. Picking a third replaces the earlier pick.
   const [chosen, setChosen] = useState<string[]>([]);
   const [peeker, setPeeker] = useState<string>();
-  const [placement, setPlacement] = useState<Placement>("random");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -34,9 +31,19 @@ function Setup({ code, session }: { code: string; session: Session }) {
   const ready = !!object && !!a && !!b && !!peeker && here.includes(peeker);
   const objectName = findObject(object)?.name ?? "[BLANK]";
 
+  // Two at random, preferring people who haven't played yet; then the peeker at random too.
+  function pickRandom() {
+    const shuffle = (ids: string[]) => ids.map((id) => [Math.random(), id] as const).sort(([x], [y]) => x - y).map(([, id]) => id);
+    const ids = players.map(([uid]) => uid);
+    const pair = [...shuffle(ids.filter((uid) => !played[uid])), ...shuffle(ids.filter((uid) => played[uid]))].slice(0, 2);
+    setChosen(pair);
+    setPeeker(pair[Math.random() < 0.5 ? 0 : 1]);
+  }
+
   async function start() {
     if (!ready || !object || !a || !b || !peeker) return;
-    const inBox: BoxKey = placement === "a" ? "L" : placement === "b" ? "R" : Math.random() < 0.5 ? "L" : "R";
+    // Always a random box: the host must not know where it is (only the peeker finds out).
+    const inBox: BoxKey = Math.random() < 0.5 ? "L" : "R";
     setBusy(true);
     setError(undefined);
     try { await startRound(code, { object, players: { a, b }, peeker }, inBox); }
@@ -46,61 +53,56 @@ function Setup({ code, session }: { code: string; session: Session }) {
 
   return (
     <div className="box-setup">
-      <p className="muted small">1. What's in the box?</p>
-      <div className="steps two">
+      <h3>1. What's in the box?</h3>
+      <div className="choices two">
         {OBJECTS.map((o) => (
-          <button key={o.id} className={o.id === object ? "step active box-object" : "step box-object"} onClick={() => setObject(o.id)}>
+          <button key={o.id} className={o.id === object ? "active box-object" : "box-object"} aria-pressed={o.id === object} onClick={() => setObject(o.id)}>
             <img src={o.url} alt="" />{o.name}
           </button>
         ))}
       </div>
-      <p className="muted small">2. Pick two players{here.length === 2 ? "" : ` (${here.length} of 2)`}</p>
-      {players.length < 2 && <p className="muted small">Waiting for at least two players to join…</p>}
-      <div className="choices">
+      <div className="remote-head">
+        <h3>2. Who plays?</h3>
+        <button className="link" disabled={players.length < 2} onClick={pickRandom}>🎲 Pick two at random</button>
+      </div>
+      {players.length < 2 && <p className="muted small">Waiting for at least two contestants to join…</p>}
+      <div className="choices two">
         {players.map(([uid, p]) => (
-          <button key={uid} className={here.includes(uid) ? "active" : ""} aria-pressed={here.includes(uid)} onClick={() => toggle(uid)}>{p.name}</button>
+          <button key={uid} className={here.includes(uid) ? "active" : ""} aria-pressed={here.includes(uid)} onClick={() => toggle(uid)}>
+            {p.name}{played[uid] && <span className="played">played</span>}
+          </button>
         ))}
       </div>
-      {a && b && (
-        <>
-          <p className="muted small">3. Who can look inside their box?</p>
-          <div className="choices">
-            {[a, b].map((uid) => (
-              <button key={uid} className={uid === peeker ? "active" : ""} aria-pressed={uid === peeker} onClick={() => setPeeker(uid)}>👀 {nameOf(uid)}</button>
-            ))}
-          </div>
-          <p className="muted small">4. Whose box is the {objectName.toLowerCase()} in?</p>
-          <div className="choices">
-            <button className={placement === "a" ? "active" : ""} onClick={() => setPlacement("a")}>{nameOf(a)}</button>
-            <button className={placement === "random" ? "active" : ""} onClick={() => setPlacement("random")}>🎲 Random</button>
-            <button className={placement === "b" ? "active" : ""} onClick={() => setPlacement("b")}>{nameOf(b)}</button>
-          </div>
-        </>
-      )}
+      <h3>3. Who can look inside their box?</h3>
+      <div className="choices two">
+        {a && b ? [a, b].map((uid) => (
+          <button key={uid} className={uid === peeker ? "active" : ""} aria-pressed={uid === peeker} onClick={() => setPeeker(uid)}>👀 {nameOf(uid)}</button>
+        )) : <p className="muted small">Pick two first.</p>}
+      </div>
       <button className="big" disabled={!ready || busy} onClick={() => void start()}>{busy ? "Starting…" : `Start ${objectName} in a Box`}</button>
       {error && <p className="error">{error}</p>}
     </div>
   );
 }
 
-function RoundControls({ code, session, display, round }: { code: string; session: Session; display: Display; round: BoxRound }) {
+/**
+ * A round in play. The host's phone reads which box holds the object (it has to, to open the boxes)
+ * but never shows it: only the peeker should know.
+ */
+function RoundControls({ code, session, round }: { code: string; session: Session; display: Display; round: BoxRound }) {
   const nameOf = (uid: string) => session.players?.[uid]?.name ?? "?";
   const secret = useBoxSecret(code, true);
-  const objectName = findObject(round.object)?.name ?? "?";
   const who = nameOf(decider(round));
   // The boxes in the order they stand on the stage now (left, right).
   const leftKey: BoxKey = round.decision === "swap" ? "R" : "L";
   const keys: BoxKey[] = [leftKey, leftKey === "L" ? "R" : "L"];
   const allOpen = !!round.revealed?.L && !!round.revealed?.R;
-  const onStage = display.step === "boxes";
 
   return (
     <div className="box-setup">
-      <p><strong>{titleOf(round)}</strong>: {nameOf(round.players.a)} vs {nameOf(round.players.b)}. 👀 {nameOf(round.peeker)} can peek.</p>
-      <p className="muted small">
-        {secret ? `Only you can see this: the ${objectName.toLowerCase()} is in ${nameOf(holderOf(round, secret.inBox))}'s box.` : "Checking which box it's in…"}
-      </p>
-      <p>
+      <h3>{nameOf(round.players.a)} and {nameOf(round.players.b)}</h3>
+      <p className="muted small">👀 {nameOf(round.peeker)} can look inside.</p>
+      <p className="box-wait">
         {round.decision
           ? (round.decision === "swap" ? `${who} swapped!` : `${who} kept their box.`)
           : `Waiting for ${who} to swap or keep…`}
@@ -113,11 +115,9 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
           </button>
         ))}
       </div>
-      <button onClick={() => void setDisplay(code, onStage ? { step: "list" } : { step: "boxes" })}>
-        {onStage ? "Show the players on the main screen" : "Show the boxes on the main screen"}
-      </button>
-      <button className="link" onClick={() => { if (allOpen || confirm("Start a new round? This one hasn't finished.")) void newRound(code); }}>
-        New round
+      {/* Ends the round: the stage shows the empty curtain until the next one starts. */}
+      <button className="lower" onClick={() => { if (allOpen || confirm("Lower the curtain? This round hasn't finished.")) void newRound(code); }}>
+        Lower the curtain
       </button>
     </div>
   );

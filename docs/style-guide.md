@@ -12,7 +12,7 @@ Think of the UI as five physical materials. Every element is made of one of them
 |---|---|---|
 | **Curtain** (backdrop) | Page background everywhere | `--bg-image` under a dark red tint; `--burgundy-deep` as the fallback colour. Already on `body`; don't paint over it. |
 | **Paper** | Buttons, inputs, cards, labels, notices | `background: var(--paper)`, `color: var(--ink)`, `border: 2px solid var(--gold-dark)`, drop shadow |
-| **Gold** | The main action, the active choice, the stamp | `--gold-gradient` fill + `--gold-edge` border (see §3) |
+| **Gold** | The main action, the active choice | `--gold-gradient` fill + `--gold-edge` border (see §3) |
 | **Gold frame** | Every photo or video on the stage | `border-image: url("./assets/frame.png")` (the `.frame` / `.review .pic` recipe) |
 | **Ink on curtain** | Headings and text sitting straight on the backdrop | `--gold-bright` headings, `--fg` body, `--muted` secondary |
 
@@ -27,13 +27,14 @@ Rule of thumb: text never sits on a flat grey or white box. If it needs a surfac
 | `--gold` | `#d9b24c` | `h2`, the `&`, QR borders, preview borders, range sliders |
 | `--gold-bright` | `#f3d37a` | `h1`, the big join code, phone headers, "now playing" |
 | `--gold-dark` | `#8a6a1f` | The 2px border on every paper element |
-| `--gold-edge` | `#7a5a14` | Border of gold buttons; the stamp's ink |
+| `--gold-edge` | `#7a5a14` | Border of gold buttons |
 | `--gold-gradient` | `#f3d37a → #d9b24c → #b8902f` | Fill of gold buttons (`.big`, `.active`) |
 | `--paper` | `#efe6d2` | Surfaces |
 | `--ink` | `#2b1d12` | Text on paper |
 | `--fg` | `#f6ecd6` | Body text on the curtain |
 | `--muted` | `#c9b48f` | Secondary text on the curtain, labels, link buttons |
-| `--ok` | `#9be08a` | Reserved; not used yet. Prefer the gold stamp for "done". |
+| `--stamp-red` | `#a8201a` | The stamp's ink: "done" (✓ You're in, ✓ Submitted). Only on the stamp. |
+| `--ok` | `#9be08a` | Reserved; not used yet. Prefer the red stamp for "done". |
 | `--bulb-red` | `#e8412e` | The light's red bulb (`/light`) and its glow. Not for text or UI. |
 | (per trigger) | see `src/light/triggers.ts` | "All at once" bulbs: each trigger's `colour`, passed to the bulb as `--bulb`. They live in code, not here, because the Hue lamps need them too. |
 | `--wood` / `--wood-dark` | `#9a6634` / `#5e3a18` | The wooden box under the bulb (fill / edges and grain). |
@@ -55,12 +56,12 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Primary** (`.big`): the one main action on a screen (Start a session, Join, Submit). Full-width gold gradient, uppercase, bold. **One per screen.**
 - **Selected / active** (`button.active`): the same gold as the primary button, for what's currently on screen or playing (stage steps, tabs, the current track, the backup stage controls). One shared rule, `button.big, button.active`, supplies the gold; adding `active` to any button is all it takes.
 - **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
-- **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Leave session, Disconnect, End session, Back to players, Reset.
+- **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Not Alex? Switch player, Disconnect, End session, Lower the curtain, Reset.
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
 
 ### Toggles
-Any on/off setting is a **switch**, not a button whose label flips between "Show" and "Hide". Use `<Toggle label on onChange />` (`src/Toggle.tsx`) and stack them in a `.toggles` list: typewriter label on the left, a switch on the right (a wooden slot that fills gold when on, with a paper knob). Label it with what it controls, stated positively, so on means "shown" or "running" ("Game descriptions", "🔁 Repeat", "Camera watching"). Buttons stay for actions and for choosing one of several (`.active`).
+Any on/off setting is a **switch**, not a button whose label flips between "Show" and "Hide". Use `<Toggle label on onChange />` (`src/Toggle.tsx`) and stack them in a `.toggles` list: typewriter label on the left, a switch on the right (a wooden slot that fills gold when on, with a paper knob). Label it with what it controls, stated positively, so on means "shown" or "running" ("🔁 Repeat", "Light on"). Buttons stay for actions and for choosing one of several (`.active`).
 
 ### Inputs
 Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `<label>`: labels are a grid with `--muted` text above the field. Game-code inputs use the typewriter font with wide letter spacing (`0.3em`), uppercase, `maxLength={4}`, `placeholder="ABCD"`, plus a 📷 scan button beside them in a `.row`.
@@ -75,7 +76,7 @@ Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `
 `.lobby-menu` (`LobbyMenu` in `Screen.tsx`, borrowed from tm-scoreboard): a paper `☰ Menu` button fixed in the top-left corner, invisible until the mouse comes near. It opens a burgundy panel with a 3px `--gold` border for setup hints and quiet exits (host remote status, `/screen` and `/light` hints, End session). Escape or a click outside closes it. Put anything the room doesn't need to read here instead of under the players.
 
 ### Stamp
-`.stamp` is a gold rubber stamp tilted `-4deg`: uppercase, bold, 3px `--gold-edge` border, a translucent gold fill. It's the **one** visual for "done" (✓ Submitted). Don't invent a second "success" style.
+`.stamp` is a red-ink rubber stamp tilted `-4deg`: uppercase, bold, 3px `--stamp-red` border, a faint red fill. It's the **one** visual for "done", and it always carries a ✓ and words (✓ You're in, ✓ Submitted). Don't invent a second "success" style. Red works here because it's the show's own ink (the red seal), not a warning, so **errors never look like a stamp**: they're plain `.error` text, with no border, tilt or ✓.
 
 ### Framed media
 Photos and videos on the stage are **always** in the gold frame (`frame.png` as a 9-slice `border-image`). The frame hugs the media's real aspect ratio (`--ratio`, set on load) and grows to the largest size that fits. Never crop the media (`object-fit: contain`). On phones, previews get a simpler 3px `--gold` border instead.
@@ -109,11 +110,10 @@ Each screen has its own rules. Know which one you're designing for.
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
-- **Tabs** split it by what runs independently: 📺 Screen (the games), 🎵 Jukebox, 💡 Light. Each keeps running whatever tab is showing. A new all-evening feature gets a tab, not another section on Screen.
-- **Screen tab order:** the game row, then what the host does most (the players, or the chosen player's show controls), then set-once things folded away at the bottom (Settings). On a wide screen, players move to a right-hand column.
+- **Header:** `🎮 Host · CODE`, then two icon buttons for what runs all evening, whatever game is on: 🎵 (shows ▶ and glows while a song plays) and 💡 (glows while the light is on). Each opens its controls in place of the show, with "← Back to the show". A new all-evening feature gets a header icon, not another section on the show.
+- **Show order:** the game as one line with a quiet "Change game", then one line saying what the big screen shows ("On the big screen: …", or "The curtain is down. 2 of 7 shown."), then the one next action in gold ("First up: Alex →", "Next: Priya →"), then the contestants in join order. Quiet links at the bottom: "Manage contestants" (remove) and "Party settings" (set-once things and Disconnect).
 - **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
-- Header: `🎮 Host remote · CODE` in the typewriter font.
 
 ## 6. Motion
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Framed } from "../../Framed";
 import { Review } from "../../Review";
 import { SafeImg } from "../../SafeImg";
-import { setDisplay } from "../../session";
+import { setDisplay, showContestant } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
 import { allPhotos, neighbour, photoOf } from "./data";
@@ -35,15 +35,15 @@ export function Stage({ code, session, display, viewOnly }: { code: string; sess
 
 /**
  * Backup controls for the main screen (see Before & After's StageControls). Keys:
- *   ← → = previous / next player's photo     Esc or Backspace = back to players
+ *   ← → = previous / next player's photo     Esc or Backspace = lower the curtain
  */
 function StageControls({ code, session, display }: { code: string; session: Session; display: Display }) {
   const visible = useStageBarVisible();
   const uid = display.uid;
   const prev = uid ? neighbour(session, uid, -1) : undefined;
   const next = uid ? neighbour(session, uid, 1) : undefined;
-  const show = (target: string | undefined) => { if (target) void setDisplay(code, { uid: target, step: "photo" }); };
-  const back = () => void setDisplay(code, { step: "list" });
+  const show = (target: string | undefined) => { if (target) void showContestant(code, "photos", { uid: target, step: "photo" }); };
+  const back = () => void setDisplay(code, { step: "curtain" });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -70,7 +70,7 @@ function StageControls({ code, session, display }: { code: string; session: Sess
           <button onClick={() => void setDisplay(code, { step: "grid" })} tabIndex={tab}>◫ Everyone</button>
         </>
       )}
-      <button onClick={back} tabIndex={tab}>← Players</button>
+      <button onClick={back} tabIndex={tab}>Lower the curtain</button>
     </div>
   );
 }

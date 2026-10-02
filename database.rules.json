@@ -36,6 +36,12 @@
                 ".validate": "newData.val() === true"
               }
             },
+            "shown": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
             "$other": {
               ".validate": false
             }
@@ -52,6 +58,12 @@
                 ".validate": "newData.val() === true"
               }
             },
+            "shown": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
             "$other": {
               ".validate": false
             }
@@ -62,6 +74,12 @@
               "decision": {
                 ".write": "auth != null && !data.exists() && root.child('sessions').child($code).child('games').child('box').child('round').child('peeker').val() !== auth.uid && (root.child('sessions').child($code).child('games').child('box').child('round').child('players').child('a').val() === auth.uid || root.child('sessions').child($code).child('games').child('box').child('round').child('players').child('b').val() === auth.uid)",
                 ".validate": "newData.val() === 'swap' || newData.val() === 'keep'"
+              }
+            },
+            "played": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
               }
             },
             "$other": {
@@ -87,15 +105,13 @@
             ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
           }
         },
-        "hideBlurbs": {
+        "begun": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.isBoolean()"
+          ".validate": "newData.val() === true"
         },
-        "hiddenGames": {
+        "portrait": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          "$game": {
-            ".validate": "($game === 'beforeAfter' || $game === 'photos' || $game === 'box') && newData.val() === true"
-          }
+          ".validate": "newData.isString() && newData.val().length <= 2000"
         },
         "showDownload": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
@@ -116,6 +132,7 @@
           },
           "camera": {
             "starting": { ".validate": "newData.isBoolean()" },
+            "off": { ".validate": "newData.isBoolean()" },
             "people": { ".validate": "newData.isNumber()" },
             "each": {
               "$trigger": { ".validate": "$trigger.length <= 40 && newData.isNumber()" }
@@ -124,6 +141,14 @@
             "$other": { ".validate": false }
           },
           "$other": { ".validate": false }
+        },
+        "moves": {
+          "$uid": {
+            ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || (!data.exists() && newData.child('status').val() === 'asked'))) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            "from": { ".validate": "newData.isString()" },
+            "status": { ".validate": "newData.val() === 'asked' || newData.val() === 'allowed' || newData.val() === 'declined'" },
+            "$other": { ".validate": false }
+          }
         },
         "display": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"

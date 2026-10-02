@@ -1,12 +1,13 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
-import { GAMES, activeGame } from "./games";
+import { Framed } from "./Framed";
+import { activeGame } from "./games";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
-import { resetController, setDisplay, setGame } from "./session";
+import { resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
-import type { GameId, Player, Session } from "./types";
+import type { Player, Session } from "./types";
 
 /** What a screen shows for a session: the active game's stage, or the lobby. */
 export function screenState(session: Session) {
@@ -14,7 +15,7 @@ export function screenState(session: Session) {
   const display = session.display ?? { step: "list" as const };
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
-  const onStage = !!game && display.step !== "list"
+  const onStage = !!game && display.step !== "list" && display.step !== "curtain"
     && (!display.uid || (!!session.players?.[display.uid] && game.status?.(session, display.uid) !== "waiting"));
   return { game, display, videoPlaying, onStage };
 }
@@ -38,73 +39,117 @@ export function Screen({ code, session, viewOnly = false, footer }: {
 
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
-  return (
-    <main className="lobby">
-      <header>
-        <div>
-          <h1>{game ? game.heading(session) : "Taskmaster"}</h1>
-          <p className="muted">Go to <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/play</strong> and enter</p>
-          <p className="code">{code}</p>
-        </div>
-        <div className="qrs">
-          <figure>
-            <QRCodeSVG value={joinUrlFor(code)} size={300} bgColor="#fff" marginSize={2} />
-            <figcaption>Players scan here</figcaption>
-          </figure>
-          {!viewOnly && !session.controllerUid && (
+  const site = PUBLIC_URL.replace(/^https?:\/\//, "");
+  // Host setup: out of sight until the mouse goes near the top-left corner.
+  const menu = !viewOnly && (
+    <LobbyMenu>
+      {session.controllerUid
+        ? <p className="muted small">🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></p>
+        : (
+          <>
             <figure className="host-qr">
               <QRCodeSVG value={hostUrlFor(code)} size={150} bgColor="#fff" marginSize={2} />
               <figcaption>Host scans here</figcaption>
             </figure>
-          )}
-        </div>
-      </header>
+            <p className="muted small">Or open <strong>{site}/host</strong> on your phone and enter the same code.</p>
+          </>
+        )}
+      <p className="muted small">
+        📺 To show this on another screen too, open <strong>{site}/screen</strong> there and enter the same code.
+      </p>
+      <p className="muted small">
+        {session.lightUid
+          ? "💡 The light is running."
+          : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> on a computer with a webcam that can see everyone.</>}
+      </p>
+      {game && <button className="link" onClick={() => void setGame(code, null)}>← Between games</button>}
+      {footer}
+    </LobbyMenu>
+  );
 
-      {/* With every game hidden by the host, the picker (heading and all) is left out. */}
-      {!game && Object.values(GAMES).some((g) => !session.hiddenGames?.[g.id]) && (
-        <>
-          <h2>Pick a game</h2>
-          <GamePicks showBlurbs={!session.hideBlurbs} hidden={session.hiddenGames ?? {}} onPick={viewOnly ? undefined : (id) => void setGame(code, id)} />
-        </>
-      )}
+  // Between games (once the first has started): the party's Taskmaster portrait, framed, on the
+  // curtain; or just the curtain if there's none. The code stays small in the corner for latecomers.
+  if (!game && session.begun) {
+    return (
+      <main className="between-games">
+        {session.portrait && (
+          <Framed>{(setRatio) => (
+            <img src={session.portrait} alt="The Taskmaster" onLoad={(e) => setRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)} />
+          )}</Framed>
+        )}
+        <p className="corner-code">{site}/play · <strong>{code}</strong></p>
+        {menu}
+        {viewOnly && footer}
+      </main>
+    );
+  }
 
-      <h2>
-        Players ({players.length})
-        {game?.status && players.length > 0 && <span className="submitted-count"> · {players.filter(([uid]) => game.status?.(session, uid) === "submitted").length} submitted</span>}
-      </h2>
-      {players.length === 0 && <p className="muted">Waiting for players to join…</p>}
-      <ul className="tiles">
-        {players.map(([uid, p]) => (
-          <Tile key={uid} player={p} status={game?.status?.(session, uid)}
-            onPick={viewOnly || !game?.status ? undefined : () => void setDisplay(code, { uid, step: game.firstStep })} />
-        ))}
-      </ul>
-      {!viewOnly && (
-        <>
-          {game && <button className="link" onClick={() => void setGame(code, null)}>← Games</button>}
-          {session.showDownload && <DownloadZip code={code} session={session} />}
-          {/* Setup hints and End session: out of sight until the mouse goes near the top-left corner. */}
-          <LobbyMenu>
-            <p className="muted small">
-              {session.controllerUid
-                ? <>🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></>
-                : <>Host: open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/host</strong> on your phone and enter the same code to control this screen.</>}
-              {" "}{!game ? "You can also pick a game here." : game.status ? "You can also click a player here." : ""}
-            </p>
-            <p className="muted small">
-              📺 To show this on another screen too, open <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/screen</strong> there and enter the same code.
-            </p>
-            <p className="muted small">
-              {session.lightUid
-                ? "💡 The light is running."
-                : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{PUBLIC_URL.replace(/^https?:\/\//, "")}/light</a> on a computer with a webcam that can see everyone.</>}
-            </p>
-            {footer}
-          </LobbyMenu>
-        </>
-      )}
+  // Welcome: guests join on the left and find their name on the right. No game list: the host picks on their phone.
+  if (!game) {
+    return (
+      <main className="welcome">
+        <section className="welcome-join">
+          <h1>Taskmaster</h1>
+          <figure className="join-qr">
+            <QRCodeSVG value={joinUrlFor(code)} size={300} bgColor="#fff" marginSize={2} />
+            <figcaption>Scan to join</figcaption>
+          </figure>
+          <p className="muted">or go to <strong>{site}/play</strong> and enter</p>
+          <p className="code">{code}</p>
+        </section>
+        <section className="welcome-contestants">
+          <h2>Contestants ({players.length})</h2>
+          {players.length === 0 && <p className="muted">Waiting for the first contestant…</p>}
+          <ul className="tiles">
+            {players.map(([uid, p]) => <Tile key={uid} player={p} />)}
+          </ul>
+        </section>
+        {menu}
+        {viewOnly && footer}
+      </main>
+    );
+  }
+
+  // Between contestants, and for a game the host runs (like [BLANK] in a Box) until a round starts:
+  // the empty curtain, so the room looks at the host.
+  if (!game.status || display.step === "curtain") return <main className="curtain-empty">{menu}{viewOnly && footer}</main>;
+
+  // Collecting: the task card is the star; the contestants move to a column on the right.
+  const status = game.status;
+  const submitted = players.filter(([uid]) => status(session, uid) === "submitted").length;
+  const allIn = players.length > 0 && submitted === players.length;
+  return (
+    <main className={game.task ? "collecting" : "collecting no-task"}>
+      <section className="collecting-main">
+        {game.task ? <TaskCard lines={game.task} allIn={allIn} /> : <h1 className="collecting-title">{game.heading(session)}</h1>}
+      </section>
+      <aside className="collecting-side">
+        <h2>{submitted} of {players.length} submitted</h2>
+        <ul className="tiles">
+          {players.map(([uid, p]) => (
+            <Tile key={uid} player={p} status={status(session, uid)}
+              onPick={viewOnly ? undefined : () => void showContestant(code, game.id, { uid, step: game.firstStep })} />
+          ))}
+        </ul>
+      </aside>
+      <p className="corner-code">{site}/play · <strong>{code}</strong></p>
+      {!viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>}
+      {menu}
       {viewOnly && footer}
     </main>
+  );
+}
+
+/** The task card: aged, torn paper in typewriter with the red TM seal. Once everyone is in, a big red stamp lands on it. */
+function TaskCard({ lines, allIn }: { lines: readonly string[]; allIn: boolean }) {
+  const [label, ...body] = lines;
+  return (
+    <div className="task-card">
+      <p className="task-label">{label}</p>
+      {body.map((line) => <p key={line}>{line}</p>)}
+      <span className="wax-seal" aria-hidden="true">TM</span>
+      {allIn && <span className="stamp all-in">✓ All submitted</span>}
+    </div>
   );
 }
 
@@ -132,41 +177,13 @@ function LobbyMenu({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * The game picker: index cards scattered at random angles (picked once, so they don't jump around).
- * Games the host has hidden are left out. Without `onPick` (a view-only screen) the cards are just shown.
- */
-function GamePicks({ showBlurbs, hidden, onPick }: {
-  showBlurbs: boolean; hidden: Partial<Record<GameId, true>>; onPick?: (id: GameId) => void;
-}) {
-  const [scatter] = useState(() => Object.values(GAMES).map(() => ({
-    "--tilt": `${(Math.random() * 7 - 3.5).toFixed(1)}deg`,
-    "--dx": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
-    "--dy": `${(Math.random() * 1.6 - 0.8).toFixed(2)}rem`,
-  })));
-  return (
-    <ul className="game-picks">
-      {Object.values(GAMES).map((g, i) => !hidden[g.id] && (
-        <li key={g.id}>
-          <button className={onPick ? "game-card" : "game-card static"} style={scatter[i] as React.CSSProperties}
-            tabIndex={onPick ? undefined : -1} onClick={() => onPick?.(g.id)}>
-            {/* long titles are set smaller, so they stay on the title line */}
-            <span className={g.name.length > 14 ? "name long" : "name"}>{g.name}</span>
-            {showBlurbs && <span className="blurb">{g.blurb}</span>}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/**
  * A player in the lobby; on the game selection screen (no status) it's just their name.
  * Without `onPick` (a view-only screen) it can't be clicked but looks the same.
  */
 function Tile({ player, status, onPick }: { player: Player; status?: SubmissionStatus; onPick?: () => void }) {
   return (
     <li>
-      <button className={onPick ? "tile" : "tile static"} disabled={status !== "submitted"}
+      <button className={onPick ? "tile" : "tile static"} disabled={!!status && status !== "submitted"}
         tabIndex={onPick ? undefined : -1} onClick={onPick}>
         <span className="name">{player.name}</span>
         {status === "submitted" ? <span className="stamp">✓ Submitted</span>

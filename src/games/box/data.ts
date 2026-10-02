@@ -1,4 +1,4 @@
-import { onValue, ref, remove, set } from "firebase/database";
+import { onValue, ref, remove, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { setDisplay } from "../../session";
@@ -42,6 +42,7 @@ export function useBoxSecret(code: string, enabled: boolean): BoxSecret | null |
 export async function startRound(code: string, round: Omit<BoxRound, "decision" | "revealed" | "startedAt">, inBox: BoxKey) {
   await set(ref(db(), `boxSecrets/${code}`), { inBox });
   await set(ref(db(), `sessions/${code}/games/box/round`), { ...round, startedAt: Date.now() });
+  await update(ref(db(), `sessions/${code}/games/box/played`), { [round.players.a]: true, [round.players.b]: true });
   await setDisplay(code, { step: "boxes" });
 }
 

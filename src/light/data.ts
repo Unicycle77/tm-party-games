@@ -14,8 +14,8 @@ export const SPIN_LAPS = 2;
 
 export const lightOf = (session: Session): LightState => session.light ?? {};
 
-/** The camera turns the light on unless the host has paused it. */
-export const isArmed = (light: LightState) => light.armed !== false;
+/** The light is on (and its camera watching) only once the host has switched it on. */
+export const isArmed = (light: LightState) => light.armed === true;
 
 const path = (code: string, key: keyof LightState) => ref(db(), `sessions/${code}/light/${key}`);
 
@@ -140,16 +140,16 @@ export function useFlash(light: LightState): string | undefined {
 export function cameraText(session: Session): string {
   const light = lightOf(session);
   const camera = light.camera;
-  const paused = isArmed(light) ? "" : " Paused: it won't turn the light on.";
   if (!session.lightUid) return `Not running. Open ${PUBLIC_URL.replace(/^https?:\/\//, "")}/light on the computer with the webcam.`;
-  if (camera?.error) return `Camera: ${camera.error}`;
   if (!camera) return "The light computer isn't responding. Check that its /light page is still open.";
-  if (camera.starting) return `Camera: starting…${paused}`;
+  if (!isArmed(light)) return "Off. The camera isn't watching.";
+  if (camera.error) return `Camera: ${camera.error}`;
+  if (camera.starting || camera.off) return "Camera starting…";
   const people = camera.people ?? 0;
   const seen = `Camera sees ${people} ${people === 1 ? "person" : "people"}`;
   // Per state ("smiling" is shared by the two smile triggers, "with an arm up" by the two arm ones).
   const states = new Map<string, number>();
   for (const t of watchedTriggers(light)) states.set(t.state, camera.each?.[t.id] ?? 0);
-  if (!modeOf(light)) return `${seen}, ${[...states.values()][0] ?? 0} ${triggerOf(light).state}.${paused}`;
-  return `${seen}: ${[...states].map(([state, n]) => `${n} ${state}`).join(", ")}.${paused}`;
+  if (!modeOf(light)) return `${seen}, ${[...states.values()][0] ?? 0} ${triggerOf(light).state}.`;
+  return `${seen}: ${[...states].map(([state, n]) => `${n} ${state}`).join(", ")}.`;
 }
