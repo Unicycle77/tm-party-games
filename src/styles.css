@@ -183,6 +183,16 @@ input::placeholder { color: #8b7a63; }
 @media (prefers-reduced-motion: reduce) { .task-card .all-in { animation: none; } }
 @media (max-width: 800px) { .collecting, .collecting.no-task { grid-template-columns: 1fr; } }
 .curtain-empty { min-height: 100vh; min-height: 100dvh; }
+/* the setup gate: the closed curtain, one gold click, and what it will do */
+.gate { min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 1.6rem; padding: 2rem; text-align: center; }
+.gate h1 { font-size: clamp(3rem, 9vh, 6rem); margin: 0; }
+.gate .raise { font-size: clamp(1.4rem, 3.4vh, 2.2rem); padding: 0.9rem 2.6rem; width: auto; }
+.gate-checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; justify-items: start; font-family: var(--typewriter); color: var(--fg); font-size: 1.15rem; }
+.gate-checks li { display: flex; gap: 0.6rem; align-items: baseline; }
+.gate-checks li.done { color: var(--gold-bright); }
+.gate-checks li.failed { color: var(--muted); }
+.gate .host-qr { justify-items: center; }
+.gate-quiet { margin: 0; }
 /* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the
    mouse comes near (the padding is an invisible hover buffer); it opens a burgundy panel with gold trim */
 .lobby-menu { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 6; padding: 1.5rem; margin: -1.5rem; }

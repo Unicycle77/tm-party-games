@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Jukebox } from "./Jukebox";
 import { HOSTED_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { Screen, screenState } from "./Screen";
+import { StageGate } from "./StageGate";
 import { JoinError, checkResume, createSession, ensureSignedIn, migrateLegacySession, resumeSession, store, useSession, useUid, watchHost } from "./session";
 
 const KEY = "ba.hostCode";
@@ -28,6 +29,9 @@ export function MainScreen() {
   }, [code, recentCodes]);
   const session = useSession(code || undefined);
   const remembered = useRef("");
+  // The setup gate comes back after every start, resume or refresh: it's the one click the browser needs.
+  const [raised, setRaised] = useState(false);
+  useEffect(() => setRaised(false), [code]);
 
   const remember = (c: string) => setRecent((r) => saveRecent(HOSTED_KEY, withRecent(r, c)));
   const forget = (c: string) => setRecent((r) => saveRecent(HOSTED_KEY, withoutRecent(r, c)));
@@ -137,11 +141,13 @@ export function MainScreen() {
   if (!session) return <main className="center"><p>Loading…</p></main>;
 
   const { onStage, videoPlaying } = screenState(session);
+  const end = () => { store.set(KEY, ""); setCode(""); };
   return (
     <>
-      <Screen code={code} session={session}
-        footer={<button className="link" onClick={() => { store.set(KEY, ""); setCode(""); }}>End session</button>} />
-      <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying} showUi={!onStage} />
+      {raised
+        ? <Screen code={code} session={session} footer={<button className="link" onClick={end}>End session</button>} />
+        : <StageGate code={code} session={session} onRaised={() => setRaised(true)} onEnd={end} />}
+      <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying} showUi={raised && !onStage} />
     </>
   );
 }
