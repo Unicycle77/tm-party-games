@@ -126,6 +126,22 @@ Scenarios, in the agreed order: running the reveals, starting a game and collect
 | Music | The 🎵 icon (with ▶ while a song plays) opens today's jukebox, with "← Back to the show". Songs still never advance on their own, and music pauses during videos. | |
 | Connecting and settings | Scan the host QR on the setup gate, type the code, or tap the party in the recent list. A quiet "Party settings" link holds "Show download button on the big screen" and Disconnect. | "Hide game descriptions": the game cards are gone from the big screen. |
 
+## The light
+
+The light runs quietly all evening on its own computer with a webcam, and drives a Hue lamp. It goes on 2 seconds after anyone does the secret action, and guests try to work out what sets it off. Only the host knows the secret. When someone guesses it, the host awards points out loud and turns the light off. Nothing on screen marks the win.
+
+Scenarios, in the agreed order: guests watching the light, the host running it during the evening, and setting up the light computer.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Off | While the host has it off, the light computer shows only the curtain, and the camera is fully off (not just ignoring people). The Hue lamp is left as it is. | A bulb that sits on screen looking ready while the camera ignores everyone (today): guests can't tell the game hasn't started. |
+| On | The bulb fades in, so starting is a small moment. Switching on shows "Camera starting…" on the host phone for a few seconds. | |
+| Host phone | A 💡 icon in the header, next to 🎵, lit while the light is on. It opens a single "Light: on / off" switch and one camera line ("Camera sees 7 people"). | A separate tab: the host phone has no tabs any more. A "Camera watching" switch: off now means fully off. |
+| Host phone, while on | The main button is "Light it in 2 s", for someone the camera missed. In "All at once" it's one button per colour. | "Light it now" beside it during the game: one slip flashes the light for nothing and throws off everyone's guesses. |
+| Host phone, the secret | One line, "Secret: stops smiling", with a quiet "Change" that holds the mode and the list of secrets. They're set before switching on. | All seven secrets and the modes on screen all evening (today). |
+| Host phone, while off | "Test the light" is safe while guests aren't watching. "Reset the light computer" moves into Party settings. | |
+| Light computer setup | After connecting, a checklist on the curtain: the camera with a small live preview and Change; the Hue lamp with Test and Change, or "Skip, no lamp tonight"; and a gold "Go full screen", which also keeps the window in front for the camera. It then settles on the bare curtain with "Ready. Turn it on from the host phone." Afterwards its controls appear only when the mouse moves. | The bulb straight after the code, with camera and lamp setup in a bar that only shows on mouse move (today): easy to miss a broken camera before guests arrive. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.
