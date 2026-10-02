@@ -21,6 +21,7 @@
   --fg: #f6ecd6;
   --muted: #c9b48f;
   --bulb-red: #e8412e;
+  --stamp-red: #a8201a;
   --wood: #9a6634;
   --wood-dark: #5e3a18;
   --ok: #9be08a;
@@ -192,14 +193,14 @@ input::placeholder { color: #8b7a63; }
 .tile:not(:disabled):hover { transform: rotate(0deg) scale(1.04); border-color: var(--gold-bright); box-shadow: 0 10px 22px #000c, 0 0 0 3px var(--gold); }
 .tile .name { font-size: 1.5rem; }
 .status { font-size: 0.85rem; color: #7a6a55; text-transform: uppercase; letter-spacing: 0.06em; }
-/* a gold rubber stamp, slightly tilted, once a player's submission is in */
+/* a red-ink rubber stamp, slightly tilted: something is done (joined, submitted) */
 .stamp {
   align-self: flex-start;
   padding: 0.05rem 0.7rem;
-  border: 3px solid var(--gold-edge);
+  border: 3px solid var(--stamp-red);
   border-radius: 4px;
-  color: var(--gold-edge);
-  background: rgba(217, 178, 76, 0.22);
+  color: var(--stamp-red);
+  background: rgba(168, 32, 26, 0.08);
   font-weight: bold;
   font-size: 0.95rem;
   text-transform: uppercase;
@@ -318,6 +319,9 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
   box-shadow: 0 6px 14px #0008;
 }
 .slot h2 { color: var(--burgundy); margin: 0; }
+/* the phone's resting card: joined, or between games */
+.slot.waiting { justify-items: center; text-align: center; padding: 1.5rem 1rem; }
+.slot.waiting .stamp { align-self: center; font-size: 1.2rem; }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
 import { QrScannerModal } from "./QrScannerModal";
-import { JoinError, extractCode, joinSession, leaveSession, store, useSession, useUid } from "./session";
+import { JoinError, extractCode, joinSession, store, useSession, useUid } from "./session";
 
 const CODE_KEY = "ba.playCode";
 const NAME_KEY = "ba.playName";
@@ -12,6 +12,8 @@ export function Play() {
   const session = useSession(code || undefined);
 
   const leave = () => { store.set(CODE_KEY, ""); setCode(""); };
+  // Only the first wait is a welcome; once a game has been on, the card just says another is coming.
+  const hadGame = useRef(false);
 
   // If the session vanished or we were removed, fall back to the join screen.
   useEffect(() => {
@@ -24,16 +26,26 @@ export function Play() {
 
   // Players only ever see the game the host has made active.
   const game = activeGame(session);
+  if (game) hadGame.current = true;
+  const name = session.players[uid]!.name;
   return (
     <main className="phone">
-      <header><strong>{session.players[uid]!.name}</strong><span className="muted"> · {code}</span></header>
-      {game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : (
-        <section className="slot">
-          <h2>You're in!</h2>
-          <p className="slot-hint">Waiting for the host to pick a game…</p>
+      <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
+      {game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
+        <section className="slot waiting">
+          <h2>Waiting for the next game.</h2>
+          <p className="slot-hint">When the host picks it, it'll show up here.</p>
+        </section>
+      ) : (
+        <section className="slot waiting">
+          <span className="stamp">✓ You're in</span>
+          <h2>Welcome, {name}!</h2>
+          <p className="slot-hint">Look for your name on the big screen.</p>
+          <p className="slot-hint">When the host picks a game, it'll show up here.</p>
         </section>
       )}
-      <button className="link" onClick={() => { void leaveSession(code, uid); leave(); }}>Leave session</button>
+      {/* Disconnects this phone only: the player's tile and entries stay. Only the host removes players. */}
+      <button className="link" onClick={leave}>Not {name}? Switch player</button>
     </main>
   );
 }
