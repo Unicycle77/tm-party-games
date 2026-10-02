@@ -57,7 +57,7 @@ export interface BoxSecret { inBox: BoxKey }
  * smiling). Players have to work out why.
  */
 export interface LightState {
-  /** Whether the camera turns the light on. Treated as on when absent; the host can pause it. */
+  /** Whether the light is on: the camera watches and turns it on. Off when absent (the host switches it on later). */
   armed?: boolean;
   /** The secret trigger's id (see light/triggers.ts); "stop-smiling" when absent. */
   trigger?: string;
@@ -72,7 +72,7 @@ export interface LightState {
   /** A mode with several bulbs: when each trigger's bulb last went on, by trigger id. */
   lit?: Record<string, number>;
   /** What the light computer's camera sees (people in view; per trigger, how many are "in", e.g. smiling), for the host phone. */
-  camera?: { starting?: boolean; people?: number; each?: Record<string, number>; error?: string };
+  camera?: { starting?: boolean; off?: boolean; people?: number; each?: Record<string, number>; error?: string };
 }
 
 /** One game's submissions within a session. */

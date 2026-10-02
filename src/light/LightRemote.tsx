@@ -7,8 +7,8 @@ import {
 import { MODES, TRIGGERS } from "./triggers";
 
 /**
- * The host phone's light controls (its own tab): the mode (one secret trigger, or a bulb per trigger),
- * what the camera sees, pause and manual lights.
+ * The host phone's light controls: on or off (off stops the camera too), what the camera sees, a manual
+ * light for someone the camera missed, and the secret (or mode) behind "Change". Tests only while it's off.
  */
 export function LightRemote({ code, session }: { code: string; session: Session }) {
   const light = lightOf(session);
@@ -33,28 +33,21 @@ export function LightRemote({ code, session }: { code: string; session: Session 
   }
 
   const needsArms = mode ? mode.bulbs.some((b) => b.trigger.model === "pose") : trigger.model === "pose";
+  // The mode and the secret are set before switching on, so they sit behind "Change".
+  const [changing, setChanging] = useState(false);
 
   return (
     <section className="remote light-remote">
       <h2>💡 The light</h2>
-      {/* What the camera sees and whether it's watching come first: that's what the host checks during the evening. */}
-      <p>{cameraText(session)}</p>
+      {/* On or off, and what the camera sees: what the host checks during the evening. Off means the camera is off too. */}
       <div className="toggles">
-        <Toggle label="Camera watching" on={armed} disabled={!running} onChange={(on) => void setArmed(code, on)} />
+        <Toggle label="Light on" on={armed} disabled={!running} onChange={(on) => void setArmed(code, on)} />
       </div>
-      <div className="choices" role="group" aria-label="Mode">
-        <button className={mode ? "" : "active"} aria-pressed={!mode} onClick={() => { if (mode) void setMode(code, null); }}>One secret</button>
-        {MODES.map((m) => (
-          <button key={m.id} className={m.id === mode?.id ? "active" : ""} aria-pressed={m.id === mode?.id}
-            onClick={() => { if (m.id !== mode?.id) void setMode(code, m.id); }}>{m.label}</button>
-        ))}
-      </div>
-      {mode ? (
+      <p>{cameraText(session)}</p>
+
+      {armed && (mode ? (
         <>
-          <p className="muted small">
-            Only you know: each bulb goes on {DELAY_MS / 1000} s after anyone does its action. The players see the colours, not the names.
-            Tap one to light it in {DELAY_MS / 1000} s (for something the camera missed).
-          </p>
+          <p className="muted small">Tap a colour to light it in {DELAY_MS / 1000} s, for someone the camera missed.</p>
           <div className="light-keys">
             {mode.bulbs.map(({ trigger: t, colour, colourName }) => (
               <button key={t.id} className="light-key" style={{ "--bulb": colour } as React.CSSProperties}
@@ -71,28 +64,45 @@ export function LightRemote({ code, session }: { code: string; session: Session 
               </button>
             ))}
           </div>
-          <button disabled={!running} onClick={() => lightAllNow(code, mode)}>Light them all now</button>
         </>
       ) : (
+        <button className="big" disabled={!running || pending > 0} onClick={lightSoon}>
+          {pending > 0 ? "Lighting…" : `Light it in ${DELAY_MS / 1000} s`}
+        </button>
+      ))}
+
+      <p className="light-secret">
+        {mode ? <>Mode: <strong>{mode.label}</strong></> : <>Secret: <strong>{trigger.label.toLowerCase()}</strong></>}
+        {" · "}<button className="link" onClick={() => setChanging((c) => !c)}>{changing ? "Done" : "Change"}</button>
+      </p>
+      {changing && (
         <>
-          <p className="muted small">
-            Only you know: the light goes on {DELAY_MS / 1000} s after anyone <strong>{trigger.secret}</strong>.
-          </p>
-          <p className="muted small">The secret:</p>
-          <div className="choices two" role="group" aria-label="The secret">
-            {TRIGGERS.map((t) => (
-              <button key={t.id} className={t.id === trigger.id ? "active" : ""} aria-pressed={t.id === trigger.id}
-                onClick={() => { if (t.id !== trigger.id) void setTrigger(code, t.id); }}>{t.label}</button>
+          <div className="choices" role="group" aria-label="Mode">
+            <button className={mode ? "" : "active"} aria-pressed={!mode} onClick={() => { if (mode) void setMode(code, null); }}>One secret</button>
+            {MODES.map((m) => (
+              <button key={m.id} className={m.id === mode?.id ? "active" : ""} aria-pressed={m.id === mode?.id}
+                onClick={() => { if (m.id !== mode?.id) void setMode(code, m.id); }}>{m.label}</button>
             ))}
           </div>
-          <div className="steps two">
-            <button disabled={!running || pending > 0} onClick={lightSoon}>{pending > 0 ? "Lighting…" : `Light in ${DELAY_MS / 1000} s`}</button>
-            <button disabled={!running} onClick={() => void lightNow(code)}>Light it now</button>
-          </div>
-          <p className="muted small">"Light in {DELAY_MS / 1000} s" is for something the camera missed; "Light it now" is a test.</p>
+          {mode ? (
+            <p className="muted small">Each bulb goes on {DELAY_MS / 1000} s after anyone does its action. The players see the colours, not the names.</p>
+          ) : (
+            <>
+              <p className="muted small">The light goes on {DELAY_MS / 1000} s after anyone <strong>{trigger.secret}</strong>.</p>
+              <div className="choices two" role="group" aria-label="The secret">
+                {TRIGGERS.map((t) => (
+                  <button key={t.id} className={t.id === trigger.id ? "active" : ""} aria-pressed={t.id === trigger.id}
+                    onClick={() => { if (t.id !== trigger.id) void setTrigger(code, t.id); }}>{t.label}</button>
+                ))}
+              </div>
+            </>
+          )}
+          {needsArms && <p className="muted small">The camera needs to see people's arms and shoulders, not just faces.</p>}
         </>
       )}
-      {needsArms && <p className="muted small">The camera needs to see people's arms and shoulders, not just faces.</p>}
+
+      {/* Safe only while guests aren't watching: a test mid-game would throw off their guesses. */}
+      {!armed && <button disabled={!running} onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
       {running && (
         <button className="link" onClick={() => { if (confirm("Reset the light? The computer running it stops, and another one can take over.")) void releaseLight(code); }}>
           Reset the light computer
