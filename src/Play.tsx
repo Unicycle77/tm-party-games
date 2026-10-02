@@ -11,17 +11,24 @@ export function Play() {
   const [code, setCode] = useState(() => store.get(CODE_KEY));
   const session = useSession(code || undefined);
 
-  const leave = () => { store.set(CODE_KEY, ""); setCode(""); };
+  // Why this phone was dropped back to the join form, if it didn't choose to leave.
+  const [dropped, setDropped] = useState<string>();
+  const leave = (why?: string) => { store.set(CODE_KEY, ""); setCode(""); setDropped(why); };
   // Only the first wait is a welcome; once a game has been on, the card just says another is coming.
   const hadGame = useRef(false);
 
   // If the session vanished or we were removed, fall back to the join screen.
   useEffect(() => {
     if (!uid || session === undefined) return;
-    if (session === null || !session.players?.[uid]) leave();
+    if (session === null) {
+      // The QR's code points at the finished party: start the form with an empty code field.
+      history.replaceState(null, "", location.pathname);
+      leave("That party has ended.");
+    }
+    else if (!session.players?.[uid]) leave("You were removed from the party.");
   }, [uid, session]);
 
-  if (!code) return <Join onJoined={(c) => { store.set(CODE_KEY, c); setCode(c); }} />;
+  if (!code) return <Join notice={dropped} onJoined={(c) => { store.set(CODE_KEY, c); setCode(c); setDropped(undefined); }} />;
   if (!uid || !session?.players?.[uid]) return <main className="center"><p>Loading…</p></main>;
 
   // Players only ever see the game the host has made active.
@@ -45,12 +52,12 @@ export function Play() {
         </section>
       )}
       {/* Disconnects this phone only: the player's tile and entries stay. Only the host removes players. */}
-      <button className="link" onClick={leave}>Not {name}? Switch player</button>
+      <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
     </main>
   );
 }
 
-function Join({ onJoined }: { onJoined: (code: string) => void }) {
+function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) => void }) {
   const [code, setCode] = useState(() => (new URLSearchParams(location.search).get("code") ?? "").toUpperCase().slice(0, 4));
   const [name, setName] = useState(() => store.get(NAME_KEY));
   const [busy, setBusy] = useState(false);
@@ -77,6 +84,7 @@ function Join({ onJoined }: { onJoined: (code: string) => void }) {
   return (
     <main className="join">
       <h1>Taskmaster</h1>
+      {notice && <p className="notice">{notice}</p>}
       <form onSubmit={(e) => void submit(e)}>
         {editingCode ? (
           <label>Game code
