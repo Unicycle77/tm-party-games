@@ -7,6 +7,7 @@ export function HostPlayer({ code, session, display, uid }: { code: string; sess
   const show = (step: "before" | "after" | "both") => void setDisplay(code, { uid, step });
   const cls = (step: string) => (display.step === step ? "step active" : "step");
   const hasVideo = !!mediaOf(session, uid).video;
+  const video = display.step === "video";
   return (
     <>
       <div className="steps two">
@@ -14,15 +15,15 @@ export function HostPlayer({ code, session, display, uid }: { code: string; sess
         <button className={cls("after")} onClick={() => show("after")}>After</button>
         <button className={cls("both")} onClick={() => show("both")}>◫ Side by side</button>
         <button className={cls("video")} disabled={!hasVideo} onClick={() => void setDisplay(code, { uid, step: "video", playing: true })}>
-          {hasVideo ? "▶ Video" : "No video"}
+          {hasVideo ? "▶ Play the video" : "No video"}
         </button>
       </div>
-      {/* Always rendered, so every control keeps its position on every view. */}
+      {/* Always rendered, so every control keeps its position on every view: disabled until the video plays. */}
       <div className="steps two">
-        <button disabled={display.step !== "video"} onClick={() => void patchDisplay(code, { playing: display.playing === false })}>
-          {display.step === "video" && display.playing === false ? "▶ Play" : "⏸ Pause"}
+        <button disabled={!video} onClick={() => void patchDisplay(code, { playing: display.playing === false })}>
+          {video && display.playing === false ? "▶ Play" : "⏸ Pause"}
         </button>
-        <button disabled={display.step !== "video"} onClick={() => void patchDisplay(code, { playing: true, restartAt: Date.now() })}>↺ Restart</button>
+        <button disabled={!video} onClick={() => void patchDisplay(code, { playing: true, restartAt: Date.now() })}>↺ Restart</button>
       </div>
     </>
   );

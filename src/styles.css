@@ -715,3 +715,7 @@ body.idle-cursor .stage { cursor: none; }
 span.lock { padding: 0; }
 .party-settings { display: grid; gap: 0.6rem; justify-items: start; }
 .party-settings .toggles { justify-self: stretch; }
+/* host phone, a contestant on the big screen */
+h2.contestant { font-size: 1.8rem; margin: 0.2rem 0 0; }
+h2.contestant .muted { font-size: 0.6em; }
+.phone.host button.lower { padding: 0.8rem; margin-top: 0.75rem; }

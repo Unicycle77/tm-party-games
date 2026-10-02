@@ -80,10 +80,13 @@ export function HostRemote({ code, session }: { code: string; session: Session }
     return (
       <section className="remote">
         {gameLine}
-        <p className="on-screen">On the big screen: {current.name}'s {SHOWING[display.step]}</p>
-        <h2>{current.name}{place > 0 && `, ${place} of ${ready.length}`}</h2>
+        <p className="on-screen">
+          On the big screen: {current.name}'s {SHOWING[display.step]}{display.step === "video" && display.playing === false && " (paused)"}
+        </p>
+        <h2 className="contestant">{current.name}{place > 0 && <span className="muted">, {place} of {ready.length}</span>}</h2>
         <game.HostPlayer code={code} session={session} display={display} uid={display.uid} />
-        <button className="link" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
+        {/* Back to the empty curtain, never straight to the next contestant: the running order picks who's next. */}
+        <button className="lower" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
       </section>
     );
   }

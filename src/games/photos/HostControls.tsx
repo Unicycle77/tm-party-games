@@ -1,22 +1,13 @@
-import { setDisplay, showContestant } from "../../session";
+import { setDisplay } from "../../session";
 import type { Display, Session } from "../../types";
-import { allPhotos, neighbour } from "./data";
+import { allPhotos } from "./data";
 
-/** The host's phone, with a player's photo on screen: step through everyone's, or show them all. */
-export function HostPlayer({ code, session, uid }: { code: string; session: Session; display: Display; uid: string }) {
-  const prev = neighbour(session, uid, -1);
-  const next = neighbour(session, uid, 1);
-  return (
-    <>
-      <div className="steps two">
-        <button disabled={!prev} onClick={() => prev && void showContestant(code, "photos", { uid: prev, step: "photo" })}>Previous</button>
-        <button disabled={!next} onClick={() => next && void showContestant(code, "photos", { uid: next, step: "photo" })}>Next</button>
-      </div>
-      <div className="steps">
-        <button className="step" onClick={() => void setDisplay(code, { step: "grid" })}>◫ Show everyone</button>
-      </div>
-    </>
-  );
+/**
+ * The host's phone, with a player's photo on screen: the photo is the whole reveal, so there's nothing
+ * to step through. "Lower the curtain" (below) leads back to the running order and its "Next".
+ */
+export function HostPlayer(_: { code: string; session: Session; display: Display; uid: string }) {
+  return null;
 }
 
 /** The host's phone, above the player list: everyone's photo on one screen. */
