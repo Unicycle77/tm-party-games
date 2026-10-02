@@ -97,9 +97,13 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
         <p className="slot-hint">You're the peeker. Only you can look. {other} decides whether to swap.</p>
         {/* a fixed-size view, so the button never moves under the thumb when the lid opens */}
         <div className="box-view">
-          {!open ? <img className="box-art" src={BOX_ART.closed} alt="Your box, closed" />
-            : hasObject ? <img className="box-peek" src={object?.url} alt={objectName} />
-            : <img className="box-art" src={BOX_ART.open} alt="An empty box" />}
+          {!open ? <img className="box-art" src={BOX_ART.closed} alt="Your box, closed" /> : (
+            // The object sits small and in shadow inside the open box, so a bright one doesn't catch eyes across the room.
+            <div className="box-peeked">
+              <img className="box-art" src={BOX_ART.open} alt={hasObject ? `${objectName} in your box` : "An empty box"} />
+              {hasObject && <img className="box-peek" src={object?.url} alt="" />}
+            </div>
+          )}
         </div>
         <p className="peek-says" style={{ visibility: open ? "visible" : "hidden" }}>{hasObject ? `The ${objectName.toLowerCase()} is in your box!` : "Your box is empty."}</p>
         <button className="big hold" disabled={hasObject === undefined}

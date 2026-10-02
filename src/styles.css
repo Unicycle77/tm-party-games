@@ -570,9 +570,12 @@ body.idle-cursor .stage { cursor: none; }
 
 /* [BLANK] in a Box on phones: the box art has no frame of its own; a peeked-at object gets the preview border */
 .slot img.box-art { border: 0; background: none; max-height: 34vh; }
-.slot img.box-peek { width: auto; max-width: 100%; height: auto; max-height: 34vh; justify-self: center; background: none; }
 .slot .box-view { height: 34vh; display: grid; place-items: center; }
 .slot .box-view img { max-height: 100%; }
+.slot .box-peeked { position: relative; height: 100%; display: grid; place-items: center; }
+.slot .box-peeked img.box-art { height: 100%; width: auto; }
+/* the object seen through the front of the box, small and in shadow */
+.slot .box-peeked img.box-peek { position: absolute; left: 50%; top: 52%; height: 35%; width: auto; transform: translateX(-50%); border: 0; border-radius: 3px; background: none; filter: brightness(0.6) saturate(0.7); }
 /* hold-to-peek: no text selection or long-press menu while the thumb is down */
 .slot button.hold { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
 .slot .peek-says { margin: 0; text-align: center; font-family: var(--typewriter); color: var(--burgundy); }
