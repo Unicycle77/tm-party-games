@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getStorage } from "firebase/storage";
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -26,7 +25,8 @@ function need<T>(value: T | undefined): T {
 
 export const auth = () => getAuth(need(app));
 export const db = () => getDatabase(need(app));
-export const storage = () => getStorage(need(app));
+// Storage is only needed when someone uploads, so it loads then rather than with every page.
+export const storage = async () => (await import("firebase/storage")).getStorage(need(app));
 
 /** Base URL players are sent to. */
 export const PUBLIC_URL: string = (import.meta.env.VITE_PUBLIC_URL as string | undefined) || window.location.origin;

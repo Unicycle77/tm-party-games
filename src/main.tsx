@@ -1,12 +1,14 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { isFirebaseConfigured } from "./firebase";
-import { MainScreen } from "./MainScreen";
-import { HostPage } from "./HostPage";
-import { LightPage } from "./light/LightPage";
-import { Play } from "./Play";
-import { ViewScreen } from "./ViewScreen";
 import "./styles.css";
+
+// Each route loads only its own code, so a player's phone doesn't download the stage, host or light.
+const MainScreen = lazy(() => import("./MainScreen").then((m) => ({ default: m.MainScreen })));
+const HostPage = lazy(() => import("./HostPage").then((m) => ({ default: m.HostPage })));
+const LightPage = lazy(() => import("./light/LightPage").then((m) => ({ default: m.LightPage })));
+const Play = lazy(() => import("./Play").then((m) => ({ default: m.Play })));
+const ViewScreen = lazy(() => import("./ViewScreen").then((m) => ({ default: m.ViewScreen })));
 
 function Root() {
   if (!isFirebaseConfigured) {
@@ -23,4 +25,5 @@ function Root() {
   return <MainScreen />;
 }
 
-createRoot(document.getElementById("root")!).render(<StrictMode><Root /></StrictMode>);
+// The curtain backdrop is on <body>, so showing nothing while a page loads looks intentional.
+createRoot(document.getElementById("root")!).render(<StrictMode><Suspense fallback={null}><Root /></Suspense></StrictMode>);
