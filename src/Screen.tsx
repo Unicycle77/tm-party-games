@@ -14,7 +14,7 @@ export function screenState(session: Session) {
   const display = session.display ?? { step: "list" as const };
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
-  const onStage = !!game && display.step !== "list"
+  const onStage = !!game && display.step !== "list" && display.step !== "curtain"
     && (!display.uid || (!!session.players?.[display.uid] && game.status?.(session, display.uid) !== "waiting"));
   return { game, display, videoPlaying, onStage };
 }
@@ -92,8 +92,9 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     );
   }
 
-  // A game the host runs (like [BLANK] in a Box): the empty curtain until a round starts.
-  if (!game.status) return <main className="curtain-empty">{menu}{viewOnly && footer}</main>;
+  // Between contestants, and for a game the host runs (like [BLANK] in a Box) until a round starts:
+  // the empty curtain, so the room looks at the host.
+  if (!game.status || display.step === "curtain") return <main className="curtain-empty">{menu}{viewOnly && footer}</main>;
 
   // Collecting: the task card is the star; the contestants move to a column on the right.
   const status = game.status;

@@ -11,7 +11,7 @@ const LABEL: Record<StageStep, string> = { before: "Before", after: "After", bot
  * Backup controls for the main screen, for when someone clicks around on it instead of
  * using the host phone. Hidden until the mouse moves (then fades out again), plus keys:
  *   1 2 3 4 = Before / After / Side by side / Video     ← → = previous / next
- *   Space = play/pause video     R = restart video     Esc or Backspace = back to players
+ *   Space = play/pause video     R = restart video     Esc or Backspace = lower the curtain
  */
 export function StageControls({ code, display, hasVideo }: { code: string; display: Display; hasVideo: boolean }) {
   const uid = display.uid;
@@ -21,7 +21,7 @@ export function StageControls({ code, display, hasVideo }: { code: string; displ
   const review = display.step === "review";
   const available = ORDER.filter((s) => s !== "video" || hasVideo);
   const go = (next: StageStep) => { if (uid) void setDisplay(code, { uid, step: next, ...(next === "video" ? { playing: true } : {}) }); };
-  const back = () => void setDisplay(code, { step: "list" });
+  const back = () => void setDisplay(code, { step: "curtain" });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -64,7 +64,7 @@ export function StageControls({ code, display, hasVideo }: { code: string; displ
           <button onClick={() => void patchDisplay(code, { playing: true, restartAt: Date.now() })} tabIndex={visible ? 0 : -1}>↺ Restart</button>
         </>
       )}
-      <button onClick={back} tabIndex={visible ? 0 : -1}>← Players</button>
+      <button onClick={back} tabIndex={visible ? 0 : -1}>Lower the curtain</button>
     </div>
   );
 }

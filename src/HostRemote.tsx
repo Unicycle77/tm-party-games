@@ -107,7 +107,7 @@ export function HostRemote({ code, session }: { code: string; session: Session }
       <>
         <h2>{current.name}</h2>
         <game.HostPlayer code={code} session={session} display={display} uid={display.uid} />
-        <button className="link" onClick={() => void setDisplay(code, { step: "list" })}>← Back to players</button>
+        <button className="link" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
       </>,
     );
   }

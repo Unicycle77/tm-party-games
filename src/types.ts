@@ -4,10 +4,10 @@ export type GameId = (typeof GAME_IDS)[number];
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
- * "list" = the lobby. The other steps belong to the active game; a step without a uid shows everyone
+ * "list" = the lobby. "curtain" = the empty curtain between contestants. The other steps belong to the active game; a step without a uid shows everyone
  * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box).
  */
-export type Step = "list" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
+export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
 
 export interface Display {
   uid?: string;
