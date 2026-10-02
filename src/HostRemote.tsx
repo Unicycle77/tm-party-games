@@ -48,7 +48,10 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   if (!game) {
     return (
       <section className="remote">
-        <p className="on-screen">On the big screen: the welcome</p>
+        <p className="on-screen">
+          On the big screen: {!session.begun ? "the welcome" : session.portrait ? "the Taskmaster's portrait" : "the curtain"}
+        </p>
+        {session.begun && !session.portrait && <p className="muted small">Add this party's Taskmaster portrait in Party settings.</p>}
         <h2>Choose a game</h2>
         <div className="steps">
           {Object.values(GAMES).map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}

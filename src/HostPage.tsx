@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { HostRemote } from "./HostRemote";
+import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
 import { LightRemote } from "./light/LightRemote";
@@ -97,6 +98,37 @@ function MoveRequests({ code, session }: { code: string; session: Session }) {
   );
 }
 
+/** This party's Taskmaster portrait: shown framed on the big screen between games. */
+function Portrait({ code, session }: { code: string; session: Session }) {
+  const uid = useUid();
+  const input = useRef<HTMLInputElement>(null);
+  const [progress, setProgress] = useState<number>();
+  const [failed, setFailed] = useState(false);
+
+  async function upload(file: File | undefined) {
+    if (!file || !uid) return;
+    setFailed(false);
+    setProgress(0);
+    try { await uploadPortrait(code, uid, file, setProgress); }
+    catch { setFailed(true); }
+    finally { setProgress(undefined); }
+  }
+
+  return (
+    <div className="portrait-setting">
+      {session.portrait ? <img src={session.portrait} alt="The Taskmaster's portrait" /> : <div className="ph">No portrait</div>}
+      <div className="portrait-text">
+        <span>Taskmaster portrait</span>
+        <span className="muted small">Shown on the big screen between games.</span>
+        {progress !== undefined ? <span className="small">Uploading… {Math.round(progress * 100)}%</span>
+          : <button onClick={() => input.current?.click()}>{session.portrait ? "Change portrait" : "Upload portrait"}</button>}
+        {failed && <span className="error small">That didn't upload. Try again.</span>}
+      </div>
+      <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
+    </div>
+  );
+}
+
 /** Set-once things, behind a quiet link at the bottom of the show. */
 function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
   const [open, setOpen] = useState(false);
@@ -107,6 +139,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
+      <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>

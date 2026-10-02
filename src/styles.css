@@ -733,3 +733,10 @@ h2.contestant .muted { font-size: 0.6em; }
 .move-request { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-top: 6px solid var(--burgundy); border-radius: 6px; padding: 0.8rem; display: grid; gap: 0.6rem; box-shadow: 0 4px 10px #0008; }
 .move-request p { margin: 0; }
 .move-request .row button { flex: 1; }
+/* between games: the party's Taskmaster portrait, centred, the frame half the screen's height */
+.between-games { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; }
+.between-games .frame img { width: auto; height: calc(50vh - 2 * var(--bw)); max-width: calc(100vw - 2 * var(--bw) - var(--pad)); }
+.portrait-setting { display: flex; gap: 0.8rem; align-items: center; justify-self: stretch; }
+.portrait-setting img, .portrait-setting .ph { width: 5rem; height: 6.5rem; object-fit: cover; border: 3px solid var(--gold); border-radius: 2px; flex: none; }
+.portrait-setting .ph { display: grid; place-items: center; text-align: center; font-size: 0.8rem; color: var(--muted); border-style: dashed; }
+.portrait-text { display: grid; gap: 0.3rem; justify-items: start; font-family: var(--typewriter); }

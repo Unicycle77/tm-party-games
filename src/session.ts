@@ -237,7 +237,7 @@ export const activeGameId = (session: Session): GameId | undefined => session.ga
  * or with `null` goes back to the game selection screen. Nothing submitted to any game is lost.
  */
 export const setGame = (code: string, game: GameId | null) =>
-  update(ref(db(), `sessions/${code}`), { game, display: { step: "list" } });
+  update(ref(db(), `sessions/${code}`), { game, display: { step: "list" }, ...(game ? { begun: true } : {}) });
 
 /**
  * Main screen: moves a session from before there were games into the games layout, so it can be resumed.

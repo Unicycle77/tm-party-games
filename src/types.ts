@@ -113,6 +113,10 @@ export interface Session {
   game?: GameId;
   games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound; played?: Record<string, boolean> } };
   display?: Display;
+  /** Set once the host has started a first game: from then on, "no game" means between games, not the welcome. */
+  begun?: boolean;
+  /** This party's portrait of the Taskmaster (a download URL), shown framed on the big screen between games. */
+  portrait?: string;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
   jukebox?: Jukebox;

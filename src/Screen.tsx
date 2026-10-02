@@ -1,6 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
+import { Framed } from "./Framed";
 import { activeGame } from "./games";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
@@ -61,10 +62,27 @@ export function Screen({ code, session, viewOnly = false, footer }: {
           ? "💡 The light is running."
           : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> on a computer with a webcam that can see everyone.</>}
       </p>
-      {game && <button className="link" onClick={() => void setGame(code, null)}>← Back to the welcome screen</button>}
+      {game && <button className="link" onClick={() => void setGame(code, null)}>← Between games</button>}
       {footer}
     </LobbyMenu>
   );
+
+  // Between games (once the first has started): the party's Taskmaster portrait, framed, on the
+  // curtain; or just the curtain if there's none. The code stays small in the corner for latecomers.
+  if (!game && session.begun) {
+    return (
+      <main className="between-games">
+        {session.portrait && (
+          <Framed>{(setRatio) => (
+            <img src={session.portrait} alt="The Taskmaster" onLoad={(e) => setRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)} />
+          )}</Framed>
+        )}
+        <p className="corner-code">{site}/play · <strong>{code}</strong></p>
+        {menu}
+        {viewOnly && footer}
+      </main>
+    );
+  }
 
   // Welcome: guests join on the left and find their name on the right. No game list: the host picks on their phone.
   if (!game) {

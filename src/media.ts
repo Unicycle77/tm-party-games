@@ -1,4 +1,4 @@
-import { ref as dbRef, update } from "firebase/database";
+import { ref as dbRef, set, update } from "firebase/database";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "./firebase";
 import type { GameId } from "./types";
@@ -20,6 +20,22 @@ async function shrinkImage(file: File, maxDim = 1600): Promise<Blob> {
     if (blob) return blob;
   } catch { /* e.g. unsupported format — upload the original */ }
   return file;
+}
+
+/**
+ * Host phone: uploads this party's Taskmaster portrait (under the host phone's own uid, like any
+ * upload) and publishes it for the big screen.
+ */
+export async function uploadPortrait(code: string, uid: string, file: File, onProgress: (fraction: number) => void): Promise<void> {
+  const body = await shrinkImage(file);
+  const task = uploadBytesResumable(ref(storage(), `sessions/${code}/${uid}/portrait-${Date.now()}`), body, {
+    contentType: body.type || "image/jpeg",
+    cacheControl: "public, max-age=31536000, immutable",
+  });
+  await new Promise<void>((resolve, reject) => {
+    task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
+  });
+  await set(dbRef(db(), `sessions/${code}/portrait`), await getDownloadURL(task.snapshot.ref));
 }
 
 /** Uploads a file to Storage, then publishes its URL as the player's `kind` in that game. */
