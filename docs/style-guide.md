@@ -110,11 +110,10 @@ Each screen has its own rules. Know which one you're designing for.
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
-- **Tabs** split it by what runs independently: 📺 Screen (the games), 🎵 Jukebox, 💡 Light. Each keeps running whatever tab is showing. A new all-evening feature gets a tab, not another section on Screen.
-- **Screen tab order:** the game row, then what the host does most (the players, or the chosen player's show controls), then set-once things folded away at the bottom (Settings). On a wide screen, players move to a right-hand column.
+- **Header:** `🎮 Host · CODE`, then two icon buttons for what runs all evening, whatever game is on: 🎵 (shows ▶ and glows while a song plays) and 💡 (glows while the light is on). Each opens its controls in place of the show, with "← Back to the show". A new all-evening feature gets a header icon, not another section on the show.
+- **Show order:** the game as one line with a quiet "Change game", then one line saying what the big screen shows ("On the big screen: …", or "The curtain is down. 2 of 7 shown."), then the one next action in gold ("First up: Alex →", "Next: Priya →"), then the contestants in join order. Quiet links at the bottom: "Manage contestants" (remove) and "Party settings" (set-once things and Disconnect).
 - **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
-- Header: `🎮 Host remote · CODE` in the typewriter font.
 
 ## 6. Motion
 

@@ -80,6 +80,8 @@ export interface GameData<M> {
   media?: Record<string, M>;
   /** Players the host has let resubmit. Everyone else is locked once their submission is in. */
   unlocked?: Record<string, boolean>;
+  /** Contestants the host has put on the main screen in this game, for the running order's "Next". */
+  shown?: Record<string, boolean>;
 }
 
 export interface Jukebox {
@@ -102,10 +104,6 @@ export interface Session {
   display?: Display;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
-  /** Host remote toggles this to hide the one-line descriptions on the main screen's game cards. */
-  hideBlurbs?: boolean;
-  /** Games the host has hidden from the main screen's game picker (e.g. ones this party won't play). */
-  hiddenGames?: Partial<Record<GameId, true>>;
   jukebox?: Jukebox;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
   lightUid?: string;

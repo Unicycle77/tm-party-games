@@ -4,7 +4,7 @@ import { DownloadZip } from "./DownloadZip";
 import { activeGame } from "./games";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
-import { resetController, setDisplay, setGame } from "./session";
+import { resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
 
@@ -110,7 +110,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
         <ul className="tiles">
           {players.map(([uid, p]) => (
             <Tile key={uid} player={p} status={status(session, uid)}
-              onPick={viewOnly ? undefined : () => void setDisplay(code, { uid, step: game.firstStep })} />
+              onPick={viewOnly ? undefined : () => void showContestant(code, game.id, { uid, step: game.firstStep })} />
           ))}
         </ul>
       </aside>

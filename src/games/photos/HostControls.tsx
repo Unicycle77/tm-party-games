@@ -1,4 +1,4 @@
-import { setDisplay } from "../../session";
+import { setDisplay, showContestant } from "../../session";
 import type { Display, Session } from "../../types";
 import { allPhotos, neighbour } from "./data";
 
@@ -9,8 +9,8 @@ export function HostPlayer({ code, session, uid }: { code: string; session: Sess
   return (
     <>
       <div className="steps two">
-        <button disabled={!prev} onClick={() => prev && void setDisplay(code, { uid: prev, step: "photo" })}>Previous</button>
-        <button disabled={!next} onClick={() => next && void setDisplay(code, { uid: next, step: "photo" })}>Next</button>
+        <button disabled={!prev} onClick={() => prev && void showContestant(code, "photos", { uid: prev, step: "photo" })}>Previous</button>
+        <button disabled={!next} onClick={() => next && void showContestant(code, "photos", { uid: next, step: "photo" })}>Next</button>
       </div>
       <div className="steps">
         <button className="step" onClick={() => void setDisplay(code, { step: "grid" })}>◫ Show everyone</button>

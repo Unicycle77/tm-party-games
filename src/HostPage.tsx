@@ -1,26 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { HostRemote } from "./HostRemote";
 import { JukeboxRemote } from "./JukeboxRemote";
+import { isArmed, lightOf, releaseLight } from "./light/data";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, claimController, extractCode, releaseController, store, useSession, useUid } from "./session";
+import { JoinError, claimController, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { Toggle } from "./Toggle";
+import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
-const TAB_KEY = "ba.hostTab";
-type Tab = "screen" | "music" | "light";
+const VIEW_KEY = "ba.hostTab";
+type View = "show" | "music" | "light";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
   const uid = useUid();
   const [code, setCode] = useState(() => store.get(KEY));
   const session = useSession(code || undefined);
-  // This phone remembers its tab, so a refresh mid-game lands where the host was.
-  const [tab, setTabState] = useState<Tab>(() => {
-    const saved = store.get(TAB_KEY);
-    return saved === "music" || saved === "light" ? saved : "screen";
+  // The show, with the music and the light one tap away in the header. This phone remembers which
+  // is open, so a refresh mid-game lands where the host was.
+  const [view, setViewState] = useState<View>(() => {
+    const saved = store.get(VIEW_KEY);
+    return saved === "music" || saved === "light" ? saved : "show";
   });
-  const setTab = (t: Tab) => { setTabState(t); store.set(TAB_KEY, t); };
+  const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
   const disconnect = () => { store.set(KEY, ""); setCode(""); };
 
@@ -39,19 +43,55 @@ export function HostPage() {
   if (!code) return <Connect onConnected={(c) => { store.set(KEY, c); setCode(c); }} />;
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
 
+  const playing = session.jukebox?.state?.playing === true;
+  const lightOn = isArmed(lightOf(session));
+  const icon = (v: View, label: string, glyph: string, lit: boolean) => (
+    <button className={`head-icon${lit ? " lit" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
+      onClick={() => setView(view === v ? "show" : v)}>{glyph}</button>
+  );
+
   return (
     <main className="phone host">
-      <header><strong>🎮 Host remote</strong><span className="muted"> · {code}</span></header>
-      <nav className="tabs">
-        <button className={tab === "screen" ? "active" : ""} onClick={() => setTab("screen")}>📺 Screen</button>
-        <button className={tab === "music" ? "active" : ""} onClick={() => setTab("music")}>🎵 Jukebox</button>
-        <button className={tab === "light" ? "active" : ""} onClick={() => setTab("light")}>💡 Light</button>
-      </nav>
-      {tab === "screen" ? <HostRemote code={code} session={session} />
-        : tab === "music" ? <JukeboxRemote code={code} session={session} />
-        : <LightRemote code={code} session={session} />}
-      <button className="link" onClick={() => { void releaseController(code); disconnect(); }}>Disconnect</button>
+      <header className="host-head">
+        <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
+        {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
+        {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
+      </header>
+      {view === "show" ? (
+        <>
+          <HostRemote code={code} session={session} />
+          <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />
+        </>
+      ) : (
+        <>
+          <button className="link back" onClick={() => setView("show")}>← Back to the show</button>
+          {view === "music" ? <JukeboxRemote code={code} session={session} /> : <LightRemote code={code} session={session} />}
+        </>
+      )}
     </main>
+  );
+}
+
+/** Set-once things, behind a quiet link at the bottom of the show. */
+function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
+  const [open, setOpen] = useState(false);
+  if (!open) return <button className="link" onClick={() => setOpen(true)}>Party settings</button>;
+  return (
+    <section className="party-settings">
+      <div className="remote-head">
+        <h2>Party settings</h2>
+        <button className="link" onClick={() => setOpen(false)}>Close</button>
+      </div>
+      <div className="toggles">
+        <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
+      </div>
+      {session.lightUid && (
+        <button className="link" onClick={() => { if (confirm("Reset the light? The computer running it stops, and another one can take over.")) void releaseLight(code); }}>
+          Reset the light computer
+        </button>
+      )}
+      <button className="link" onClick={onDisconnect}>Disconnect this phone</button>
+    </section>
   );
 }
 

@@ -149,6 +149,7 @@ const clearSubmissions = (code: string, uid: string) =>
   Promise.all(SUBMISSION_GAMES.flatMap((game) => [
     remove(ref(db(), `sessions/${code}/games/${game}/media/${uid}`)),
     remove(ref(db(), `sessions/${code}/games/${game}/unlocked/${uid}`)),
+    remove(ref(db(), `sessions/${code}/games/${game}/shown/${uid}`)),
   ]));
 
 /** Removes a player *and* everything they submitted, so rejoining starts fresh. */
@@ -197,17 +198,15 @@ export const leaveSession = removePlayer;
 export const setDisplay = (code: string, display: Display) =>
   set(ref(db(), `sessions/${code}/display`), display);
 
+/**
+ * Puts a contestant's entry on the main screen and ticks them off the host's running order
+ * (so "Next" moves on). Revisiting someone already shown changes nothing there.
+ */
+export const showContestant = (code: string, game: GameId, display: Display & { uid: string }) =>
+  update(ref(db(), `sessions/${code}`), { display, [`games/${game}/shown/${display.uid}`]: true });
+
 export const setShowDownload = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showDownload`), show);
-
-export const setHideBlurbs = (code: string, hide: boolean) =>
-  set(ref(db(), `sessions/${code}/hideBlurbs`), hide);
-
-/** Host: hides a game from the main screen's game picker, or shows it again. */
-export const setGameHidden = (code: string, game: GameId, hidden: boolean) => {
-  const r = ref(db(), `sessions/${code}/hiddenGames/${game}`);
-  return hidden ? set(r, true) : remove(r);
-};
 
 /** Main screen: publishes the song titles found in the chosen music folder. */
 export const publishTracks = (code: string, titles: string[]) =>

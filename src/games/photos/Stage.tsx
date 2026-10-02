@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Framed } from "../../Framed";
 import { Review } from "../../Review";
 import { SafeImg } from "../../SafeImg";
-import { setDisplay } from "../../session";
+import { setDisplay, showContestant } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
 import { allPhotos, neighbour, photoOf } from "./data";
@@ -42,7 +42,7 @@ function StageControls({ code, session, display }: { code: string; session: Sess
   const uid = display.uid;
   const prev = uid ? neighbour(session, uid, -1) : undefined;
   const next = uid ? neighbour(session, uid, 1) : undefined;
-  const show = (target: string | undefined) => { if (target) void setDisplay(code, { uid: target, step: "photo" }); };
+  const show = (target: string | undefined) => { if (target) void showContestant(code, "photos", { uid: target, step: "photo" }); };
   const back = () => void setDisplay(code, { step: "curtain" });
 
   useEffect(() => {

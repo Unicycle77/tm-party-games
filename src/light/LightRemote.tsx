@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
 import {
-  DELAY_MS, cameraText, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, releaseLight, setArmed, setMode, setTrigger, triggerOf,
+  DELAY_MS, cameraText, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, setArmed, setMode, setTrigger, triggerOf,
 } from "./data";
 import { MODES, TRIGGERS } from "./triggers";
 
@@ -103,11 +103,6 @@ export function LightRemote({ code, session }: { code: string; session: Session 
 
       {/* Safe only while guests aren't watching: a test mid-game would throw off their guesses. */}
       {!armed && <button disabled={!running} onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
-      {running && (
-        <button className="link" onClick={() => { if (confirm("Reset the light? The computer running it stops, and another one can take over.")) void releaseLight(code); }}>
-          Reset the light computer
-        </button>
-      )}
     </section>
   );
 }
