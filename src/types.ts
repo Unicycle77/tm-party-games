@@ -100,7 +100,7 @@ export interface Session {
   players?: Record<string, Player>;
   /** The game players see and the main screen shows. Absent = the game selection screen (where every session starts). */
   game?: GameId;
-  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound } };
+  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound; played?: Record<string, boolean> } };
   display?: Display;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;

@@ -76,6 +76,12 @@
                 ".validate": "newData.val() === 'swap' || newData.val() === 'keep'"
               }
             },
+            "played": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
             "$other": {
               ".validate": false
             }

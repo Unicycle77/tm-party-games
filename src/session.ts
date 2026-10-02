@@ -157,6 +157,7 @@ export const removePlayer = async (code: string, uid: string) => {
   await Promise.all([
     remove(ref(db(), `sessions/${code}/players/${uid}`)),
     clearSubmissions(code, uid),
+    remove(ref(db(), `sessions/${code}/games/box/played/${uid}`)),
   ]);
 };
 

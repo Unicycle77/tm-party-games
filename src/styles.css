@@ -719,3 +719,10 @@ span.lock { padding: 0; }
 h2.contestant { font-size: 1.8rem; margin: 0.2rem 0 0; }
 h2.contestant .muted { font-size: 0.6em; }
 .phone.host button.lower { padding: 0.8rem; margin-top: 0.75rem; }
+.box-setup h3 { margin: 0.4rem 0 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold); font-size: 1.05rem; }
+.box-setup .remote-head h3 { margin: 0; }
+.box-setup .choices .played { margin-left: 0.4rem; font-size: 0.75rem; color: #7a6a55; text-transform: uppercase; letter-spacing: 0.06em; }
+.box-setup .choices .active .played { color: var(--ink); }
+.box-setup .choices > p { margin: 0.3rem 0; }
+.box-wait { font-family: var(--typewriter); color: var(--fg); font-size: 1.15rem; }
+.box-setup .remote-head .link { white-space: nowrap; }

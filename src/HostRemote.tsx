@@ -98,8 +98,8 @@ export function HostRemote({ code, session }: { code: string; session: Session }
         {gameLine}
         <p className="on-screen">On the big screen: {display.step === "boxes" ? "the boxes" : "the curtain"}</p>
         <game.HostLobby code={code} session={session} display={display} />
-        <h2>Contestants ({players.length})</h2>
-        {plainList}
+        {/* The setup already lists everyone; the plain list is only for removing people. */}
+        {managing && plainList}
         {manageLink}
       </section>
     );
