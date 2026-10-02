@@ -330,6 +330,8 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .slot button.link { color: #6b5a44; justify-self: center; }
 /* a task card: the main button keeps its spot while the card changes state */
 .slot.task .frame-play { padding: 0; border: 0; background: none; box-shadow: none; cursor: pointer; }
+/* two equal choices side by side (Photos: take or choose) */
+.slot.task .row button { white-space: nowrap; padding-inline: 0.4rem; }
 /* the picked video is only ever watched full screen */
 .offscreen { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .sending { display: grid; gap: 0.3rem; justify-items: center; font-family: var(--typewriter); color: var(--burgundy); font-variant-numeric: tabular-nums; }
