@@ -44,6 +44,8 @@ function Join({ onJoined }: { onJoined: (code: string) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [scanning, setScanning] = useState(false);
+  // Arrived from the big screen's QR: the code is already right, so show it as a fact, not a field.
+  const [editingCode, setEditingCode] = useState(() => code.length !== 4);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +56,8 @@ function Join({ onJoined }: { onJoined: (code: string) => void }) {
       store.set(NAME_KEY, name.trim());
       onJoined(c);
     } catch (err) {
+      // A wrong code needs the code field back to fix it.
+      if (err instanceof JoinError && err.message.startsWith("No session found")) setEditingCode(true);
       setError(err instanceof JoinError ? err.message : "Something went wrong. Try again.");
     } finally { setBusy(false); }
   }
@@ -62,19 +66,26 @@ function Join({ onJoined }: { onJoined: (code: string) => void }) {
     <main className="join">
       <h1>Taskmaster</h1>
       <form onSubmit={(e) => void submit(e)}>
-        <label>Game code
-          <div className="row">
-            <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
-              maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
-            <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
-          </div>
+        {editingCode ? (
+          <label>Game code
+            <div className="row">
+              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
+                maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
+              <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
+            </div>
+          </label>
+        ) : (
+          <p className="joining">Joining party <strong>{code}</strong></p>
+        )}
+        <label>Your first name
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={20}
+            autoCapitalize="words" autoComplete="given-name" placeholder="e.g. Alex" required />
         </label>
-        <label>Your name
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={20} autoComplete="off" placeholder="Nickname" required />
-        </label>
-        <button type="submit" disabled={busy || code.length !== 4}>{busy ? "Joining…" : "Join"}</button>
+        <p className="muted small join-hint">This is how you'll appear on the big screen.</p>
+        <button type="submit" className="big" disabled={busy || code.length !== 4}>{busy ? "Joining…" : "Join"}</button>
         {error && <p className="error">{error}</p>}
       </form>
+      {!editingCode && <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>}
       {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
         setScanning(false);
         const c = extractCode(t);
