@@ -108,11 +108,6 @@ input::placeholder { color: #8b7a63; }
 .row input { flex: 3; }
 
 /* ---- main screen: lobby ---- */
-/* links in the lobby's hints (e.g. to /light) are gold, like the other ink on the curtain */
-.lobby p a { color: var(--gold-bright); }
-.lobby { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-.lobby header { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
-.lobby h1 { font-size: 3rem; }
 .code {
   font-family: var(--typewriter);
   font-size: 5.5rem;
@@ -121,11 +116,6 @@ input::placeholder { color: #8b7a63; }
   color: var(--gold-bright);
   text-shadow: 0 3px 0 #0008, 0 0 24px #d9b24c55;
 }
-.lobby svg { flex-shrink: 0; border-radius: 4px; border: 6px solid var(--gold); background: #fff; box-shadow: 0 6px 18px #000a; }
-.qrs { display: flex; align-items: flex-end; gap: 1.5rem; }
-.qrs figure { margin: 0; display: grid; gap: 0.4rem; justify-items: center; }
-.qrs figcaption { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.05em; }
-.host-qr svg { border-color: var(--paper); }
 /* welcome: two halves, joining on the left, the contestants on the right */
 .welcome { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 3vw; padding: 3vh 3vw; align-items: start; }
 .welcome-join { display: grid; justify-items: center; align-content: center; gap: 1rem; min-height: 90vh; text-align: center; }
@@ -148,6 +138,51 @@ input::placeholder { color: #8b7a63; }
 @media (max-width: 800px) { .welcome { grid-template-columns: 1fr; } .welcome-join { min-height: 0; } }
 .host-qr { margin: 0; display: grid; gap: 0.4rem; justify-items: start; }
 .host-qr svg { border-radius: 4px; border: 6px solid var(--paper); background: #fff; }
+/* collecting: the task card is the star, the contestants a column on the right */
+.collecting { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) clamp(260px, 22vw, 380px); gap: 3vw; padding: 4vh 3vw 6vh; align-items: center; }
+.collecting-main { display: grid; place-items: center; }
+.collecting-title { font-size: clamp(4rem, 12vh, 8rem); margin: 0; }
+.collecting-side { align-self: start; display: grid; gap: 1rem; }
+.collecting-side h2 { margin: 0; font-size: clamp(1.6rem, 3.6vh, 2.4rem); font-variant-numeric: tabular-nums; }
+.collecting-side .tiles { grid-template-columns: 1fr; gap: 0.7rem; }
+.collecting-side .tile { flex-direction: row; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; }
+.collecting-side .tile .name { font-size: clamp(1.3rem, 2.8vh, 1.9rem); }
+/* Photos has no task card: its tiles stay large, as on the welcome screen */
+.collecting.no-task { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; }
+.collecting.no-task .collecting-main { min-height: 80vh; }
+.collecting.no-task .collecting-side .tiles { grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 15vw, 320px), 1fr)); }
+.collecting.no-task .collecting-side .tile { flex-direction: column; align-items: flex-start; padding: 1.1rem; }
+.collecting.no-task .collecting-side .tile .name { font-size: clamp(1.5rem, 3.4vh, 2.4rem); }
+.corner-code { position: fixed; right: 1.2rem; bottom: 0.8rem; margin: 0; color: var(--muted); font-size: clamp(0.9rem, 1.8vh, 1.2rem); }
+.corner-code strong { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.2em; }
+.corner-download { position: fixed; left: 1.2rem; bottom: 0.8rem; }
+/* the task card: aged, torn paper in typewriter with the red TM wax seal */
+.task-card {
+  position: relative; width: min(100%, 120vh); padding: 6vh 7vh 15vh;
+  background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c);
+  color: #1f1a14; font-family: var(--typewriter); font-size: clamp(1.1rem, 3vh, 2.1rem); line-height: 1.35;
+  box-shadow: 0 14px 40px #000c;
+  /* torn edges */
+  clip-path: polygon(0% 2%, 4% 0%, 9% 1.5%, 15% 0.3%, 22% 1.8%, 30% 0.5%, 38% 1.4%, 46% 0%, 55% 1.6%, 63% 0.4%, 71% 1.7%, 79% 0.2%, 87% 1.5%, 94% 0.3%, 100% 1.8%,
+    99.3% 12%, 100% 25%, 99.1% 40%, 100% 55%, 99.4% 70%, 100% 86%, 99.2% 98%,
+    93% 100%, 86% 98.6%, 78% 100%, 70% 98.4%, 61% 99.8%, 52% 98.5%, 44% 100%, 35% 98.7%, 27% 99.9%, 18% 98.4%, 10% 99.8%, 3% 98.6%, 0% 100%,
+    0.7% 85%, 0% 70%, 0.9% 55%, 0.2% 40%, 0.8% 25%, 0% 12%);
+}
+.task-card p { margin: 0 0 1.1em; }
+.task-card .task-label { text-transform: uppercase; }
+.wax-seal {
+  position: absolute; right: 6vh; bottom: 3vh; width: 13vh; height: 13vh; border-radius: 50%;
+  display: grid; place-items: center; font-family: Georgia, serif; font-size: 5vh; color: #7d0f0b;
+  background: radial-gradient(circle at 38% 32%, #e2433a, #b51d17 45%, #7d0f0b 75%);
+  box-shadow: inset 0 0 0 1.4vh #a81a14, inset 0 0 0 1.7vh #6c0c08, 0 4px 10px #0007;
+  text-shadow: 1px 1px 0 #e0574e, -1px -1px 0 #5a0906;
+}
+/* everyone's in: a big red stamp lands across the card */
+.task-card .all-in { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-8deg); font-size: clamp(2.4rem, 9vh, 6rem); padding: 0.2rem 1.4rem; border-width: 0.6vh; background: rgba(168, 32, 26, 0.06); white-space: nowrap; animation: stamp-down 0.35s cubic-bezier(0.3, 1.6, 0.6, 1) backwards; }
+@keyframes stamp-down { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.8); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .task-card .all-in { animation: none; } }
+@media (max-width: 800px) { .collecting, .collecting.no-task { grid-template-columns: 1fr; } }
+.curtain-empty { min-height: 100vh; min-height: 100dvh; }
 /* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the
    mouse comes near (the padding is an invisible hover buffer); it opens a burgundy panel with gold trim */
 .lobby-menu { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 6; padding: 1.5rem; margin: -1.5rem; }

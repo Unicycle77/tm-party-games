@@ -61,6 +61,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
           ? "💡 The light is running."
           : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> on a computer with a webcam that can see everyone.</>}
       </p>
+      {game && <button className="link" onClick={() => void setGame(code, null)}>← Back to the welcome screen</button>}
       {footer}
     </LobbyMenu>
   );
@@ -91,42 +92,45 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     );
   }
 
-  return (
-    <main className="lobby">
-      <header>
-        <div>
-          <h1>{game.heading(session)}</h1>
-          <p className="muted">Go to <strong>{PUBLIC_URL.replace(/^https?:\/\//, "")}/play</strong> and enter</p>
-          <p className="code">{code}</p>
-        </div>
-        <div className="qrs">
-          <figure>
-            <QRCodeSVG value={joinUrlFor(code)} size={300} bgColor="#fff" marginSize={2} />
-            <figcaption>Players scan here</figcaption>
-          </figure>
-        </div>
-      </header>
+  // A game the host runs (like [BLANK] in a Box): the empty curtain until a round starts.
+  if (!game.status) return <main className="curtain-empty">{menu}{viewOnly && footer}</main>;
 
-      <h2>
-        Players ({players.length})
-        {game.status && players.length > 0 && <span className="submitted-count"> · {players.filter(([uid]) => game.status?.(session, uid) === "submitted").length} submitted</span>}
-      </h2>
-      {players.length === 0 && <p className="muted">Waiting for players to join…</p>}
-      <ul className="tiles">
-        {players.map(([uid, p]) => (
-          <Tile key={uid} player={p} status={game.status?.(session, uid)}
-            onPick={viewOnly || !game.status ? undefined : () => void setDisplay(code, { uid, step: game.firstStep })} />
-        ))}
-      </ul>
-      {!viewOnly && (
-        <>
-          <button className="link" onClick={() => void setGame(code, null)}>← Games</button>
-          {session.showDownload && <DownloadZip code={code} session={session} />}
-          {menu}
-        </>
-      )}
+  // Collecting: the task card is the star; the contestants move to a column on the right.
+  const status = game.status;
+  const submitted = players.filter(([uid]) => status(session, uid) === "submitted").length;
+  const allIn = players.length > 0 && submitted === players.length;
+  return (
+    <main className={game.task ? "collecting" : "collecting no-task"}>
+      <section className="collecting-main">
+        {game.task ? <TaskCard lines={game.task} allIn={allIn} /> : <h1 className="collecting-title">{game.heading(session)}</h1>}
+      </section>
+      <aside className="collecting-side">
+        <h2>{submitted} of {players.length} submitted</h2>
+        <ul className="tiles">
+          {players.map(([uid, p]) => (
+            <Tile key={uid} player={p} status={status(session, uid)}
+              onPick={viewOnly ? undefined : () => void setDisplay(code, { uid, step: game.firstStep })} />
+          ))}
+        </ul>
+      </aside>
+      <p className="corner-code">{site}/play · <strong>{code}</strong></p>
+      {!viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>}
+      {menu}
       {viewOnly && footer}
     </main>
+  );
+}
+
+/** The task card: aged, torn paper in typewriter with the red TM seal. Once everyone is in, a big red stamp lands on it. */
+function TaskCard({ lines, allIn }: { lines: readonly string[]; allIn: boolean }) {
+  const [label, ...body] = lines;
+  return (
+    <div className="task-card">
+      <p className="task-label">{label}</p>
+      {body.map((line) => <p key={line}>{line}</p>)}
+      <span className="wax-seal" aria-hidden="true">TM</span>
+      {allIn && <span className="stamp all-in">✓ All submitted</span>}
+    </div>
   );
 }
 

@@ -24,6 +24,11 @@ export interface Game {
    * Absent for games the host runs (like [BLANK] in a Box): players are then just listed.
    */
   status?(session: Session, uid: string): SubmissionStatus;
+  /**
+   * The task card the main screen shows while entries come in, one paragraph per line (the first is the
+   * card's label). Fixed per game. Absent: the stage shows the game's title instead.
+   */
+  task?: readonly string[];
   /** Photos the main screen downloads ahead of time, so reveals appear instantly. */
   photoUrls(session: Session): string[];
   /** A player's files for the download-all zip, named without an extension (e.g. "before"). */
