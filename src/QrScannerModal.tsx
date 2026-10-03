@@ -1,4 +1,4 @@
-import QrScanner from "qr-scanner";
+import type QrScanner from "qr-scanner";
 import { useEffect, useRef, useState } from "react";
 
 export function QrScannerModal({ onScan, onClose }: { onScan: (text: string) => void; onClose: () => void }) {
@@ -10,11 +10,17 @@ export function QrScannerModal({ onScan, onClose }: { onScan: (text: string) => 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const scanner = new QrScanner(video, (r) => onScanRef.current(r.data), {
-      preferredCamera: "environment", highlightScanRegion: true, highlightCodeOutline: true,
-    });
-    scanner.start().catch(() => setError("Couldn't access the camera. Check your browser's camera permission."));
-    return () => { scanner.stop(); scanner.destroy(); };
+    // The scanner library loads when the modal opens, not with the page.
+    let scanner: QrScanner | undefined;
+    let closed = false;
+    import("qr-scanner").then(({ default: Scanner }) => {
+      if (closed) return;
+      scanner = new Scanner(video, (r) => onScanRef.current(r.data), {
+        preferredCamera: "environment", highlightScanRegion: true, highlightCodeOutline: true,
+      });
+      scanner.start().catch(() => setError("Couldn't access the camera. Check your browser's camera permission."));
+    }, () => setError("Couldn't load the scanner. Check your connection and try again."));
+    return () => { closed = true; scanner?.stop(); scanner?.destroy(); };
   }, []);
 
   return (

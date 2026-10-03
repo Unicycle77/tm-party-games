@@ -1,4 +1,3 @@
-import { downloadZip } from "client-zip";
 import type { Player } from "./types";
 
 const EXT: Record<string, string> = {
@@ -42,6 +41,7 @@ export async function downloadAllMedia(
     onProgress(files.length, jobs.length);
   }
 
+  const { downloadZip } = await import("client-zip");
   const zip = await downloadZip(files).blob();
   const link = document.createElement("a");
   link.href = URL.createObjectURL(zip);

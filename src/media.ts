@@ -1,5 +1,4 @@
 import { ref as dbRef, set, update } from "firebase/database";
-import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { db, storage } from "./firebase";
 import type { GameId } from "./types";
 
@@ -28,7 +27,8 @@ async function shrinkImage(file: File, maxDim = 1600): Promise<Blob> {
  */
 export async function uploadPortrait(code: string, uid: string, file: File, onProgress: (fraction: number) => void): Promise<void> {
   const body = await shrinkImage(file);
-  const task = uploadBytesResumable(ref(storage(), `sessions/${code}/${uid}/portrait-${Date.now()}`), body, {
+  const { getDownloadURL, ref, uploadBytesResumable } = await import("firebase/storage");
+  const task = uploadBytesResumable(ref(await storage(), `sessions/${code}/${uid}/portrait-${Date.now()}`), body, {
     contentType: body.type || "image/jpeg",
     cacheControl: "public, max-age=31536000, immutable",
   });
@@ -51,7 +51,8 @@ export async function submitMedia(
 ): Promise<void> {
   const body = kind === "video" || opts.alreadySized ? file : await shrinkImage(file as File);
   const contentType = kind === "video" ? file.type || "video/mp4" : body.type || "image/jpeg";
-  const task = uploadBytesResumable(ref(storage(), `sessions/${code}/${uid}/${kind}-${Date.now()}`), body, {
+  const { getDownloadURL, ref, uploadBytesResumable } = await import("firebase/storage");
+  const task = uploadBytesResumable(ref(await storage(), `sessions/${code}/${uid}/${kind}-${Date.now()}`), body, {
     contentType,
     // File names are unique per upload, so a cached copy is never stale.
     cacheControl: "public, max-age=31536000, immutable",
