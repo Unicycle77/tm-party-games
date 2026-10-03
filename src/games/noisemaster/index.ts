@@ -1,12 +1,11 @@
 import type { Game } from "..";
-import { HostLobby, HostPlayer } from "./HostControls";
-import { PlayerView } from "./PlayerView";
-import { Stage } from "./Stage";
+import { lazyPart } from "../lazyPart";
 
 /**
  * One player, 16 blank buttons on their phone, each playing a sound on the stage: they press them in the
  * right order to make the stage say the host's phrase. A wrong press starts the phrase again; the clock
  * runs from the first press to the last word. The host runs it; nobody submits anything.
+ * Each screen's part loads only on the screen that shows it (see lazyPart).
  */
 export const noisemaster: Game = {
   id: "noisemaster",
@@ -16,8 +15,9 @@ export const noisemaster: Game = {
   firstStep: "soundboard",
   photoUrls: () => [],
   files: () => [],
-  Stage,
-  Player: PlayerView,
-  HostPlayer,
-  HostLobby,
+  Stage: lazyPart(() => import("./Stage").then((m) => m.Stage)),
+  Player: lazyPart(() => import("./PlayerView").then((m) => m.PlayerView)),
+  // Never used: this game never shows one player on their own.
+  HostPlayer: () => null,
+  HostLobby: lazyPart(() => import("./HostControls").then((m) => m.HostLobby)),
 };

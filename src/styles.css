@@ -813,10 +813,8 @@ span.soundboard-button.lit.wrong { --flash: var(--burgundy); }
   .start-again { animation: none; opacity: 0; }
 }
 
-/* host phone: the phrase being built (tap a word to take it out) and the board's key */
+/* host phone: the phrase being built (tap a word to take it out), and the board with its words */
 .phrase-edit { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .phrase-edit button { padding: 0.4rem 0.7rem; }
 .box-setup .sound-choices button { flex-basis: 5rem; }
-.board-key summary { cursor: pointer; color: var(--muted); font-family: var(--typewriter); }
-.board-key ol { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3rem; }
-.board-key li { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 4px; padding: 0.4rem 0.2rem; text-align: center; font-size: 0.8rem; overflow-wrap: anywhere; }
+.box-setup span.soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; overflow: hidden; }

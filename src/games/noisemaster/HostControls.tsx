@@ -5,9 +5,7 @@ import {
   BUTTONS, MAX_WORDS, elapsedOf, formatTime, newRound, restartRound, roundOf, soundsOf, startRound,
   useNoisemasterSecret, useServerNow,
 } from "./data";
-
-/** Not used: this game never shows one player on their own. */
-export const HostPlayer = () => null;
+import { Soundboard } from "./Soundboard";
 
 /** The host's phone, above the player list: set up a round, then follow it. */
 export function HostLobby({ code, session, display }: { code: string; session: Session; display: Display }) {
@@ -135,7 +133,7 @@ function Setup({ code, session }: { code: string; session: Session }) {
   );
 }
 
-/** A round in play: how it's going, the board (the host may see it; the player can't), restart, and on to the next. */
+/** A round in play: how it's going, the board with its words (the host may see them; the player can't), restart, and on to the next. */
 function RoundControls({ code, session, display, round }: { code: string; session: Session; display: Display; round: NoisemasterRound }) {
   const name = session.players?.[round.player]?.name ?? "?";
   const board = useNoisemasterSecret(code, true)?.board;
@@ -158,10 +156,8 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       {display.step !== "soundboard" && (
         <button onClick={() => void setDisplay(code, { step: "soundboard" })}>Show it on the big screen</button>
       )}
-      <details className="board-key">
-        <summary>The board</summary>
-        <ol>{board?.map((sound, i) => <li key={i}>{sound}</li>)}</ol>
-      </details>
+      {/* the host's copy of the board, words and all: a picture to follow along on, never buttons */}
+      {board && <Soundboard words={board} last={round.last} />}
       <div className="steps two">
         <button onClick={() => { if (!midway || confirm(`Restart ${name}'s go? The clock goes back to zero.`)) void restartRound(code, round); }}>↺ Restart</button>
         <button onClick={() => { if (!midway || confirm(`End ${name}'s go? They haven't finished.`)) void newRound(code); }}>Next round</button>
