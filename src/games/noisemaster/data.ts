@@ -7,7 +7,7 @@ import type { NoisemasterRound, NoisemasterSecret, Session } from "../../types";
 /** The soundboard is always 4 rows of 4. */
 export const BUTTONS = 16;
 /** The longest phrase the host can set. */
-export const MAX_WORDS = 8;
+export const MAX_WORDS = BUTTONS;
 
 const path = (code: string) => `sessions/${code}/games/noisemaster`;
 

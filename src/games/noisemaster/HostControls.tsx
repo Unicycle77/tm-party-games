@@ -57,8 +57,10 @@ function Setup({ code, session }: { code: string; session: Session }) {
   const phraseWords = typed ? parseWords(typedPhrase).slice(0, MAX_WORDS) : phrase;
   const words = [...new Set(phraseWords)];
   const room = BUTTONS - words.length;
-  const typedDecoyWords = [...new Set(parseWords(typedDecoys))].filter((w) => !words.includes(w)).slice(0, room);
-  const ready = !!player && !!session.players?.[player] && phraseWords.length > 0;
+  const typedDecoyWords = [...new Set(parseWords(typedDecoys))].filter((w) => !words.includes(w));
+  // Typed words are all there is to fill the board with, so there have to be 16 different ones in all.
+  const typedShort = Math.max(0, BUTTONS - words.length - typedDecoyWords.length);
+  const ready = !!player && !!session.players?.[player] && phraseWords.length > 0 && (!typed || typedShort === 0);
   const shown = sounds.filter((s) => s.toLowerCase().includes(filter.trim().toLowerCase()));
 
   function pickRandom() {
@@ -80,8 +82,9 @@ function Setup({ code, session }: { code: string; session: Session }) {
   async function start() {
     if (!ready || !player) return;
     // The picked decoys, then any others at random to fill the board; then the buttons are shuffled.
-    const picked = typed ? typedDecoyWords : decoys.filter((d) => !words.includes(d)).slice(0, room);
-    const others = shuffle((typed ? FILLER : sounds).filter((s) => !words.includes(s) && !picked.includes(s)));
+    // (Typed decoys beyond what fits are left out at random.)
+    const picked = typed ? shuffle(typedDecoyWords).slice(0, room) : decoys.filter((d) => !words.includes(d)).slice(0, room);
+    const others = shuffle(sounds.filter((s) => !words.includes(s) && !picked.includes(s)));
     // One button per word, however often the phrase says it.
     const board = shuffle([...new Set([...words, ...picked, ...others.slice(0, room - picked.length)])]);
     setBusy(true);
@@ -108,11 +111,14 @@ function Setup({ code, session }: { code: string; session: Session }) {
       {typed ? (
         <>
           <h3>2. The phrase</h3>
-          <p className="muted small">No sound files here, so type the words: the main screen will say them out loud. Up to {MAX_WORDS}, in order.</p>
+          <p className="muted small">No sound files here, so type the words: the main screen will say them out loud. Up to {MAX_WORDS} words, in order; a word can repeat.</p>
           <ClearableInput value={typedPhrase} onChange={setTypedPhrase} placeholder="e.g. the quick brown fox" label="The phrase" />
           <h3>3. Decoys</h3>
-          <p className="muted small">Up to {room}, separated by spaces or commas; the board is filled out with random words.</p>
+          <p className="muted small">Separated by spaces or commas. The board has {BUTTONS} buttons, so the phrase's different words and the decoys together need to be at least {BUTTONS}.</p>
           <ClearableInput value={typedDecoys} onChange={setTypedDecoys} placeholder="e.g. cat dog banana" label="Decoys" />
+          <p className={typedShort ? "error small" : "muted small"}>
+            {words.length + typedDecoyWords.length} different words{typedShort ? `: add ${typedShort} more` : words.length + typedDecoyWords.length > BUTTONS ? `; ${words.length + typedDecoyWords.length - BUTTONS} extra decoys will be left out at random` : ""}.
+          </p>
         </>
       ) : (
         <>
