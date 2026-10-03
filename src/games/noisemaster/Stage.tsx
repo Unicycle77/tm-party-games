@@ -10,7 +10,7 @@ import { Soundboard } from "./Soundboard";
 import { playSound, prepareSounds, useSoundCount } from "./sounds";
 
 /**
- * Main screen: a picture of the soundboard lighting up with each press, and the
+ * Main screen: the phrase's words as they are said, a picture of the soundboard lighting up with each press, and the
  * clock. The main screen (not an extra one) is also the referee: it plays each press and checks it.
  */
 export function Stage({ code, session, viewOnly }: { code: string; session: Session; display: Display; viewOnly: boolean }) {
@@ -26,6 +26,10 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   const mistakes = round.mistakes ?? 0;
   return (
     <main className="stage soundboard-stage">
+      {/* only the words said so far; a mistake sends progress back to the start, which hides them again */}
+      <ol className="phrase">
+        {round.phrase.slice(0, progress).map((word, k) => <li key={k} className="said">{word}</li>)}
+      </ol>
       <div className="soundboard-floor">
         <Soundboard last={round.last} />
         <div className="soundboard-side">

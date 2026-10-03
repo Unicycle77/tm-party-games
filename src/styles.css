@@ -784,6 +784,8 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .phrase li:nth-child(odd) { transform: rotate(-1deg); }
 .phrase li:nth-child(even) { transform: rotate(0.8deg); }
 .phrase li.said { background: var(--gold-gradient); border-color: var(--gold-edge); }
+/* the row keeps its height while empty, so the board never moves as words appear and vanish */
+.soundboard-stage .phrase { min-height: calc(clamp(1.4rem, 5vmin, 3.6rem) * 1.8); align-content: center; }
 .soundboard-floor { display: flex; align-items: center; justify-content: center; gap: 6vw; }
 .soundboard-stage .soundboard { width: min(52vh, 44vw); padding: 2vmin; gap: 2vmin; }
 .soundboard-stage .soundboard-label { font-size: clamp(1rem, 3vmin, 2.2rem); }
