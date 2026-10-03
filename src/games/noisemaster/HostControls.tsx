@@ -185,6 +185,7 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       {/* the host's copy of the board, words and all: a picture to follow along on, or real buttons while the switch is on */}
       {board && (pressing
         ? <Soundboard words={board} last={round.last} onPress={(i) => void press(code, i).catch(() => {})} disabled={done} />
+  const [pressError, setPressError] = useState<string>();
         : <Soundboard words={board} last={round.last} />)}
       <div className="steps two">
         <button onClick={() => { if (!midway || confirm(`Restart ${name}'s go? The clock goes back to zero.`)) void restartRound(code, round); }}>↺ Restart</button>
@@ -193,3 +194,4 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
     </div>
   );
 }
+      {pressError && <p className="error">{pressError}</p>}

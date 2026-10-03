@@ -38,7 +38,7 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
       </div>
       {/* keyed by the press, so each mistake gets its own announcement */}
       {round.last && !round.last.ok && !done && <div key={round.last.key} className="start-again">Start again!</div>}
-      {!viewOnly && sounds === 0 && <p className="sound-hint">🔇 No sound files on this computer, so the words are spoken by its voice. For recordings, put them in a "Noisemaster" folder inside the music folder.</p>}
+      {!viewOnly && sounds === 0 && <p className="sound-hint">🔇 No sound files on this computer, so the words are spoken by its voice (click this screen once, or the browser keeps it silent). For recordings, put them in a "Noisemaster" folder inside the music folder.</p>}
       {controls}
     </main>
   );
