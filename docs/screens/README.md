@@ -24,3 +24,9 @@ Main screen (`/`, 1600×900):
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
 
 They were rendered from the real components with a made-up session (no Firebase), so names and counts are invented and photos are missing.
+
+Games:
+
+| File | What it shows |
+|---|---|
+| `noisemaster-soundboard.jpg` | Noisemaster's board: the player's phone before the first press and while playing (every button glowing), and the host phone's board with its words |
