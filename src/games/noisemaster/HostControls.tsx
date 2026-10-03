@@ -49,7 +49,8 @@ function Setup({ code, session }: { code: string; session: Session }) {
   const [typedPhrase, setTypedPhrase] = useState(lastSetup.typedPhrase);
   const [typedDecoys, setTypedDecoys] = useState(lastSetup.typedDecoys);
   // Everything entered is remembered as it's entered, so the next round (or a reload) starts from it.
-  useEffect(() => { saveSetup({ typedPhrase, typedDecoys, phrase, decoys }); }, [typedPhrase, typedDecoys, phrase, decoys]);
+  // Only the active way of entering words is saved, so the other one's words aren't wiped while it's out of use.
+  useEffect(() => { saveSetup(typed ? { typedPhrase, typedDecoys } : { phrase, decoys }); }, [typed, typedPhrase, typedDecoys, phrase, decoys]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
