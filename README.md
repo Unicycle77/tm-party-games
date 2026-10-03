@@ -10,6 +10,10 @@ Players join with a 4-letter code (or QR) on their phone. A session has several 
 
   **Adding objects:** drop a picture into `src/assets/box-objects/` and deploy. The file name is the object's name (`rubber-duck.jpg` → "Rubber duck in a Box"). A photo replaces a drawing with the same name, so `carrot.jpg` takes over from the placeholder `carrot.svg`.
 
+- **Noisemaster**: the host picks one player and a phrase of up to 8 words (sounds). That player's phone becomes a soundboard: "THE NOISEMASTER" over 16 blank buttons, 4 by 4. Each button plays a sound on the main screen. The phrase's words are on the board, and decoys fill the other buttons (the host picks them, or lets the rest be picked at random). The player has to press the buttons in the right order to make the stage say the phrase, which only the stage shows. A wrong press starts the phrase again. The clock starts at the first press and stops at the last word. The main screen plays and checks every press. Which sound is on which button is stored outside the session (`noisemasterSecrets/{code}`), so only the host and the main screen can read it. The host phone can open "The board" to see it.
+
+  **Adding sounds:** like the music, sounds are never uploaded. Put one audio file per word in a `Noisemaster` subfolder of the main screen's music folder (`hello.mp3` → "hello"). The jukebox leaves that subfolder out. The board needs at least 16 sounds. After adding files, choose the music folder again on the main screen so it reads them.
+
 In Before & After and Photos a submission locks until the host unlocks that player. Each game lives in `src/games/<id>/`; `src/games/index.ts` lists what a game provides to the shared screens.
 
 - `/` — main screen (shared display). `/play` — players' phones. `/host` — host remote. `/screen` — an extra, view-only copy of the main screen (e.g. in another room): same lobby, reveals and videos with sound, but no music (the songs stay on the main screen's PC) and no controls. After a refresh it asks for one click so video sound is allowed. `/light` — the light (below), on a computer with a webcam.

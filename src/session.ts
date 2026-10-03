@@ -155,10 +155,12 @@ export async function allowMove(code: string, session: Session, to: string) {
     carry(`games/${game}/shown`, data?.shown?.[from]);
   }
   carry("games/box/played", session.games?.box?.played?.[from]);
+  carry("games/noisemaster/played", session.games?.noisemaster?.played?.[from]);
   const round = session.games?.box?.round;
   if (round?.players.a === from) u["games/box/round/players/a"] = to;
   if (round?.players.b === from) u["games/box/round/players/b"] = to;
   if (round?.peeker === from) u["games/box/round/peeker"] = to;
+  if (session.games?.noisemaster?.round?.player === from) u["games/noisemaster/round/player"] = to;
   if (session.display?.uid === from) u["display/uid"] = to;
   await update(ref(db(), `sessions/${code}`), u);
 }
@@ -217,6 +219,7 @@ export const removePlayer = async (code: string, uid: string) => {
     remove(ref(db(), `sessions/${code}/players/${uid}`)),
     clearSubmissions(code, uid),
     remove(ref(db(), `sessions/${code}/games/box/played/${uid}`)),
+    remove(ref(db(), `sessions/${code}/games/noisemaster/played/${uid}`)),
   ]);
 };
 

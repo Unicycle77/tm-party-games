@@ -4,6 +4,7 @@ import type { SubmissionStatus } from "../submission";
 import type { Display, GameId, Session, Step } from "../types";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
+import { noisemaster } from "./noisemaster";
 import { photos } from "./photos";
 
 /**
@@ -44,7 +45,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster };
 
 /** The game being played; undefined on the game selection screen. */
 export const activeGame = (session: Session): Game | undefined => {

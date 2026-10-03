@@ -1,13 +1,13 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the empty curtain between contestants. The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster).
  */
-export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes";
+export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard";
 
 export interface Display {
   uid?: string;
@@ -50,6 +50,39 @@ export interface BoxRound {
 
 /** Kept outside the session (at boxSecrets/{code}) so only the host, the main screen and the peeker can read it. */
 export interface BoxSecret { inBox: BoxKey }
+
+/** One press of a Noisemaster button, by the player's phone: which button (0–15, row by row) and when (server time). */
+export interface NoisemasterPress { i: number; at: number }
+
+/**
+ * A round of Noisemaster: one player presses 16 blank buttons to make the stage say the phrase, in order.
+ * Which sound is on which button is secret (see `NoisemasterSecret`): the player only sends presses, and
+ * the main screen plays each one, checks it and writes the results below.
+ */
+export interface NoisemasterRound {
+  player: string;
+  /** The words (sound names) to say, 1 to 8. A word can come more than once. */
+  phrase: string[];
+  /** When the round was set up (tells rounds and restarts apart). */
+  startedAt: number;
+  /** The player's presses, in order (push keys). */
+  presses?: Record<string, NoisemasterPress>;
+  /** Main screen: how many words of the phrase are said so far. A wrong press starts again from nothing. */
+  progress?: number;
+  /** Main screen: wrong presses. */
+  mistakes?: number;
+  /** Main screen: when the first press came (the clock starts) and when the last word was said (it stops). */
+  firstAt?: number;
+  doneAt?: number;
+  /** Main screen: the latest press, so every screen can light that button up. */
+  last?: { key: string; i: number; ok: boolean };
+}
+
+/** Kept outside the session (at noisemasterSecrets/{code}) so only the host and the main screen can read it. */
+export interface NoisemasterSecret {
+  /** The sound on each of the 16 buttons, row by row. */
+  board: string[];
+}
 
 /**
  * The light, which runs all evening alongside the games: a computer at /light watches the room and
@@ -111,7 +144,13 @@ export interface Session {
   players?: Record<string, Player>;
   /** The game players see and the main screen shows. Absent = the game selection screen (where every session starts). */
   game?: GameId;
-  games?: { beforeAfter?: GameData<BeforeAfterMedia>; photos?: GameData<PhotosMedia>; box?: { round?: BoxRound; played?: Record<string, boolean> } };
+  games?: {
+    beforeAfter?: GameData<BeforeAfterMedia>;
+    photos?: GameData<PhotosMedia>;
+    box?: { round?: BoxRound; played?: Record<string, boolean> };
+    /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
+    noisemaster?: { sounds?: string[]; round?: NoisemasterRound; played?: Record<string, boolean> };
+  };
   display?: Display;
   /** Set once the host has started a first game: from then on, "no game" means between games, not the welcome. */
   begun?: boolean;
