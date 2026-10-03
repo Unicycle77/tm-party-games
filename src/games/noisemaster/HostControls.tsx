@@ -173,7 +173,7 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       <p className="muted small">“{round.phrase.join(" ")}”</p>
       <p className="box-wait">
         {done ? `✓ Done in ${time}, with ${restarts}.`
-          : round.firstAt ? `⏱ ${time} · ${round.progress ?? 0} of ${round.phrase.length} words · ${restarts}`
+          : round.firstAt ? <>⏱ <span className="soundboard-time">{time}</span> · {round.progress ?? 0} of {round.phrase.length} words · {restarts}</>
           : `Waiting for ${name}'s first press…`}
       </p>
       {display.step !== "soundboard" && (

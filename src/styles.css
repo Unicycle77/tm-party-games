@@ -771,7 +771,7 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
   100% { box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent, inset 0 0 0 transparent; }
 }
 @media (prefers-reduced-motion: reduce) { .soundboard-glow { animation-timing-function: steps(1, end); } }
-.slot .soundboard-time { font-family: var(--typewriter); font-variant-numeric: tabular-nums; }
+.slot .soundboard-time { display: inline-block; min-width: 6ch; text-align: center; font-family: var(--typewriter); font-variant-numeric: tabular-nums; }
 
 /* the stage: the phrase across the top, the board and the clock below */
 .stage.soundboard-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5vh; padding: 3vh 4vw; }
@@ -795,7 +795,7 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
   font-family: var(--typewriter); font-size: clamp(1.4rem, 4.4vmin, 3rem); padding: 0.3rem 1.4rem;
   box-shadow: 0 6px 14px #0009; transform: rotate(-1.5deg);
 }
-.soundboard-clock { font-family: var(--typewriter); font-size: clamp(3rem, 14vmin, 10rem); line-height: 1; color: var(--gold-bright); text-shadow: 0 3px 0 #0008; font-variant-numeric: tabular-nums; }
+.soundboard-clock { min-width: 6ch; text-align: center; font-family: var(--typewriter); font-size: clamp(3rem, 14vmin, 10rem); line-height: 1; color: var(--gold-bright); text-shadow: 0 3px 0 #0008; font-variant-numeric: tabular-nums; }
 .soundboard-mistakes { font-family: var(--typewriter); font-size: clamp(1.1rem, 3.4vmin, 2.2rem); color: var(--fg); }
 .soundboard-side .stamp { align-self: center; font-size: clamp(1.4rem, 5vmin, 3.4rem); background: var(--paper); }
 /* a wrong press: announced in the middle of the stage, then gone */
@@ -820,3 +820,11 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .phrase-edit button { padding: 0.4rem 0.7rem; }
 .box-setup .sound-choices button { flex-basis: 5rem; }
 .box-setup .soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; color: #fff; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; }
+
+/* the host line's clock: a fixed width, so the words after it never shift as the digits change */
+.box-wait .soundboard-time { display: inline-block; min-width: 6ch; text-align: left; font-variant-numeric: tabular-nums; }
+
+/* a text field with an × at its right end that clears it */
+.clearable { position: relative; display: grid; }
+.clearable input { padding-right: 2.6rem; }
+.clearable button { position: absolute; top: 50%; right: 0.3rem; transform: translateY(-50%); width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.3rem; line-height: 1; background: none; border: 0; box-shadow: none; color: var(--ink); opacity: 0.6; }
