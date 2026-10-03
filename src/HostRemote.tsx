@@ -1,4 +1,6 @@
+import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
+import { joinUrlFor } from "./firebase";
 import { GAMES, activeGame } from "./games";
 import { removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
@@ -16,6 +18,27 @@ const SHOWING: Partial<Record<Display["step"], string>> = {
  * "Manage contestants", so it can't be hit mid-show.
  */
 export function HostRemote({ code, session }: { code: string; session: Session }) {
+  const [showQr, setShowQr] = useState(false);
+  return (
+    <>
+      <RemoteBody code={code} session={session} />
+      {/* For anyone who arrives late: the join code, on the host's phone to hold up. */}
+      <button className="link" onClick={() => setShowQr(true)}>Show QR code</button>
+      {showQr && (
+        <div className="qr-overlay" onClick={() => setShowQr(false)}>
+          <figure className="join-qr">
+            <QRCodeSVG value={joinUrlFor(code)} size={300} bgColor="#fff" marginSize={2} />
+            <figcaption>Scan to join</figcaption>
+          </figure>
+          <p className="code">{code}</p>
+          <button type="button" onClick={() => setShowQr(false)}>Close</button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function RemoteBody({ code, session }: { code: string; session: Session }) {
   const game = activeGame(session);
   const [managing, setManaging] = useState(false);
   const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
