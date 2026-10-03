@@ -109,10 +109,10 @@ function Setup({ code, session }: { code: string; session: Session }) {
         <>
           <h3>2. The phrase</h3>
           <p className="muted small">No sound files here, so type the words: the main screen will say them out loud. Up to {MAX_WORDS}, in order.</p>
-          <input value={typedPhrase} onChange={(e) => setTypedPhrase(e.target.value)} placeholder="e.g. the quick brown fox" aria-label="The phrase" />
+          <ClearableInput value={typedPhrase} onChange={setTypedPhrase} placeholder="e.g. the quick brown fox" label="The phrase" />
           <h3>3. Decoys</h3>
           <p className="muted small">Up to {room}, separated by spaces or commas; the board is filled out with random words.</p>
-          <input value={typedDecoys} onChange={(e) => setTypedDecoys(e.target.value)} placeholder="e.g. cat dog banana" aria-label="Decoys" />
+          <ClearableInput value={typedDecoys} onChange={setTypedDecoys} placeholder="e.g. cat dog banana" label="Decoys" />
         </>
       ) : (
         <>
@@ -163,6 +163,16 @@ function Setup({ code, session }: { code: string; session: Session }) {
   );
 }
 
+/** A text field with an × inside it that empties it. */
+function ClearableInput({ value, onChange, placeholder, label }: { value: string; onChange: (v: string) => void; placeholder: string; label: string }) {
+  return (
+    <div className="clearable">
+      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} aria-label={label} />
+      {value && <button type="button" aria-label={`Clear ${label.toLowerCase()}`} onClick={() => onChange("")}>×</button>}
+    </div>
+  );
+}
+
 /** A round in play: how it's going, the board with its words (the host may see them; the player can't), restart, and on to the next. */
 function RoundControls({ code, session, display, round }: { code: string; session: Session; display: Display; round: NoisemasterRound }) {
   const name = session.players?.[round.player]?.name ?? "?";
@@ -175,6 +185,7 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
   const midway = !!round.firstAt && !done;
   // Off by default: the host's copy of the board is a picture, unless they switch on pressing it (to test, or to demonstrate).
   const [pressing, setPressing] = useState(false);
+  const [pressError, setPressError] = useState<string>();
 
   return (
     <div className="box-setup">
@@ -193,9 +204,9 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       </div>
       {/* the host's copy of the board, words and all: a picture to follow along on, or real buttons while the switch is on */}
       {board && (pressing
-        ? <Soundboard words={board} last={round.last} onPress={(i) => void press(code, i).catch(() => {})} disabled={done} />
-  const [pressError, setPressError] = useState<string>();
+        ? <Soundboard words={board} last={round.last} onPress={(i) => { setPressError(undefined); void press(code, i).catch((e: Error) => setPressError(`That press didn't go through (${e.message}).`)); }} disabled={done} />
         : <Soundboard words={board} last={round.last} />)}
+      {pressError && <p className="error">{pressError}</p>}
       <div className="steps two">
         <button onClick={() => { if (!midway || confirm(`Restart ${name}'s go? The clock goes back to zero.`)) void restartRound(code, round); }}>↺ Restart</button>
         <button onClick={() => { if (!midway || confirm(`End ${name}'s go? They haven't finished.`)) void newRound(code); }}>Next round</button>
@@ -203,4 +214,3 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
     </div>
   );
 }
-      {pressError && <p className="error">{pressError}</p>}
