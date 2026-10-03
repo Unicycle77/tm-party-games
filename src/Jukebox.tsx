@@ -4,6 +4,7 @@ import {
   readDurations, rememberFolder, requestAccess, scanFolder,
 } from "./musicFolder";
 import { publishDurations, publishTracks, setJukeboxState } from "./session";
+import { loadSounds } from "./games/noisemaster/sounds";
 import { MUSIC_READY } from "./StageGate";
 import type { Jukebox as JukeboxData } from "./types";
 
@@ -35,6 +36,8 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
       setSaved(undefined);
       void rememberFolder(dir);
       void publishTracks(code, tracks.map((t) => t.title));
+      // Noisemaster's sounds are a subfolder of the music folder (see games/noisemaster/sounds.ts).
+      void loadSounds(code, dir).catch(() => {});
       // Song lengths are read in the background and published once ready; ignore them if a newer folder was loaded meanwhile.
       const id = ++loadId.current;
       void publishDurations(code, null);

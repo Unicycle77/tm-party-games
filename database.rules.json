@@ -86,13 +86,43 @@
               ".validate": false
             }
           },
+          "noisemaster": {
+            "sounds": {
+              ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid",
+              "$i": {
+                ".validate": "newData.isString() && newData.val().length <= 100"
+              }
+            },
+            "round": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.hasChildren(['player', 'phrase', 'startedAt'])",
+              "presses": {
+                "$press": {
+                  ".write": "auth != null && !data.exists() && root.child('sessions').child($code).child('games').child('noisemaster').child('round').child('player').val() === auth.uid && !root.child('sessions').child($code).child('games').child('noisemaster').child('round').child('doneAt').exists()",
+                  ".validate": "newData.hasChildren(['i', 'at']) && newData.child('i').isNumber() && newData.child('i').val() >= 0 && newData.child('i').val() < 16 && newData.child('at').val() === now",
+                  "$other": {
+                    ".validate": false
+                  }
+                }
+              }
+            },
+            "played": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "$other": {
             ".validate": false
           }
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster'"
         },
         "jukebox": {
           "tracks": {
@@ -163,6 +193,20 @@
         ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid || root.child('sessions').child($code).child('games').child('box').child('round').child('peeker').val() === auth.uid)",
         ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
         ".validate": "newData.child('inBox').val() === 'L' || newData.child('inBox').val() === 'R'"
+      }
+    },
+    "noisemasterSecrets": {
+      "$code": {
+        ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+        ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+        "board": {
+          "$i": {
+            ".validate": "newData.isString() && newData.val().length <= 100"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }

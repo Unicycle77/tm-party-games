@@ -38,6 +38,8 @@ Rule of thumb: text never sits on a flat grey or white box. If it needs a surfac
 | `--bulb-red` | `#e8412e` | The light's red bulb (`/light`) and its glow. Not for text or UI. |
 | (per trigger) | see `src/light/triggers.ts` | "All at once" bulbs: each trigger's `colour`, passed to the bulb as `--bulb`. They live in code, not here, because the Hue lamps need them too. |
 | `--wood` / `--wood-dark` | `#9a6634` / `#5e3a18` | The wooden box under the bulb (fill / edges and grain). |
+| `--tm-red` | `#c8102e` | Taskmaster red: the Noisemaster soundboard. Not for text. |
+| `--key` | `#1e1d1c` | The soundboard's near-black buttons. |
 
 Colours in use that don't have a token yet. Reuse these exact values, and promote them to tokens if you touch them:
 
