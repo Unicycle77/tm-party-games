@@ -1,7 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
-import { Framed } from "./Framed";
+import { Curtain } from "./Curtain";
 import { activeGame } from "./games";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
@@ -69,20 +69,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
 
   // Between games (once the first has started): the party's Taskmaster portrait, framed, on the
   // curtain; or just the curtain if there's none. The code stays small in the corner for latecomers.
-  if (!game && session.begun) {
-    return (
-      <main className="between-games">
-        {session.portrait && (
-          <Framed>{(setRatio) => (
-            <img src={session.portrait} alt="The Taskmaster" onLoad={(e) => setRatio(e.currentTarget.naturalWidth / e.currentTarget.naturalHeight)} />
-          )}</Framed>
-        )}
-        <p className="corner-code">{site}/play · <strong>{code}</strong></p>
-        {menu}
-        {viewOnly && footer}
-      </main>
-    );
-  }
+  if (!game && session.begun) return <Curtain code={code} session={session}>{menu}{viewOnly && footer}</Curtain>;
 
   // Welcome: guests join on the left and find their name on the right. No game list: the host picks on their phone.
   if (!game) {
@@ -111,8 +98,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   }
 
   // Between contestants, and for a game the host runs (like [BLANK] in a Box) until a round starts:
-  // the empty curtain, so the room looks at the host.
-  if (!game.status || display.step === "curtain") return <main className="curtain-empty">{menu}{viewOnly && footer}</main>;
+  // the curtain (with the portrait, if there is one), so the room looks at the host.
+  if (!game.status || display.step === "curtain") return <Curtain code={code} session={session}>{menu}{viewOnly && footer}</Curtain>;
 
   // Collecting: the task card is the star; the contestants move to a column on the right.
   const status = game.status;

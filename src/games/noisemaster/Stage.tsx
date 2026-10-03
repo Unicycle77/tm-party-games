@@ -1,5 +1,6 @@
 import { onChildAdded, ref } from "firebase/database";
 import { useEffect, useRef } from "react";
+import { Curtain } from "../../Curtain";
 import { db } from "../../firebase";
 import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
@@ -17,8 +18,8 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   useReferee(code, round, !viewOnly);
   const sounds = useSoundCount();
   const controls = !viewOnly && <StageControls code={code} round={round} />;
-  // the empty curtain while the host sets up: the room looks at the host
-  if (!round) return <main className="stage soundboard-stage">{controls}</main>;
+  // the curtain while the host sets up: the room looks at the host
+  if (!round) return <Curtain code={code} session={session}>{controls}</Curtain>;
 
   const progress = round.progress ?? 0;
   const done = !!round.doneAt;

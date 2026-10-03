@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Curtain } from "../../Curtain";
 import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { BoxKey, BoxRound, Display, Session } from "../../types";
@@ -15,10 +16,9 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   const nameOf = (uid: string) => session.players?.[uid]?.name ?? "?";
   if (!round) {
     return (
-      <main className="stage boxes">
-        {/* the empty curtain while the host sets up: the room looks at the host */}
+      <Curtain code={code} session={session}>
         {!viewOnly && <StageControls code={code} round={undefined} nameOf={nameOf} />}
-      </main>
+      </Curtain>
     );
   }
   // A new round starts from scratch (boxes back in place, no animation).

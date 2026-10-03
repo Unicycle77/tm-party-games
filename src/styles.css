@@ -184,7 +184,6 @@ input::placeholder { color: #8b7a63; }
 @keyframes stamp-down { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.8); } 100% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .task-card .all-in { animation: none; } }
 @media (max-width: 800px) { .collecting, .collecting.no-task { grid-template-columns: 1fr; } }
-.curtain-empty { min-height: 100vh; min-height: 100dvh; }
 /* the setup gate: the closed curtain, one gold click, and what it will do */
 .gate { min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 1.6rem; padding: 2rem; text-align: center; }
 .gate h1 { font-size: clamp(3rem, 9vh, 6rem); margin: 0; }
