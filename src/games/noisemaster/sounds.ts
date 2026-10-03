@@ -56,10 +56,11 @@ function decode(name: string): Promise<AudioBuffer | undefined> {
 /** Decodes a board's sounds ahead of the first press. */
 export const prepareSounds = (names: string[]) => { names.forEach((n) => void decode(n)); };
 
-/** Plays a sound, cutting off the one before it so the words don't pile up. */
+/** Plays a sound, cutting off the one before it so the words don't pile up. A word with no file is spoken instead. */
 export async function playSound(name: string) {
+  if (!library.has(name)) { speak(name); return; }
   const buffer = await decode(name);
-  if (!buffer) return;
+  if (!buffer) { speak(name); return; }
   const ctx = audio();
   if (ctx.state === "suspended") void ctx.resume();
   try { playing?.stop(); } catch { /* already finished */ }
@@ -68,4 +69,12 @@ export async function playSound(name: string) {
   source.connect(ctx.destination);
   source.start();
   playing = source;
+}
+
+/** Stand-in for a missing sound file: the browser's speech synthesiser says the word (for testing without recordings). */
+function speak(word: string) {
+  if (!("speechSynthesis" in window)) return;
+  try { playing?.stop(); } catch { /* already finished */ }
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
 }

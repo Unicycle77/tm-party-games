@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { setDisplay } from "../../session";
+import { Toggle } from "../../Toggle";
 import type { Display, NoisemasterRound, Session } from "../../types";
 import {
-  BUTTONS, MAX_WORDS, elapsedOf, formatTime, newRound, restartRound, roundOf, soundsOf, startRound,
+  BUTTONS, MAX_WORDS, elapsedOf, formatTime, newRound, press, restartRound, roundOf, soundsOf, startRound,
   useNoisemasterSecret, useServerNow,
 } from "./data";
 import { Soundboard } from "./Soundboard";
@@ -14,6 +15,12 @@ export function HostLobby({ code, session, display }: { code: string; session: S
     ? <RoundControls code={code} session={session} display={display} round={round} />
     : <Setup code={code} session={session} />;
 }
+
+/** Fills out a typed board that has fewer than 16 words, so a round can be tested without any sound files. */
+const FILLER = ["apple", "river", "banana", "window", "tiger", "purple", "guitar", "cloud", "pencil", "rocket", "button", "garden", "pickle", "candle", "monkey", "bridge", "castle", "orange", "pillow", "thunder", "ladder", "violin", "pepper", "island", "mirror", "turtle", "basket", "engine", "feather", "lantern", "marble", "napkin", "otter", "pirate", "quilt", "ribbon", "saddle", "tunnel", "umbrella", "walnut"];
+
+/** "Hello, big world" → ["hello", "big", "world"] */
+const parseWords = (text: string) => text.toLowerCase().split(/[\s,]+/).filter(Boolean);
 
 const shuffle = <T,>(xs: T[]) => xs.map((x) => [Math.random(), x] as const).sort(([a], [b]) => a - b).map(([, x]) => x);
 
@@ -29,13 +36,19 @@ function Setup({ code, session }: { code: string; session: Session }) {
   const [decoys, setDecoys] = useState(() => lastSetup.decoys.filter((w) => sounds.includes(w)));
   const [adding, setAdding] = useState<"phrase" | "decoys">("phrase");
   const [filter, setFilter] = useState("");
+  // With no sound files, the phrase and decoys are typed and spoken by the main screen's voice.
+  const typed = sounds.length < BUTTONS;
+  const [typedPhrase, setTypedPhrase] = useState(lastSetup.phrase.join(" "));
+  const [typedDecoys, setTypedDecoys] = useState(lastSetup.decoys.join(" "));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
   // Each word of the phrase is on one button (however often it's said); decoys fill the rest.
-  const words = [...new Set(phrase)];
+  const phraseWords = typed ? parseWords(typedPhrase).slice(0, MAX_WORDS) : phrase;
+  const words = [...new Set(phraseWords)];
   const room = BUTTONS - words.length;
-  const ready = !!player && !!session.players?.[player] && phrase.length > 0 && sounds.length >= BUTTONS;
+  const typedDecoyWords = [...new Set(parseWords(typedDecoys))].filter((w) => !words.includes(w)).slice(0, room);
+  const ready = !!player && !!session.players?.[player] && phraseWords.length > 0;
   const shown = sounds.filter((s) => s.toLowerCase().includes(filter.trim().toLowerCase()));
 
   function pickRandom() {
@@ -57,13 +70,14 @@ function Setup({ code, session }: { code: string; session: Session }) {
   async function start() {
     if (!ready || !player) return;
     // The picked decoys, then any others at random to fill the board; then the buttons are shuffled.
-    const picked = decoys.filter((d) => !words.includes(d)).slice(0, room);
-    const others = shuffle(sounds.filter((s) => !words.includes(s) && !picked.includes(s)));
-    const board = shuffle([...words, ...picked, ...others.slice(0, room - picked.length)]);
-    lastSetup = { phrase, decoys: picked };
+    const picked = typed ? typedDecoyWords : decoys.filter((d) => !words.includes(d)).slice(0, room);
+    const others = shuffle((typed ? FILLER : sounds).filter((s) => !words.includes(s) && !picked.includes(s)));
+    // One button per word, however often the phrase says it.
+    const board = shuffle([...new Set([...words, ...picked, ...others.slice(0, room - picked.length)])]);
+    lastSetup = { phrase: phraseWords, decoys: picked };
     setBusy(true);
     setError(undefined);
-    try { await startRound(code, player, phrase, board); }
+    try { await startRound(code, player, phraseWords, board); }
     catch { setError("Couldn't start the round. Try again."); setBusy(false); }
   }
 
@@ -82,6 +96,17 @@ function Setup({ code, session }: { code: string; session: Session }) {
         ))}
       </div>
 
+      {typed ? (
+        <>
+          <h3>2. The phrase</h3>
+          <p className="muted small">No sound files here, so type the words: the main screen will say them out loud. Up to {MAX_WORDS}, in order.</p>
+          <input value={typedPhrase} onChange={(e) => setTypedPhrase(e.target.value)} placeholder="e.g. the quick brown fox" aria-label="The phrase" />
+          <h3>3. Decoys</h3>
+          <p className="muted small">Up to {room}, separated by spaces or commas; the board is filled out with random words.</p>
+          <input value={typedDecoys} onChange={(e) => setTypedDecoys(e.target.value)} placeholder="e.g. cat dog banana" aria-label="Decoys" />
+        </>
+      ) : (
+        <>
       <div className="remote-head">
         <h3>2. The phrase</h3>
         {phrase.length > 0 && <button className="link" onClick={() => setPhrase([])}>Clear</button>}
@@ -102,10 +127,6 @@ function Setup({ code, session }: { code: string; session: Session }) {
       </p>
 
       <h3>Sounds ({sounds.length})</h3>
-      {sounds.length < BUTTONS
-        ? <p className="muted small">The board needs at least {BUTTONS} sounds. Put them in a "Noisemaster" folder inside the main screen's music folder, then reload the music folder there.</p>
-        : (
-          <>
             <div className="choices">
               <button className={adding === "phrase" ? "active" : ""} aria-pressed={adding === "phrase"} onClick={() => setAdding("phrase")}>Add to the phrase</button>
               <button className={adding === "decoys" ? "active" : ""} aria-pressed={adding === "decoys"} onClick={() => setAdding("decoys")}>Pick decoys</button>
@@ -124,8 +145,8 @@ function Setup({ code, session }: { code: string; session: Session }) {
                 );
               })}
             </div>
-          </>
-        )}
+        </>
+      )}
 
       <button className="big" disabled={!ready || busy} onClick={() => void start()}>{busy ? "Starting…" : "Start Noisemaster"}</button>
       {error && <p className="error">{error}</p>}
@@ -143,6 +164,8 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
   const mistakes = round.mistakes ?? 0;
   const restarts = mistakes === 1 ? "1 restart" : `${mistakes} restarts`;
   const midway = !!round.firstAt && !done;
+  // Off by default: the host's copy of the board is a picture, unless they switch on pressing it (to test, or to demonstrate).
+  const [pressing, setPressing] = useState(false);
 
   return (
     <div className="box-setup">
@@ -156,8 +179,13 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       {display.step !== "soundboard" && (
         <button onClick={() => void setDisplay(code, { step: "soundboard" })}>Show it on the big screen</button>
       )}
-      {/* the host's copy of the board, words and all: a picture to follow along on, never buttons */}
-      {board && <Soundboard words={board} last={round.last} />}
+      <div className="toggles">
+        <Toggle label="Let me press the buttons" on={pressing} onChange={setPressing} />
+      </div>
+      {/* the host's copy of the board, words and all: a picture to follow along on, or real buttons while the switch is on */}
+      {board && (pressing
+        ? <Soundboard words={board} last={round.last} onPress={(i) => void press(code, i).catch(() => {})} disabled={done} />
+        : <Soundboard words={board} last={round.last} />)}
       <div className="steps two">
         <button onClick={() => { if (!midway || confirm(`Restart ${name}'s go? The clock goes back to zero.`)) void restartRound(code, round); }}>↺ Restart</button>
         <button onClick={() => { if (!midway || confirm(`End ${name}'s go? They haven't finished.`)) void newRound(code); }}>Next round</button>

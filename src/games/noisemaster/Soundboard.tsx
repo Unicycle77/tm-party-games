@@ -27,6 +27,7 @@ export function Soundboard({ onPress, disabled, last, words }: {
             return (
               <button key={i} className="soundboard-button" style={style} disabled={disabled} aria-label={`Button ${i + 1}`}
                 onClick={() => { setTapped((t) => ({ i, n: (t?.n ?? 0) + 1 })); onPress(i); }}>
+                {words?.[i]}
                 {tapped?.i === i && <span key={tapped.n} className="soundboard-glow" />}
               </button>
             );
