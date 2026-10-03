@@ -60,11 +60,11 @@ function decode(name: string): Promise<AudioBuffer | undefined> {
 export const prepareSounds = (names: string[]) => { names.forEach((n) => { const f = fileFor(n); if (f) void decode(f); }); };
 
 /** Plays a sound, cutting off the one before it so the words don't pile up. A word with no file is spoken instead. */
-export async function playSound(name: string) {
+export async function playSound(name: string, inPhrase: boolean) {
   const file = fileFor(name);
-  if (!file) { speak(name); return; }
+  if (!file) { speak(name, inPhrase); return; }
   const buffer = await decode(file);
-  if (!buffer) { speak(name); return; }
+  if (!buffer) { speak(name, inPhrase); return; }
   const ctx = audio();
   if (ctx.state === "suspended") void ctx.resume();
   try { playing?.stop(); } catch { /* already finished */ }
@@ -75,10 +75,23 @@ export async function playSound(name: string) {
   playing = source;
 }
 
-/** Stand-in for a missing sound file: the browser's speech synthesiser says the word (for testing without recordings). */
-function speak(word: string) {
+/**
+ * Stand-in for a missing sound file: the browser's speech synthesiser says the word (for testing without
+ * recordings). The phrase's words get one voice and the decoys another, so they can be told apart by ear.
+ */
+function speak(word: string, inPhrase: boolean) {
   if (!("speechSynthesis" in window)) return;
   try { playing?.stop(); } catch { /* already finished */ }
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(new SpeechSynthesisUtterance(word));
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  const say = new SpeechSynthesisUtterance(word);
+  // English voices, the usual good ones first (macOS's alphabetical list starts with novelty voices); the second
+  // voice (or the first, deeper, if there's only one) is for decoys.
+  const liked = ["zira", "david", "samantha", "daniel", "karen", "alex", "moira", "aria", "guy", "google us english", "google uk english"];
+  const rank = (v: SpeechSynthesisVoice) => { const i = liked.findIndex((n) => v.name.toLowerCase().includes(n)); return i < 0 ? liked.length : i; };
+  const voices = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  const voice = inPhrase ? voices[0] : voices[1] ?? voices[0];
+  if (voice) say.voice = voice;
+  if (!inPhrase) say.pitch = voices.length > 1 ? 1 : 0.5;
+  synth.speak(say);
 }

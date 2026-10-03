@@ -79,7 +79,7 @@ function useReferee(code: string, round: NoisemasterRound | undefined, enabled: 
       else { mistakes++; progress = word === phrase[0] ? 1 : 0; }
       if (progress === phrase.length) doneAt = p.at;
       // Only presses from the last couple of seconds: not the whole round again after a refresh.
-      if (p.at > Date.now() + offset.current - 2000) void playSound(word);
+      if (p.at > Date.now() + offset.current - 2000) void playSound(word, phrase.includes(word));
       void recordPress(code, { progress, mistakes, firstAt, doneAt: doneAt ?? null, last: { key: s.key!, i: p.i, ok } }).catch(() => {});
     });
   }, [code, enabled, boardKey, round?.startedAt]); // eslint-disable-line react-hooks/exhaustive-deps
