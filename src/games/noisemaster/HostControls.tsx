@@ -116,6 +116,24 @@ function Setup({ code, session }: { code: string; session: Session }) {
           <h3>3. Decoys</h3>
           <p className="muted small">Separated by spaces or commas. The board has {BUTTONS} buttons, so the phrase's different words and the decoys together need to be at least {BUTTONS}.</p>
           <ClearableInput value={typedDecoys} onChange={setTypedDecoys} placeholder="e.g. cat dog banana" label="Decoys" />
+          {sounds.length > 0 && (
+            <>
+              <p className="muted small">Or tap sound files to use them as decoys (any word without a file is spoken instead).</p>
+              <div className="choices sound-choices">
+                {sounds.map((sound) => {
+                  const word = sound.toLowerCase();
+                  const on = parseWords(typedDecoys).includes(word);
+                  const inPhrase = words.includes(word);
+                  return (
+                    <button key={sound} className={on ? "active" : ""} aria-pressed={on} disabled={inPhrase}
+                      onClick={() => setTypedDecoys(on ? parseWords(typedDecoys).filter((w) => w !== word).join(" ") : [...parseWords(typedDecoys), word].join(" "))}>
+                      {sound}{inPhrase && <span className="played">phrase</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
           <p className={typedShort ? "error small" : "muted small"}>
             {words.length + typedDecoyWords.length} different words{typedShort ? `: add ${typedShort} more` : words.length + typedDecoyWords.length > BUTTONS ? `; ${words.length + typedDecoyWords.length - BUTTONS} extra decoys will be left out at random` : ""}.
           </p>

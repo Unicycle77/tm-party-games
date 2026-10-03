@@ -41,6 +41,9 @@ const buffers = new Map<string, Promise<AudioBuffer | undefined>>();
 let playing: AudioBufferSourceNode | undefined;
 const audio = () => (context ??= new AudioContext());
 
+/** The file's own name for a word, whatever capitals it was typed with. */
+const fileFor = (word: string) => [...library.keys()].find((k) => k.toLowerCase() === word.toLowerCase());
+
 function decode(name: string): Promise<AudioBuffer | undefined> {
   let buffer = buffers.get(name);
   if (!buffer) {
@@ -54,12 +57,13 @@ function decode(name: string): Promise<AudioBuffer | undefined> {
 }
 
 /** Decodes a board's sounds ahead of the first press. */
-export const prepareSounds = (names: string[]) => { names.forEach((n) => void decode(n)); };
+export const prepareSounds = (names: string[]) => { names.forEach((n) => { const f = fileFor(n); if (f) void decode(f); }); };
 
 /** Plays a sound, cutting off the one before it so the words don't pile up. A word with no file is spoken instead. */
 export async function playSound(name: string) {
-  if (!library.has(name)) { speak(name); return; }
-  const buffer = await decode(name);
+  const file = fileFor(name);
+  if (!file) { speak(name); return; }
+  const buffer = await decode(file);
   if (!buffer) { speak(name); return; }
   const ctx = audio();
   if (ctx.state === "suspended") void ctx.resume();
