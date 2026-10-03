@@ -85,19 +85,14 @@ function speak(word: string, inPhrase: boolean) {
   const synth = window.speechSynthesis;
   synth.cancel();
   const say = new SpeechSynthesisUtterance(word);
-  // English voices, the usual good ones first (macOS's alphabetical list starts with novelty voices); the second
-  // voice (or the first, deeper, if there's only one) is for decoys.
-  const liked = ["zira", "david", "samantha", "daniel", "karen", "alex", "moira", "aria", "guy", "google us english", "google uk english"];
-  const rank = (v: SpeechSynthesisVoice) => { const i = liked.findIndex((n) => v.name.toLowerCase().includes(n)); return i < 0 ? liked.length : i; };
-  const all = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
-  // The phrase's voice is an Australian man when there is one (Lee or Gordon on Apple devices, James on
-  // Windows, or one the device itself calls "Australian Voice 1"), else any Australian voice; decoys use the best of the others.
-  const maleAu = ["lee", "gordon", "james", "voice 1"];
-  const au = all.filter((v) => v.lang.toLowerCase().replace("_", "-") === "en-au");
-  const australian = au.find((v) => maleAu.some((n) => v.name.toLowerCase().includes(n))) ?? au[0];
-  const voices = australian ? [australian, ...all.filter((v) => v !== australian)] : all;
-  const voice = inPhrase ? voices[0] : voices[1] ?? voices[0];
+  // British men (Daniel, Arthur and Oliver on Apple devices, George and Ryan on Windows, Google's UK male): the phrase
+  // gets the first and decoys the second. With only one on the device, decoys reuse it, pitched lower to tell them apart.
+  const male = ["daniel", "arthur", "oliver", "george", "ryan", "thomas", "male"];
+  const british = synth.getVoices().filter((v) => v.lang.toLowerCase().replace("_", "-") === "en-gb"
+    && male.some((n) => v.name.toLowerCase().includes(n)) && !v.name.toLowerCase().includes("female"))
+    .sort((a, b) => male.findIndex((n) => a.name.toLowerCase().includes(n)) - male.findIndex((n) => b.name.toLowerCase().includes(n)));
+  const voice = inPhrase ? british[0] : british[1] ?? british[0];
   if (voice) say.voice = voice;
-  if (!inPhrase) say.pitch = voices.length > 1 ? 1 : 0.5;
+  if (!inPhrase && british.length < 2) say.pitch = 0.6;
   synth.speak(say);
 }
