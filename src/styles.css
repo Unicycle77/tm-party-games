@@ -819,4 +819,4 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .phrase-edit { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .phrase-edit button { padding: 0.4rem 0.7rem; }
 .box-setup .sound-choices button { flex-basis: 5rem; }
-.box-setup span.soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; color: #fff; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; }
+.box-setup .soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; color: #fff; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; }
