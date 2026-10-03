@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { setDisplay } from "../../session";
+import { useEffect, useState } from "react";
+import { setDisplay, store } from "../../session";
 import { Toggle } from "../../Toggle";
 import type { Display, NoisemasterRound, Session } from "../../types";
 import {
@@ -25,7 +25,15 @@ const parseWords = (text: string) => text.toLowerCase().split(/[\s,]+/).filter(B
 const shuffle = <T,>(xs: T[]) => xs.map((x) => [Math.random(), x] as const).sort(([a], [b]) => a - b).map(([, x]) => x);
 
 /** The last round's phrase and decoys, so the next player can get the same one. */
-let lastSetup: { phrase: string[]; decoys: string[] } = { phrase: [], decoys: [] };
+type Setup = { phrase: string[]; decoys: string[]; typedPhrase: string; typedDecoys: string };
+const SETUP_KEY = "noisemaster-setup";
+const loadSetup = (): Setup => {
+  try { return { phrase: [], decoys: [], typedPhrase: "", typedDecoys: "", ...JSON.parse(store.get(SETUP_KEY) || "{}") }; }
+  catch { return { phrase: [], decoys: [], typedPhrase: "", typedDecoys: "" }; }
+};
+/** Kept in this browser too, so a reload (or a lost connection) doesn't lose what the host typed. */
+let lastSetup = loadSetup();
+const saveSetup = (next: Partial<Setup>) => { lastSetup = { ...lastSetup, ...next }; store.set(SETUP_KEY, JSON.stringify(lastSetup)); };
 
 function Setup({ code, session }: { code: string; session: Session }) {
   const players = Object.entries(session.players ?? {}).sort(([, x], [, y]) => (x.joinedAt ?? 0) - (y.joinedAt ?? 0));
@@ -38,8 +46,10 @@ function Setup({ code, session }: { code: string; session: Session }) {
   const [filter, setFilter] = useState("");
   // With no sound files, the phrase and decoys are typed and spoken by the main screen's voice.
   const typed = sounds.length < BUTTONS;
-  const [typedPhrase, setTypedPhrase] = useState(lastSetup.phrase.join(" "));
-  const [typedDecoys, setTypedDecoys] = useState(lastSetup.decoys.join(" "));
+  const [typedPhrase, setTypedPhrase] = useState(lastSetup.typedPhrase);
+  const [typedDecoys, setTypedDecoys] = useState(lastSetup.typedDecoys);
+  // Everything entered is remembered as it's entered, so the next round (or a reload) starts from it.
+  useEffect(() => { saveSetup({ typedPhrase, typedDecoys, phrase, decoys }); }, [typedPhrase, typedDecoys, phrase, decoys]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -74,7 +84,6 @@ function Setup({ code, session }: { code: string; session: Session }) {
     const others = shuffle((typed ? FILLER : sounds).filter((s) => !words.includes(s) && !picked.includes(s)));
     // One button per word, however often the phrase says it.
     const board = shuffle([...new Set([...words, ...picked, ...others.slice(0, room - picked.length)])]);
-    lastSetup = { phrase: phraseWords, decoys: picked };
     setBusy(true);
     setError(undefined);
     try { await startRound(code, player, phraseWords, board); }
