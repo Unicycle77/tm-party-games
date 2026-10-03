@@ -100,6 +100,8 @@
                 "$press": {
                   ".write": "auth != null && !data.exists() && (root.child('sessions').child($code).child('games').child('noisemaster').child('round').child('player').val() === auth.uid || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid) && !root.child('sessions').child($code).child('games').child('noisemaster').child('round').child('doneAt').exists()",
                   ".validate": "newData.hasChildren(['i', 'at']) && newData.child('i').isNumber() && newData.child('i').val() >= 0 && newData.child('i').val() < 16 && newData.child('at').val() === now",
+                  "i": { ".validate": true },
+                  "at": { ".validate": true },
                   "$other": {
                     ".validate": false
                   }
