@@ -24,6 +24,8 @@
   --stamp-red: #a8201a;
   --wood: #9a6634;
   --wood-dark: #5e3a18;
+  --tm-red: #c8102e;
+  --key: #1e1d1c;
   --ok: #9be08a;
   --typewriter: "Typewriter", "Courier New", monospace;
   --bg-image: url("./assets/curtains.webp");
@@ -741,33 +743,35 @@ h2.contestant .muted { font-size: 0.6em; }
 .portrait-setting .ph { display: grid; place-items: center; text-align: center; font-size: 0.8rem; color: var(--muted); border-style: dashed; }
 .portrait-text { display: grid; gap: 0.3rem; justify-items: start; font-family: var(--typewriter); }
 
-/* ---- Noisemaster: a wooden soundboard of 16 blank paper buttons under a label plate ---- */
+/* ---- Noisemaster: a Taskmaster-red soundboard of 16 blank, near-black buttons under a black label ---- */
 .soundboard {
   display: grid; gap: 0.8rem;
-  background: var(--wood); border: 3px solid var(--wood-dark); border-radius: 8px;
+  background: var(--tm-red); border: 3px solid var(--burgundy); border-radius: 8px;
   padding: 0.9rem; box-shadow: inset 0 2px 0 #fff3, 0 8px 18px #0009;
 }
-/* the label plate, like a strip of paper tacked on above the buttons */
+/* the label plate: white type on black, like a strip of Dymo tape above the buttons */
 .soundboard-label {
   justify-self: center; margin: 0; padding: 0.2rem 1.2rem;
-  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 3px;
+  background: #000; color: #fff; border-radius: 3px;
   font-family: var(--typewriter); font-size: 1.3rem; letter-spacing: 0.12em; white-space: nowrap;
   box-shadow: 0 3px 6px #0007;
 }
-.soundboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
-.soundboard-button { display: block; aspect-ratio: 1; padding: 0; border-radius: 6px; }
+/* minmax(0, …): the host's words never widen a column */
+.soundboard-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; }
+.soundboard-button {
+  position: relative; display: block; aspect-ratio: 1; padding: 0; border-radius: 6px;
+  background: var(--key); border: 2px solid #000; box-shadow: inset 0 1px 0 #fff2, 0 3px 0 #0008;
+}
 /* on the phone: a tap is a tap, never a zoom or a text selection */
 button.soundboard-button { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-button.soundboard-button:not(:disabled):active { filter: brightness(0.9); }
-/* on the stage: a picture of the board, the latest press flashing gold (right) or burgundy (wrong) */
-span.soundboard-button { background: var(--paper); border: 2px solid var(--gold-dark); box-shadow: 0 3px 0 #0006; }
-span.soundboard-button.lit { animation: soundboard-press 0.9s ease-out; }
-span.soundboard-button.lit.ok { --flash: var(--gold-bright); }
-span.soundboard-button.lit.wrong { --flash: var(--burgundy); }
-@keyframes soundboard-press {
-  0% { background: var(--flash); transform: translateY(2px); box-shadow: 0 1px 0 #0006, 0 0 0 4px var(--flash); }
-  100% { background: var(--paper); transform: none; box-shadow: 0 3px 0 #0006; }
+button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2, 0 1px 0 #0008; }
+/* a press: the button's edge glows in its own colour (--glow, set per button), then fades */
+.soundboard-glow { position: absolute; inset: -2px; border-radius: inherit; pointer-events: none; animation: soundboard-glow 0.9s ease-out forwards; }
+@keyframes soundboard-glow {
+  0% { box-shadow: 0 0 0 3px var(--glow), 0 0 18px 6px var(--glow), inset 0 0 12px var(--glow); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent, inset 0 0 0 transparent; }
 }
+@media (prefers-reduced-motion: reduce) { .soundboard-glow { animation-timing-function: steps(1, end); } }
 .slot .soundboard-time { font-family: var(--typewriter); font-variant-numeric: tabular-nums; }
 
 /* the stage: the phrase across the top, the board and the clock below */
@@ -809,7 +813,6 @@ span.soundboard-button.lit.wrong { --flash: var(--burgundy); }
   100% { opacity: 0; transform: translate(-50%, -50%) rotate(-3deg) scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  span.soundboard-button.lit { animation-duration: 0.01s; }
   .start-again { animation: none; opacity: 0; }
 }
 
@@ -817,4 +820,4 @@ span.soundboard-button.lit.wrong { --flash: var(--burgundy); }
 .phrase-edit { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .phrase-edit button { padding: 0.4rem 0.7rem; }
 .box-setup .sound-choices button { flex-basis: 5rem; }
-.box-setup span.soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; overflow: hidden; }
+.box-setup span.soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; color: #fff; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; }
