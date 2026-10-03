@@ -89,7 +89,13 @@ function speak(word: string, inPhrase: boolean) {
   // voice (or the first, deeper, if there's only one) is for decoys.
   const liked = ["zira", "david", "samantha", "daniel", "karen", "alex", "moira", "aria", "guy", "google us english", "google uk english"];
   const rank = (v: SpeechSynthesisVoice) => { const i = liked.findIndex((n) => v.name.toLowerCase().includes(n)); return i < 0 ? liked.length : i; };
-  const voices = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  const all = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  // The phrase's voice is an Australian man when there is one (Lee or Gordon on Apple devices, James on
+  // Windows, or one the device itself calls "Australian Voice 1"), else any Australian voice; decoys use the best of the others.
+  const maleAu = ["lee", "gordon", "james", "voice 1"];
+  const au = all.filter((v) => v.lang.toLowerCase().replace("_", "-") === "en-au");
+  const australian = au.find((v) => maleAu.some((n) => v.name.toLowerCase().includes(n))) ?? au[0];
+  const voices = australian ? [australian, ...all.filter((v) => v !== australian)] : all;
   const voice = inPhrase ? voices[0] : voices[1] ?? voices[0];
   if (voice) say.voice = voice;
   if (!inPhrase) say.pitch = voices.length > 1 ? 1 : 0.5;
