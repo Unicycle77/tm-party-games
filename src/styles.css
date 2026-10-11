@@ -945,3 +945,14 @@ button.envelope:active { transform: none; box-shadow: none; }
 .fade-note { animation: fade-note 4s forwards; }
 @keyframes fade-note { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fade-note { animation: none; } }
+
+/* a header icon that needs the host (✉: someone hasn't looked, or is waiting for an envelope): a burgundy dot, not the gold "running" glow */
+.head-icon.alert { position: relative; filter: none; opacity: 1; }
+.head-icon.alert::after { content: ""; position: absolute; top: -0.2rem; right: -0.2rem; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--burgundy); border: 2px solid var(--paper); }
+
+/* Secret Tasks' "Who has what": a task shows in its row only while the name is held */
+.picker button.peek { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.picker button.peek.holding { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; }
+.peek-task { flex-basis: 100%; display: grid; gap: 0.2rem; font-weight: bold; overflow-wrap: anywhere; }
+.peek-task small { font-weight: normal; color: #7a6a55; }
+.picker li.stacked { gap: 0.4rem; }

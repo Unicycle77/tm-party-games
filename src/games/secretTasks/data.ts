@@ -38,6 +38,23 @@ export function useMyTask(code: string, uid: string): string | null | undefined 
   return task;
 }
 
+/** Player: notes that they've opened their envelope, so the host phone stops flagging them. */
+export const markSeen = (code: string, uid: string) => set(ref(db(), `secretTasks/${code}/seen/${uid}`), true);
+
+/**
+ * Who the host should see to: players who haven't opened their envelope yet (or haven't picked one while
+ * there are envelopes to pick), and players waiting for an envelope while the pile is empty.
+ */
+export function needsOf(session: Session, tasks: SecretTasks | null | undefined): { unseen: string[]; waiting: string[] } {
+  if (!tasks) return { unseen: [], waiting: [] };
+  const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
+  const left = undealtOf(tasks).length;
+  return {
+    unseen: players.filter(([uid]) => !tasks.seen?.[uid] && (tasks.assigned?.[uid] || left > 0)).map(([uid]) => uid),
+    waiting: players.filter(([uid]) => !tasks.assigned?.[uid] && left === 0).map(([uid]) => uid),
+  };
+}
+
 /** Host: adds tasks to the pool, skipping any already in it. Returns how many were new. */
 export async function addTasks(code: string, texts: string[]): Promise<number> {
   // Checked against the pool as it is now, not as this phone last heard of it, so a stale or missing view can't let a duplicate in.

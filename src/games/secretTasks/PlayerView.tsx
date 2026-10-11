@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Session } from "../../types";
-import { pickEnvelope, useMyTask } from "./data";
+import { markSeen, pickEnvelope, useMyTask } from "./data";
 
 /** How long each letter of the task takes to be typed. */
 const TYPE_MS = 45;
@@ -110,6 +110,8 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
 export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { code: string; uid: string; session: Session; onPicked?: () => void }) {
   const task = useMyTask(code, uid);
   const [open, setOpen] = useState(false);
+  // Once they've read it, the host phone stops flagging them as "haven't looked yet".
+  useEffect(() => { if (open && task) void markSeen(code, uid).catch(() => {}); }, [open, task, code, uid]);
   // A task that arrives while the player is choosing from the pile opens by itself: that's the pick paying off.
   const before = useRef(task);
   useEffect(() => {

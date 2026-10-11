@@ -117,6 +117,8 @@ export interface SecretTurn { done?: boolean; guessed?: Record<string, true> }
 export interface SecretTasks {
   pool?: Record<string, string>;
   assigned?: Record<string, string>;
+  /** Players who have opened their envelope at least once (written by the player's phone). */
+  seen?: Record<string, true>;
 }
 
 /**

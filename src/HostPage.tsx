@@ -3,7 +3,7 @@ import { HostRemote } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
-import { useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
+import { needsOf, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
@@ -48,8 +48,8 @@ export function HostPage() {
 
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
-  const icon = (v: View, label: string, glyph: string, lit: boolean) => (
-    <button className={`head-icon${lit ? " lit" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
+  const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
+    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
       onClick={() => setView(view === v ? "show" : v)}>{glyph}</button>
   );
 
@@ -58,7 +58,7 @@ export function HostPage() {
       <header className="host-head">
         <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
-        {icon("tasks", "Secret tasks", "✉", false)}
+        <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
       <Dealer code={code} session={session} />
@@ -76,6 +76,13 @@ export function HostPage() {
       )}
     </main>
   );
+}
+
+/** ✉ in the header, with a burgundy dot while a guest hasn't looked at their task or is waiting for one. */
+function TasksIcon({ code, session, icon }: { code: string; session: Session; icon: (v: View, label: string, glyph: string, lit: boolean, alert?: boolean) => React.ReactNode }) {
+  const needs = needsOf(session, useSecretTasks(code));
+  const alert = needs.unseen.length + needs.waiting.length > 0;
+  return <>{icon("tasks", alert ? "Secret tasks (needs you)" : "Secret tasks", "✉", false, alert)}</>;
 }
 
 /**
