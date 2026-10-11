@@ -84,6 +84,9 @@ export interface NoisemasterSecret {
   board: string[];
 }
 
+/** Where one sealed envelope lies on the pile players pick from: % across and down, and a tilt in degrees. */
+export interface PileSpot { x: number; y: number; r: number }
+
 /**
  * Secret Tasks' reveal: the players in a random order, one at a time ("What was Sam's secret?"), each
  * with a sealed envelope on the main screen that the host unseals. Only what has been revealed is here.
@@ -173,8 +176,12 @@ export interface Session {
     photos?: GameData<PhotosMedia>;
     box?: { round?: BoxRound; played?: Record<string, boolean> };
     /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
-    /** Secret Tasks keeps the tasks outside the session (see `SecretTasks`); only the reveal is here. */
-    secretTasks?: { reveal?: SecretReveal };
+    /**
+     * Secret Tasks keeps the tasks outside the session (see `SecretTasks`); here are only the envelopes
+     * still to pick (`pile`, by task id, with nothing about what's inside), the players' picks (envelope
+     * id → uid; the main screen turns each into a dealt task) and the reveal.
+     */
+    secretTasks?: { pile?: Record<string, PileSpot>; picks?: Record<string, string>; reveal?: SecretReveal };
     noisemaster?: { sounds?: string[]; round?: NoisemasterRound; played?: Record<string, boolean> };
   };
   display?: Display;

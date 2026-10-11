@@ -119,6 +119,21 @@
             }
           },
           "secretTasks": {
+            "pile": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              "$id": {
+                "x": { ".validate": "newData.isNumber()" },
+                "y": { ".validate": "newData.isNumber()" },
+                "r": { ".validate": "newData.isNumber()" },
+                "$other": { ".validate": false }
+              }
+            },
+            "picks": {
+              "$id": {
+                ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid && root.child('sessions').child($code).child('games').child('secretTasks').child('pile').child($id).exists() && root.child('sessions').child($code).child('players').child(auth.uid).exists()) || (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid))",
+                ".validate": "newData.isString()"
+              }
+            },
             "reveal": {
               ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
               "order": {

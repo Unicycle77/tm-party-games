@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { Session } from "../../types";
-import { addTasks, removeTask, undealtOf, useSecretTasks } from "./data";
+import { addTasks, dealRest, removeTask, undealtOf, useSecretTasks } from "./data";
 
 /**
  * The host's phone, in its own tab whichever game is on: type the pool of secret tasks (any number, one
- * per line) and see who has been dealt what. Tasks are dealt by the main screen as players check in.
+ * per line) and see who has been dealt what. Each task is an envelope on the pile that players pick from when they check in.
  */
 export function TaskPile({ code, session }: { code: string; session: Session }) {
   const tasks = useSecretTasks(code);
@@ -43,6 +43,11 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
           placeholder={"Make someone say \"banana\"\nGet three people to high-five"} />
       </label>
       <button className="big" disabled={busy || !text.trim()} onClick={() => void add()}>{busy ? "Adding…" : "Add to the pile"}</button>
+      {needing > 0 && undealt.length > 0 && (
+        <button onClick={() => void dealRest(code, session, tasks)}>
+          Deal {Math.min(needing, undealt.length)} at random to {needing === 1 ? "the player who hasn't" : "players who haven't"} picked
+        </button>
+      )}
       {note && <p className="muted small">{note}</p>}
       {error && <p className="error">{error}</p>}
 

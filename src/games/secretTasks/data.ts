@@ -54,31 +54,59 @@ export async function addTasks(code: string, texts: string[], tasks: SecretTasks
 /** Host: takes a task out of the pool. A player who was already dealt it keeps it. */
 export const removeTask = (code: string, id: string) => remove(ref(db(), `secretTasks/${code}/pool/${id}`));
 
+/** Host: deals a random undealt task to every player who has none (for anyone who hasn't picked an envelope). */
+export function dealRest(code: string, session: Session, tasks: SecretTasks | null | undefined) {
+  const free = undealtOf(tasks).map(([, text]) => text);
+  const deal: Record<string, string> = {};
+  for (const uid of Object.keys(session.players ?? {})) {
+    if (tasks?.assigned?.[uid] || !free.length) continue;
+    deal[uid] = free.splice(Math.floor(Math.random() * free.length), 1)[0]!;
+  }
+  return update(ref(db(), `secretTasks/${code}/assigned`), deal);
+}
+
+/** Player: picks an envelope from the pile. First pick of an envelope wins; the main screen then deals it. */
+export const pickEnvelope = (code: string, id: string, uid: string) =>
+  set(ref(db(), `sessions/${code}/games/secretTasks/picks/${id}`), uid);
+
 /**
- * Main screen: deals each player who has no secret task a random one nobody holds, as soon as they have
- * checked in (or the host adds one that was missing). A dealt task is never changed or dealt twice;
- * with fewer tasks than players, the rest wait for the host to add more.
+ * Main screen, whichever game is on: keeps the pile of sealed envelopes on players' phones in step with
+ * the undealt tasks (one envelope per task, lying where it fell), and turns each player's pick into their
+ * dealt task. A dealt task is never changed or dealt twice; a player gets only their first pick, and a
+ * pick of an envelope someone else got first is dropped.
  */
 export function useDealer(code: string, session: Session, enabled: boolean) {
   const tasks = useSecretTasks(code, enabled);
-  const dealing = useRef(false);
-  const waiting = Object.entries(session.players ?? {})
-    .filter(([uid]) => !tasks?.assigned?.[uid])
-    .sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0))
-    .map(([uid]) => uid)
-    .join(",");
+  const working = useRef(false);
+  const mine = session.games?.secretTasks;
+  // Everything the dealing depends on, so the effect runs only when something in it changes.
+  const inputs = JSON.stringify([tasks, mine?.pile, mine?.picks, Object.keys(session.players ?? {})]);
   useEffect(() => {
-    if (!enabled || !tasks || !waiting || dealing.current) return;
-    const free = undealtOf(tasks).map(([, text]) => text);
-    const deal: Record<string, string> = {};
-    for (const uid of waiting.split(",")) {
-      if (!free.length) break;
-      deal[uid] = free.splice(Math.floor(Math.random() * free.length), 1)[0]!;
+    if (!enabled || !tasks || working.current) return;
+    const root: Record<string, unknown> = {};
+    const pool = tasks.pool ?? {};
+    const assigned = { ...tasks.assigned };
+    const dealt = new Set(Object.values(assigned).map(key));
+    for (const [id, uid] of Object.entries(mine?.picks ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
+      const text = pool[id];
+      if (text && session.players?.[uid] && !assigned[uid] && !dealt.has(key(text))) {
+        assigned[uid] = text;
+        dealt.add(key(text));
+        root[`secretTasks/${code}/assigned/${uid}`] = text;
+      }
+      root[`sessions/${code}/games/secretTasks/picks/${id}`] = null;
     }
-    if (!Object.keys(deal).length) return;
-    dealing.current = true;
-    void update(ref(db(), `secretTasks/${code}/assigned`), deal).catch(() => {}).finally(() => { dealing.current = false; });
-  }, [enabled, code, tasks, waiting]);
+    const wanted = new Set(Object.entries(pool).filter(([, text]) => !dealt.has(key(text))).map(([id]) => id));
+    for (const id of wanted) {
+      if (!mine?.pile?.[id]) {
+        root[`sessions/${code}/games/secretTasks/pile/${id}`] = { x: 6 + Math.random() * 78, y: 4 + Math.random() * 76, r: Math.round(Math.random() * 70 - 35) };
+      }
+    }
+    for (const id of Object.keys(mine?.pile ?? {})) if (!wanted.has(id)) root[`sessions/${code}/games/secretTasks/pile/${id}`] = null;
+    if (!Object.keys(root).length) return;
+    working.current = true;
+    void update(ref(db()), root).catch(() => {}).finally(() => { working.current = false; });
+  }, [enabled, code, inputs]);
 }
 
 export const revealOf = (session: Session): SecretReveal | undefined => session.games?.secretTasks?.reveal;
