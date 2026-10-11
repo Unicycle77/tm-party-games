@@ -162,6 +162,15 @@ Host scenarios, in the agreed order: running the reveal, loading the pile, keepi
 | Arrivals | The ✉ icon shows a small burgundy dot when someone is waiting for an envelope and the pile is empty, or has a task they haven't looked at yet. The ✉ page then opens with "Haven't looked yet: Priya, Sam / Tell them to open their envelope." and "Waiting for an envelope: Mei, Jo / The pile is empty. Add 2 more." Each line goes as it's resolved. "Deal at random to anyone who hasn't picked" is a quiet link. Latecomers just pick from the pile. Needs a new record of whether each guest has opened their envelope. | The gold glow: on 🎵 and 💡 it means running, not "needs you". Nothing at all (today): the host finds out when a guest asks. Dealing at random as the main fix: telling them to pick is better, and a dealt guest still hasn't looked. |
 | Checking one task | "Who has what" at the bottom of the ✉ page: guests in join order with their state ("✉ looked", "✉ hasn't looked", "waiting for an envelope"). Hold a name to see their task in the row, with "Let go and it hides." A ✎ at the end of each row opens the task for editing in place (showing it, deliberately), with Save and Cancel; the guest keeps the corrected task. | Every task listed at once (today): anyone beside the host can read them. Tap to open and tap to close: a task left open leaks. A ✎ only while holding: it needs a second finger. |
 
+## Secret Tasks: player phone and big screen
+
+Guests join and pick their envelope at the door, before they can see the big screen. Scenarios, in the agreed order: picking an envelope on arrival, the reveal on the big screen, peeking at your task mid-evening, waiting for an envelope when the pile is empty, and the phone during the reveal.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Arrival | "✓ You're in" and "Welcome, Alex!", then the rules on the big screen's task card (torn paper, typewriter, red TM wax seal), then "Pick an envelope" and the pile. The rules, word for word: "Secretly complete your secret task." (the label) / "Select a secret task and read it silently to yourself. You must complete your secret task before the TASKMASTER says, "can everyone keep a secret?"" / "You must complete your task secretly, but also perceptibly." / "You must not reveal your secret task to anyone else." / "Your time starts now." | The pile replacing the "You're in" card (today). "Look for your name on the big screen": they can't see it yet. "One secret task each. Choose carefully. Tell no one.": the card says it all. |
+| Your envelope | Picking opens it straight away. Sealed: "Tap the seal to open it. Tell no one." and a quiet "Read the task again" link that unfolds the rules card above the envelope. Open: the task gets the whole screen (the card hides) and "Seal it again". | The rules card always above the envelope: bulk every time they check. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.
