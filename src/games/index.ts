@@ -41,6 +41,8 @@ export interface Game {
   Player: ComponentType<{ code: string; uid: string; session: Session }>;
   /** Host phone: what the main screen shows of the picked player. */
   HostPlayer: ComponentType<{ code: string; session: Session; display: Display; uid: string }>;
+  /** Host phone, for games the host runs: what follows "On the big screen:", when the game says more than the step. */
+  onScreen?(session: Session, display: Display): string | undefined;
   /** Host phone: the buttons above the player list (e.g. show everyone at once). */
   HostLobby: ComponentType<{ code: string; session: Session; display: Display }>;
 }

@@ -144,6 +144,15 @@
               "shown": {
                 "$uid": { ".validate": "newData.isString() && newData.val().length <= 300" }
               },
+              "scores": {
+                "$uid": {
+                  "done": { ".validate": "newData.isBoolean()" },
+                  "guessed": {
+                    "$guesser": { ".validate": "newData.val() === true" }
+                  },
+                  "$other": { ".validate": false }
+                }
+              },
               "startedAt": { ".validate": "newData.isNumber()" },
               "$other": { ".validate": false }
             },

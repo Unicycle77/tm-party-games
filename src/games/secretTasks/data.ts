@@ -144,6 +144,36 @@ export const unseal = (code: string, uid: string, task: string) =>
 export const nextEnvelope = (code: string, index: number) =>
   update(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { index, task: null });
 
+/** Host: brings a player who hasn't been up yet forward, so they're the one up now (at `pos` in the order). */
+export function bringUp(code: string, reveal: SecretReveal, uid: string, pos: number) {
+  const order = reveal.order.filter((id) => id !== uid);
+  order.splice(pos, 0, uid);
+  return update(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { order });
+}
+
+/** Host: whether the owner did their task (null = not said yet). */
+export const setDone = (code: string, owner: string, done: boolean | null) =>
+  set(ref(db(), `sessions/${code}/games/secretTasks/reveal/scores/${owner}/done`), done);
+
+/** Host: whether `guesser` guessed the owner's task. */
+export const setGuessed = (code: string, owner: string, guesser: string, guessed: boolean) =>
+  set(ref(db(), `sessions/${code}/games/secretTasks/reveal/scores/${owner}/guessed/${guesser}`), guessed || null);
+
+/**
+ * Everyone's points so far: 1 for doing your task, 1 for each task you guessed (not your own), and 1 more
+ * if you did yours and nobody guessed it.
+ */
+export function pointsOf(reveal: SecretReveal): Record<string, number> {
+  const points: Record<string, number> = {};
+  const add = (uid: string, n: number) => { points[uid] = (points[uid] ?? 0) + n; };
+  for (const [owner, turn] of Object.entries(reveal.scores ?? {})) {
+    const guessers = Object.keys(turn.guessed ?? {}).filter((uid) => uid !== owner);
+    if (turn.done) add(owner, guessers.length ? 1 : 2);
+    for (const uid of guessers) add(uid, 1);
+  }
+  return points;
+}
+
 /** Host: ends the reveal; the big screen goes back to the curtain. */
 export async function endReveal(code: string) {
   await setDisplay(code, { step: "list" });

@@ -416,6 +416,8 @@ button .muted { color: #7a6a55; }
 .choices { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .choices button { flex: 1 1 6rem; padding: 0.5rem 0.5rem; font-size: 0.95rem; line-height: 1.2; }
 .choices.two button { flex-basis: 9rem; }
+/* marking several things true (Secret Tasks' scoring): a marked chip stays pressed in with a ✓, never gold, so gold stays on the next action */
+.choices.marks button[aria-pressed="true"] { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }
 
 /* a section the host can fold away: the h2 is the handle, with a gold ▸ / ▾ in front */
 .fold > summary { list-style: none; cursor: pointer; }
@@ -921,3 +923,15 @@ button.envelope:active { transform: none; box-shadow: none; }
   background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c); box-shadow: 0 0.3em 0.7em #000a; overflow-wrap: anywhere;
 }
 .finale-card strong { display: block; margin-bottom: 0.3em; font-weight: normal; text-transform: uppercase; letter-spacing: 0.08em; color: var(--burgundy); font-size: 0.85em; }
+
+/* Secret Tasks: scoring one turn on the host phone */
+.turn { display: grid; gap: 0.5rem; }
+.turn h3 { margin: 0.25rem 0 0; font-size: 1rem; }
+.picker li.stacked { flex-direction: column; }
+.picker li.stacked .turn { padding: 0 0.25rem 0.5rem; }
+
+/* tally marks: four strokes, the fifth struck across them */
+.tally { display: inline-flex; gap: 0.45em; font-family: var(--typewriter); font-weight: bold; letter-spacing: 0.08em; white-space: nowrap; }
+.tally-group { position: relative; }
+.tally-group.five::after { content: ""; position: absolute; left: -0.15em; right: -0.15em; top: 50%; border-top: 0.12em solid currentColor; transform: rotate(-22deg); }
+.finale-card strong .tally { margin-left: 0.4em; color: var(--ink); }

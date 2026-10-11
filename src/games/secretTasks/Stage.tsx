@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
-import { currentOf, revealOf } from "./data";
+import { currentOf, pointsOf, revealOf } from "./data";
 import { Envelope, Letter } from "./PlayerView";
+import { Tally } from "./Tally";
 
 /**
  * Main screen: "What was [NAME]'s secret?" over a sealed envelope. When the host unseals it the envelope
@@ -17,7 +18,7 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
       {reveal && current
         // A new envelope starts sealed, with the new name.
         ? <Opening key={`${reveal.startedAt}-${current.pos}`} name={session.players?.[current.uid]?.name ?? "?"} task={reveal.task} />
-        : reveal ? <Finale session={session} shown={reveal.shown} order={reveal.order} /> : (
+        : reveal ? <Finale session={session} shown={reveal.shown} order={reveal.order} points={pointsOf(reveal)} /> : (
           <>
             <h1 className="box-title">Secret Tasks</h1>
             <Envelope />
@@ -50,9 +51,10 @@ const hash = (text: string, salt: number) => {
 /**
  * "That's everyone!": every envelope that was opened, tossed in a pile, each with its player's task card
  * lying on it. They fall on a loose grid (so none hides another), in the order they were opened, each a
- * little off-centre and tilted.
+ * little off-centre and tilted. Each card carries its player's points as tally marks: the only place the
+ * big screen shows a score.
  */
-function Finale({ session, shown, order }: { session: Session; shown?: Record<string, string>; order: string[] }) {
+function Finale({ session, shown, order, points }: { session: Session; shown?: Record<string, string>; order: string[]; points: Record<string, number> }) {
   const cards = order.filter((uid) => shown?.[uid] && session.players?.[uid]);
   const cols = Math.max(1, Math.ceil(Math.sqrt(cards.length * 2.4)));
   const rows = Math.max(1, Math.ceil(cards.length / cols));
@@ -70,7 +72,7 @@ function Finale({ session, shown, order }: { session: Session; shown?: Record<st
             <div key={uid} className="finale-spot" style={{ left: `${left}%`, top: `${top}%`, zIndex: i }}>
               <div className="finale-envelope" style={{ transform: `rotate(${(hash(uid, 3) - 0.5) * 50}deg)` }}><Envelope open /></div>
               <div className="finale-card" style={{ transform: `rotate(${(hash(uid, 4) - 0.5) * 12}deg)` }}>
-                <strong>{session.players![uid]!.name}</strong>
+                <strong>{session.players![uid]!.name} <Tally n={points[uid] ?? 0} /></strong>
                 {shown![uid]}
               </div>
             </div>

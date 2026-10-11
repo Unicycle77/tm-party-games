@@ -100,8 +100,13 @@ export interface SecretReveal {
   task?: string;
   /** Every task unsealed so far, by player, for the finish screen's pile of opened envelopes and cards. */
   shown?: Record<string, string>;
+  /** How the host scored each unsealed turn, by the task's owner (see `pointsOf`). */
+  scores?: Record<string, SecretTurn>;
   startedAt: number;
 }
+
+/** One turn of the reveal as the host scored it: whether the owner did their task, and who guessed it. */
+export interface SecretTurn { done?: boolean; guessed?: Record<string, true> }
 
 /**
  * Secret Tasks live outside the session, at secretTasks/{code}, so no guest can read another's:

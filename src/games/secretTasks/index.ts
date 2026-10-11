@@ -1,5 +1,5 @@
 import type { Game } from "..";
-import { HostLobby } from "./HostControls";
+import { HostLobby, onScreen } from "./HostControls";
 import { PlayerView } from "./PlayerView";
 import { Stage } from "./Stage";
 
@@ -22,4 +22,5 @@ export const secretTasks: Game = {
   // Never used: this game never shows one player on their own.
   HostPlayer: () => null,
   HostLobby,
+  onScreen,
 };
