@@ -35,6 +35,23 @@ export function Envelope({ open = false, onOpen, mini = false, label = "Open you
 }
 
 /**
+ * The task on its paper, typed out. It lies in front of the envelope (put it inside `.env-stack`), so opening
+ * one never makes the page taller. The whole task is laid out unseen from the start, so the paper doesn't
+ * grow as the letters appear.
+ */
+export function Letter({ task, big = false }: { task: string; big?: boolean }) {
+  const typed = useTyped(task, true);
+  return (
+    <div className={big ? "env-letter big" : "env-letter"}>
+      <p aria-label={task}>
+        <span className="env-ghost" aria-hidden="true">{task}</span>
+        <span className="env-typed" aria-hidden="true">{typed}<span className="env-caret" /></span>
+      </p>
+    </div>
+  );
+}
+
+/**
  * The pile of sealed envelopes, scattered where they fell, that a player picks one from. Nothing on the
  * pile says what's inside: the choice is theirs alone, and the first player to take an envelope has it.
  */
@@ -92,7 +109,6 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
 export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { code: string; uid: string; session: Session; onPicked?: () => void }) {
   const task = useMyTask(code, uid);
   const [open, setOpen] = useState(false);
-  const typed = useTyped(task ?? "", open);
   // A task that arrives while the player is choosing from the pile opens by itself: that's the pick paying off.
   const before = useRef(task);
   useEffect(() => {
@@ -105,15 +121,12 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
   return (
     <section className="slot envelope-slot">
       <h2>Your secret task</h2>
-      <Envelope open={open} onOpen={() => setOpen(true)} />
-      {open ? (
-        <>
-          <div className="env-letter">
-            <p aria-label={task}><span aria-hidden="true">{typed}<span className="env-caret" /></span></p>
-          </div>
-          <button className="link" onClick={() => setOpen(false)}>Seal it again</button>
-        </>
-      ) : <p className="slot-hint">Tap the seal to open it. Tell no one.</p>}
+      <div className="env-stack">
+        <Envelope open={open} onOpen={() => setOpen(true)} />
+        {open && <Letter task={task} />}
+      </div>
+      {open ? <button className="link" onClick={() => setOpen(false)}>Seal it again</button>
+        : <p className="slot-hint">Tap the seal to open it. Tell no one.</p>}
     </section>
   );
 }

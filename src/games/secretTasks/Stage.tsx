@@ -3,7 +3,7 @@ import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
 import { currentOf, revealOf } from "./data";
-import { Envelope, useTyped } from "./PlayerView";
+import { Envelope, Letter } from "./PlayerView";
 
 /**
  * Main screen: "What was [NAME]'s secret?" over a sealed envelope. When the host unseals it the envelope
@@ -29,16 +29,13 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
 }
 
 function Opening({ name, task }: { name: string; task?: string }) {
-  const typed = useTyped(task ?? "", task !== undefined);
   return (
     <>
       <h1 className="box-title">What was {name}'s secret?</h1>
-      <Envelope open={task !== undefined} />
-      {task !== undefined && (
-        <div className="env-letter big">
-          <p aria-label={task}><span aria-hidden="true">{typed}<span className="env-caret" /></span></p>
-        </div>
-      )}
+      <div className="env-stack">
+        <Envelope open={task !== undefined} />
+        {task !== undefined && <Letter task={task} big />}
+      </div>
     </>
   );
 }

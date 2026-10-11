@@ -873,21 +873,27 @@ button.envelope:active { transform: none; box-shadow: none; }
 .pile-spot.picked { z-index: 1; filter: drop-shadow(0 0 6px var(--gold)); animation: picked 0.6s ease-out forwards; }
 @keyframes picked { to { transform: scale(1.5) rotate(0deg); } }
 .envelope.mini .env-seal { width: 1.5rem; height: 1.5rem; font-size: 0.55rem; top: 56%; box-shadow: inset 0 0 0 0.12rem #a81a14, 0 1px 2px #0007; }
+/* the task lies in front of the envelope, anchored to its lower edge and growing upward, so it adds no height */
+.env-stack { position: relative; width: min(100%, 22rem); margin: 1.6rem auto 0.5rem; }
+.env-stack > .envelope { width: 100%; margin: 0; }
 .env-letter {
+  position: absolute; left: 5%; right: 5%; bottom: 8%; z-index: 1; box-sizing: border-box;
   background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c); color: #1f1a14;
-  font-family: var(--typewriter); font-size: 1.25rem; line-height: 1.4; padding: 1.2rem 1.1rem; min-height: 6rem;
-  box-shadow: 0 4px 10px #0006; animation: letter-out 0.6s ease-out backwards;
+  font-family: var(--typewriter); font-size: 1.15rem; line-height: 1.4; padding: 0.9rem 1rem;
+  box-shadow: 0 4px 10px #0008; animation: letter-out 0.6s ease-out backwards;
 }
-.env-letter p { margin: 0; overflow-wrap: anywhere; }
+.env-letter p { margin: 0; position: relative; overflow-wrap: anywhere; }
+.env-ghost { visibility: hidden; }
+.env-typed { position: absolute; inset: 0; }
 .env-caret { display: inline-block; width: 0.1em; height: 1em; margin-left: 1px; vertical-align: -0.12em; background: currentColor; animation: caret 1s steps(1) infinite; }
 @keyframes caret { 50% { opacity: 0; } }
-@keyframes letter-out { from { opacity: 0; transform: translateY(-2rem) scale(0.92); } }
+@keyframes letter-out { from { opacity: 0; transform: translateY(2rem) scale(0.92); } }
 .envelope-slot { justify-items: stretch; }
 .envelope-slot h2 { text-align: center; }
 .envelope-slot .slot-hint { text-align: center; }
 .stage.envelopes { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4vh; box-sizing: border-box; }
-.stage.envelopes .envelope { width: min(50vw, 52vh); flex: none; }
-.env-letter.big { width: min(86vw, 110vh); box-sizing: border-box; font-size: clamp(1.4rem, 5vh, 3.4rem); padding: 3vh 4vh; min-height: 0; }
+.stage.envelopes .env-stack { width: min(50vw, 52vh); flex: none; margin: 0; }
+.env-letter.big { left: 50%; right: auto; bottom: auto; top: 50%; translate: -50% -50%; width: min(86vw, 110vh); font-size: clamp(1.4rem, 5vh, 3.4rem); padding: 3vh 4vh; }
 .stage.envelopes .env-seal { width: 9vh; height: 9vh; font-size: 3.6vh; }
 .task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
 .task-list li { display: flex; gap: 0.5rem; align-items: baseline; justify-content: space-between; overflow-wrap: anywhere; }
