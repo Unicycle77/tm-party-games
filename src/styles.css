@@ -830,6 +830,15 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .clearable { position: relative; display: grid; }
 .clearable input { padding-right: 2.6rem; }
 .clearable button { position: absolute; top: 50%; right: 0.3rem; transform: translateY(-50%); width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.3rem; line-height: 1; background: none; border: 0; box-shadow: none; color: var(--ink); opacity: 0.6; }
+
+/* a word that fell off the stage after a mistake: a fixed copy of its tile, pulled down faster and faster */
+.phrase-fall {
+  position: fixed; z-index: 5; pointer-events: none; display: grid; place-items: center;
+  background: var(--gold-gradient); color: var(--ink); border: 2px solid var(--gold-edge); border-radius: 4px;
+  font-family: var(--typewriter); font-size: clamp(1.4rem, 5vmin, 3.6rem); box-shadow: 0 6px 14px #0009;
+  animation: phrase-fall 1.3s cubic-bezier(0.5, 0, 1, 0.6) var(--delay) forwards;
+}
+@keyframes phrase-fall { to { transform: translate(var(--dx), 120vh) rotate(var(--turn)); } }
 .qr-overlay .join-qr svg { width: min(80vw, 60vh); }
 
 /* ---- Secret Tasks: a white envelope sealed with the TM wax seal; opened, the task is typed on paper ---- */

@@ -1,5 +1,5 @@
 import { onChildAdded, ref } from "firebase/database";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Curtain } from "../../Curtain";
 import { db } from "../../firebase";
 import { setDisplay } from "../../session";
@@ -26,10 +26,7 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   const mistakes = round.mistakes ?? 0;
   return (
     <main className="stage soundboard-stage">
-      {/* only the words said so far; a mistake sends progress back to the start, which hides them again */}
-      <ol className="phrase">
-        {round.phrase.slice(0, progress).map((word, k) => <li key={k} className="said">{word}</li>)}
-      </ol>
+      <SaidWords words={round.phrase.slice(0, progress)} />
       <div className="soundboard-floor">
         <Soundboard last={round.last} />
         <div className="soundboard-side">
@@ -45,6 +42,49 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
       {!viewOnly && sounds === 0 && <p className="sound-hint">🔇 No sound files on this computer, so the words are spoken by its voice (click this screen once, or the browser keeps it silent). For recordings, put them in a "Noisemaster" folder inside the music folder.</p>}
       {controls}
     </main>
+  );
+}
+
+type Fall = { id: number; word: string; box: { left: number; top: number; width: number; height: number }; dx: number; turn: number; delay: number };
+let fallId = 0;
+
+/**
+ * The words said so far, as tiles. When there are fewer than before (a mistake, or a restart), the tiles
+ * that were there drop off the screen as if they'd lost their footing: each falls with gravity, spinning
+ * and drifting a little sideways, from where it was.
+ */
+function SaidWords({ words }: { words: string[] }) {
+  const list = useRef<HTMLOListElement>(null);
+  const before = useRef<Pick<Fall, "word" | "box">[]>([]); // the tiles as of the last render
+  const count = useRef(words.length);
+  const [falling, setFalling] = useState<Fall[]>([]);
+
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (words.length < count.current && before.current.length && !reduced) {
+      const fall = before.current.map(({ word, box }): Fall => ({
+        id: ++fallId, word, box, dx: (Math.random() - 0.5) * 30, turn: (Math.random() - 0.5) * 240, delay: Math.random() * 0.25,
+      }));
+      setFalling((f) => [...f, ...fall]);
+      const ids = new Set(fall.map((f) => f.id));
+      window.setTimeout(() => setFalling((f) => f.filter((x) => !ids.has(x.id))), 2200);
+    }
+    count.current = words.length;
+    before.current = [...(list.current?.children ?? [])].map((li, k) => {
+      const r = li.getBoundingClientRect();
+      return { word: words[k]!, box: { left: r.left, top: r.top, width: r.width, height: r.height } };
+    });
+  }, [words.join("\n")]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <>
+      <ol className="phrase" ref={list}>
+        {words.map((word, k) => <li key={k} className="said">{word}</li>)}
+      </ol>
+      {falling.map(({ id, word, box, dx, turn, delay }) => (
+        <span key={id} className="phrase-fall" style={{ ...box, "--dx": `${dx}vw`, "--turn": `${turn}deg`, "--delay": `${delay}s` } as React.CSSProperties}>{word}</span>
+      ))}
+    </>
   );
 }
 
