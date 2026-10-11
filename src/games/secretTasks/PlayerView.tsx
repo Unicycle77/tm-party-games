@@ -24,6 +24,7 @@ export function Envelope({ open = false, onOpen, mini = false, label = "Open you
     <>
       <span className="env-back" />
       <span className="env-front" />
+      <span className="env-flap-shade" />
       <span className="env-flap" />
       <span className="wax-seal env-seal" aria-hidden="true">TM</span>
     </>

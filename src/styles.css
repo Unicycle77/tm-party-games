@@ -854,9 +854,12 @@ button.envelope:active { transform: none; box-shadow: none; }
 /* the front is the two lower folds meeting in a V */
 .env-front { background: linear-gradient(#fff, #f3f0e8); clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%); }
 .env-flap {
-  background: linear-gradient(#fff, #f6f3ea); clip-path: polygon(0 0, 100% 0, 50% 58%);
+  background: linear-gradient(#fff, #efebe0); clip-path: polygon(0 0, 100% 0, 50% 58%);
   transform-origin: top center; transition: transform 0.5s ease-in, background 0.3s;
 }
+/* closed, the flap is folded down over the front: a slightly larger, darker copy of its shape peeks out below its edges as the fold's shadow */
+.env-flap-shade { background: linear-gradient(#ddd6c4, #c9c1ad); clip-path: polygon(0 0, 100% 0, 50% 63%); transition: opacity 0.2s; }
+.envelope.open .env-flap-shade { opacity: 0; }
 .envelope.open .env-flap { transform: rotateX(180deg); background: #e6e0d2; }
 /* the seal sits where the flap's point meets the front; opened, it breaks and falls away */
 .wax-seal.env-seal {
@@ -899,6 +902,6 @@ button.envelope:active { transform: none; box-shadow: none; }
 .task-list li { display: flex; gap: 0.5rem; align-items: baseline; justify-content: space-between; overflow-wrap: anywhere; }
 .task-list button { padding: 0.1rem 0.5rem; flex: none; }
 @media (prefers-reduced-motion: reduce) {
-  .env-flap, .wax-seal.env-seal { transition: none; }
+  .env-flap, .env-flap-shade, .wax-seal.env-seal { transition: none; }
   .env-letter, .env-caret { animation: none; }
 }
