@@ -2,6 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
 import { Curtain } from "./Curtain";
+import { TaskCard } from "./TaskCard";
 import { activeGame } from "./games";
 import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
@@ -112,7 +113,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   return (
     <main className={game.task ? "collecting" : "collecting no-task"}>
       <section className="collecting-main">
-        {game.task ? <TaskCard lines={game.task} allIn={allIn} /> : <h1 className="collecting-title">{game.heading(session)}</h1>}
+        {game.task ? <TaskCard lines={game.task}>{allIn && <span className="stamp all-in">✓ All submitted</span>}</TaskCard> : <h1 className="collecting-title">{game.heading(session)}</h1>}
       </section>
       <aside className="collecting-side">
         <h2>{submitted} of {players.length} submitted</h2>
@@ -128,19 +129,6 @@ export function Screen({ code, session, viewOnly = false, footer }: {
       {menu}
       {viewOnly && footer}
     </main>
-  );
-}
-
-/** The task card: aged, torn paper in typewriter with the red TM seal. Once everyone is in, a big red stamp lands on it. */
-function TaskCard({ lines, allIn }: { lines: readonly string[]; allIn: boolean }) {
-  const [label, ...body] = lines;
-  return (
-    <div className="task-card">
-      <p className="task-label">{label}</p>
-      {body.map((line) => <p key={line}>{line}</p>)}
-      <span className="wax-seal" aria-hidden="true">TM</span>
-      {allIn && <span className="stamp all-in">✓ All submitted</span>}
-    </div>
   );
 }
 

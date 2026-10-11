@@ -140,9 +140,19 @@
                 "$i": { ".validate": "newData.isString()" }
               },
               "index": { ".validate": "newData.isNumber()" },
+              "title": { ".validate": "newData.val() === true" },
               "task": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "shown": {
                 "$uid": { ".validate": "newData.isString() && newData.val().length <= 300" }
+              },
+              "scores": {
+                "$uid": {
+                  "done": { ".validate": "newData.isBoolean()" },
+                  "guessed": {
+                    "$guesser": { ".validate": "newData.val() === true" }
+                  },
+                  "$other": { ".validate": false }
+                }
               },
               "startedAt": { ".validate": "newData.isNumber()" },
               "$other": { ".validate": false }
@@ -230,6 +240,19 @@
         ".validate": "newData.child('inBox').val() === 'L' || newData.child('inBox').val() === 'R'"
       }
     },
+    "hostLeftovers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$code": {
+          "at": { ".validate": "newData.isNumber()" },
+          "tasks": {
+            "$i": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 300" }
+          },
+          "$other": { ".validate": false }
+        }
+      }
+    },
     "secretTasks": {
       "$code": {
         ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
@@ -244,6 +267,13 @@
           "$uid": {
             ".read": "auth != null && auth.uid === $uid",
             ".validate": "newData.isString() && newData.val().length <= 300"
+          }
+        },
+        "seen": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && (auth.uid === $uid || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            ".validate": "newData.val() === true"
           }
         },
         "$other": {

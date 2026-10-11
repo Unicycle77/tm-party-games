@@ -58,6 +58,7 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Primary** (`.big`): the one main action on a screen (Start a session, Join, Submit). Full-width gold gradient, uppercase, bold. **One per screen.**
 - **Selected / active** (`button.active`): the same gold as the primary button, for what's currently on screen or playing (stage steps, tabs, the current track, the backup stage controls). One shared rule, `button.big, button.active`, supplies the gold; adding `active` to any button is all it takes.
 - **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
+- **Marks** (`.choices.marks`): marking several things true at once, like Secret Tasks' scoring ("Did Sam do it?", "Who guessed it?"). The same paper chips, but a marked one stays pressed in, with a ✓ and `aria-pressed`, and never turns gold, so gold stays on the screen's one next action.
 - **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Not Alex? Switch player, Disconnect, End session, Lower the curtain, Reset.
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
@@ -112,7 +113,7 @@ Each screen has its own rules. Know which one you're designing for.
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
-- **Header:** `🎮 Host · CODE`, then two icon buttons for what runs all evening, whatever game is on: 🎵 (shows ▶ and glows while a song plays) and 💡 (glows while the light is on). Each opens its controls in place of the show, with "← Back to the show". A new all-evening feature gets a header icon, not another section on the show.
+- **Header:** `🎮 Host · CODE`, then two icon buttons for what runs all evening, whatever game is on: 🎵 (shows ▶ and glows while a song plays) and 💡 (glows while the light is on). Each opens its controls in place of the show, with "← Back to the show". A new all-evening feature gets a header icon, not another section on the show. ✉ (Secret Tasks) sits between them. An icon that needs the host gets a small burgundy dot (`.head-icon.alert`), never the gold glow, which means "running".
 - **Show order:** the game as one line with a quiet "Change game", then one line saying what the big screen shows ("On the big screen: …", or "The curtain is down. 2 of 7 shown."), then the one next action in gold ("First up: Alex →", "Next: Priya →"), then the contestants in join order. Quiet links at the bottom: "Manage contestants" (remove) and "Party settings" (set-once things and Disconnect).
 - **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
@@ -139,6 +140,9 @@ Each screen has its own rules. Know which one you're designing for.
 | ▶ ⏸ ↺ | Play, pause, restart |
 | ← | Back |
 | ✕ / × | Close / remove |
+| ✉ | Secret Tasks: the envelope, the host's ✉ page |
+| ✎ | Fix this text in place |
+| \|\|\|\| | Points, as tally marks (Secret Tasks only) |
 | ✓ | Submitted |
 | 🔒 🔓 | Locked / may resubmit |
 | 🔇 | Sound blocked |

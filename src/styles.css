@@ -416,6 +416,8 @@ button .muted { color: #7a6a55; }
 .choices { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .choices button { flex: 1 1 6rem; padding: 0.5rem 0.5rem; font-size: 0.95rem; line-height: 1.2; }
 .choices.two button { flex-basis: 9rem; }
+/* marking several things true (Secret Tasks' scoring): a marked chip stays pressed in with a ✓, never gold, so gold stays on the next action */
+.choices.marks button[aria-pressed="true"] { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }
 
 /* a section the host can fold away: the h2 is the handle, with a gold ▸ / ▾ in front */
 .fold > summary { list-style: none; cursor: pointer; }
@@ -921,3 +923,57 @@ button.envelope:active { transform: none; box-shadow: none; }
   background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c); box-shadow: 0 0.3em 0.7em #000a; overflow-wrap: anywhere;
 }
 .finale-card strong { display: block; margin-bottom: 0.3em; font-weight: normal; text-transform: uppercase; letter-spacing: 0.08em; color: var(--burgundy); font-size: 0.85em; }
+
+/* Secret Tasks: scoring one turn on the host phone */
+.turn { display: grid; gap: 0.5rem; }
+.turn h3 { margin: 0.25rem 0 0; font-size: 1rem; }
+.picker li.stacked { flex-direction: column; }
+.picker li.stacked .turn { padding: 0 0.25rem 0.5rem; }
+
+/* tally marks: four strokes, the fifth struck across them */
+.tally { display: inline-flex; gap: 0.45em; font-family: var(--typewriter); font-weight: bold; letter-spacing: 0.08em; white-space: nowrap; }
+.tally-group { position: relative; }
+.tally-group.five::after { content: ""; position: absolute; left: -0.15em; right: -0.15em; top: 50%; border-top: 0.12em solid currentColor; transform: rotate(-22deg); }
+.finale-card strong .tally { margin-left: 0.4em; color: var(--ink); }
+
+/* Secret Tasks' ✉ page: a task you tap to fix, the box it becomes, and the receipt that fades */
+.task-list button.task-text { flex: 1; padding: 0; background: none; border: 0; box-shadow: none; color: inherit; text-align: left; font: inherit; letter-spacing: normal; }
+.task-edit { flex: 1; display: grid; gap: 0.4rem; }
+.task-edit textarea { width: 100%; box-sizing: border-box; }
+.leftovers { display: grid; gap: 0.5rem; }
+.leftovers h3 { margin: 0; }
+.fade-note { animation: fade-note 4s forwards; }
+@keyframes fade-note { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fade-note { animation: none; } }
+
+/* a header icon that needs the host (✉: someone hasn't looked, or is waiting for an envelope): a burgundy dot, not the gold "running" glow */
+.head-icon.alert { position: relative; filter: none; opacity: 1; }
+.head-icon.alert::after { content: ""; position: absolute; top: -0.2rem; right: -0.2rem; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: var(--burgundy); border: 2px solid var(--paper); }
+
+/* Secret Tasks' "Who has what": a task shows in its row only while the name is held */
+.picker button.peek { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.picker button.peek.holding { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; }
+.peek-task { flex-basis: 100%; display: grid; gap: 0.2rem; font-weight: bold; overflow-wrap: anywhere; }
+.peek-task small { font-weight: normal; color: #7a6a55; }
+.picker li.stacked { gap: 0.4rem; }
+.picker.running .tally { margin-left: 0.6rem; margin-right: auto; }
+.picker.running li.now > button:disabled { opacity: 1; font-weight: bold; }
+.move-request .muted { color: #7a6a55; }
+
+/* the task card on a phone: sized for the hand, not the room */
+.task-card.small { width: 100%; box-sizing: border-box; padding: 1.4rem 1.3rem 4.6rem; font-size: 1rem; line-height: 1.4; box-shadow: 0 6px 16px #000a; }
+.task-card.small p { margin-bottom: 0.9em; }
+.task-card.small .wax-seal { right: 1.1rem; bottom: 0.9rem; width: 3.4rem; height: 3.4rem; font-size: 1.3rem; box-shadow: inset 0 0 0 0.35rem #a81a14, inset 0 0 0 0.45rem #6c0c08, 0 3px 8px #0007; }
+
+/* Secret Tasks on a guest's phone: arriving (stamp, welcome, rules card, pile) and the envelope held to peek */
+.envelope-slot.arrival > .stamp { justify-self: center; }
+.envelope-slot.arrival > h2 { text-align: center; }
+button.env-stack.env-hold { padding: 0; background: none; border: 0; box-shadow: none; border-radius: 0; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+button.env-stack.env-hold:active { transform: none; }
+.envelope-slot > .link { justify-self: center; }
+
+/* Secret Tasks' reveal opening: the same pile as the finish screen, still sealed, each envelope hanging in */
+.finale-spot.sealed { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.finale-spot.sealed .finale-envelope { margin-top: -30%; }
+.finale-spot.sealed .env-seal { display: grid; }
+@media (prefers-reduced-motion: reduce) { .finale-spot.sealed { animation: none; } }

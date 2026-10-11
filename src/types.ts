@@ -100,17 +100,27 @@ export interface SecretReveal {
   task?: string;
   /** Every task unsealed so far, by player, for the finish screen's pile of opened envelopes and cards. */
   shown?: Record<string, string>;
+  /** The opening title card ("Can everyone keep a secret?") is up; nobody's envelope yet. */
+  title?: true;
+  /** How the host scored each unsealed turn, by the task's owner (see `pointsOf`). */
+  scores?: Record<string, SecretTurn>;
   startedAt: number;
 }
+
+/** One turn of the reveal as the host scored it: whether the owner did their task, and who guessed it. */
+export interface SecretTurn { done?: boolean; guessed?: Record<string, true> }
 
 /**
  * Secret Tasks live outside the session, at secretTasks/{code}, so no guest can read another's:
  * `pool` is the host's list of tasks (host and host phone only); `assigned` is the task each player was
- * dealt, by uid (readable by the host, the host phone and that player). A dealt task never changes.
+ * dealt, by uid (readable by the host, the host phone and that player). A dealt task never changes, except
+ * when the host corrects its wording (see `editTask`).
  */
 export interface SecretTasks {
   pool?: Record<string, string>;
   assigned?: Record<string, string>;
+  /** Players who have opened their envelope at least once (written by the player's phone). */
+  seen?: Record<string, true>;
 }
 
 /**
