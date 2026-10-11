@@ -895,8 +895,8 @@ button.envelope:active { transform: none; box-shadow: none; }
 .envelope-slot h2 { text-align: center; }
 .envelope-slot .slot-hint { text-align: center; }
 /* the name stays at the top; the envelope centres in the room below it, which leaves space for the open flap to rise without covering the name */
-.stage.envelopes { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2vh; padding-top: 2.5vh; box-sizing: border-box; }
-.stage.envelopes:has(.finale) { justify-content: flex-start; padding: 2.5vh 1vw 2vh; gap: 1.5vh; }
+.stage.envelopes { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2vh; padding-top: 5.5rem; box-sizing: border-box; }
+.stage.envelopes:has(.finale) { justify-content: flex-start; padding: 5.5rem 1vw 2vh; gap: 1.5vh; }
 .stage.envelopes .env-stack { width: min(50vw, 52vh); flex: none; margin: auto 0; }
 .env-letter.big { left: 50%; right: auto; bottom: auto; top: 50%; translate: -50% -50%; width: min(86vw, 110vh); font-size: clamp(1.4rem, 5vh, 3.4rem); padding: 3vh 4vh; }
 .stage.envelopes .env-seal { width: 9vh; height: 9vh; font-size: 3.6vh; }
