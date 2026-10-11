@@ -161,6 +161,11 @@ export async function allowMove(code: string, session: Session, to: string) {
   if (round?.players.b === from) u["games/box/round/players/b"] = to;
   if (round?.peeker === from) u["games/box/round/peeker"] = to;
   if (session.games?.noisemaster?.round?.player === from) u["games/noisemaster/round/player"] = to;
+  // A secret task is dealt to the player, so it moves with them (outside the session, so a separate write).
+  const task = await get(ref(db(), `secretTasks/${code}/assigned/${from}`));
+  if (task.exists()) await update(ref(db(), `secretTasks/${code}/assigned`), { [to]: task.val(), [from]: null });
+  const order = session.games?.secretTasks?.reveal?.order;
+  if (order?.includes(from)) u["games/secretTasks/reveal/order"] = order.map((id) => (id === from ? to : id));
   if (session.display?.uid === from) u["display/uid"] = to;
   await update(ref(db(), `sessions/${code}`), u);
 }
@@ -220,6 +225,8 @@ export const removePlayer = async (code: string, uid: string) => {
     clearSubmissions(code, uid),
     remove(ref(db(), `sessions/${code}/games/box/played/${uid}`)),
     remove(ref(db(), `sessions/${code}/games/noisemaster/played/${uid}`)),
+    // Their secret task goes back in the pool, for whoever arrives next.
+    remove(ref(db(), `secretTasks/${code}/assigned/${uid}`)),
   ]);
 };
 

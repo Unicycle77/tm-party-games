@@ -1,13 +1,13 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the curtain between contestants (with the portrait, if any). The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks).
  */
-export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard";
+export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
 
 export interface Display {
   uid?: string;
@@ -85,6 +85,30 @@ export interface NoisemasterSecret {
 }
 
 /**
+ * Secret Tasks' reveal: the players in a random order, one at a time ("What was Sam's secret?"), each
+ * with a sealed envelope on the main screen that the host unseals. Only what has been revealed is here.
+ */
+export interface SecretReveal {
+  /** Player uids in the order they come up (some may have left since). */
+  order: string[];
+  /** Where in `order` to look next: the player on screen is the first one from here who is still in the party. */
+  index: number;
+  /** The unsealed envelope's task, put here by the host phone when it opens; absent while sealed. */
+  task?: string;
+  startedAt: number;
+}
+
+/**
+ * Secret Tasks live outside the session, at secretTasks/{code}, so no guest can read another's:
+ * `pool` is the host's list of tasks (host and host phone only); `assigned` is the task each player was
+ * dealt, by uid (readable by the host, the host phone and that player). A dealt task never changes.
+ */
+export interface SecretTasks {
+  pool?: Record<string, string>;
+  assigned?: Record<string, string>;
+}
+
+/**
  * The light, which runs all evening alongside the games: a computer at /light watches the room and
  * turns the light (and a real Hue lamp) on 2 seconds after anyone does the secret trigger (e.g. stops
  * smiling). Players have to work out why.
@@ -149,6 +173,8 @@ export interface Session {
     photos?: GameData<PhotosMedia>;
     box?: { round?: BoxRound; played?: Record<string, boolean> };
     /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
+    /** Secret Tasks keeps the tasks outside the session (see `SecretTasks`); only the reveal is here. */
+    secretTasks?: { reveal?: SecretReveal };
     noisemaster?: { sounds?: string[]; round?: NoisemasterRound; played?: Record<string, boolean> };
   };
   display?: Display;

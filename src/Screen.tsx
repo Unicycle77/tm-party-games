@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
 import { Curtain } from "./Curtain";
 import { activeGame } from "./games";
+import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
 import { resetController, setDisplay, setGame, showContestant } from "./session";
@@ -30,6 +31,9 @@ export function Screen({ code, session, viewOnly = false, footer }: {
 }) {
   const { game, display, onStage } = screenState(session);
   const players = Object.entries(session.players ?? {});
+
+  // Every player who checks in is dealt a secret task, whichever game is on. Extra screens never write.
+  useDealer(code, session, !viewOnly);
 
   // Warm the browser cache with every photo submitted to the active game so reveals appear instantly.
   const photoUrls = game?.photoUrls(session).join("\n") ?? "";

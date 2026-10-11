@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
+import { SecretEnvelope, SecretTaskTab } from "./games/secretTasks/PlayerView";
 import { QrScannerModal } from "./QrScannerModal";
 import { JoinError, SameNameError, askToMove, cancelMove, extractCode, joinSession, sameName, store, useSession, useUid } from "./session";
 
@@ -16,6 +17,8 @@ export function Play() {
   const leave = (why?: string) => { store.set(CODE_KEY, ""); setCode(""); setDropped(why); };
   // Only the first wait is a welcome; once a game has been on, the card just says another is coming.
   const hadGame = useRef(false);
+  // The player's secret task can be pulled up in place of whatever game is on.
+  const [showTask, setShowTask] = useState(false);
 
   // If the session vanished or we were removed, fall back to the join screen.
   useEffect(() => {
@@ -41,7 +44,9 @@ export function Play() {
   return (
     <main className="phone">
       <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
-      {game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
+      {game?.id !== "secretTasks" && <SecretTaskTab code={code} uid={uid} open={showTask} onToggle={() => setShowTask((s) => !s)} />}
+      {showTask && game?.id !== "secretTasks" ? <SecretEnvelope code={code} uid={uid} />
+      : game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
         <section className="slot waiting">
           <h2>Waiting for the next game.</h2>
           <p className="slot-hint">When the host picks it, it'll show up here.</p>

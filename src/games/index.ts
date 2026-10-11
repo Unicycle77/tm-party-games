@@ -6,6 +6,7 @@ import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
 import { noisemaster } from "./noisemaster";
 import { photos } from "./photos";
+import { secretTasks } from "./secretTasks";
 
 /**
  * What a game plugs into the shared screens. The session, its players, the lobby, the jukebox and
@@ -45,7 +46,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks };
 
 /** The game being played; undefined on the game selection screen. */
 export const activeGame = (session: Session): Game | undefined => {

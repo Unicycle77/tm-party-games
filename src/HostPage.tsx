@@ -3,6 +3,7 @@ import { HostRemote } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
+import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
@@ -12,7 +13,7 @@ import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "music" | "light";
+type View = "show" | "music" | "light" | "tasks";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
@@ -23,7 +24,7 @@ export function HostPage() {
   // is open, so a refresh mid-game lands where the host was.
   const [view, setViewState] = useState<View>(() => {
     const saved = store.get(VIEW_KEY);
-    return saved === "music" || saved === "light" ? saved : "show";
+    return saved === "music" || saved === "light" || saved === "tasks" ? saved : "show";
   });
   const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
@@ -56,6 +57,7 @@ export function HostPage() {
       <header className="host-head">
         <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
+        {icon("tasks", "Secret tasks", "✉", false)}
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
       <MoveRequests code={code} session={session} />
@@ -67,7 +69,7 @@ export function HostPage() {
       ) : (
         <>
           <button className="link back" onClick={() => setView("show")}>← Back to the show</button>
-          {view === "music" ? <JukeboxRemote code={code} session={session} /> : <LightRemote code={code} session={session} />}
+          {view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
         </>
       )}
     </main>

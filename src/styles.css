@@ -831,3 +831,52 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .clearable input { padding-right: 2.6rem; }
 .clearable button { position: absolute; top: 50%; right: 0.3rem; transform: translateY(-50%); width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.3rem; line-height: 1; background: none; border: 0; box-shadow: none; color: var(--ink); opacity: 0.6; }
 .qr-overlay .join-qr svg { width: min(80vw, 60vh); }
+
+/* ---- Secret Tasks: a white envelope sealed with the TM wax seal; opened, the task is typed on paper ---- */
+.secret-tab { justify-self: start; }
+.envelope {
+  position: relative; display: block; width: min(100%, 22rem); aspect-ratio: 3 / 2; margin: 0.5rem auto; padding: 0;
+  border: 0; background: none; box-shadow: none; border-radius: 0; filter: drop-shadow(0 6px 10px #0008);
+}
+button.envelope { cursor: pointer; }
+button.envelope:active { transform: none; box-shadow: none; }
+.envelope > span { position: absolute; inset: 0; }
+.env-back { background: #ece7dc; }
+/* the front is the two lower folds meeting in a V */
+.env-front { background: linear-gradient(#fff, #f3f0e8); clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%); }
+.env-flap {
+  background: linear-gradient(#fff, #f6f3ea); clip-path: polygon(0 0, 100% 0, 50% 58%);
+  transform-origin: top center; transition: transform 0.5s ease-in, background 0.3s;
+}
+.envelope.open .env-flap { transform: rotateX(180deg); background: #e6e0d2; }
+/* the seal sits where the flap's point meets the front; opened, it breaks and falls away */
+.wax-seal.env-seal {
+  inset: auto; left: 50%; top: 58%; right: auto; bottom: auto; width: 4.4rem; height: 4.4rem; font-size: 1.7rem;
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 0 0.35rem #a81a14, inset 0 0 0 0.42rem #6c0c08, 0 3px 6px #0007;
+  transition: transform 0.5s ease-in, opacity 0.5s;
+}
+.envelope.open .env-seal { transform: translate(-50%, 140%) rotate(25deg) scale(0.9); opacity: 0; }
+.env-letter {
+  background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c); color: #1f1a14;
+  font-family: var(--typewriter); font-size: 1.25rem; line-height: 1.4; padding: 1.2rem 1.1rem; min-height: 6rem;
+  box-shadow: 0 4px 10px #0006; animation: letter-out 0.6s ease-out backwards;
+}
+.env-letter p { margin: 0; overflow-wrap: anywhere; }
+.env-caret { display: inline-block; width: 0.1em; height: 1em; margin-left: 1px; vertical-align: -0.12em; background: currentColor; animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+@keyframes letter-out { from { opacity: 0; transform: translateY(-2rem) scale(0.92); } }
+.envelope-slot { justify-items: stretch; }
+.envelope-slot h2 { text-align: center; }
+.envelope-slot .slot-hint { text-align: center; }
+.stage.envelopes { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4vh; box-sizing: border-box; }
+.stage.envelopes .envelope { width: min(50vw, 52vh); flex: none; }
+.env-letter.big { width: min(86vw, 110vh); box-sizing: border-box; font-size: clamp(1.4rem, 5vh, 3.4rem); padding: 3vh 4vh; min-height: 0; }
+.stage.envelopes .env-seal { width: 9vh; height: 9vh; font-size: 3.6vh; }
+.task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.task-list li { display: flex; gap: 0.5rem; align-items: baseline; justify-content: space-between; overflow-wrap: anywhere; }
+.task-list button { padding: 0.1rem 0.5rem; flex: none; }
+@media (prefers-reduced-motion: reduce) {
+  .env-flap, .wax-seal.env-seal { transition: none; }
+  .env-letter, .env-caret { animation: none; }
+}

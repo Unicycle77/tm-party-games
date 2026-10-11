@@ -118,13 +118,28 @@
               ".validate": false
             }
           },
+          "secretTasks": {
+            "reveal": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              "order": {
+                "$i": { ".validate": "newData.isString()" }
+              },
+              "index": { ".validate": "newData.isNumber()" },
+              "task": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "startedAt": { ".validate": "newData.isNumber()" },
+              "$other": { ".validate": false }
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "$other": {
             ".validate": false
           }
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks'"
         },
         "jukebox": {
           "tracks": {
@@ -195,6 +210,28 @@
         ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid || root.child('sessions').child($code).child('games').child('box').child('round').child('peeker').val() === auth.uid)",
         ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
         ".validate": "newData.child('inBox').val() === 'L' || newData.child('inBox').val() === 'R'"
+      }
+    },
+    "secretTasks": {
+      "$code": {
+        "pool": {
+          ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          "$id": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 300"
+          }
+        },
+        "assigned": {
+          ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".validate": "newData.isString() && newData.val().length <= 300"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     },
     "noisemasterSecrets": {
