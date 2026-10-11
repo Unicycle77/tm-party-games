@@ -890,8 +890,6 @@ button.envelope:active { transform: none; box-shadow: none; }
 .env-letter p { margin: 0; position: relative; overflow-wrap: anywhere; }
 .env-ghost { visibility: hidden; }
 .env-typed { position: absolute; inset: 0; }
-.env-caret { display: inline-block; width: 0.1em; height: 1em; margin-left: 1px; vertical-align: -0.12em; background: currentColor; animation: caret 1s steps(1) infinite; }
-@keyframes caret { 50% { opacity: 0; } }
 @keyframes letter-out { from { opacity: 0; transform: translateY(2rem) scale(0.92); } }
 .envelope-slot { justify-items: stretch; }
 .envelope-slot h2 { text-align: center; }
@@ -907,8 +905,7 @@ button.envelope:active { transform: none; box-shadow: none; }
 .task-list button { padding: 0.1rem 0.5rem; flex: none; }
 @media (prefers-reduced-motion: reduce) {
   .env-flap, .env-flap-shade, .wax-seal.env-seal { transition: none; }
-  .env-letter, .env-caret { animation: none; }
-}
+  .env-letter, }
 
 /* Secret Tasks' finish screen: opened envelopes tossed in a pile, each with its task card on it. Sizes follow the board's width and the number of columns. */
 .finale { position: relative; flex: 1; min-height: 0; width: min(98vw, 190vh); container-type: size; }
