@@ -143,6 +143,20 @@ Scenarios, in the agreed order: guests watching the light, the host running it d
 | Host phone, while off | "Test the light" is safe while guests aren't watching. "Reset the light computer" moves into Party settings. | |
 | Light computer setup | After connecting, a checklist on the curtain: the camera with a small live preview and Change; the Hue lamp with Test and Change, or "Skip, no lamp tonight"; and a gold "Go full screen", which also keeps the window in front for the camera. It then settles on the bare curtain with "Ready. Turn it on from the host phone." Afterwards its controls appear only when the mouse moves. | The bulb straight after the code, with camera and lamp setup in a bar that only shows on mouse move (today): easy to miss a broken camera before guests arrive. |
 
+## Secret Tasks: host phone
+
+Each guest picks a sealed envelope on arrival and tries to do their task unnoticed all evening. At the end, the room guesses each task before the host unseals it. Points: 1 for doing your task, 1 to each guest who guessed it (not its owner), and 1 bonus if you did it and nobody guessed.
+
+Host scenarios, in the agreed order: running the reveal, loading the pile, keeping everyone covered during arrivals, checking one guest's task mid-evening, and fixing mistakes.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Scoring | The host phone keeps score for this game only; every other game stays verbal. The big screen shows the points only on the finish screen, as tally marks next to the names. | Verbal scoring: three rules per reveal is too much to hold while the room shouts. Scores on the big screen during the reveal. |
+| Starting | The usual show order: game line, "On the big screen: the curtain", "7 of 8 have a secret. Priya sits this one out.", gold "Start the reveal →", then contestants in join order, each "✉ sealed" or "no task". A guest with no task sits out. | "What was everyone's secret? (7)" as the button: that question belongs on the big screen. Nudging the host to deal a late task: there's no time left to do it. Task text in the list: the phone must be safe to glance at. |
+| Sealed | "On the big screen: What was Sam's secret?", "Sam, 1 of 7", gold "Unseal Sam's envelope". The scoring rows are shown but disabled. Tapping a name in the running order makes them the one up, only while sealed. | A prompt for guesses: the host calls for them out loud. Removing the scoring rows until unsealed: controls keep their place. Seeing the task before unsealing. |
+| Unsealed | The gold slot becomes "Next: Priya →" (or "That's everyone →"). The task shows in the status line. "Did Sam do it?" Yes/No and "Who guessed it?" (everyone but Sam) are paper chips. The bonus is applied automatically. Tally marks sit beside the names in the running order. Scoring a turn is optional and never blocks Next. | Entering guesses before the unseal. A "This turn: Sam +1, Priya +1" line: the tally marks are enough. A separate Scores panel: it duplicates the list. |
+| Finish | "On the big screen: That's everyone!", "Most points: Priya, 5" (ties name both), gold "Lower the curtain", the list sorted by points. Tapping a name reopens their turn to fix it; the big screen's tallies follow. | Fixing a turn mid-reveal: one tap would mean two things in the running order. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.
