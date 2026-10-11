@@ -38,6 +38,25 @@ export function useMyTask(code: string, uid: string): string | null | undefined 
   return task;
 }
 
+/** The rules, as a Taskmaster task: shown on a guest's phone before they pick, and behind "Read the task again". */
+export const RULES = [
+  "Secretly complete your secret task.",
+  "Select a secret task and read it silently to yourself. You must complete your secret task before the TASKMASTER says, \u201ccan everyone keep a secret?\u201d",
+  "You must complete your task secretly, but also perceptibly.",
+  "You must not reveal your secret task to anyone else.",
+  "Your time starts now.",
+] as const;
+
+/** Whether this player has opened their envelope before. Undefined while loading. */
+export function useSeen(code: string, uid: string): boolean | undefined {
+  const [seen, setSeen] = useState<boolean>();
+  useEffect(() => {
+    setSeen(undefined);
+    return onValue(ref(db(), `secretTasks/${code}/seen/${uid}`), (s) => setSeen(s.exists()), () => setSeen(false));
+  }, [code, uid]);
+  return seen;
+}
+
 /** Player: notes that they've opened their envelope, so the host phone stops flagging them. */
 export const markSeen = (code: string, uid: string) => set(ref(db(), `secretTasks/${code}/seen/${uid}`), true);
 
