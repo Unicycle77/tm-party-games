@@ -63,7 +63,7 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
     return (
       <section className="slot waiting">
         <h2>Secret Tasks</h2>
-        <p className="slot-hint">No envelopes left. Ask the host.</p>
+        <p className="slot-hint">No envelopes on the pile right now. Check back soon, or ask the host.</p>
       </section>
     );
   }
@@ -118,16 +118,17 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
 }
 
 /**
- * Wraps a player's phone in any other game. While they have no task and envelopes are left, the pile
- * comes first (a player picks on checking in); afterwards a button swaps the game for their envelope and
- * back. Nothing shows until there is a task or an envelope to pick.
+ * Wraps a player's phone in any other game. While they have no task, a button always leads to the pile,
+ * which comes first when there are envelopes to pick (a player picks on checking in); afterwards the button
+ * swaps the game for their envelope and back.
  */
 export function SecretTaskArea({ code, uid, session, children }: { code: string; uid: string; session: Session; children: React.ReactNode }) {
   const task = useMyTask(code, uid);
   const [shown, setShown] = useState<boolean>();
   const pickable = task === null && Object.keys(session.games?.secretTasks?.pile ?? {}).length > 0;
   const showing = shown ?? pickable;
-  const available = !!task || pickable;
+  // Anyone without a task can always get to the pile, even while it's empty; it opens by itself only when there's something to pick.
+  const available = task !== undefined;
   return (
     <>
       {available && (
