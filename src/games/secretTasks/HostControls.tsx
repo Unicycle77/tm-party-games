@@ -13,7 +13,7 @@ export function onScreen(session: Session, _display: Display): string | undefine
   const current = currentOf(session, reveal);
   if (!current) return "That's everyone! (the envelopes and tallies)";
   const name = session.players?.[current.uid]?.name ?? "?";
-  return reveal.task === undefined ? `What was ${name}'s secret?` : `${name}'s secret, "${reveal.task}"`;
+  return reveal.task === undefined ? `What was ${name}'s secret?` : `${name}'s secret, “${reveal.task}”`;
 }
 
 /**
@@ -73,7 +73,7 @@ export function HostLobby({ code, session }: { code: string; session: Session; d
       <h2>Running order</h2>
       <ul className="picker running">
         {up.map((uid, i) => (
-          <li key={uid} className={i < place ? "shown" : i === place + 1 ? "next" : ""}>
+          <li key={uid} className={i < place ? "shown" : i === place ? "now" : i === place + 1 ? "next" : ""}>
             {/* While the envelope is sealed, anyone still to come can be brought up instead. */}
             <button disabled={!sealed || i <= place} onClick={() => void bringUp(code, reveal, uid, current.pos)}>
               <span>{nameOf(uid)}</span>

@@ -956,3 +956,6 @@ button.envelope:active { transform: none; box-shadow: none; }
 .peek-task { flex-basis: 100%; display: grid; gap: 0.2rem; font-weight: bold; overflow-wrap: anywhere; }
 .peek-task small { font-weight: normal; color: #7a6a55; }
 .picker li.stacked { gap: 0.4rem; }
+.picker.running .tally { margin-left: 0.6rem; margin-right: auto; }
+.picker.running li.now > button:disabled { opacity: 1; font-weight: bold; }
+.move-request .muted { color: #7a6a55; }
