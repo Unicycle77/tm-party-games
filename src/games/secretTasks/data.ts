@@ -1,12 +1,12 @@
-import { onValue, push, ref, remove, set, update } from "firebase/database";
+import { get, onValue, push, ref, remove, set, update } from "firebase/database";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase";
 import { setDisplay } from "../../session";
 import type { SecretReveal, SecretTasks, Session } from "../../types";
 
-/** Two tasks are the same if they match ignoring capitals, spaces and stray punctuation at the ends. */
+/** Two tasks are the same if they match ignoring capitals, spacing and punctuation. */
 const same = (a: string, b: string) => key(a) === key(b);
-const key = (t: string) => t.toLowerCase().replace(/\s+/g, " ").trim();
+const key = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, "").replace(/\s+/g, " ").trim();
 
 /** Tasks in the pool that nobody has been dealt yet, in the order the host typed them. */
 export function undealtOf(tasks: SecretTasks | null | undefined): [id: string, text: string][] {
@@ -39,14 +39,15 @@ export function useMyTask(code: string, uid: string): string | null | undefined 
 }
 
 /** Host: adds tasks to the pool, skipping any already in it. Returns how many were new. */
-export async function addTasks(code: string, texts: string[], tasks: SecretTasks | null | undefined): Promise<number> {
-  const have = [...Object.values(tasks?.pool ?? {})];
+export async function addTasks(code: string, texts: string[]): Promise<number> {
+  // Checked against the pool as it is now, not as this phone last heard of it, so a stale or missing view can't let a duplicate in.
+  const poolRef = ref(db(), `secretTasks/${code}/pool`);
+  const have = Object.values((await get(poolRef)).val() ?? {}) as string[];
   const fresh: string[] = [];
   for (const raw of texts) {
     const text = raw.trim().slice(0, 300);
     if (text && ![...have, ...fresh].some((t) => same(t, text))) fresh.push(text);
   }
-  const poolRef = ref(db(), `secretTasks/${code}/pool`);
   await update(poolRef, Object.fromEntries(fresh.map((text) => [push(poolRef).key!, text])));
   return fresh.length;
 }

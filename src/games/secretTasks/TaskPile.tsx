@@ -23,7 +23,7 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
     setNote(undefined);
     try {
       const lines = text.split("\n");
-      const added = await addTasks(code, lines, tasks);
+      const added = await addTasks(code, lines);
       const given = lines.filter((l) => l.trim()).length;
       setText("");
       setNote(added === given ? `Added ${added}.` : `Added ${added}. ${given - added} already in the list.`);
