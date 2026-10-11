@@ -3,6 +3,7 @@ import { HostRemote } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
+import { useDealer } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
@@ -60,6 +61,7 @@ export function HostPage() {
         {icon("tasks", "Secret tasks", "✉", false)}
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
+      <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
       {view === "show" ? (
         <>
@@ -74,6 +76,15 @@ export function HostPage() {
       )}
     </main>
   );
+}
+
+/**
+ * Deals Secret Tasks picks from here too, so a player's pick never waits on the main screen being open.
+ * (Both do the same thing from the same picks, so it doesn't matter which gets there first.)
+ */
+function Dealer({ code, session }: { code: string; session: Session }) {
+  useDealer(code, session, true);
+  return null;
 }
 
 /**

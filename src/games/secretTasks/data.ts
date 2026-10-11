@@ -71,7 +71,7 @@ export const pickEnvelope = (code: string, id: string, uid: string) =>
   set(ref(db(), `sessions/${code}/games/secretTasks/picks/${id}`), uid);
 
 /**
- * Main screen, whichever game is on: keeps the pile of sealed envelopes on players' phones in step with
+ * Main screen and host phone, whichever game is on: keeps the pile of sealed envelopes on players' phones in step with
  * the undealt tasks (one envelope per task, lying where it fell), and turns each player's pick into their
  * dealt task. A dealt task is never changed or dealt twice; a player gets only their first pick, and a
  * pick of an envelope someone else got first is dropped.
@@ -79,9 +79,11 @@ export const pickEnvelope = (code: string, id: string, uid: string) =>
 export function useDealer(code: string, session: Session, enabled: boolean) {
   const tasks = useSecretTasks(code, enabled);
   const working = useRef(false);
+  // Bumped when a write ends (or fails), so anything that arrived meanwhile gets dealt with, not dropped.
+  const [again, setAgain] = useState(0);
   const mine = session.games?.secretTasks;
   // Everything the dealing depends on, so the effect runs only when something in it changes.
-  const inputs = JSON.stringify([tasks, mine?.pile, mine?.picks, Object.keys(session.players ?? {})]);
+  const inputs = JSON.stringify([tasks, mine?.pile, mine?.picks, Object.keys(session.players ?? {}), again]);
   useEffect(() => {
     if (!enabled || !tasks || working.current) return;
     const root: Record<string, unknown> = {};
@@ -106,7 +108,13 @@ export function useDealer(code: string, session: Session, enabled: boolean) {
     for (const id of Object.keys(mine?.pile ?? {})) if (!wanted.has(id)) root[`sessions/${code}/games/secretTasks/pile/${id}`] = null;
     if (!Object.keys(root).length) return;
     working.current = true;
-    void update(ref(db()), root).catch(() => {}).finally(() => { working.current = false; });
+    update(ref(db()), root)
+      .then(() => { working.current = false; setAgain((n) => n + 1); })
+      .catch((e: unknown) => {
+        // Tried again in a few seconds, so a hiccup doesn't leave a player stuck on "Opening it…".
+        console.error("Secret Tasks: couldn't deal the picks", e);
+        window.setTimeout(() => { working.current = false; setAgain((n) => n + 1); }, 3000);
+      });
   }, [enabled, code, inputs]);
 }
 
