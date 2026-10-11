@@ -905,7 +905,8 @@ button.envelope:active { transform: none; box-shadow: none; }
 .task-list button { padding: 0.1rem 0.5rem; flex: none; }
 @media (prefers-reduced-motion: reduce) {
   .env-flap, .env-flap-shade, .wax-seal.env-seal { transition: none; }
-  .env-letter, }
+  .env-letter { animation: none; }
+}
 
 /* Secret Tasks' finish screen: opened envelopes tossed in a pile, each with its task card on it. Sizes follow the board's width and the number of columns. */
 .finale { position: relative; flex: 1; min-height: 0; width: min(98vw, 190vh); container-type: size; }

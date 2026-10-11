@@ -48,7 +48,7 @@ export function Letter({ task, big = false, instant = false }: { task: string; b
     <div className={big ? "env-letter big" : "env-letter"}>
       <p aria-label={task}>
         <span className="env-ghost" aria-hidden="true">{task}</span>
-        <span className="env-typed" aria-hidden="true">{instant ? task : typed}{!instant && <span className="env-caret" />}</span>
+        <span className="env-typed" aria-hidden="true">{instant ? task : typed}</span>
       </p>
     </div>
   );
