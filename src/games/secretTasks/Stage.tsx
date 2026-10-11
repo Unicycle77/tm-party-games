@@ -59,13 +59,13 @@ function Finale({ session, shown, order }: { session: Session; shown?: Record<st
   return (
     <>
       <h1 className="box-title">That's everyone!</h1>
-      <div className="finale" style={{ "--cols": cols } as React.CSSProperties}>
+      <div className="finale" style={{ "--cols": cols, "--rows": rows } as React.CSSProperties}>
         {cards.map((uid, i) => {
           // A last row that isn't full sits in the middle.
           const row = Math.floor(i / cols);
           const inRow = Math.min(cols, cards.length - row * cols);
-          const left = ((i % cols) + (cols - inRow) / 2 + 0.5 + (hash(uid, 1) - 0.5) * 0.3) / cols * 100;
-          const top = (row + 0.45 + (hash(uid, 2) - 0.5) * 0.3) / rows * 100;
+          const left = ((i % cols) + (cols - inRow) / 2 + 0.5 + (hash(uid, 1) - 0.5) * 0.2) / cols * 100;
+          const top = (row + 0.45 + (hash(uid, 2) - 0.5) * 0.2) / rows * 100;
           return (
             <div key={uid} className="finale-spot" style={{ left: `${left}%`, top: `${top}%`, zIndex: i }}>
               <div className="finale-envelope" style={{ transform: `rotate(${(hash(uid, 3) - 0.5) * 50}deg)` }}><Envelope open /></div>
