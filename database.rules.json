@@ -141,6 +141,9 @@
               },
               "index": { ".validate": "newData.isNumber()" },
               "task": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "shown": {
+                "$uid": { ".validate": "newData.isString() && newData.val().length <= 300" }
+              },
               "startedAt": { ".validate": "newData.isNumber()" },
               "$other": { ".validate": false }
             },

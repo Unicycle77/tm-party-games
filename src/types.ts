@@ -98,6 +98,8 @@ export interface SecretReveal {
   index: number;
   /** The unsealed envelope's task, put here by the host phone when it opens; absent while sealed. */
   task?: string;
+  /** Every task unsealed so far, by player, for the finish screen's pile of opened envelopes and cards. */
+  shown?: Record<string, string>;
   startedAt: number;
 }
 

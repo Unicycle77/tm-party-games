@@ -136,8 +136,9 @@ export async function startReveal(code: string, session: Session, tasks: SecretT
   await setDisplay(code, { step: "envelopes" });
 }
 
-/** Host: opens the envelope on the big screen, publishing that one task (it's no longer a secret). */
-export const unseal = (code: string, task: string) => set(ref(db(), `sessions/${code}/games/secretTasks/reveal/task`), task);
+/** Host: opens the envelope on the big screen, publishing that one task (it's no longer a secret) and keeping it for the finish screen. */
+export const unseal = (code: string, uid: string, task: string) =>
+  update(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { task, [`shown/${uid}`]: task });
 
 /** Host: seals the next envelope, for the next player (`index` = where to look from). */
 export const nextEnvelope = (code: string, index: number) =>

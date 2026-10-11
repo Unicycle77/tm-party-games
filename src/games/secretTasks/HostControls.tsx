@@ -40,7 +40,7 @@ export function HostLobby({ code, session }: { code: string; session: Session; d
     <div className="box-setup">
       <h3>What was {nameOf(current.uid)}'s secret?</h3>
       <p className="muted small">{following.length} more after this.</p>
-      <button className="big" disabled={!sealed || !task} onClick={() => task && void unseal(code, task)}>
+      <button className="big" disabled={!sealed || !task} onClick={() => task && void unseal(code, current.uid, task)}>
         {sealed ? "Unseal the envelope" : "✓ Unsealed"}
       </button>
       {nextUid

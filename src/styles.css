@@ -895,6 +895,7 @@ button.envelope:active { transform: none; box-shadow: none; }
 .envelope-slot h2 { text-align: center; }
 .envelope-slot .slot-hint { text-align: center; }
 .stage.envelopes { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4vh; box-sizing: border-box; }
+.stage.envelopes:has(.finale) { justify-content: flex-start; padding: 2.5vh 1vw 2vh; gap: 1.5vh; }
 .stage.envelopes .env-stack { width: min(50vw, 52vh); flex: none; margin: 0; }
 .env-letter.big { left: 50%; right: auto; bottom: auto; top: 50%; translate: -50% -50%; width: min(86vw, 110vh); font-size: clamp(1.4rem, 5vh, 3.4rem); padding: 3vh 4vh; }
 .stage.envelopes .env-seal { width: 9vh; height: 9vh; font-size: 3.6vh; }
@@ -905,3 +906,17 @@ button.envelope:active { transform: none; box-shadow: none; }
   .env-flap, .env-flap-shade, .wax-seal.env-seal { transition: none; }
   .env-letter, .env-caret { animation: none; }
 }
+
+/* Secret Tasks' finish screen: opened envelopes tossed in a pile, each with its task card on it. Sizes follow the board's width and the number of columns. */
+.finale { position: relative; flex: 1; min-height: 0; width: min(98vw, 190vh); container-type: size; }
+.finale-spot { position: absolute; width: calc(100cqw / var(--cols) * 0.96); translate: -50% -50%; font-size: calc(100cqw / var(--cols) / 15); }
+.finale-envelope { position: absolute; left: 50%; top: 50%; width: 96%; margin: -12% 0 0 -48%; }
+/* born open: no flap swinging, no seal */
+.finale-envelope .envelope * { transition: none; }
+.finale-envelope .env-seal { display: none; }
+.finale-envelope .envelope { width: 100%; margin: 0; }
+.finale-card {
+  position: relative; box-sizing: border-box; padding: 0.7em 0.8em; color: #1f1a14; font-family: var(--typewriter); line-height: 1.3;
+  background: radial-gradient(ellipse at 30% 20%, #f4ecd6, #e9dcbc 60%, #d9c79c); box-shadow: 0 0.3em 0.7em #000a; overflow-wrap: anywhere;
+}
+.finale-card strong { display: block; margin-bottom: 0.3em; font-weight: normal; text-transform: uppercase; letter-spacing: 0.08em; color: var(--burgundy); font-size: 0.85em; }
