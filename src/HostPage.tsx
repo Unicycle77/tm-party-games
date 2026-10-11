@@ -3,7 +3,7 @@ import { HostRemote } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
-import { useDealer } from "./games/secretTasks/data";
+import { useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
@@ -84,6 +84,8 @@ export function HostPage() {
  */
 function Dealer({ code, session }: { code: string; session: Session }) {
   useDealer(code, session, true);
+  // And keeps tonight's unpicked envelopes on record, so they roll forward to the next party.
+  useRecordLeftovers(code, useUid(), useSecretTasks(code));
   return null;
 }
 

@@ -52,6 +52,61 @@ export async function addTasks(code: string, texts: string[]): Promise<number> {
   return fresh.length;
 }
 
+/**
+ * Host: corrects a task in place, in the pool and for anyone already dealt it, so they keep the same task,
+ * corrected. Returns false if the new wording matches another task already in the pool.
+ */
+export async function editTask(code: string, from: string, to: string): Promise<boolean> {
+  const text = to.trim().slice(0, 300);
+  const root = ref(db(), `secretTasks/${code}`);
+  const now = ((await get(root)).val() ?? {}) as SecretTasks;
+  if (!text || Object.values(now.pool ?? {}).some((t) => same(t, text) && !same(t, from))) return false;
+  const u: Record<string, string> = {};
+  for (const [id, t] of Object.entries(now.pool ?? {})) if (same(t, from)) u[`pool/${id}`] = text;
+  for (const [uid, t] of Object.entries(now.assigned ?? {})) if (same(t, from)) u[`assigned/${uid}`] = text;
+  await update(root, u);
+  return true;
+}
+
+/**
+ * Envelopes nobody picked roll forward from party to party, on this host phone's account
+ * (hostLeftovers/{uid}/{code}), until the host adds them to a pile or forgets them.
+ */
+type Leftovers = Record<string, { at: number; tasks?: string[] }>;
+
+/** Host phone, always on: keeps this party's undealt tasks on record as its leftovers. */
+export function useRecordLeftovers(code: string, uid: string | undefined, tasks: SecretTasks | null | undefined) {
+  const undealt = JSON.stringify(undealtOf(tasks).map(([, t]) => t));
+  useEffect(() => {
+    if (!uid || !tasks) return;
+    const list = JSON.parse(undealt) as string[];
+    const at = ref(db(), `hostLeftovers/${uid}/${code}`);
+    void (list.length ? set(at, { at: Date.now(), tasks: list }) : remove(at)).catch(() => {});
+  }, [code, uid, undealt, tasks === undefined || tasks === null]);
+}
+
+/** Host: leftovers from earlier parties that aren't in tonight's pool, oldest first. Undefined while loading. */
+export function useLeftovers(code: string, uid: string | undefined, tasks: SecretTasks | null | undefined): string[] | undefined {
+  const [all, setAll] = useState<Leftovers | null>();
+  useEffect(() => {
+    if (!uid) return;
+    return onValue(ref(db(), `hostLeftovers/${uid}`), (s) => setAll((s.val() as Leftovers | null) ?? {}), () => setAll(null));
+  }, [uid]);
+  if (all === undefined || tasks === undefined) return undefined;
+  const pool = Object.values(tasks?.pool ?? {});
+  const out: string[] = [];
+  for (const [, party] of Object.entries(all ?? {}).filter(([c]) => c !== code).sort(([, a], [, b]) => a.at - b.at)) {
+    for (const t of party.tasks ?? []) if (![...pool, ...out].some((p) => same(p, t))) out.push(t);
+  }
+  return out;
+}
+
+/** Host: clears the leftovers of every earlier party (after adding them, or to forget them). */
+export async function clearLeftovers(code: string, uid: string) {
+  const all = ((await get(ref(db(), `hostLeftovers/${uid}`))).val() ?? {}) as Leftovers;
+  await update(ref(db(), `hostLeftovers/${uid}`), Object.fromEntries(Object.keys(all).filter((c) => c !== code).map((c) => [c, null])));
+}
+
 /** Host: takes a task out of the pool. A player who was already dealt it keeps it. */
 export const removeTask = (code: string, id: string) => remove(ref(db(), `secretTasks/${code}/pool/${id}`));
 

@@ -239,6 +239,19 @@
         ".validate": "newData.child('inBox').val() === 'L' || newData.child('inBox').val() === 'R'"
       }
     },
+    "hostLeftovers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$code": {
+          "at": { ".validate": "newData.isNumber()" },
+          "tasks": {
+            "$i": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 300" }
+          },
+          "$other": { ".validate": false }
+        }
+      }
+    },
     "secretTasks": {
       "$code": {
         ".read": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",

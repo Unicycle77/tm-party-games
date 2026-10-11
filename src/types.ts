@@ -111,7 +111,8 @@ export interface SecretTurn { done?: boolean; guessed?: Record<string, true> }
 /**
  * Secret Tasks live outside the session, at secretTasks/{code}, so no guest can read another's:
  * `pool` is the host's list of tasks (host and host phone only); `assigned` is the task each player was
- * dealt, by uid (readable by the host, the host phone and that player). A dealt task never changes.
+ * dealt, by uid (readable by the host, the host phone and that player). A dealt task never changes, except
+ * when the host corrects its wording (see `editTask`).
  */
 export interface SecretTasks {
   pool?: Record<string, string>;

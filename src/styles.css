@@ -935,3 +935,13 @@ button.envelope:active { transform: none; box-shadow: none; }
 .tally-group { position: relative; }
 .tally-group.five::after { content: ""; position: absolute; left: -0.15em; right: -0.15em; top: 50%; border-top: 0.12em solid currentColor; transform: rotate(-22deg); }
 .finale-card strong .tally { margin-left: 0.4em; color: var(--ink); }
+
+/* Secret Tasks' ✉ page: a task you tap to fix, the box it becomes, and the receipt that fades */
+.task-list button.task-text { flex: 1; padding: 0; background: none; border: 0; box-shadow: none; color: inherit; text-align: left; font: inherit; letter-spacing: normal; }
+.task-edit { flex: 1; display: grid; gap: 0.4rem; }
+.task-edit textarea { width: 100%; box-sizing: border-box; }
+.leftovers { display: grid; gap: 0.5rem; }
+.leftovers h3 { margin: 0; }
+.fade-note { animation: fade-note 4s forwards; }
+@keyframes fade-note { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fade-note { animation: none; } }
