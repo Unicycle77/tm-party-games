@@ -100,6 +100,8 @@ export interface SecretReveal {
   task?: string;
   /** Every task unsealed so far, by player, for the finish screen's pile of opened envelopes and cards. */
   shown?: Record<string, string>;
+  /** The opening title card ("Can everyone keep a secret?") is up; nobody's envelope yet. */
+  title?: true;
   /** How the host scored each unsealed turn, by the task's owner (see `pointsOf`). */
   scores?: Record<string, SecretTurn>;
   startedAt: number;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Display, SecretReveal, Session } from "../../types";
-import { bringUp, currentOf, endReveal, nextEnvelope, pointsOf, revealOf, setDone, setGuessed, startReveal, unseal, useSecretTasks } from "./data";
+import { bringUp, currentOf, endReveal, firstUp, nextEnvelope, pointsOf, revealOf, setDone, setGuessed, startReveal, unseal, useSecretTasks } from "./data";
 import { Tally } from "./Tally";
 
 /** "Priya", "Priya and Mei", "Priya, Mei and Jo". */
@@ -12,12 +12,14 @@ export function onScreen(session: Session, _display: Display): string | undefine
   if (!reveal) return undefined;
   const current = currentOf(session, reveal);
   if (!current) return "That's everyone! (the envelopes and tallies)";
+  if (reveal.title) return "Can everyone keep a secret?";
   const name = session.players?.[current.uid]?.name ?? "?";
   return reveal.task === undefined ? `What was ${name}'s secret?` : `${name}'s secret, “${reveal.task}”`;
 }
 
 /**
- * The host's phone while Secret Tasks is the game: start the reveal, then for each player (in random order,
+ * The host's phone while Secret Tasks is the game: start the reveal (the big screen opens on "Can everyone
+ * keep a secret?" until the host calls the first one up), then for each player (in random order,
  * or whoever the host taps) unseal their envelope on the big screen and score the turn, then move on. The
  * gold button stays in one place and changes job. Scores are kept here and show on the big screen only at
  * the end, as tally marks. The pile of tasks is in the ✉ page.
@@ -61,24 +63,30 @@ export function HostLobby({ code, session }: { code: string; session: Session; d
   const place = up.indexOf(current.uid);
   const nextUid = up[place + 1];
   const name = nameOf(current.uid);
+  // The title card is up: nobody's turn yet, and the gold button calls the first one up.
+  const titled = !!reveal.title;
 
   return (
     <>
-      <h2 className="contestant">{name}<span className="muted">, {place + 1} of {up.length}</span></h2>
+      {titled
+        ? <h2 className="contestant">{up.length} envelopes<span className="muted">, all sealed</span></h2>
+        : <h2 className="contestant">{name}<span className="muted">, {place + 1} of {up.length}</span></h2>}
       {/* One gold button, in one place: unseal, then move on. */}
-      {sealed
+      {titled
+        ? <button className="big" onClick={() => void firstUp(code)}>First up: {name} →</button>
+        : sealed
         ? <button className="big" disabled={!task} onClick={() => task && void unseal(code, current.uid, task)}>Unseal {name}'s envelope</button>
         : <button className="big" onClick={() => void nextEnvelope(code, current.pos + 1)}>{nextUid ? `Next: ${nameOf(nextUid)} →` : "That's everyone →"}</button>}
       <Turn code={code} session={session} reveal={reveal} owner={current.uid} disabled={sealed} />
       <h2>Running order</h2>
       <ul className="picker running">
         {up.map((uid, i) => (
-          <li key={uid} className={i < place ? "shown" : i === place ? "now" : i === place + 1 ? "next" : ""}>
+          <li key={uid} className={i < place ? "shown" : titled ? (i === place ? "next" : "") : i === place ? "now" : i === place + 1 ? "next" : ""}>
             {/* While the envelope is sealed, anyone still to come can be brought up instead. */}
             <button disabled={!sealed || i <= place} onClick={() => void bringUp(code, reveal, uid, current.pos)}>
               <span>{nameOf(uid)}</span>
               <Tally n={points[uid] ?? 0} />
-              {i === place && <span className="muted small">now</span>}
+              {i === place && !titled && <span className="muted small">now</span>}
             </button>
           </li>
         ))}

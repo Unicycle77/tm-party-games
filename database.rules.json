@@ -140,6 +140,7 @@
                 "$i": { ".validate": "newData.isString()" }
               },
               "index": { ".validate": "newData.isNumber()" },
+              "title": { ".validate": "newData.val() === true" },
               "task": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "shown": {
                 "$uid": { ".validate": "newData.isString() && newData.val().length <= 300" }

@@ -15,7 +15,9 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
   const current = reveal && currentOf(session, reveal);
   return (
     <main className="stage envelopes">
-      {reveal && current
+      {reveal && current && reveal.title
+        ? <Title session={session} order={reveal.order} />
+        : reveal && current
         // A new envelope starts sealed, with the new name.
         ? <Opening key={`${reveal.startedAt}-${current.pos}`} name={session.players?.[current.uid]?.name ?? "?"} task={reveal.task} />
         : reveal ? <Finale session={session} shown={reveal.shown} order={reveal.order} points={pointsOf(reveal)} /> : (
@@ -47,6 +49,47 @@ const hash = (text: string, salt: number) => {
   for (const c of text) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return (h % 1000) / 1000;
 };
+
+/**
+ * Where each of `n` things lands on a loose grid filling the board (so none hides another), a little off-centre
+ * and tilted, the same every time for the same key. A last row that isn't full sits in the middle.
+ */
+function scatter(keys: string[]) {
+  const n = keys.length;
+  const cols = Math.max(1, Math.ceil(Math.sqrt(n * 2.4)));
+  const rows = Math.max(1, Math.ceil(n / cols));
+  const spots = keys.map((key, i) => {
+    const row = Math.floor(i / cols);
+    const inRow = Math.min(cols, n - row * cols);
+    return {
+      left: ((i % cols) + (cols - inRow) / 2 + 0.5 + (hash(key, 1) - 0.5) * 0.2) / cols * 100,
+      top: (row + 0.45 + (hash(key, 2) - 0.5) * 0.2) / rows * 100,
+      tilt: (hash(key, 3) - 0.5) * 50,
+    };
+  });
+  return { cols, rows, spots };
+}
+
+/**
+ * The reveal's opening: "Can everyone keep a secret?" (the rules' deadline) over the pile of sealed envelopes,
+ * one per player with a task, hanging in one after another. The finish screen shows the same pile, opened.
+ */
+function Title({ session, order }: { session: Session; order: string[] }) {
+  const uids = order.filter((uid) => session.players?.[uid]);
+  const { cols, rows, spots } = scatter(uids);
+  return (
+    <>
+      <h1 className="box-title">Can everyone keep a secret?</h1>
+      <div className="finale" style={{ "--cols": cols, "--rows": rows } as React.CSSProperties}>
+        {uids.map((uid, i) => (
+          <div key={uid} className="finale-spot sealed" style={{ left: `${spots[i]!.left}%`, top: `${spots[i]!.top}%`, zIndex: i, animationDelay: `${i * 0.15}s` }}>
+            <div className="finale-envelope" style={{ transform: `rotate(${spots[i]!.tilt}deg)` }}><Envelope /></div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
 
 /**
  * "That's everyone!": every envelope that was opened, tossed in a pile, each with its player's task card

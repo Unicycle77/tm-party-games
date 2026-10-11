@@ -219,13 +219,19 @@ export function currentOf(session: Session, reveal: SecretReveal): { uid: string
   }
 }
 
-/** Host: starts the reveal with every player who has a task, in random order, and puts it on the big screen. */
+/**
+ * Host: starts the reveal with every player who has a task, in random order, and puts it on the big screen,
+ * opening on the title card ("Can everyone keep a secret?") until the host calls the first one up.
+ */
 export async function startReveal(code: string, session: Session, tasks: SecretTasks | null | undefined) {
   const uids = Object.keys(session.players ?? {}).filter((uid) => tasks?.assigned?.[uid]);
   const order = uids.map((uid) => [Math.random(), uid] as const).sort(([a], [b]) => a - b).map(([, uid]) => uid);
-  await set(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { order, index: 0, startedAt: Date.now() });
+  await set(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { order, index: 0, startedAt: Date.now(), title: true });
   await setDisplay(code, { step: "envelopes" });
 }
+
+/** Host: takes down the title card, so the first player's sealed envelope comes up. */
+export const firstUp = (code: string) => update(ref(db(), `sessions/${code}/games/secretTasks/reveal`), { title: null });
 
 /** Host: opens the envelope on the big screen, publishing that one task (it's no longer a secret) and keeping it for the finish screen. */
 export const unseal = (code: string, uid: string, task: string) =>
