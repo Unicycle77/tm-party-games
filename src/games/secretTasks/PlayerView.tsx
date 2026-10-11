@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Session } from "../../types";
 import { pickEnvelope, useMyTask } from "./data";
 
@@ -93,6 +93,12 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
   const task = useMyTask(code, uid);
   const [open, setOpen] = useState(false);
   const typed = useTyped(task ?? "", open);
+  // A task that arrives while the player is choosing from the pile opens by itself: that's the pick paying off.
+  const before = useRef(task);
+  useEffect(() => {
+    if (before.current === null && typeof task === "string") setOpen(true);
+    before.current = task;
+  }, [task]);
 
   if (task === undefined) return <section className="slot waiting"><p className="slot-hint">Loading…</p></section>;
   if (task === null) return <Pile code={code} uid={uid} session={session} onPicked={onPicked} />;
