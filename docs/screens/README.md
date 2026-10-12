@@ -41,6 +41,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-main-updating.jpg` | Main screen: the scores ticking up after "Update the scores" |
 | `scoreboard-main-after.jpg` | Main screen: re-sorted, the leader scaled up |
 | `scoreboard-host-start-party.jpg` | Host remote's connect page: "Start a new party", recent parties by name |
+| `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
 | `scoreboard-host-points.jpg` | Giving points for one task: chips 0 to 5 and "…", "now N", "← All tasks", "Next task →" |

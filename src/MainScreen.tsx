@@ -33,7 +33,7 @@ export function MainScreen() {
   const [raised, setRaised] = useState(false);
   useEffect(() => setRaised(false), [code]);
 
-  const remember = (c: string) => setRecent((r) => saveRecent(HOSTED_KEY, withRecent(r, c)));
+  const remember = (c: string, name?: string) => setRecent((r) => saveRecent(HOSTED_KEY, withRecent(r, c, name)));
   const forget = (c: string) => setRecent((r) => saveRecent(HOSTED_KEY, withoutRecent(r, c)));
 
   // Resume a stored session on refresh; drop it if it's gone or another screen has taken it over.
@@ -48,9 +48,11 @@ export function MainScreen() {
       } else {
         // A session from before there were games: move its data into the games layout.
         void migrateLegacySession(code, session);
-        if (remembered.current !== code) {
-          remembered.current = code;
-          remember(code);
+        // Once per session, and again whenever the party is renamed, so its chip carries the name.
+        const key = `${code}\n${session.name ?? ""}`;
+        if (remembered.current !== key) {
+          remembered.current = key;
+          remember(code, session.name);
         }
       }
     });
