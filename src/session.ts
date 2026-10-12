@@ -357,6 +357,10 @@ export const setDisplay = (code: string, display: Display) =>
 export const showContestant = (code: string, game: GameId, display: Display & { uid: string }) =>
   update(ref(db(), `sessions/${code}`), { display, [`games/${game}/shown/${display.uid}`]: true });
 
+/** Host remote: renames the party (shown on the remote, the guests' join screen and the recent list). */
+export const renameParty = (code: string, name: string) =>
+  set(ref(db(), `sessions/${code}/name`), name.trim());
+
 export const setShowDownload = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showDownload`), show);
 

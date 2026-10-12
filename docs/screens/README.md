@@ -56,3 +56,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-host-up.jpg` | A headshot on the big screen, from the remote |
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
+| `host-party-settings-name.jpg` | Party settings: renaming the party |

@@ -9,7 +9,7 @@ import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, allowMove, claimController, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, allowMove, claimController, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
@@ -162,6 +162,32 @@ function Portrait({ code, session }: { code: string; session: Session }) {
   );
 }
 
+/** The party's name, as typed when it was started (or none, for a party started on the big screen). */
+function PartyName({ code, session }: { code: string; session: Session }) {
+  const [name, setName] = useState(session.name ?? "");
+  // Someone else renaming it (another remote) shows up here, unless it's being edited.
+  const [editing, setEditing] = useState(false);
+  useEffect(() => { if (!editing) setName(session.name ?? ""); }, [session.name, editing]);
+  const changed = name.trim() !== (session.name ?? "") && !!name.trim();
+  const save = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!changed) return;
+    void renameParty(code, name);
+    setEditing(false);
+  };
+  return (
+    <form className="party-name" onSubmit={save}>
+      <label>Party name
+        <div className="row">
+          <input value={name} maxLength={40} placeholder="Halloween party"
+            onChange={(e) => { setName(e.target.value); setEditing(true); }} />
+          <button type="submit" disabled={!changed}>Save</button>
+        </div>
+      </label>
+    </form>
+  );
+}
+
 /** Set-once things, behind a quiet link at the bottom of the show. */
 function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
   const [open, setOpen] = useState(false);
@@ -172,6 +198,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
+      <PartyName code={code} session={session} />
       <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
