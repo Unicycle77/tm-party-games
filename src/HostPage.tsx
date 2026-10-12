@@ -3,7 +3,7 @@ import { HostRemote, JoinQr } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
-import { needsOf, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
+import { needsOf, secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
@@ -102,7 +102,8 @@ export function HostPage() {
 /** ✉ in the header, with a burgundy dot while a guest hasn't looked at their task or is waiting for one. */
 function TasksIcon({ code, session, icon }: { code: string; session: Session; icon: (v: View, label: string, glyph: string, lit: boolean, alert?: boolean) => React.ReactNode }) {
   const needs = needsOf(session, useSecretTasks(code));
-  const alert = needs.unseen.length + needs.waiting.length > 0;
+  // Guests only get envelopes once Secret Tasks is on the run of show, so until then nobody is waiting on one.
+  const alert = secretTasksPlanned(session) && needs.unseen.length + needs.waiting.length > 0;
   return <>{icon("tasks", alert ? "Secret tasks (needs you)" : "Secret tasks", "✉", false, alert)}</>;
 }
 

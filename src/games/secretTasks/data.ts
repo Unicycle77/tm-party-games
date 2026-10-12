@@ -283,3 +283,7 @@ export async function endReveal(code: string) {
   await setDisplay(code, { step: "list" });
   await remove(ref(db(), `sessions/${code}/games/secretTasks/reveal`));
 }
+
+/** Whether this party plays Secret Tasks: it's on the run of show (or being played). Until then guests' phones don't offer envelopes. */
+export const secretTasksPlanned = (session: Session) =>
+  session.game === "secretTasks" || Object.values(session.scoreboard?.tasks ?? {}).some((t) => t.game === "secretTasks");

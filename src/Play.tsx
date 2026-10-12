@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
+import { secretTasksPlanned } from "./games/secretTasks/data";
 import { SecretTaskArea } from "./games/secretTasks/PlayerView";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot } from "./scoreboard/Headshot";
@@ -54,27 +55,26 @@ export function Play() {
     );
   }
 
+  const content = game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
+      <section className="slot waiting">
+        <h2>Waiting for the next game.</h2>
+        <p className="slot-hint">When the host picks it, it'll show up here.</p>
+      </section>
+    ) : (
+      <section className="slot waiting">
+        <span className="stamp">✓ You're in</span>
+        <h2>Welcome, {name}!</h2>
+        <p className="slot-hint">Look for your name on the big screen.</p>
+        <p className="slot-hint">When the host picks a game, it'll show up here.</p>
+      </section>
+    );
+
   return (
     <main className="phone">
       <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
-      {/* Whatever the game, a player picks their secret envelope on arrival and can pull it up any time. */}
-      {game?.id === "secretTasks" ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : (
-        <SecretTaskArea code={code} uid={uid} session={session}>
-          {game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
-            <section className="slot waiting">
-              <h2>Waiting for the next game.</h2>
-              <p className="slot-hint">When the host picks it, it'll show up here.</p>
-            </section>
-          ) : (
-            <section className="slot waiting">
-              <span className="stamp">✓ You're in</span>
-              <h2>Welcome, {name}!</h2>
-              <p className="slot-hint">Look for your name on the big screen.</p>
-              <p className="slot-hint">When the host picks a game, it'll show up here.</p>
-            </section>
-          )}
-        </SecretTaskArea>
-      )}
+      {/* When the party plays Secret Tasks, a player picks their envelope on arrival and can pull it up any time, whatever the game. */}
+      {game?.id === "secretTasks" || !secretTasksPlanned(session) ? content
+        : <SecretTaskArea code={code} uid={uid} session={session}>{content}</SecretTaskArea>}
       {/* Disconnects this phone only: the player's tile and entries stay. Only the host removes players. */}
       <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
     </main>

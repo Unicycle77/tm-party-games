@@ -64,6 +64,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks, contestants with "checked in" / "not yet", someone not on the scoreboard yet |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |
+| `run-of-show-host-add-game.jpg` | "+ App game" on the run of show: Noisemaster and Headshot greyed out as "on the list", Photos still offered |
 | `secret-tasks-host-who-has-what.jpg` | Secret tasks on the host app (✉): "Who has what" with Sam's task tapped open ("Tap again to hide it."), the pile folded below |
 | `secret-tasks-host-pile-open.jpg` | The same page with "▾ The pile (5)" opened |
 | `secret-tasks-player-pile-drag.jpg` | A guest's phone picking an envelope: the pile, then an envelope being dragged off the others |

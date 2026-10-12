@@ -46,6 +46,8 @@ export interface Game {
   onScreen?(session: Session, display: Display): string | undefined;
   /** Only on the scoreboard's task list (the Headshot task), never on the game picker. */
   scoreboardOnly?: boolean;
+  /** Can be on the run of show more than once (Photos: a general tool, one entry per photo task). Other games go on it once. */
+  repeatable?: boolean;
   /** Host phone: the buttons above the player list (e.g. show everyone at once). */
   HostLobby: ComponentType<{ code: string; session: Session; display: Display }>;
 }

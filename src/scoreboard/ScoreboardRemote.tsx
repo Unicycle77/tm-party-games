@@ -239,7 +239,12 @@ function TaskList({ code, board, tasks, next, onOpen, onStart }: {
           <div className="sb-add">
             <p className="muted small">Which game?</p>
             <div className="choices">
-              {Object.values(GAMES).map((g) => <button key={g.id} onClick={() => { void addTask(code, board, { game: g.id }); setAdding(undefined); }}>{g.name}</button>)}
+              {/* each game once (Photos as often as needed): a game already on the list is greyed out */}
+              {Object.values(GAMES).map((g) => {
+                const listed = !g.repeatable && Object.values(board?.tasks ?? {}).some((t) => t.game === g.id);
+                return <button key={g.id} disabled={listed} title={listed ? "Already on the run of show" : undefined}
+                  onClick={() => { void addTask(code, board, { game: g.id }); setAdding(undefined); }}>{g.name}{listed && <span className="played">on the list</span>}</button>;
+              })}
             </div>
             <button className="link" onClick={() => setAdding(undefined)}>Cancel</button>
           </div>
