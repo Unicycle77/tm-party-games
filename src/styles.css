@@ -883,7 +883,8 @@ button.envelope:active { transform: none; box-shadow: none; }
   box-shadow: inset 0 0 0 0.35rem #a81a14, inset 0 0 0 0.42rem #6c0c08, 0 3px 6px #0007;
   transition: transform 0.5s ease-in, opacity 0.5s;
 }
-.envelope.open .env-seal { transform: translate(-50%, 140%) rotate(25deg) scale(0.9); opacity: 0; }
+/* the fallen seal is invisible but would still sit over "Seal it again" below the envelope and catch taps meant for it */
+.envelope.open .env-seal { transform: translate(-50%, 140%) rotate(25deg) scale(0.9); opacity: 0; pointer-events: none; }
 /* the pile: sealed envelopes scattered where they fell, to pick from */
 .env-pile { position: relative; aspect-ratio: 1 / 1.1; width: 100%; background: #0000000d; border-radius: 4px; overflow: hidden; }
 .pile-spot { position: absolute; width: 22%; display: block; padding: 0; background: none; border: 0; box-shadow: none; border-radius: 0; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
