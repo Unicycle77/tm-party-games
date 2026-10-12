@@ -26,31 +26,42 @@ const shuffle = <T,>(xs: T[]) => xs.map((x) => [Math.random(), x] as const).sort
 
 /** The last round's phrase and decoys, so the next player can get the same one. */
 type Setup = { phrase: string[]; decoys: string[]; typedPhrase: string; typedDecoys: string };
+const EMPTY: Setup = { phrase: [], decoys: [], typedPhrase: "", typedDecoys: "" };
 const SETUP_KEY = "noisemaster-setup";
-const loadSetup = (): Setup => {
-  try { return { phrase: [], decoys: [], typedPhrase: "", typedDecoys: "", ...JSON.parse(store.get(SETUP_KEY) || "{}") }; }
-  catch { return { phrase: [], decoys: [], typedPhrase: "", typedDecoys: "" }; }
+/** Kept in this browser too, so a reload (or a lost connection) doesn't lose what the host typed. Tagged with
+ * the party's code, so a new party starts with an empty board rather than the last party's words. */
+const loadSetup = (code: string): Setup => {
+  try {
+    const saved = JSON.parse(store.get(SETUP_KEY) || "{}") as Partial<Setup> & { code?: string };
+    return saved.code === code ? { ...EMPTY, ...saved } : EMPTY;
+  } catch { return EMPTY; }
 };
-/** Kept in this browser too, so a reload (or a lost connection) doesn't lose what the host typed. */
-let lastSetup = loadSetup();
-const saveSetup = (next: Partial<Setup>) => { lastSetup = { ...lastSetup, ...next }; store.set(SETUP_KEY, JSON.stringify(lastSetup)); };
+let lastSetup: Setup & { code?: string } = EMPTY;
+const setupFor = (code: string): Setup => {
+  if (lastSetup.code !== code) lastSetup = { ...loadSetup(code), code };
+  return lastSetup;
+};
+const saveSetup = (code: string, next: Partial<Setup>) => {
+  lastSetup = { ...setupFor(code), ...next, code };
+  store.set(SETUP_KEY, JSON.stringify(lastSetup));
+};
 
 function Setup({ code, session }: { code: string; session: Session }) {
   const players = Object.entries(session.players ?? {}).sort(([, x], [, y]) => (x.joinedAt ?? 0) - (y.joinedAt ?? 0));
   const played = session.games?.noisemaster?.played ?? {};
   const sounds = soundsOf(session);
   const [player, setPlayer] = useState<string>();
-  const [phrase, setPhrase] = useState(() => lastSetup.phrase.filter((w) => sounds.includes(w)));
-  const [decoys, setDecoys] = useState(() => lastSetup.decoys.filter((w) => sounds.includes(w)));
+  const [phrase, setPhrase] = useState(() => setupFor(code).phrase.filter((w) => sounds.includes(w)));
+  const [decoys, setDecoys] = useState(() => setupFor(code).decoys.filter((w) => sounds.includes(w)));
   const [adding, setAdding] = useState<"phrase" | "decoys">("phrase");
   const [filter, setFilter] = useState("");
   // With no sound files, the phrase and decoys are typed and spoken by the main screen's voice.
   const typed = sounds.length < BUTTONS;
-  const [typedPhrase, setTypedPhrase] = useState(lastSetup.typedPhrase);
-  const [typedDecoys, setTypedDecoys] = useState(lastSetup.typedDecoys);
+  const [typedPhrase, setTypedPhrase] = useState(() => setupFor(code).typedPhrase);
+  const [typedDecoys, setTypedDecoys] = useState(() => setupFor(code).typedDecoys);
   // Everything entered is remembered as it's entered, so the next round (or a reload) starts from it.
   // Only the active way of entering words is saved, so the other one's words aren't wiped while it's out of use.
-  useEffect(() => { saveSetup(typed ? { typedPhrase, typedDecoys } : { phrase, decoys }); }, [typed, typedPhrase, typedDecoys, phrase, decoys]);
+  useEffect(() => { saveSetup(code, typed ? { typedPhrase, typedDecoys } : { phrase, decoys }); }, [code, typed, typedPhrase, typedDecoys, phrase, decoys]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
