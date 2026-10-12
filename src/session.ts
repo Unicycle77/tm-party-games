@@ -131,7 +131,7 @@ export async function resumeSession(rawCode: string): Promise<string> {
 
 /**
  * Joining by typing a name. When the party has a guest list (the scoreboard's contestants), a name that's
- * on it should be tapped instead, and a name that isn't joins the scoreboard too.
+ * on it checks in as that guest (as tapping it would), and a name that isn't joins the scoreboard too.
  */
 export async function joinSession(rawCode: string, rawName: string): Promise<string> {
   const code = rawCode.trim().toUpperCase();
@@ -145,8 +145,9 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   const clash = Object.entries(players).find(([uid, p]) => uid !== user.uid && sameName(p.name, name));
   if (clash) throw new SameNameError(clash[1].name);
   const guests = ((await get(ref(db(), `sessions/${code}/scoreboard/contestants`))).val() ?? {}) as Record<string, ScoreboardContestant>;
-  const listed = Object.values(guests).find((c) => sameName(c.name, name));
-  if (listed) throw new JoinError(`${listed.name} is on the list. Go back and tap your name.`);
+  // A name that's on the list checks them in as that guest, just as tapping it would.
+  const listed = Object.entries(guests).find(([, c]) => sameName(c.name, name));
+  if (listed) return joinAsContestant(code, listed[0]);
   // A brand-new player starts clean: clear anything left behind by an earlier stint or a partial removal.
   // (Someone reconnecting with their player record still in place keeps their submission.)
   if (!(await get(ref(db(), `sessions/${code}/players/${user.uid}`))).exists()) {
