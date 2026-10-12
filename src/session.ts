@@ -47,6 +47,12 @@ async function freeCode(): Promise<string> {
 }
 
 /** Main screen: creates a session and returns its code. */
+/** Every party has a Headshot task and a Prize task, so a new one starts with them on its list. */
+function starterScoreboard(code: string) {
+  const id = () => push(ref(db(), `sessions/${code}/scoreboard/tasks`)).key!;
+  return { tasks: { [id()]: { order: 0, game: "headshots" }, [id()]: { order: 1, name: "Prize task" } } };
+}
+
 export async function createSession(): Promise<string> {
   const user = await ensureSignedIn();
   const code = await freeCode();
@@ -54,6 +60,7 @@ export async function createSession(): Promise<string> {
     hostUid: user.uid,
     createdAt: serverTimestamp(),
     display: { step: "list" },
+    scoreboard: starterScoreboard(code),
   });
   return code;
 }
@@ -71,6 +78,7 @@ export async function createParty(rawName: string): Promise<string> {
     name: rawName.trim(),
     createdAt: serverTimestamp(),
     display: { step: "list" },
+    scoreboard: starterScoreboard(code),
   });
   return code;
 }

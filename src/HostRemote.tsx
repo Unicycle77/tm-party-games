@@ -1,7 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { joinUrlFor } from "./firebase";
-import { GAMES, activeGame } from "./games";
+import { PICKER_GAMES, activeGame } from "./games";
 import { noBigScreen, removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
@@ -89,7 +89,7 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
         {session.begun && !session.portrait && <p className="muted small">Add this party's Taskmaster portrait in Party settings.</p>}
         <h2>Choose a game</h2>
         <div className="steps">
-          {Object.values(GAMES).map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}
+          {PICKER_GAMES.map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}
         </div>
         <h2>Contestants ({players.length})</h2>
         {plainList}

@@ -5,6 +5,7 @@ import type { Display, GameId, Session, Step } from "../types";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
 import { noisemaster } from "./noisemaster";
+import { headshotsGame } from "./headshots";
 import { photos } from "./photos";
 import { secretTasks } from "./secretTasks";
 
@@ -43,12 +44,17 @@ export interface Game {
   HostPlayer: ComponentType<{ code: string; session: Session; display: Display; uid: string }>;
   /** Host phone, for games the host runs: what follows "On the big screen:", when the game says more than the step. */
   onScreen?(session: Session, display: Display): string | undefined;
+  /** Only on the scoreboard's task list (the Headshot task), never on the game picker. */
+  scoreboardOnly?: boolean;
   /** Host phone: the buttons above the player list (e.g. show everyone at once). */
   HostLobby: ComponentType<{ code: string; session: Session; display: Display }>;
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame };
+
+/** The games on the game picker (the rest only start from the scoreboard's task list). */
+export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);
 
 /** The game being played; undefined on the game selection screen. */
 export const activeGame = (session: Session): Game | undefined => {
