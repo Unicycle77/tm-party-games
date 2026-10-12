@@ -131,7 +131,7 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
  * A player's secret task. Until they have one: the pile of envelopes to pick from. After: their own
  * envelope, sealed. Tap the seal to open it and "Seal it again" to close it, every time (holding it open was
  * too awkward mid-game); it also seals itself when the phone locks or the page is left. While it's sealed,
- * "Read the task again" unfolds the rules card above it.
+ * the circled ? beside the heading unfolds the rules card (the Taskmaster task) right under it, and folds it away.
  */
 export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { code: string; uid: string; session: Session; onPicked?: () => void }) {
   const task = useMyTask(code, uid);
@@ -158,17 +158,18 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
 
   return (
     <section className="slot envelope-slot">
-      <h2>Your secret task</h2>
+      <h2 className="with-help">
+        Your secret task
+        <button className="help-q" aria-label={rules ? "Hide the rules" : "Read the rules again"} aria-expanded={rules}
+          style={open ? { visibility: "hidden" } : undefined} onClick={() => setRules(!rules)}>?</button>
+      </h2>
       {rules && !open && <TaskCard lines={RULES} small />}
       <div className="env-stack">
         <Envelope open={open} onOpen={() => { setOpen(true); setRules(false); }} />
         {open && <Letter task={task} instant={seen} />}
       </div>
       {open ? <button className="link" onClick={() => setOpen(false)}>Seal it again</button>
-        : <>
-            <p className="slot-hint">Tap the seal to open it. Tell no one.</p>
-            <button className="link" aria-expanded={rules} onClick={() => setRules(!rules)}>{rules ? "Hide the task" : "Read the task again"}</button>
-          </>}
+        : <p className="slot-hint">Tap the seal to open it. Tell no one.</p>}
     </section>
   );
 }

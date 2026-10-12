@@ -985,6 +985,15 @@ button.pile-spot:active { box-shadow: none; }
 .envelope-slot.arrival > .stamp { justify-self: center; }
 .envelope-slot.arrival > h2 { text-align: center; }
 .envelope-slot > .link { justify-self: center; }
+/* the heading's circled ?: unfolds the rules card right under it */
+.envelope-slot h2.with-help { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.help-q {
+  flex: none; width: 1.7rem; height: 1.7rem; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  border: 2px solid currentColor; background: none; box-shadow: none; color: inherit;
+  font-family: var(--typewriter); font-size: 1rem; font-weight: bold; line-height: 1;
+}
+.help-q[aria-expanded="true"] { background: var(--burgundy); color: var(--paper); border-color: var(--burgundy); }
+button.help-q:active { transform: none; box-shadow: none; }
 
 /* Secret Tasks' reveal opening: the same pile as the finish screen, still sealed, each envelope hanging in */
 .finale-spot.sealed { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
