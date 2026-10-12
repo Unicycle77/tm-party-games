@@ -66,3 +66,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `secret-tasks-host-pile-open.jpg` | The same page with "▾ The pile (5)" opened |
 | `secret-tasks-player-pile-drag.jpg` | A guest's phone picking an envelope: the pile, then an envelope being dragged off the others |
 | `secret-tasks-player-envelope.jpg` | A guest's envelope: sealed ("Tap the seal to open it."), and open with "Seal it again" |
+| `secret-tasks-host-send-back.jpg` | "Who has what" with Sam's ✎ open: Save, Cancel and "Send it back to the pile" |

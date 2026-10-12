@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUid } from "../../session";
 import type { Session } from "../../types";
-import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
+import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, returnTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
 
 /**
  * The host's phone, behind ✉ in the header whichever game is on: load the pile of secret tasks (any number,
@@ -104,7 +104,7 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
         {players.map(([id, p]) => {
           const task = tasks?.assigned?.[id];
           const state = task ? (tasks?.seen?.[id] ? "✉ looked" : "✉ hasn't looked") : undealt.length ? "hasn't picked" : "waiting for an envelope";
-          return <WhoRow key={id} code={code} name={p.name} task={task} state={state} />;
+          return <WhoRow key={id} code={code} uid={id} name={p.name} task={task} state={state} />;
         })}
       </ul>
 
@@ -126,13 +126,22 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
 
 /**
  * One guest in "Who has what": tap the name to show their task in the row, and tap again to hide it
- * (holding was too awkward mid-game). ✎ opens the task to fix it.
+ * (holding was too awkward mid-game). ✎ opens the task to fix it, or (rarely) to send it back to the pile.
  */
-function WhoRow({ code, name, task, state }: { code: string; name: string; task?: string; state: string }) {
+function WhoRow({ code, uid, name, task, state }: { code: string; uid: string; name: string; task?: string; state: string }) {
   const [showing, setShowing] = useState(false);
   const [editing, setEditing] = useState(false);
   if (editing && task) {
-    return <li className="stacked"><strong>{name}</strong><EditableTask code={code} text={task} editing onClose={() => setEditing(false)} /></li>;
+    return (
+      <li className="stacked">
+        <strong>{name}</strong>
+        <EditableTask code={code} text={task} editing onClose={() => setEditing(false)} />
+        {/* very rare, so it lives only here, behind ✎ */}
+        <button className="link" onClick={() => {
+          if (confirm(`Put ${name}'s task back on the pile? ${name} picks a new envelope.`)) void returnTask(code, uid).then(() => setEditing(false));
+        }}>Send it back to the pile</button>
+      </li>
+    );
   }
   return (
     <li>

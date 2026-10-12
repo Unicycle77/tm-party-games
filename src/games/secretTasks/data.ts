@@ -146,6 +146,13 @@ export async function clearLeftovers(code: string, uid: string) {
 /** Host: takes a task out of the pool. A player who was already dealt it keeps it. */
 export const removeTask = (code: string, id: string) => remove(ref(db(), `secretTasks/${code}/pool/${id}`));
 
+/**
+ * Host (rarely): takes a player's task back. It goes back on the pile (it's still in the pool, just no longer
+ * dealt), and the player's phone goes back to picking an envelope.
+ */
+export const returnTask = (code: string, uid: string) =>
+  update(ref(db(), `secretTasks/${code}`), { [`assigned/${uid}`]: null, [`seen/${uid}`]: null });
+
 /** Host: deals a random undealt task to every player who has none (for anyone who hasn't picked an envelope). */
 export function dealRest(code: string, session: Session, tasks: SecretTasks | null | undefined) {
   const free = undealtOf(tasks).map(([, text]) => text);
