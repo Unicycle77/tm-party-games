@@ -6,8 +6,9 @@ export type GameId = (typeof GAME_IDS)[number];
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the curtain between contestants (with the portrait, if any). The other steps belong to the active game; a step without a uid shows everyone
  * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks).
+ * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on.
  */
-export type Step = "list" | "curtain" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
+export type Step = "list" | "curtain" | "scoreboard" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
 
 export interface Display {
   uid?: string;
@@ -176,6 +177,39 @@ export interface Jukebox {
   state?: { current?: number; playing?: boolean; volume?: number; repeat?: boolean };
 }
 
+/** A contestant on the party's scoreboard. The host adds them before the party, and guests check in by picking theirs. */
+export interface ScoreboardContestant {
+  name: string;
+  /** Their headshot (a download URL or data URL). Absent: the scoreboard's blank frame. */
+  photo?: string;
+  /** Where they come in the host's list (the order they were added). */
+  order: number;
+}
+
+/** A task on the party's scoreboard: a live task the host names, or an app game. Never tied to a game's own data. */
+export interface ScoreboardTask {
+  order: number;
+  /** A live task's name. */
+  name?: string;
+  /** An app game in the list, which can be started from its row. */
+  game?: GameId;
+  /** The host's note about the task. Only ever shown on the host remote. */
+  description?: string;
+  /** Points by contestant id. A contestant with none gets nothing for this task. */
+  scores?: Record<string, number>;
+}
+
+/**
+ * The party's scoreboard: contestants, the task list and its points, kept apart from the games.
+ * `shown` is every task's points as they stood when the host last updated the big screen, so the big
+ * screen keeps showing those totals until the next update, and the host can see what has changed since.
+ */
+export interface Scoreboard {
+  contestants?: Record<string, ScoreboardContestant>;
+  tasks?: Record<string, ScoreboardTask>;
+  shown?: Record<string, Record<string, number>>;
+}
+
 export interface Session {
   hostUid: string;
   /** The host's phone (claimed via /host). Only it (and the main screen) can drive the display. */
@@ -204,6 +238,7 @@ export interface Session {
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
   jukebox?: Jukebox;
+  scoreboard?: Scoreboard;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */
   lightUid?: string;
   /** Guests asking to move to a new phone, by the new phone's uid (see MoveRequest). */

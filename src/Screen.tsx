@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
 import { Curtain } from "./Curtain";
 import { TaskCard } from "./TaskCard";
+import { ScoreboardStage } from "./scoreboard/ScoreboardStage";
 import { activeGame } from "./games";
 import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
@@ -17,7 +18,7 @@ export function screenState(session: Session) {
   const display = session.display ?? { step: "list" as const };
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
-  const onStage = !!game && display.step !== "list" && display.step !== "curtain"
+  const onStage = display.step === "scoreboard" || !!game && display.step !== "list" && display.step !== "curtain"
     && (!display.uid || (!!session.players?.[display.uid] && game.status?.(session, display.uid) !== "waiting"));
   return { game, display, videoPlaying, onStage };
 }
@@ -42,6 +43,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     preloadImages(photoUrls.split("\n"));
   }, [photoUrls]);
 
+  // The scoreboard belongs to no game, so it can go up whatever is on.
+  if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");
