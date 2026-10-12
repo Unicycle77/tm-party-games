@@ -53,7 +53,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `checkin-phone-not-on-list.jpg` | Not on the list: typing a name, "Back to the list" |
 | `checkin-phone-headshot.jpg` | No headshot on file: "Add your headshot" |
 | `headshot-task-host.jpg` | Headshot task on the remote: running order, "no headshot", Show everyone |
-| `headshot-task-host-up.jpg` | A headshot on the big screen, from the remote |
+| `headshot-task-host-up.jpg` | A headshot on the big screen: still the one list, Sam pressed in as "on the big screen", Next, Lower the curtain |
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Party settings: renaming the party |
