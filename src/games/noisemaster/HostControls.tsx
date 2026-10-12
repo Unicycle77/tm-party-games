@@ -124,6 +124,8 @@ function Setup({ code, session }: { code: string; session: Session }) {
         <>
           <h3>2. The phrase</h3>
           <p className="muted small">No sound files here, so type the words: the main screen will say them out loud. Up to {MAX_WORDS} words, in order; a word can repeat.</p>
+          {/* the main screen keeps quiet about this: players never see it */}
+          <p className="muted small">🔇 Click the main screen once, or its browser keeps the voice silent.{sounds.length === 0 && <> For recordings, put them in a “Noisemaster” folder inside the music folder.</>}</p>
           <ClearableInput value={typedPhrase} onChange={setTypedPhrase} placeholder="e.g. the quick brown fox" label="The phrase" />
           <h3>3. Decoys</h3>
           <p className="muted small">Separated by spaces or commas. The board has {BUTTONS} buttons, so the phrase's different words and the decoys together need to be at least {BUTTONS}.</p>
@@ -224,7 +226,7 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
   const [pressError, setPressError] = useState<string>();
 
   return (
-    <div className="box-setup">
+    <div className="box-setup nm-round">
       <h3>{name} at the soundboard</h3>
       <p className="muted small">“{round.phrase.join(" ")}”</p>
       <p className="box-wait">

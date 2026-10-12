@@ -7,7 +7,7 @@ import { useStageBarVisible } from "../../stageBar";
 import type { Display, NoisemasterPress, NoisemasterRound, Session } from "../../types";
 import { elapsedOf, formatTime, recordPress, restartRound, roundOf, useNoisemasterSecret, useServerNow, useServerOffset } from "./data";
 import { Soundboard } from "./Soundboard";
-import { playSound, prepareSounds, useSoundCount } from "./sounds";
+import { playSound, prepareSounds } from "./sounds";
 
 /**
  * Main screen: the phrase's words as they are said, a picture of the soundboard lighting up with each press, and the
@@ -16,7 +16,6 @@ import { playSound, prepareSounds, useSoundCount } from "./sounds";
 export function Stage({ code, session, viewOnly }: { code: string; session: Session; display: Display; viewOnly: boolean }) {
   const round = roundOf(session);
   useReferee(code, round, !viewOnly);
-  const sounds = useSoundCount();
   const controls = !viewOnly && <StageControls code={code} round={round} />;
   // the curtain while the host sets up: the room looks at the host
   if (!round) return <Curtain code={code} session={session}>{controls}</Curtain>;
@@ -39,7 +38,6 @@ export function Stage({ code, session, viewOnly }: { code: string; session: Sess
       </div>
       {/* keyed by the press, so each mistake gets its own announcement */}
       {round.last && !round.last.ok && !done && <div key={round.last.key} className="start-again">Start again!</div>}
-      {!viewOnly && sounds === 0 && <p className="sound-hint">🔇 No sound files on this computer, so the words are spoken by its voice (click this screen once, or the browser keeps it silent). For recordings, put them in a "Noisemaster" folder inside the music folder.</p>}
       {controls}
     </main>
   );

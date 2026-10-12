@@ -828,6 +828,13 @@ button.soundboard-button:not(:disabled):active { box-shadow: inset 0 1px 0 #fff2
 .phrase-edit button { padding: 0.4rem 0.7rem; }
 .box-setup .sound-choices button { flex-basis: 5rem; }
 .box-setup .soundboard-button { display: grid; place-items: center; padding: 0.2rem; text-align: center; color: #fff; font-family: var(--typewriter); font-size: 0.8rem; line-height: 1.1; overflow-wrap: anywhere; }
+/* iPad in landscape: the round's controls on the left, the board on the right, sized to the screen's height so
+   nothing scrolls */
+@media (orientation: landscape) and (min-width: 900px) {
+  .nm-round { grid-template-columns: minmax(0, 1fr) auto; column-gap: 1.5rem; align-items: start; }
+  .nm-round > :not(.soundboard) { grid-column: 1; }
+  .nm-round > .soundboard { grid-column: 2; grid-row: 1 / span 8; width: min(48vw, calc(100svh - 7.5rem)); }
+}
 
 /* the host line's clock: a fixed width, so the words after it never shift as the digits change */
 .box-wait .soundboard-time { display: inline-block; min-width: 6ch; text-align: left; font-variant-numeric: tabular-nums; }
