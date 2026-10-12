@@ -7,7 +7,7 @@ import type { GameId } from "./types";
  * 1600px on the long side is still sharper than a 1080p screen ever shows a photo, and at quality 0.8
  * the files are ~40% smaller than 1920px @ 0.85.
  */
-async function shrinkImage(file: File, maxDim = 1600): Promise<Blob> {
+export async function shrinkImage(file: File, maxDim = 1600): Promise<Blob> {
   try {
     const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
     const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));

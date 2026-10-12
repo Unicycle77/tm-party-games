@@ -7,6 +7,7 @@ import { needsOf, useDealer, useRecordLeftovers, useSecretTasks } from "./games/
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
+import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { JoinError, allowMove, claimController, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
@@ -14,7 +15,7 @@ import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "music" | "light" | "tasks";
+type View = "show" | "scoreboard" | "music" | "light" | "tasks";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
@@ -25,7 +26,7 @@ export function HostPage() {
   // is open, so a refresh mid-game lands where the host was.
   const [view, setViewState] = useState<View>(() => {
     const saved = store.get(VIEW_KEY);
-    return saved === "music" || saved === "light" || saved === "tasks" ? saved : "show";
+    return saved === "scoreboard" || saved === "music" || saved === "light" || saved === "tasks" ? saved : "show";
   });
   const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
@@ -48,6 +49,7 @@ export function HostPage() {
 
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
+  const scoresUp = session.display?.step === "scoreboard";
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
     <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
       onClick={() => setView(view === v ? "show" : v)}>{glyph}</button>
@@ -57,6 +59,7 @@ export function HostPage() {
     <main className="phone host">
       <header className="host-head">
         <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
+        {icon("scoreboard", scoresUp ? "Scoreboard (on the big screen)" : "Scoreboard", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
@@ -71,7 +74,8 @@ export function HostPage() {
       ) : (
         <>
           <button className="link back" onClick={() => setView("show")}>← Back to the show</button>
-          {view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
+          {view === "scoreboard" ? <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")} />
+            : view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
         </>
       )}
     </main>

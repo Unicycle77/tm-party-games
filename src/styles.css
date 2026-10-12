@@ -975,3 +975,41 @@ button.env-stack.env-hold:active { transform: none; }
 .finale-spot.sealed .finale-envelope { margin-top: -30%; }
 .finale-spot.sealed .env-seal { display: grid; }
 @media (prefers-reduced-motion: reduce) { .finale-spot.sealed { animation: none; } }
+
+/* The scoreboard on the host remote (🏆) */
+.scoreboard-remote section { display: grid; gap: 0.5rem; }
+.sb-note { white-space: pre-wrap; }
+.sb-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.sb-rows li { display: grid; grid-template-columns: minmax(5rem, 9rem) 1fr auto; align-items: center; gap: 0.6rem; }
+.sb-name { font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
+.sb-chips { flex-wrap: nowrap; }
+.sb-chips button, .sb-chips .sb-other { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
+.sb-chips .sb-other { width: 3.4rem; flex: none; padding: 0.4rem; }
+.sb-now { white-space: nowrap; min-width: 4.2rem; text-align: right; }
+.sb-next { justify-self: end; }
+.sb-task-list, .sb-contestant-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.sb-task-list li, .sb-contestant-list li { display: flex; gap: 0.5rem; align-items: stretch; }
+.sb-task-list li.dragging { opacity: 0.7; }
+.sb-task-list li > .sb-add { flex: 1; }
+.sb-handle { flex: none; padding: 0 0.7rem; font-size: 1.3rem; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.sb-task { flex: 1; display: grid; gap: 0.15rem; text-align: left; min-width: 0; }
+.sb-task:disabled { opacity: 1; cursor: default; }
+.sb-task-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-task .muted, .sb-contestant-name .muted { color: #7a6a55; }
+.sb-start { flex: none; white-space: nowrap; }
+.sb-add { display: grid; gap: 0.5rem; }
+.sb-add textarea { font: inherit; width: 100%; padding: 0.7rem; border-radius: 6px; border: 2px solid var(--gold-dark); background: var(--paper); color: var(--ink); }
+.sb-photo { flex: none; width: 3.4rem; height: 3.4rem; padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 1.4rem; }
+.sb-photo img { width: 100%; height: 100%; object-fit: cover; }
+.sb-contestant-name { flex: 1; text-align: left; }
+.sb-rename { flex: 1; display: flex; gap: 0.4rem; align-items: center; }
+.sb-rename button { flex: none; }
+@media (min-width: 700px) {
+  .scoreboard-remote:has(.sb-tasks) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
+  .scoreboard-remote > h2, .scoreboard-remote > .on-screen, .scoreboard-remote > button, .scoreboard-remote > p { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .sb-rows li { grid-template-columns: 1fr auto; row-gap: 0.3rem; }
+  .sb-rows .sb-chips { grid-column: 1 / -1; grid-row: 2; }
+  .sb-chips button { min-width: 0; }
+}

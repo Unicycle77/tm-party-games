@@ -27,10 +27,15 @@ const same = (a: Points | undefined, b: Points | undefined) => {
   return ka.length === kb.length && ka.every((k) => a![k] === b?.[k]);
 };
 
-/** How many tasks have new or changed points since the last update (a removed task that had shown points counts too). */
-export function changedTasks(board: Scoreboard | undefined): number {
+/** Tasks never shown on the big screen that now have points, and shown tasks whose points have changed since. */
+export function pendingTasks(board: Scoreboard | undefined): { added: number; changed: number } {
   const now = currentPoints(board);
   const shown = board?.shown ?? {};
-  const ids = new Set([...Object.keys(now), ...Object.keys(shown)]);
-  return [...ids].filter((id) => !same(now[id], shown[id])).length;
+  let added = 0, changed = 0;
+  for (const id of new Set([...Object.keys(now), ...Object.keys(shown)])) {
+    if (same(now[id], shown[id])) continue;
+    if (shown[id]) changed++;
+    else added++;
+  }
+  return { added, changed };
 }

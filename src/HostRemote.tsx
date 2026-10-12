@@ -67,6 +67,17 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
     </>
   );
 
+  // The scoreboard belongs to no game; it's run from 🏆, and lowering it goes back to the curtain.
+  if (display.step === "scoreboard") {
+    return (
+      <section className="remote">
+        <p className="on-screen">On the big screen: the scoreboard</p>
+        <p className="muted small">Update the scores from 🏆.</p>
+        <button className="big" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
+      </section>
+    );
+  }
+
   // No game yet: the big screen shows the welcome, and the host picks what to play.
   if (!game) {
     return (
