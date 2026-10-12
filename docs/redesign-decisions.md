@@ -174,6 +174,15 @@ Guests join and pick their envelope at the door, before they can see the big scr
 | Peeking later | After the first reading, the envelope is hold-to-peek: hold the seal and the task shows, let go and it seals, with "Let go and it seals." The first open after picking stays tap-to-open with "Seal it again", for reading the task in full at the door. | Tap to open and tap to reseal all evening (today): a phone put down mid-peek leaves the task open for anyone to read. |
 | Empty pile | The stamp and rules card stay, then "No envelopes left yet. The host knows. More will appear here." The pile appears by itself when tasks are added. Rare: the host always has extras. | "Check back soon, or ask the host." (today): it hands the guest a job. A buzz when envelopes arrive: the phone stays quiet everywhere else. |
 
+## Scoreboard
+
+The Taskmaster Scoreboard (Jeffrey's fork of VodBox's tm-scoreboard, with iPad controls) joins this app. It is its own surface, not a game in the picker: games come and go between parties, but the scoreboard is used at every one. This work lives on a branch until Jeffrey decides to keep it.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Combine or not | Combine: the scoreboard becomes part of this app, sharing the party's code, its contestants and the big screen. The fork is rebuilt here; its iPad controls carry over as design, not code. | Two separate apps: the scores and the games take turns on one TV, so the host would switch tabs in front of the room, guests would see two codes, and contestants would be typed in twice. |
+| Credit | Keep VodBox's MIT notice in a third-party notices file and a visible credit. Check the Veteran Typewriter font and the images, which have no stated licence, before shipping. | |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.
