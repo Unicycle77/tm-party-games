@@ -16,6 +16,15 @@ export async function addContestant(code: string, board: Scoreboard | undefined,
   await set(at(code, `contestants/${key}`), { name: name.trim(), order: nextOrder(board?.contestants) });
 }
 
+/** Someone who joined by typing a name while there was no guest list: onto the scoreboard, linked to their phone. */
+export async function addPlayerToScoreboard(code: string, board: Scoreboard | undefined, uid: string, name: string) {
+  const key = push(at(code, "contestants")).key!;
+  await update(ref(db(), `sessions/${code}`), {
+    [`scoreboard/contestants/${key}`]: { name: name.trim(), order: nextOrder(board?.contestants), uid },
+    [`players/${uid}/contestant`]: key,
+  });
+}
+
 export const renameContestant = (code: string, id: string, name: string) => set(at(code, `contestants/${id}/name`), name.trim());
 
 /** Takes them off the scoreboard, with every point they were given. */

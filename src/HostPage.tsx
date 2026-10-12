@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { HostRemote } from "./HostRemote";
+import { HostRemote, JoinQr } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
@@ -26,7 +26,8 @@ export function HostPage() {
   // is open, so a refresh mid-game lands where the host was.
   const [view, setViewState] = useState<View>(() => {
     const saved = store.get(VIEW_KEY);
-    return saved === "scoreboard" || saved === "music" || saved === "light" || saved === "tasks" ? saved : "show";
+    // Home is the run of show (🏆); a game in progress is the "show" view.
+    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" ? saved : "scoreboard";
   });
   const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
@@ -48,7 +49,7 @@ export function HostPage() {
     return <Connect onConnected={(c, created) => {
       store.set(KEY, c);
       setCode(c);
-      // A party made ahead of time opens on the scoreboard: setting it up is why it was made now.
+      // Every party opens on the run of show.
       if (created) setView("scoreboard");
     }} />;
   }
@@ -57,32 +58,41 @@ export function HostPage() {
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
   const scoresUp = session.display?.step === "scoreboard";
+  // Closing the music, envelopes or light goes back to the game in progress, or else the run of show.
+  const home: View = session.game ? "show" : "scoreboard";
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
     <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
-      onClick={() => setView(view === v ? "show" : v)}>{glyph}</button>
+      onClick={() => setView(view === v && v !== "scoreboard" ? home : v)}>{glyph}</button>
   );
+  const settings = <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />;
 
   return (
     <main className="phone host">
       <header className="host-head">
         <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
-        {icon("scoreboard", scoresUp ? "Scoreboard (on the big screen)" : "Scoreboard", "🏆", scoresUp)}
+        {icon("scoreboard", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
-      {view === "show" ? (
+      {view === "scoreboard" ? (
         <>
-          <HostRemote code={code} session={session} />
-          <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />
+          <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")}
+            onOpenGame={() => setView("show")} onAdHoc={() => setView("show")} />
+          <JoinQr code={code} />
+          {settings}
+        </>
+      ) : view === "show" ? (
+        <>
+          <HostRemote code={code} session={session} onRunOfShow={() => setView("scoreboard")} />
+          {settings}
         </>
       ) : (
         <>
-          <button className="link back" onClick={() => setView("show")}>← Back to the show</button>
-          {view === "scoreboard" ? <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")} />
-            : view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
+          <button className="link back" onClick={() => setView(home)}>← Back to {session.game ? "the game" : "the run of show"}</button>
+          {view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
         </>
       )}
     </main>

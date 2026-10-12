@@ -41,9 +41,9 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-start-party.jpg` | Host remote's connect page: "Start a new party", recent parties by name |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | 🏆 giving points: chips 0 to 5 and "…", "now N", Next task |
+| `scoreboard-host-points.jpg` | Giving points for one task: chips 0 to 5 and "…", "now N", "← All tasks", "Next task →" |
 | `scoreboard-host-points-iphone.jpg` | The points page at iPhone width |
-| `scoreboard-host-tasks-contestants.jpg` | 🏆 on a wide iPad: the task list and the contestants side by side |
+| `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |
 | `scoreboard-host-name-photo-task.jpg` | ✎ on a Photos task: "Photos: name it (optional)" |
@@ -57,3 +57,6 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Party settings: renaming the party |
+| `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks, contestants with "checked in" / "not yet", someone not on the scoreboard yet |
+| `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
+| `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |

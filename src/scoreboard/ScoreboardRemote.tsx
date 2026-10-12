@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { noBigScreen, setGame, useUid } from "../session";
-import type { GameId, Scoreboard, ScoreboardTask, Session } from "../types";
+import { noBigScreen, removePlayer, setGame, useUid } from "../session";
+import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
-  addContestant, addTask, editTask, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
+  addContestant, addPlayerToScoreboard, addTask, editTask, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
   setPoints, showScoreboard, updateScores, uploadHeadshot,
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
@@ -22,11 +22,14 @@ const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /**
- * The host remote's 🏆 page: the party's scoreboard, kept apart from the games. Giving points for a task
- * opens first (the next unscored one); "Change task" goes to the task list and the contestants, where
- * the party is set up beforehand. The big screen only moves when the host shows or updates the scoreboard.
+ * The host remote's home, the run of show (🏆 in the header always comes back here): the scoreboard's
+ * buttons, the task list and the contestants. Tapping a task opens its points, and the points page stays
+ * on that task until the host moves on. The big screen only moves when the host shows or updates the
+ * scoreboard, or starts a game. Games not on the list are behind a quiet link at the bottom.
  */
-export function ScoreboardRemote({ code, session, onStartGame }: { code: string; session: Session; onStartGame: () => void }) {
+export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdHoc }: {
+  code: string; session: Session; onStartGame: () => void; onOpenGame: () => void; onAdHoc: () => void;
+}) {
   const board = session.scoreboard;
   const tasks = sorted(board?.tasks);
   const contestants = sorted(board?.contestants);
@@ -36,28 +39,41 @@ export function ScoreboardRemote({ code, session, onStartGame }: { code: string;
   const next = tasks[lastScored + 1]?.[0];
   const unfinished = lastScored >= 0 && contestants.some(([c]) => tasks[lastScored]![1].scores?.[c] === undefined)
     ? tasks[lastScored]![0] : undefined;
+  // The task whose points are open. Pinned when opened, so scoring everyone never moves the page on.
   const [picked, setPicked] = useState<string>();
-  const [page, setPage] = useState<"points" | "list">(() => tasks.length && contestants.length ? "points" : "list");
-  const current = (picked && board?.tasks?.[picked] ? picked : undefined) ?? unfinished ?? next ?? tasks[tasks.length - 1]?.[0];
-
-  const open = (id: string) => { setPicked(id); setPage("points"); window.scrollTo(0, 0); };
+  const upNext = unfinished ?? next;
+  const open = (id: string) => { setPicked(id); window.scrollTo(0, 0); };
+  const game = activeGame(session);
+  const gameTask = game?.id === "photos" && session.games?.photos?.task ? board?.tasks?.[session.games.photos.task] : undefined;
 
   return (
     <div className="box-setup scoreboard-remote">
-      <h2>🏆 Scoreboard</h2>
+      <h2>Run of show</h2>
+      {game && (
+        <div className="sb-now-playing">
+          <span>Now playing: <strong>{gameTask ? titleOf(gameTask) : game.name}</strong></span>
+          <button onClick={onOpenGame}>Open →</button>
+        </div>
+      )}
       <ShowControls code={code} session={session} />
-      {page === "points" && current && contestants.length > 0
-        ? <Points code={code} board={board} id={current} tasks={tasks} contestants={contestants}
-            onChange={() => setPage("list")} onNext={(id) => setPicked(id)} />
+      {picked && board?.tasks?.[picked] && contestants.length > 0
+        ? <Points code={code} board={board} id={picked} tasks={tasks} contestants={contestants}
+            onChange={() => setPicked(undefined)} onNext={open} />
         : (
           <>
+            {upNext && contestants.length > 0 && (
+              <button className="sb-give" onClick={() => open(upNext)}>
+                Give points: {tasks.findIndex(([t]) => t === upNext) + 1}&nbsp; {titleOf(board!.tasks![upNext]!)} →
+              </button>
+            )}
             <TaskList code={code} board={board} tasks={tasks} next={next} onOpen={contestants.length ? open : undefined}
               onStart={(id, game) => void (async () => {
                 // A photo task brings its own photos (see switchPhotosTask).
                 if (game === "photos") await switchPhotosTask(code, session, id);
                 await setGame(code, game);
               })().then(onStartGame)} />
-            <Contestants code={code} board={board} contestants={contestants} />
+            <Contestants code={code} session={session} board={board} contestants={contestants} />
+            <button className="link" onClick={onAdHoc}>Play a game that's not on the list</button>
           </>
         )}
     </div>
@@ -109,7 +125,7 @@ function Points({ code, board, id, tasks, contestants, onChange, onNext }: {
     <section className="sb-points">
       <div className="remote-head">
         <h3>Task {place + 1} of {tasks.length}: {titleOf(task)}</h3>
-        <button className="link" onClick={onChange}>Change task</button>
+        <button className="link" onClick={onChange}>← All tasks</button>
       </div>
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       <p className="muted small">{given} of {contestants.length} scored</p>
@@ -289,7 +305,16 @@ function TaskEdit({ code, id, task, onClose }: { code: string; id: string; task:
 }
 
 /** The contestants, added before the party. The name field stays open at the bottom: type, Return, next. */
-function Contestants({ code, board, contestants }: { code: string; board: Scoreboard | undefined; contestants: [string, { name: string; photo?: string }][] }) {
+/**
+ * Everyone at the party: the guest list (each with "checked in" once their phone is in) and, below it,
+ * anyone who joined by typing a name while there was no list yet, ready to be added to the scoreboard.
+ */
+function Contestants({ code, session, board, contestants }: {
+  code: string; session: Session; board: Scoreboard | undefined; contestants: [string, ScoreboardContestant][];
+}) {
+  const players = session.players ?? {};
+  const linked = new Set(contestants.map(([, c]) => c.uid).filter((u) => u && players[u]));
+  const loose = Object.entries(players).filter(([uid]) => !linked.has(uid)).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const [name, setName] = useState("");
   const add = (e: React.FormEvent) => {
     e.preventDefault();
@@ -302,8 +327,24 @@ function Contestants({ code, board, contestants }: { code: string; board: Scoreb
     <section className="sb-contestants">
       <h3>Contestants ({contestants.length})</h3>
       <ul className="sb-contestant-list">
-        {contestants.map(([id, c]) => <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} hasPoints={id in totals} />)}
+        {contestants.map(([id, c]) => (
+          <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} hasPoints={id in totals}
+            here={c.uid && players[c.uid] ? c.uid : undefined} />
+        ))}
       </ul>
+      {loose.length > 0 && (
+        <>
+          <p className="muted small">Here, but not on the scoreboard:</p>
+          <ul className="sb-contestant-list">
+            {loose.map(([uid, p]) => (
+              <li key={uid}>
+                <span className="sb-contestant-name sb-loose">{p.name}<span className="muted small">checked in</span></span>
+                <button className="sb-start" onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>+ Add</button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <form className="row" onSubmit={add}>
         <input value={name} maxLength={20} onChange={(e) => setName(e.target.value)} placeholder="Name of the next contestant" aria-label="Name of the next contestant" />
         <button type="submit" disabled={!name.trim()}>Add</button>
@@ -312,8 +353,10 @@ function Contestants({ code, board, contestants }: { code: string; board: Scoreb
   );
 }
 
-function ContestantRow({ code, board, id, name, photo, hasPoints }: {
+function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
   code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; hasPoints: boolean;
+  /** Their phone's uid, once they've checked in. */
+  here?: string;
 }) {
   const uid = useUid();
   const input = useRef<HTMLInputElement>(null);
@@ -330,9 +373,12 @@ function ContestantRow({ code, board, id, name, photo, hasPoints }: {
     catch { setFailed(true); }
     finally { setProgress(undefined); }
   }
+  // Off the scoreboard and, if they've checked in, out of the party too (their phone goes back to joining).
   const drop = () => {
-    if (hasPoints && !confirm(`Remove ${name} and all their points?`)) return;
+    const what = [hasPoints && "all their points", here && "their phone's entries"].filter(Boolean).join(" and ");
+    if ((hasPoints || here) && !confirm(`Remove ${name}${what ? ` and ${what}` : ""}?`)) return;
     void removeContestant(code, board, id);
+    if (here) void removePlayer(code, here);
   };
 
   return (
@@ -345,6 +391,7 @@ function ContestantRow({ code, board, id, name, photo, hasPoints }: {
       {draft === undefined ? (
         <button className="sb-contestant-name" onClick={() => setDraft(name)}>
           {name}
+          <span className="muted small">{here ? "checked in" : "not yet"}</span>
           {failed && <span className="error small"> That headshot didn't upload. Try again.</span>}
         </button>
       ) : (
