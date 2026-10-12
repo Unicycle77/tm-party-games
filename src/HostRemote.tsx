@@ -100,7 +100,8 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
 
   const gameLine = (
     <div className="remote-head">
-      <h2>{game.name}</h2>
+      {/* Several photo tasks a night: say whose photos these are. */}
+      <h2>{game.name}{game.id === "photos" && taskName(session) && `: ${taskName(session)}`}</h2>
       <button className="link" onClick={() => void setGame(code, null)}>Change game</button>
     </div>
   );
@@ -190,3 +191,9 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
     </section>
   );
 }
+
+/** The name the host gave the scoreboard task whose photos are on, if any. */
+const taskName = (session: Session) => {
+  const task = session.games?.photos?.task;
+  return task ? session.scoreboard?.tasks?.[task]?.name : undefined;
+};

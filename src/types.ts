@@ -32,6 +32,16 @@ export type BeforeAfterMedia = Partial<Record<"before" | "after" | "video", stri
 /** Download URL of a player's one Photos submission. */
 export interface PhotosMedia { photo?: string }
 
+/**
+ * Photos' game data is the set on now. A party can have several photo tasks on its scoreboard, each with
+ * its own photos: `task` is the scoreboard task the set on now belongs to, and `sets` keeps the others
+ * (by task id) until their task is started again.
+ */
+export interface PhotosData extends GameData<PhotosMedia> {
+  task?: string;
+  sets?: Record<string, GameData<PhotosMedia>>;
+}
+
 /** The two boxes of [BLANK] in a Box: "L" starts with the left player, "R" with the right one. */
 export type BoxKey = "L" | "R";
 
@@ -229,7 +239,7 @@ export interface Session {
   game?: GameId;
   games?: {
     beforeAfter?: GameData<BeforeAfterMedia>;
-    photos?: GameData<PhotosMedia>;
+    photos?: PhotosData;
     box?: { round?: BoxRound; played?: Record<string, boolean> };
     /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
     /**

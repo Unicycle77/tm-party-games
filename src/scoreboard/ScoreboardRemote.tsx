@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
+import { switchPhotosTask } from "../games/photos/data";
 import { noBigScreen, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardTask, Session } from "../types";
 import {
@@ -11,7 +12,12 @@ import { currentTotals, pendingTasks } from "./scoring";
 const sorted = <T extends { order: number }>(items: Record<string, T> | undefined) =>
   Object.entries(items ?? {}).sort(([, a], [, b]) => a.order - b.order);
 
-const titleOf = (t: ScoreboardTask) => t.game ? GAMES[t.game]?.name ?? t.game : t.name || "Untitled task";
+/** A live task goes by its name; an app game by the game's, plus the host's name for it when there are several. */
+const titleOf = (t: ScoreboardTask) => {
+  if (!t.game) return t.name || "Untitled task";
+  const game = GAMES[t.game]?.name ?? t.game;
+  return t.name ? `${game}: ${t.name}` : game;
+};
 const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -46,7 +52,11 @@ export function ScoreboardRemote({ code, session, onStartGame }: { code: string;
         : (
           <>
             <TaskList code={code} board={board} tasks={tasks} next={next} onOpen={contestants.length ? open : undefined}
-              onStart={(game) => { void setGame(code, game); onStartGame(); }} />
+              onStart={(id, game) => void (async () => {
+                // A photo task brings its own photos (see switchPhotosTask).
+                if (game === "photos") await switchPhotosTask(code, session, id);
+                await setGame(code, game);
+              })().then(onStartGame)} />
             <Contestants code={code} board={board} contestants={contestants} />
           </>
         )}
@@ -150,7 +160,7 @@ function PointsRow({ name, points, total, onSet }: { name: string; points?: numb
  */
 function TaskList({ code, board, tasks, next, onOpen, onStart }: {
   code: string; board: Scoreboard | undefined; tasks: [string, ScoreboardTask][]; next?: string;
-  onOpen?: (id: string) => void; onStart: (game: GameId) => void;
+  onOpen?: (id: string) => void; onStart: (id: string, game: GameId) => void;
 }) {
   const [adding, setAdding] = useState<"live" | "game">();
   const [editing, setEditing] = useState<string>();
@@ -202,7 +212,7 @@ function TaskList({ code, board, tasks, next, onOpen, onStart }: {
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
                 <span className="muted small">{scored(t) ? "scored" : id === next ? "← next" : ""}</span>
               </button>
-              {t.game && <button className="sb-start" onClick={() => onStart(t.game!)}>▶ Start</button>}
+              {t.game && <button className="sb-start" onClick={() => onStart(id, t.game!)}>▶ Start</button>}
               <button className="x" aria-label={`Fix ${titleOf(t)}`} onClick={() => setEditing(id)}>✎</button>
             </li>
           );
@@ -245,11 +255,11 @@ function AddLiveTask({ code, board, onClose }: { code: string; board: Scoreboard
   );
 }
 
-/** Fixing a task in place: a live task's name, any task's note, or taking it off the list. */
+/** Fixing a task in place: its name (optional for an app game, to tell two Photos tasks apart), its note, or taking it off the list. */
 function TaskEdit({ code, id, task, onClose }: { code: string; id: string; task: ScoreboardTask; onClose: () => void }) {
   const [name, setName] = useState(task.name ?? "");
   const [description, setDescription] = useState(task.description ?? "");
-  const save = () => { void editTask(code, id, task.game ? undefined : name, description); onClose(); };
+  const save = () => { void editTask(code, id, name, description); onClose(); };
   const drop = () => {
     if (scored(task) && !confirm(`Remove "${titleOf(task)}" and its points?`)) return;
     void removeTask(code, id);
@@ -257,7 +267,11 @@ function TaskEdit({ code, id, task, onClose }: { code: string; id: string; task:
   };
   return (
     <div className="sb-add sb-edit">
-      {task.game ? <strong>{titleOf(task)}</strong> : (
+      {task.game ? (
+        <label>{GAMES[task.game]?.name ?? task.game}: name it (optional)
+          <input value={name} maxLength={80} placeholder="e.g. best costume" onChange={(e) => setName(e.target.value)} />
+        </label>
+      ) : (
         <label>Task name
           <input value={name} maxLength={80} autoFocus onChange={(e) => setName(e.target.value)} />
         </label>

@@ -67,6 +67,13 @@
                 ".validate": "newData.val() === true"
               }
             },
+            "task": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isString()"
+            },
+            "sets": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
+            },
             "$other": {
               ".validate": false
             }

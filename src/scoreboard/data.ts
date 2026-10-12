@@ -50,8 +50,8 @@ export async function addTask(code: string, board: Scoreboard | undefined, task:
 }
 
 /** Changes a task's name and note in place. An empty note removes it. */
-export const editTask = (code: string, id: string, name: string | undefined, description: string) =>
-  update(at(code, `tasks/${id}`), { ...(name !== undefined ? { name: name.trim() } : {}), description: description.trim() || null });
+export const editTask = (code: string, id: string, name: string, description: string) =>
+  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null });
 
 /** Takes a task off the list, with its points. The big screen keeps showing them until the next update. */
 export const removeTask = (code: string, id: string) => remove(at(code, `tasks/${id}`));

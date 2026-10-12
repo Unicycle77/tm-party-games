@@ -213,6 +213,12 @@ export async function allowMove(code: string, session: Session, to: string) {
     carry(`games/${game}/unlocked`, data?.unlocked?.[from]);
     carry(`games/${game}/shown`, data?.shown?.[from]);
   }
+  // Photo tasks put away for later keep their photos too.
+  for (const [task, set] of Object.entries(session.games?.photos?.sets ?? {})) {
+    carry(`games/photos/sets/${task}/media`, set.media?.[from]);
+    carry(`games/photos/sets/${task}/unlocked`, set.unlocked?.[from]);
+    carry(`games/photos/sets/${task}/shown`, set.shown?.[from]);
+  }
   carry("games/box/played", session.games?.box?.played?.[from]);
   carry("games/noisemaster/played", session.games?.noisemaster?.played?.[from]);
   const round = session.games?.box?.round;
