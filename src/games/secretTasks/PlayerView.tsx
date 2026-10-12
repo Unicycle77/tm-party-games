@@ -137,6 +137,9 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
   const task = useMyTask(code, uid);
   const seen = useSeen(code, uid);
   const [open, setOpen] = useState(false);
+  // Typed out only on the first reading. Decided as it opens: opening marks it seen straight away, which
+  // would otherwise flip it to "shown at once" mid-typing.
+  const [typeIt, setTypeIt] = useState(false);
   const [rules, setRules] = useState(false);
   // Once they've read it, the host phone stops flagging them as "haven't looked yet".
   useEffect(() => { if (open && task) void markSeen(code, uid).catch(() => {}); }, [open, task, code, uid]);
@@ -149,7 +152,7 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
   // A task that arrives while the player is choosing from the pile opens by itself: that's the pick paying off.
   const before = useRef(task);
   useEffect(() => {
-    if (before.current === null && typeof task === "string") setOpen(true);
+    if (before.current === null && typeof task === "string") { setTypeIt(true); setOpen(true); }
     before.current = task;
   }, [task]);
 
@@ -165,8 +168,8 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
       </h2>
       {rules && !open && <TaskCard lines={RULES} small />}
       <div className="env-stack">
-        <Envelope open={open} onOpen={() => { setOpen(true); setRules(false); }} />
-        {open && <Letter task={task} instant={seen} />}
+        <Envelope open={open} onOpen={() => { setTypeIt(!seen); setOpen(true); setRules(false); }} />
+        {open && <Letter task={task} instant={!typeIt} />}
       </div>
       {open ? <button className="link" onClick={() => setOpen(false)}>Seal it again</button>
         : <p className="slot-hint">Tap the seal to open it. Tell no one.</p>}
