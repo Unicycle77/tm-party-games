@@ -181,6 +181,8 @@ The Taskmaster Scoreboard (Jeffrey's fork of VodBox's tm-scoreboard, with iPad c
 | Moment | Decision | Rejected, and why |
 | --- | --- | --- |
 | Combine or not | Combine: the scoreboard becomes part of this app, sharing the party's code, its contestants and the big screen. The fork is rebuilt here; its iPad controls carry over as design, not code. | Two separate apps: the scores and the games take turns on one TV, so the host would switch tabs in front of the room, guests would see two codes, and contestants would be typed in twice. |
+| Scope | One scoreboard per party. Guests who come to several parties start fresh at each. | A running series across parties. |
+| Scenarios | In the agreed order: scoring a task and revealing the standings, getting contestants onto the scoreboard, scores from different sources, fixing a mistake, the end of the night, and (probably cut) a guest checking the standings on their phone, since the phone steps back during the show. | |
 | Credit | Keep VodBox's MIT notice in a third-party notices file and a visible credit. Check the Veteran Typewriter font and the images, which have no stated licence, before shipping. | |
 
 ## Notes for building
