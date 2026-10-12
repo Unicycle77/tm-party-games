@@ -83,9 +83,8 @@ export function MainScreen() {
     const known = owners[raw.trim().toUpperCase()];
     if (uid && known !== undefined) {
       if (known === null) { fail(new JoinError(`No session found for code ${raw.trim().toUpperCase()}.`), recentCode); return; }
-      if (known !== uid) { setChoice(raw.trim().toUpperCase()); return; }
-      await open(() => resumeSession(raw), recentCode);
-      return;
+      if (known === uid) { await open(() => resumeSession(raw), recentCode); return; }
+      // Owned by someone else: maybe another screen, or a host remote that made the party ahead of time.
     }
     setBusy(true);
     try {

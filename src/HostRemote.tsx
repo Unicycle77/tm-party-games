@@ -2,7 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { joinUrlFor } from "./firebase";
 import { GAMES, activeGame } from "./games";
-import { removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
+import { noBigScreen, removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -83,8 +83,9 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
     return (
       <section className="remote">
         <p className="on-screen">
-          On the big screen: {!session.begun ? "the welcome" : session.portrait ? "the Taskmaster's portrait" : "the curtain"}
+          On the big screen: {noBigScreen(session) ? "not connected yet." : !session.begun ? "the welcome" : session.portrait ? "the Taskmaster's portrait" : "the curtain"}
         </p>
+        {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
         {session.begun && !session.portrait && <p className="muted small">Add this party's Taskmaster portrait in Party settings.</p>}
         <h2>Choose a game</h2>
         <div className="steps">

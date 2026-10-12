@@ -1,7 +1,7 @@
 import { store } from "./session";
 
 /** A session this device has opened, newest first (kept in localStorage). */
-export interface Recent { code: string; at: number }
+export interface Recent { code: string; at: number; name?: string }
 
 /** Sessions this device has hosted as the main screen. */
 export const HOSTED_KEY = "ba.recentSessions";
@@ -24,8 +24,8 @@ export function saveRecent(key: string, list: Recent[]): Recent[] {
 }
 
 /** Puts `code` at the front of the list (opened just now). */
-export const withRecent = (list: Recent[], code: string): Recent[] =>
-  [{ code, at: Date.now() }, ...list.filter((r) => r.code !== code)].slice(0, MAX_RECENT);
+export const withRecent = (list: Recent[], code: string, name?: string): Recent[] =>
+  [{ code, at: Date.now(), ...(name ? { name } : {}) }, ...list.filter((r) => r.code !== code)].slice(0, MAX_RECENT);
 
 export const withoutRecent = (list: Recent[], code: string): Recent[] => list.filter((r) => r.code !== code);
 
@@ -55,6 +55,7 @@ export function RecentList({ recent, busy, onPick }: { recent: Recent[]; busy: b
         {recent.map((r) => (
           <li key={r.code}>
             <button disabled={busy} onClick={() => onPick(r.code)}>
+              {r.name && <span className="recent-name">{r.name}</span>}
               <span className="recent-code">{r.code}</span>
               <span className="muted small">{ago(r.at)}</span>
             </button>

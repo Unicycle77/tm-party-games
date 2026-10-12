@@ -1004,7 +1004,7 @@ button.env-stack.env-hold:active { transform: none; }
 .sb-contestant-name { flex: 1; text-align: left; }
 .sb-rename { flex: 1; display: flex; gap: 0.4rem; align-items: center; }
 .sb-rename button { flex: none; }
-@media (min-width: 700px) {
+@media (min-width: 1000px) {
   .scoreboard-remote:has(.sb-tasks) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
   .scoreboard-remote > h2, .scoreboard-remote > .on-screen, .scoreboard-remote > button, .scoreboard-remote > p { grid-column: 1 / -1; }
 }
@@ -1013,3 +1013,4 @@ button.env-stack.env-hold:active { transform: none; }
   .sb-rows .sb-chips { grid-column: 1 / -1; grid-row: 2; }
   .sb-chips button { min-width: 0; }
 }
+.recent-name { font-family: var(--typewriter); }

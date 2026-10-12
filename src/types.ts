@@ -211,7 +211,13 @@ export interface Scoreboard {
 }
 
 export interface Session {
+  /**
+   * The main screen. A party created on the host remote (days ahead, with no big screen) starts with the
+   * remote as its host too; the big screen takes over when it opens the party on the night.
+   */
   hostUid: string;
+  /** What the host called the party (e.g. "Halloween party"), when it was created on the host remote. */
+  name?: string;
   /** The host's phone (claimed via /host). Only it (and the main screen) can drive the display. */
   controllerUid?: string;
   players?: Record<string, Player>;

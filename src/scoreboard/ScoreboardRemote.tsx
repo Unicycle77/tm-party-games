@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
-import { setGame, useUid } from "../session";
+import { noBigScreen, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardTask, Session } from "../types";
 import {
   addContestant, addTask, editTask, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
@@ -61,13 +61,14 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
-  const line = up ? "the scoreboard"
+  const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
 
   return (
     <>
       <p className="on-screen">On the big screen: {line}</p>
+      {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {!up ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>

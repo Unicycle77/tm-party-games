@@ -58,6 +58,26 @@ export async function createSession(): Promise<string> {
   return code;
 }
 
+/**
+ * Host remote: creates a party ahead of time, with no big screen yet. The remote is its host and its
+ * controller until a big screen opens the party (see `resumeSession`).
+ */
+export async function createParty(rawName: string): Promise<string> {
+  const user = await ensureSignedIn();
+  const code = await freeCode();
+  await set(ref(db(), `sessions/${code}`), {
+    hostUid: user.uid,
+    controllerUid: user.uid,
+    name: rawName.trim(),
+    createdAt: serverTimestamp(),
+    display: { step: "list" },
+  });
+  return code;
+}
+
+/** A party made on the host remote that no big screen has opened yet. */
+export const noBigScreen = (session: Session) => !!session.controllerUid && session.hostUid === session.controllerUid;
+
 export class JoinError extends Error {}
 
 /** Joining with a name someone already has (ignoring capitals and spaces): maybe them, on another phone. */
@@ -79,13 +99,17 @@ export const sameName = (a: string, b: string) => {
 export const watchHost = (code: string, onChange: (hostUid: string | null) => void) =>
   onValue(ref(db(), `sessions/${code}/hostUid`), (s) => onChange(s.exists() ? (s.val() as string) : null));
 
-/** Main screen, before resuming: does the session exist, and was it last opened on a different screen? */
+/**
+ * Main screen, before resuming: does the session exist, and was it last opened on a different screen?
+ * A party made on the host remote that no screen has opened yet isn't "elsewhere": this screen just takes it.
+ */
 export async function checkResume(rawCode: string): Promise<{ code: string; elsewhere: boolean }> {
   const code = rawCode.trim().toUpperCase();
   const user = await ensureSignedIn();
   const hostUid = await get(ref(db(), `sessions/${code}/hostUid`));
   if (!hostUid.exists()) throw new JoinError(`No session found for code ${code}.`);
-  return { code, elsewhere: hostUid.val() !== user.uid };
+  const controllerUid = (await get(ref(db(), `sessions/${code}/controllerUid`))).val() as string | null;
+  return { code, elsewhere: hostUid.val() !== user.uid && hostUid.val() !== controllerUid };
 }
 
 export async function resumeSession(rawCode: string): Promise<string> {

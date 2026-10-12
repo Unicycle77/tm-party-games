@@ -9,7 +9,7 @@ import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, allowMove, claimController, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, allowMove, claimController, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
@@ -35,8 +35,8 @@ export function HostPage() {
   // Connected: keep this session at the top of the phone's recent list.
   const connected = !!code && !!uid && session?.controllerUid === uid;
   useEffect(() => {
-    if (connected) saveRecent(REMOTE_KEY, withRecent(loadRecent(REMOTE_KEY), code));
-  }, [connected, code]);
+    if (connected) saveRecent(REMOTE_KEY, withRecent(loadRecent(REMOTE_KEY), code, session?.name));
+  }, [connected, code, session?.name]);
 
   // Session gone, or the main screen reset our remote → back to code entry.
   useEffect(() => {
@@ -44,7 +44,14 @@ export function HostPage() {
     if (session === null || session.controllerUid !== uid) disconnect();
   }, [uid, session]);
 
-  if (!code) return <Connect onConnected={(c) => { store.set(KEY, c); setCode(c); }} />;
+  if (!code) {
+    return <Connect onConnected={(c, created) => {
+      store.set(KEY, c);
+      setCode(c);
+      // A party made ahead of time opens on the scoreboard: setting it up is why it was made now.
+      if (created) setView("scoreboard");
+    }} />;
+  }
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
 
   const playing = session.jukebox?.state?.playing === true;
@@ -58,7 +65,7 @@ export function HostPage() {
   return (
     <main className="phone host">
       <header className="host-head">
-        <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
+        <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
         {icon("scoreboard", scoresUp ? "Scoreboard (on the big screen)" : "Scoreboard", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
@@ -179,11 +186,13 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
   );
 }
 
-function Connect({ onConnected }: { onConnected: (code: string) => void }) {
+function Connect({ onConnected }: { onConnected: (code: string, created?: boolean) => void }) {
   const [code, setCode] = useState(() => (new URLSearchParams(location.search).get("code") ?? "").toUpperCase().slice(0, 4));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [scanning, setScanning] = useState(false);
+  /** The new party's name, while "Start a new party" is open. */
+  const [naming, setNaming] = useState<string>();
   const autoTried = useRef(false);
   // Sessions this phone has been the host remote for.
   const [recent, setRecent] = useState(() => loadRecent(REMOTE_KEY));
@@ -216,11 +225,40 @@ function Connect({ onConnected }: { onConnected: (code: string) => void }) {
     void connect(code);
   }
 
+  async function start(e: React.FormEvent) {
+    e.preventDefault();
+    if (!naming?.trim()) return;
+    setBusy(true);
+    setError(undefined);
+    try { onConnected(await createParty(naming), true); }
+    catch { setError("Couldn't start the party. Try again."); }
+    finally { setBusy(false); }
+  }
+
+  // Days ahead: name the party, and it's made right here, with no big screen yet.
+  if (naming !== undefined) {
+    return (
+      <main className="join">
+        <h1>Host remote</h1>
+        <form onSubmit={(e) => void start(e)}>
+          <label>Name this party
+            <input value={naming} maxLength={40} autoFocus onChange={(e) => setNaming(e.target.value)} placeholder="Halloween party" />
+          </label>
+          <button type="submit" className="big" disabled={busy || !naming.trim()}>{busy ? "Starting…" : "Start the party"}</button>
+          {error && <p className="error">{error}</p>}
+        </form>
+        <button className="link" onClick={() => { setNaming(undefined); setError(undefined); }}>Cancel</button>
+      </main>
+    );
+  }
+
   return (
     <main className="join">
       <h1>Host remote</h1>
+      {/* Start and Connect weigh the same (days ahead you start one, on the night you connect), so both are paper. */}
+      <button onClick={() => { setNaming(""); setError(undefined); }}>Start a new party</button>
       <form onSubmit={submit}>
-        <label>Game code (from the main screen)
+        <label>Or connect to one: the party code
           <div className="row">
             <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
               maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
