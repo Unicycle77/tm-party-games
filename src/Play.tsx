@@ -151,6 +151,42 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
     );
   }
 
+  // First the code alone; the name comes after, from the party's list (or typed, if it has none).
+  if (editingCode) {
+    const ready = code.length === 4;
+    const next = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!ready || party === undefined) return;
+      if (party === null) { setError(`No session found for code ${code}.`); return; }
+      setError(undefined);
+      setTyping(false);
+      setEditingCode(false);
+    };
+    return (
+      <main className="join">
+        <h1>Taskmaster</h1>
+        {notice && <p className="notice">{notice}</p>}
+        <form onSubmit={next}>
+          <label>Game code
+            <div className="row">
+              <input value={code} onChange={(e) => { setCode(e.target.value.toUpperCase().slice(0, 4)); setError(undefined); }}
+                maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
+              <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
+            </div>
+          </label>
+          <p className="muted small join-hint">It's on the big screen.</p>
+          <button type="submit" className="big" disabled={!ready || party === undefined}>{ready && party === undefined ? "Finding the party…" : "Next"}</button>
+          {error && <p className="error">{error}</p>}
+        </form>
+        {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
+          setScanning(false);
+          const c = extractCode(t);
+          if (c) { setCode(c); setError(undefined); }
+        }} />}
+      </main>
+    );
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -173,17 +209,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       <h1>Taskmaster</h1>
       {notice && <p className="notice">{notice}</p>}
       <form onSubmit={(e) => void submit(e)}>
-        {editingCode ? (
-          <label>Game code
-            <div className="row">
-              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
-                maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
-              <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
-            </div>
-          </label>
-        ) : (
-          <p className="joining">Joining {party?.name ? <strong className="party-name">{party.name}</strong> : <>party <strong>{code}</strong></>}</p>
-        )}
+        <p className="joining">Joining {party?.name ? <strong className="party-name">{party.name}</strong> : <>party <strong>{code}</strong></>}</p>
         <label>Your first name
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={20}
             autoCapitalize="words" autoComplete="given-name" placeholder="e.g. Alex" required />
@@ -195,16 +221,11 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
             <p className="muted small">Someone else? Add your last initial, like "{clash} B".</p>
           </div>
         ) : <p className="muted small join-hint">This is how you'll appear on the big screen.</p>}
-        <button type="submit" className="big" disabled={busy || code.length !== 4 || clashes}>{busy ? "Joining…" : "Join"}</button>
+        <button type="submit" className="big" disabled={busy || clashes}>{busy ? "Joining…" : "Join"}</button>
         {error && <p className="error">{error}</p>}
       </form>
       {typing && guests.length > 0 && <button className="link" onClick={() => { setTyping(false); setError(undefined); }}>Back to the list</button>}
-      {!editingCode && <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>}
-      {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
-        setScanning(false);
-        const c = extractCode(t);
-        if (c) { setCode(c); setError(undefined); }
-      }} />}
+      <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>
     </main>
   );
 }

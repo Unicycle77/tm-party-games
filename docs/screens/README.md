@@ -52,6 +52,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-name-photo-task.jpg` | ✎ on a Photos task: "Photos: name it (optional)" |
 | `scoreboard-host-photos-named.jpg` | A named photo task running: "Photos: best costume" |
 | `checkin-phone-list.jpg` | Guest's phone: "Joining Halloween party", tap your name |
+| `player-join-code-first.jpg` | Guest's phone without the QR: the code alone with "Next", then the list to tap a name, and "Not on the list? Type your name" |
 | `checkin-phone-confirm.jpg` | "You're Sam?" with gold "That's me" |
 | `checkin-phone-not-on-list.jpg` | Not on the list: typing a name, "Back to the list" |
 | `checkin-phone-headshot.jpg` | No headshot on file: "Add your headshot" |
