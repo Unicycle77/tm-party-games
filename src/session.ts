@@ -1,8 +1,8 @@
 import { onAuthStateChanged, signInAnonymously, type User } from "firebase/auth";
-import { get, onValue, ref, remove, serverTimestamp, set, update } from "firebase/database";
+import { get, onValue, push, ref, remove, serverTimestamp, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
-import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type Session } from "./types";
+import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session } from "./types";
 
 let signIn: Promise<User> | undefined;
 
@@ -121,6 +121,10 @@ export async function resumeSession(rawCode: string): Promise<string> {
   return code;
 }
 
+/**
+ * Joining by typing a name. When the party has a guest list (the scoreboard's contestants), a name that's
+ * on it should be tapped instead, and a name that isn't joins the scoreboard too.
+ */
 export async function joinSession(rawCode: string, rawName: string): Promise<string> {
   const code = rawCode.trim().toUpperCase();
   const name = rawName.trim();
@@ -132,14 +136,45 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   const players = ((await get(ref(db(), `sessions/${code}/players`))).val() ?? {}) as Record<string, Player>;
   const clash = Object.entries(players).find(([uid, p]) => uid !== user.uid && sameName(p.name, name));
   if (clash) throw new SameNameError(clash[1].name);
+  const guests = ((await get(ref(db(), `sessions/${code}/scoreboard/contestants`))).val() ?? {}) as Record<string, ScoreboardContestant>;
+  const listed = Object.values(guests).find((c) => sameName(c.name, name));
+  if (listed) throw new JoinError(`${listed.name} is on the list. Go back and tap your name.`);
   // A brand-new player starts clean: clear anything left behind by an earlier stint or a partial removal.
   // (Someone reconnecting with their player record still in place keeps their submission.)
   if (!(await get(ref(db(), `sessions/${code}/players/${user.uid}`))).exists()) {
     await clearSubmissions(code, user.uid);
   }
-  await set(ref(db(), `sessions/${code}/players/${user.uid}`), {
-    name,
-    joinedAt: serverTimestamp(),
+  if (Object.keys(guests).length === 0) {
+    await set(ref(db(), `sessions/${code}/players/${user.uid}`), { name, joinedAt: serverTimestamp() });
+    return code;
+  }
+  // Not on the guest list: they join the scoreboard as well (and add their headshot next).
+  const id = push(ref(db(), `sessions/${code}/scoreboard/contestants`)).key!;
+  const order = Math.max(-1, ...Object.values(guests).map((c) => c.order)) + 1;
+  await set(ref(db(), `sessions/${code}/scoreboard/contestants/${id}`), { name, order, uid: user.uid });
+  await set(ref(db(), `sessions/${code}/players/${user.uid}`), { name, joinedAt: serverTimestamp(), contestant: id });
+  return code;
+}
+
+/** The name a guest tapped is already checked in on another phone: maybe theirs (see askToMove). */
+export class TakenError extends JoinError {
+  constructor(readonly taken: string) { super(`${taken} is already checked in on another phone.`); }
+}
+
+/** Joining by tapping a name on the guest list (the scoreboard's contestants). */
+export async function joinAsContestant(rawCode: string, id: string): Promise<string> {
+  const code = rawCode.trim().toUpperCase();
+  const user = await ensureSignedIn();
+  const snap = await get(ref(db(), `sessions/${code}`));
+  if (!snap.exists()) throw new JoinError(`No session found for code ${code}.`);
+  const session = snap.val() as Session;
+  const guest = session.scoreboard?.contestants?.[id];
+  if (!guest) throw new JoinError("That name isn't on the list any more. Ask the host.");
+  if (guest.uid && guest.uid !== user.uid && session.players?.[guest.uid]) throw new TakenError(guest.name);
+  if (!session.players?.[user.uid]) await clearSubmissions(code, user.uid);
+  await update(ref(db(), `sessions/${code}`), {
+    [`scoreboard/contestants/${id}/uid`]: user.uid,
+    [`players/${user.uid}`]: { name: guest.name, joinedAt: serverTimestamp(), contestant: id },
   });
   return code;
 }
@@ -193,6 +228,8 @@ export async function allowMove(code: string, session: Session, to: string) {
   const order = session.games?.secretTasks?.reveal?.order;
   if (order?.includes(from)) u["games/secretTasks/reveal/order"] = order.map((id) => (id === from ? to : id));
   if (session.display?.uid === from) u["display/uid"] = to;
+  // Their place on the guest list moves too, so the scoreboard's headshot stays theirs.
+  for (const [id, c] of Object.entries(session.scoreboard?.contestants ?? {})) if (c.uid === from) u[`scoreboard/contestants/${id}/uid`] = to;
   await update(ref(db(), `sessions/${code}`), u);
 }
 
@@ -246,7 +283,11 @@ const clearSubmissions = (code: string, uid: string) =>
 
 /** Removes a player *and* everything they submitted, so rejoining starts fresh. */
 export const removePlayer = async (code: string, uid: string) => {
+  // On the guest list, they stay on the scoreboard (the host manages that), free to check in again.
+  const guests = ((await get(ref(db(), `sessions/${code}/scoreboard/contestants`))).val() ?? {}) as Record<string, ScoreboardContestant>;
+  const listed = Object.entries(guests).filter(([, c]) => c.uid === uid);
   await Promise.all([
+    ...listed.map(([id]) => remove(ref(db(), `sessions/${code}/scoreboard/contestants/${id}/uid`))),
     remove(ref(db(), `sessions/${code}/players/${uid}`)),
     clearSubmissions(code, uid),
     remove(ref(db(), `sessions/${code}/games/box/played/${uid}`)),

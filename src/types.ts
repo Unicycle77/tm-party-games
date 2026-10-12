@@ -22,6 +22,8 @@ export interface Display {
 export interface Player {
   name: string;
   joinedAt: number;
+  /** The scoreboard contestant they checked in as, if the party had a guest list. */
+  contestant?: string;
 }
 
 /** Download URLs of a player's Before & After submission. RTDB drops empty objects, so all optional. */
@@ -184,6 +186,8 @@ export interface ScoreboardContestant {
   photo?: string;
   /** Where they come in the host's list (the order they were added). */
   order: number;
+  /** The guest (player uid) who checked in as them, by tapping their name or typing it in. */
+  uid?: string;
 }
 
 /** A task on the party's scoreboard: a live task the host names, or an app game. Never tied to a game's own data. */

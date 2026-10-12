@@ -232,9 +232,17 @@
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           "contestants": {
             "$id": {
+              ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
               "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" },
-              "photo": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+              "photo": {
+                ".write": "auth != null && data.parent().child('uid').val() === auth.uid",
+                ".validate": "newData.isString() && newData.val().length <= 2000"
+              },
               "order": { ".validate": "newData.isNumber()" },
+              "uid": {
+                ".write": "auth != null && data.parent().exists() && newData.val() === auth.uid && (!data.exists() || data.val() === auth.uid || !root.child('sessions').child($code).child('players').child(data.val()).exists())",
+                ".validate": "newData.isString()"
+              },
               "$other": { ".validate": false }
             }
           },

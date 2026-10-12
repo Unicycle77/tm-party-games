@@ -344,6 +344,7 @@ input::placeholder { color: #8b7a63; }
   box-shadow: 0 3px 0 #0006;
 }
 .joining strong { font-size: 1.2rem; letter-spacing: 0.3em; }
+.joining strong.party-name { letter-spacing: 0.02em; }
 /* why the phone is back on the join form (removed, party ended): a plain line, not an error */
 .notice { margin: 0; text-align: center; color: var(--fg); }
 /* sits right under the name field it explains */
@@ -1014,3 +1015,7 @@ button.env-stack.env-hold:active { transform: none; }
   .sb-chips button { min-width: 0; }
 }
 .recent-name { font-family: var(--typewriter); }
+/* Checking in from the guest list */
+.tap-name { margin: 0.5rem 0 0; }
+.guest-list button { font-size: 1.1rem; padding: 0.8rem 0.5rem; }
+.slot img.guest-photo { width: 60%; max-height: 30vh; object-fit: cover; }
