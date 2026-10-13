@@ -393,8 +393,17 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 /* the run of show's ≡, in the tile's other top corner; the dragged photo goes faint like a dragged task */
 .prize-picks .handle { position: absolute; top: 0.3rem; left: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.1rem; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .prize-picks li.dragging { opacity: 0.7; }
+/* the host's prize task: the list beside the picked prize's previews (stacked on phones) */
+.prize-host { display: grid; gap: 1.25rem; }
+@media (min-width: 900px) { .prize-host { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 2.5rem; align-items: start; } }
+.prize-previews { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.prize-previews li { display: grid; gap: 0.25rem; justify-items: center; }
+.prize-previews button { position: relative; width: 100%; aspect-ratio: 1; padding: 0; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; }
+.prize-previews img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* the photo on the big screen: gold, like the stage step that's on */
+.prize-previews button.active { border-color: var(--gold-edge); box-shadow: 0 0 0 4px var(--gold-bright), 0 0 16px var(--gold-bright); }
 /* the main photo, the one the winner's haul shows: gold, since it's the chosen one */
-.prize-picks .star { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold-gradient); border: 2px solid var(--gold-edge); color: var(--ink); font-size: 1rem; box-shadow: 0 2px 0 #0006; pointer-events: none; }
+.prize-previews .star, .prize-picks .star { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold-gradient); border: 2px solid var(--gold-edge); color: var(--ink); font-size: 1rem; box-shadow: 0 2px 0 #0006; pointer-events: none; }
 .prize-add { width: 100%; height: 100%; padding: 0.3rem; background: #1a0f08; color: var(--muted); border: 3px dashed var(--gold); border-radius: 2px; box-shadow: none; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }

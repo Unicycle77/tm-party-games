@@ -74,3 +74,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-choose.jpg` | Prize task on a guest's phone after check-in: "🎁 Your prize", one "Add photos" button (in design) |
 | `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (in design; stand-in photos) |
 | `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (in design; stand-in photos) |
+| `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Priya's prize, her photos as previews with ★, nothing on the big screen yet (in design; stand-in photos) |
