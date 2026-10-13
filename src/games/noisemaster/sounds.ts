@@ -78,21 +78,52 @@ export async function playSound(name: string, inPhrase: boolean) {
 /**
  * Stand-in for a missing sound file: the browser's speech synthesiser says the word (for testing without
  * recordings). The phrase's words get one voice and the decoys another, so they can be told apart by ear.
+ *
+ * Chrome on Windows is fussy here: it drops an utterance spoken straight after cancel(), can get stuck paused,
+ * stops speaking if the utterance is garbage collected, and its Google voices are online ones that can fail
+ * silently. So: cancel only when something is talking and speak a moment later, resume first, keep hold of the
+ * utterance, prefer voices on the device, and if a voice fails, say the word again in the default one.
  */
+let saying: SpeechSynthesisUtterance | undefined;
+
+// Chrome loads its voices in the background: ask early so the first word already has them.
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.addEventListener?.("voiceschanged", () => window.speechSynthesis.getVoices());
+}
+
 function speak(word: string, inPhrase: boolean) {
   if (!("speechSynthesis" in window)) return;
   try { playing?.stop(); } catch { /* already finished */ }
   const synth = window.speechSynthesis;
-  synth.cancel();
-  const say = new SpeechSynthesisUtterance(word);
+  const busy = synth.speaking || synth.pending;
+  if (busy) synth.cancel();
   // British men (Daniel, Arthur and Oliver on Apple devices, George and Ryan on Windows, Google's UK male): the phrase
-  // gets the first and decoys the second. With only one on the device, decoys reuse it, pitched lower to tell them apart.
+  // gets the first and decoys the second, voices on the device ahead of online ones. With only one on the device,
+  // decoys reuse it, pitched lower to tell them apart.
   const male = ["daniel", "arthur", "oliver", "george", "ryan", "thomas", "male"];
+  const rank = (v: SpeechSynthesisVoice) => (v.localService ? 0 : male.length) + male.findIndex((n) => v.name.toLowerCase().includes(n));
   const british = synth.getVoices().filter((v) => v.lang.toLowerCase().replace("_", "-") === "en-gb"
     && male.some((n) => v.name.toLowerCase().includes(n)) && !v.name.toLowerCase().includes("female"))
-    .sort((a, b) => male.findIndex((n) => a.name.toLowerCase().includes(n)) - male.findIndex((n) => b.name.toLowerCase().includes(n)));
+    .sort((a, b) => rank(a) - rank(b));
   const voice = inPhrase ? british[0] : british[1] ?? british[0];
-  if (voice) say.voice = voice;
-  if (!inPhrase && british.length < 2) say.pitch = 0.6;
-  synth.speak(say);
+  const utterance = (withVoice: boolean) => {
+    const say = new SpeechSynthesisUtterance(word);
+    if (withVoice && voice) { say.voice = voice; say.lang = voice.lang; }
+    if (!inPhrase && british.length < 2) say.pitch = 0.6;
+    say.onerror = (e) => {
+      // A voice that fails (an online one offline, say) gets one more go in the device's default voice.
+      if (withVoice && voice && saying === say && e.error !== "interrupted" && e.error !== "canceled") start(utterance(false));
+    };
+    return say;
+  };
+  const start = (say: SpeechSynthesisUtterance) => {
+    saying = say;
+    synth.resume();
+    synth.speak(say);
+  };
+  const first = utterance(true);
+  saying = first;
+  if (busy) setTimeout(() => { if (saying === first) start(first); }, 50);
+  else start(first);
 }
