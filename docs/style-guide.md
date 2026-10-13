@@ -67,7 +67,7 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 Any on/off setting is a **switch**, not a button whose label flips between "Show" and "Hide". Use `<Toggle label on onChange />` (`src/Toggle.tsx`) and stack them in a `.toggles` list: typewriter label on the left, a switch on the right (a wooden slot that fills gold when on, with a paper knob). Label it with what it controls, stated positively, so on means "shown" or "running" ("🔁 Repeat", "Light on"). Buttons stay for actions and for choosing one of several (`.active`).
 
 ### Inputs
-Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `<label>`: labels are a grid with `--muted` text above the field. Game-code inputs use the typewriter font with wide letter spacing (`0.3em`), uppercase, `maxLength={4}`, `placeholder="ABCD"`, plus a 📷 scan button beside them in a `.row`.
+Paper background, `--gold-dark` border, 6px radius, full width. Wrap them in a `<label>`: labels are a grid with `--muted` text above the field. Pin inputs are `<PinField>` (`src/HostPin.tsx`): typewriter digits with 0.3em tracking and a 👁 inside the field's right end that shows them; hidden as dots by default, except while choosing a new pin. Game-code inputs use the typewriter font with wide letter spacing (`0.3em`), uppercase, `maxLength={4}`, `placeholder="ABCD"`, plus a 📷 scan button beside them in a `.row`.
 
 ### Cards and panels
 - **Player tile** (`.tile`): an index card, 3px radius, **slightly rotated** (`-1deg`, `1.2deg`, `-0.4deg` by position). On hover it straightens, grows 4% and gets a gold ring.
@@ -147,6 +147,8 @@ Each screen has its own rules. Know which one you're designing for.
 | 🔒 🔓 | Locked / may resubmit |
 | 🔇 | Sound blocked |
 | 💡 | The light (`/light`), its Hue lamp and its host-remote tab |
+| 👁 | Show a hidden pin (inside the field, pressed in while shown) |
+| 🔑 | The host pin, in the big screen's hidden menu |
 | … | In progress (`Joining…`, `sending…`) |
 
 **Copy voice:**

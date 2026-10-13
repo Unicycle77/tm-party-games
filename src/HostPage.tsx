@@ -9,7 +9,8 @@ import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, allowMove, claimController, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
+import { HostPinSetting, PinStep } from "./HostPin";
+import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
@@ -210,6 +211,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
       <PartyName code={code} session={session} />
+      <HostPinSetting code={code} />
       <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
@@ -231,6 +233,8 @@ function Connect({ onConnected }: { onConnected: (code: string, created?: boolea
   const [scanning, setScanning] = useState(false);
   /** The new party's name, while "Start a new party" is open. */
   const [naming, setNaming] = useState<string>();
+  /** A pinned party this phone hasn't entered the pin for yet. */
+  const [pinFor, setPinFor] = useState<PinNeededError>();
   const autoTried = useRef(false);
   // Sessions this phone has been the host remote for.
   const [recent, setRecent] = useState(() => loadRecent(REMOTE_KEY));
@@ -240,6 +244,7 @@ function Connect({ onConnected }: { onConnected: (code: string, created?: boolea
     setError(undefined);
     try { onConnected(await claimController(c)); }
     catch (err) {
+      if (err instanceof PinNeededError) { setPinFor(err); return; }
       // A session that no longer exists drops off the recent list.
       if (err instanceof JoinError && err.message.startsWith("No session found")) {
         setRecent(saveRecent(REMOTE_KEY, withoutRecent(recent, c.trim().toUpperCase())));
@@ -271,6 +276,21 @@ function Connect({ onConnected }: { onConnected: (code: string, created?: boolea
     try { onConnected(await createParty(naming), true); }
     catch { setError("Couldn't start the party. Try again."); }
     finally { setBusy(false); }
+  }
+
+  async function enterPin(pin: string) {
+    if (!pinFor) return;
+    setBusy(true);
+    setError(undefined);
+    try { onConnected(await claimWithPin(pinFor.code, pin)); }
+    catch (err) { setError(err instanceof JoinError ? err.message : "Something went wrong. Try again."); }
+    finally { setBusy(false); }
+  }
+
+  if (pinFor) {
+    return <PinStep title="Host remote" opening="Connecting to" name={pinFor.partyName} code={pinFor.code}
+      hint="You'll only type it once on this phone." action="Connect" busy={busy} error={error}
+      onSubmit={(pin) => void enterPin(pin)} onExit={() => { setPinFor(undefined); setError(undefined); }} />;
   }
 
   // Days ahead: name the party, and it's made right here, with no big screen yet.
