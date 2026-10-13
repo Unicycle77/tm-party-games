@@ -307,7 +307,7 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
         {editing === "tiebreaker" ? <li><TiebreakerEdit code={code} board={board} onClose={() => setEditing(undefined)} /></li> : (
           // Every party's tiebreaker: always last, outside the running order, played only on a tie.
           <li>
-            <button className="sb-task" disabled={!onTiebreak} onClick={onTiebreak}>
+            <button className="sb-task sb-tiebreaker" disabled={!onTiebreak} onClick={onTiebreak}>
               <span className="sb-task-title">{board?.tiebreaker?.name || "Tiebreaker task"}<span className="muted small"> · only if there's a tie</span></span>
               <span className="muted small sb-task-note">{board?.tiebreaker?.description ? `"${board.tiebreaker.description}"` : "Add how it's won with ✎"}</span>
             </button>
