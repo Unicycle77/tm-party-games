@@ -415,11 +415,15 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 @media (min-width: 900px) { .prize-host { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 2.5rem; align-items: start; } }
 .prize-previews { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
 .prize-previews li { display: grid; gap: 0.25rem; justify-items: center; }
-.prize-previews button { position: relative; width: 100%; aspect-ratio: 1; padding: 0; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; }
+.prize-preview { position: relative; width: 100%; }
+.prize-previews button:first-child { width: 100%; aspect-ratio: 1; padding: 0; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; }
 .prize-previews img { width: 100%; height: 100%; object-fit: contain; display: block; }
 /* a photo the host is adding: an empty tile with its progress until it's sent */
 .prize-sending { width: 100%; aspect-ratio: 1; display: grid; place-items: center; padding: 1rem; box-sizing: border-box; background: #1a0f08; border: 3px dashed var(--gold); border-radius: 2px; }
 /* the photo on the big screen: gold, like the stage step that's on */
+.prize-previews .x { position: absolute; top: 0.4rem; right: 0.4rem; width: 2.2rem; height: 2.2rem; padding: 0; display: grid; place-items: center; }
+/* ☆ sits where the ★ would: tapping it moves the ★ here */
+.prize-previews .unstar { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; border-radius: 50%; font-size: 1.1rem; }
 .prize-previews button.active { border-color: var(--gold-edge); box-shadow: 0 0 0 4px var(--gold-bright), 0 0 16px var(--gold-bright); }
 /* the main photo, the one the winner's haul shows: gold, since it's the chosen one */
 .prize-previews .star, .prize-picks .star { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold-gradient); border: 2px solid var(--gold-edge); color: var(--ink); font-size: 1rem; box-shadow: 0 2px 0 #0006; pointer-events: none; }

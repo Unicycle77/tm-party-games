@@ -8,9 +8,11 @@ export interface PrizeEntry { id: string; name: string; photos: string[] }
  * step is. Tapping another name switches straight to them. "+ Add photos" lets the host photograph a
  * prize in the room (only the host can add to a prize once it's presented): new photos join the end,
  * each as a tile with its progress until it's sent, so the ★ stays on the guest's first. A prize with
- * no photos gets its first, and its ★, this way.
+ * no photos gets its first, and its ★, this way. The host can also tidy a prize: ✕ removes a photo (asking
+ * first, since it's the guest's; never the one on the big screen), and ☆ on any other photo moves the ★
+ * to it, which makes it the first.
  */
-export function PrizePresenting({ entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onLower }: {
+export function PrizePresenting({ entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onRemove, onStar, onLower }: {
   entries: PrizeEntry[];
   presenting?: string;
   presented: Record<string, boolean>;
@@ -21,6 +23,9 @@ export function PrizePresenting({ entries, presenting, presented, up, sending = 
   onPick: (id: string) => void;
   onShow: (id: string, index: number) => void;
   onAdd: (id: string) => void;
+  onRemove: (id: string, index: number) => void;
+  /** Moves the ★ to this photo, making it the prize's first. */
+  onStar: (id: string, index: number) => void;
   onLower: () => void;
 }) {
   const current = entries.find((e) => e.id === presenting);
@@ -57,10 +62,15 @@ export function PrizePresenting({ entries, presenting, presented, up, sending = 
                 const isUp = up?.id === current.id && up.index === i;
                 return (
                   <li key={url}>
-                    <button className={isUp ? "active" : undefined} aria-pressed={isUp} aria-label={`Show photo ${i + 1}`} onClick={() => onShow(current.id, i)}>
-                      <img src={url} alt="" />
-                      {i === 0 && <span className="star" aria-hidden>★</span>}
-                    </button>
+                    <div className="prize-preview">
+                      <button className={isUp ? "active" : undefined} aria-pressed={isUp} aria-label={`Show photo ${i + 1}`} onClick={() => onShow(current.id, i)}>
+                        <img src={url} alt="" />
+                      </button>
+                      <button className="x" disabled={isUp} aria-label={`Remove photo ${i + 1}`}
+                        onClick={() => confirm(`Remove this photo from ${current.name}'s prize?`) && onRemove(current.id, i)}>✕</button>
+                      {i === 0 ? <span className="star" role="img" aria-label="Main photo">★</span>
+                        : <button className="unstar" aria-label={`Make photo ${i + 1} the main photo`} onClick={() => onStar(current.id, i)}>☆</button>}
+                    </div>
                     <span className="muted small">{isUp ? "on the big screen" : " "}</span>
                   </li>
                 );
