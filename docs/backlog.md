@@ -47,6 +47,7 @@ Status: nothing here is fixed yet. Notes under each item are initial diagnosis o
 - **Files:** `src/MainScreen.tsx`, `src/styles.css` (`.lobby header`), possibly `src/HostPage.tsx` (auto-connect).
 
 ### E4. Host PIN, so players can't claim the host remote
+- **Status: built (2026-10-13), differently from the sketch below.** The pin is optional and set from the host phone's Party settings, not the big screen; trusted browsers are remembered in `hostTrust/<code>`; it also guards the big screen. See "Host pin" in `docs/redesign-decisions.md`. Redeploy the database rules.
 - **Problem:** the first phone to open `/host` (or scan the host QR from E3) claims the host slot. A player could take it. Reset on the main screen is only a recovery.
 - **Key point:** a PIN shown on the main screen protects nothing, because players see it. The host must choose it privately on the PC.
 - **Flow:**

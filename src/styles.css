@@ -366,6 +366,20 @@ input::placeholder { color: #8b7a63; }
 .notice { margin: 0; text-align: center; color: var(--fg); }
 /* sits right under the name field it explains */
 .join-hint { margin: -0.6rem 0 0; }
+/* a pin with an 👁 inside the field's right end that shows the digits */
+.pin-field { position: relative; display: grid; flex: 3; }
+.pin-field input { font-family: var(--typewriter); letter-spacing: 0.3em; padding-right: 3rem; }
+.pin-field.centred input { font-size: 1.4rem; text-align: center; padding-left: 3rem; }
+.pin-field .eye {
+  position: absolute; right: 0.3rem; top: 50%; transform: translateY(-50%);
+  padding: 0.3rem; font-size: 1.3rem; line-height: 1; background: none; border: 0; box-shadow: none; opacity: 0.55;
+}
+.pin-field .eye[aria-pressed="true"] { opacity: 1; }
+.pin-field .eye:active { transform: translateY(-50%); }
+/* the big screen's pin step: the phone's, centred on the TV */
+.center.pin-step form, .center.pin-step .extra-screen { display: grid; gap: 1rem; width: min(26rem, 90vw); justify-self: center; text-align: left; }
+.center.pin-step .extra-screen { gap: 0.4rem; text-align: center; }
+.center.pin-step .extra-screen p { margin: 0; }
 label { display: grid; gap: 0.3rem; color: var(--muted); }
 .phone > header { font-family: var(--typewriter); font-size: 1.3rem; color: var(--gold-bright); }
 .slot {
@@ -766,6 +780,9 @@ span.lock { padding: 0; }
 .party-settings { display: grid; gap: 0.6rem; justify-items: start; }
 .party-settings .toggles { justify-self: stretch; }
 .party-settings .party-name { justify-self: stretch; }
+.party-settings .host-pin { display: grid; gap: 0.3rem; justify-items: start; }
+.party-settings .host-pin label { justify-self: stretch; }
+.party-settings .host-pin p { margin: 0; }
 /* host phone, a contestant on the big screen */
 h2.contestant { font-size: 1.8rem; margin: 0.2rem 0 0; }
 h2.contestant .muted { font-size: 0.6em; }

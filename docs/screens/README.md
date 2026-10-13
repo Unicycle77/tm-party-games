@@ -86,3 +86,13 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
 | `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
 | `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
+
+Host pin (taken on 2026-10-13, from the real components with a made-up party):
+
+| File | What it shows |
+|---|---|
+| `host-pin-connect.jpg` | A new phone connecting to a pinned party: "Connecting to Halloween party ABCD", the pin with 👁, gold "Connect" |
+| `host-party-settings-pin-add.jpg` | Party settings with no pin yet: "Host pin" under the party name, a new pin typed in digits, Save |
+| `host-party-settings-pin-set.jpg` | Party settings with a pin set: the pin as dots with 👁, "Remove the pin", "Type a new one to change it" |
+| `main-pin-open.jpg` | The big screen opening a pinned party: the same pin step at TV size, gold "Open the party", "📺 Show it here too" needing no pin |
+| `main-hidden-menu-pin.jpg` | The ☰ Menu with "🔑 Host pin on: a new phone needs it to connect. Remove the pin" |

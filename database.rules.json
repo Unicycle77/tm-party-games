@@ -5,18 +5,22 @@
         ".read": true,
         ".write": "auth != null && (!data.exists() || data.child('hostUid').val() === auth.uid)",
         "hostUid": {
-          ".write": "auth != null && data.exists() && newData.val() === auth.uid",
+          ".write": "auth != null && data.exists() && newData.val() === auth.uid && (!root.child('pins').child($code).exists() || root.child('hostTrust').child($code).child(auth.uid).val() === root.child('pins').child($code).val())",
           ".validate": "newData.isString() && newData.val() === auth.uid"
         },
         "name": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
         },
+        "hostPin": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.val() === true"
+        },
         "createdAt": {
           ".validate": "newData.val() === now"
         },
         "controllerUid": {
-          ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()))",
+          ".write": "auth != null && ((newData.val() === auth.uid && (!data.exists() || root.child('pins').child($code).exists()) && (!root.child('pins').child($code).exists() || root.child('hostTrust').child($code).child(auth.uid).val() === root.child('pins').child($code).val())) || (data.val() === auth.uid && !newData.exists()))",
           ".validate": "newData.isString()"
         },
         "players": {
@@ -300,6 +304,22 @@
         },
         "$other": {
           ".validate": false
+        }
+      }
+    },
+    "pins": {
+      "$code": {
+        ".read": "auth != null && (root.child('hostTrust').child($code).child(auth.uid).val() === data.val() || (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid))",
+        ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+        ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4,6}$/)"
+      }
+    },
+    "hostTrust": {
+      "$code": {
+        ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length <= 6"
         }
       }
     },

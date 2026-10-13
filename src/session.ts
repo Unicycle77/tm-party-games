@@ -111,13 +111,16 @@ export const watchHost = (code: string, onChange: (hostUid: string | null) => vo
  * Main screen, before resuming: does the session exist, and was it last opened on a different screen?
  * A party made on the host remote that no screen has opened yet isn't "elsewhere": this screen just takes it.
  */
-export async function checkResume(rawCode: string): Promise<{ code: string; elsewhere: boolean }> {
+export async function checkResume(rawCode: string): Promise<{ code: string; elsewhere: boolean; pin?: PinNeededError }> {
   const code = rawCode.trim().toUpperCase();
   const user = await ensureSignedIn();
   const hostUid = await get(ref(db(), `sessions/${code}/hostUid`));
   if (!hostUid.exists()) throw new JoinError(`No session found for code ${code}.`);
   const controllerUid = (await get(ref(db(), `sessions/${code}/controllerUid`))).val() as string | null;
-  return { code, elsewhere: hostUid.val() !== user.uid && hostUid.val() !== controllerUid };
+  // A pinned party asks this browser for the pin, unless it has entered it before (or is already the big screen).
+  const pin = hostUid.val() !== user.uid && (await get(ref(db(), `sessions/${code}/hostPin`))).exists() && !(await knowsPin(code))
+    ? new PinNeededError(code, (await get(ref(db(), `sessions/${code}/name`))).val() as string | null) : undefined;
+  return { code, elsewhere: hostUid.val() !== user.uid && hostUid.val() !== controllerUid, pin };
 }
 
 export async function resumeSession(rawCode: string): Promise<string> {
@@ -250,13 +253,72 @@ export async function allowMove(code: string, session: Session, to: string) {
 
 export const declineMove = (code: string, to: string) => set(ref(db(), `sessions/${code}/moves/${to}/status`), "declined");
 
-/** Host phone: connects to a session as its remote controller (one per session). */
+/** A pinned party, opened on a phone or big screen that hasn't entered its pin yet. */
+export class PinNeededError extends JoinError {
+  constructor(readonly code: string, readonly partyName: string | null) { super("This party has a host pin."); }
+}
+
+export const WRONG_PIN = "That pin doesn't match this party.";
+
+/** Whether this browser may read the party's pin: it entered the current one, or holds a host slot. */
+async function knowsPin(code: string): Promise<boolean> {
+  try { await get(ref(db(), `pins/${code}`)); return true; }
+  catch { return false; }
+}
+
+/** Remembers a pin this browser typed. Firebase trusts it only while it matches the party's pin. */
+async function offerPin(code: string, pin: string) {
+  const user = await ensureSignedIn();
+  await set(ref(db(), `hostTrust/${code}/${user.uid}`), pin);
+}
+
+/** Host phone or big screen: the party's pin, live (null: no pin). Only a browser that knows it can read it. */
+export const watchPin = (code: string, onChange: (pin: string | null) => void) =>
+  onValue(ref(db(), `pins/${code}`), (s) => onChange(s.exists() ? (s.val() as string) : null), () => onChange(null));
+
+/**
+ * Host phone: sets or changes the party's pin. Every other browser that knew the old one has to enter the
+ * new one; this one stays trusted.
+ */
+export async function setHostPin(code: string, pin: string) {
+  const user = await ensureSignedIn();
+  await update(ref(db()), { [`pins/${code}`]: pin, [`hostTrust/${code}`]: { [user.uid]: pin }, [`sessions/${code}/hostPin`]: true });
+}
+
+/** Host phone or the big screen's hidden menu: removes the pin, and with it every browser's trust. */
+export const removeHostPin = (code: string) =>
+  update(ref(db()), { [`pins/${code}`]: null, [`hostTrust/${code}`]: null, [`sessions/${code}/hostPin`]: null });
+
+/** Big screen: opens a pinned party with the pin typed on its pin step. */
+export async function resumeWithPin(code: string, pin: string): Promise<string> {
+  await offerPin(code, pin);
+  try { return await resumeSession(code); }
+  catch (e) { throw e instanceof JoinError ? e : new JoinError(WRONG_PIN); }
+}
+
+/** Host phone: connects to a pinned party with the pin typed on its pin step. */
+export async function claimWithPin(code: string, pin: string): Promise<string> {
+  await offerPin(code, pin);
+  try { return await claimController(code); }
+  catch (e) { throw e instanceof PinNeededError ? new JoinError(WRONG_PIN) : e; }
+}
+
+/**
+ * Host phone: connects to a session as its remote controller (one per session). A pinned party needs a
+ * phone that knows the pin, and that phone can take over from another one (its battery died, say).
+ */
 export async function claimController(rawCode: string): Promise<string> {
   const code = rawCode.trim().toUpperCase();
   const user = await ensureSignedIn();
   const snap = await get(ref(db(), `sessions/${code}`));
   if (!snap.exists()) throw new JoinError(`No session found for code ${code}.`);
-  const current = (snap.val() as Session).controllerUid;
+  const session = snap.val() as Session;
+  const current = session.controllerUid;
+  if (session.hostPin) {
+    if (!(await knowsPin(code))) throw new PinNeededError(code, session.name ?? null);
+    if (current !== user.uid) await set(ref(db(), `sessions/${code}/controllerUid`), user.uid);
+    return code;
+  }
   if (current && current !== user.uid) {
     throw new JoinError("This session already has a host remote. Ask for it to be reset on the main screen.");
   }

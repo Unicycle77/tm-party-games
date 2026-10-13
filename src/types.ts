@@ -238,6 +238,11 @@ export interface Session {
   name?: string;
   /** The host's phone (claimed via /host). Only it (and the main screen) can drive the display. */
   controllerUid?: string;
+  /**
+   * Set while the party has a host pin. The pin itself is at `pins/<code>`, readable only by a browser that has
+   * entered it (or holds the host slots); a new phone or big screen needs it to take control.
+   */
+  hostPin?: boolean;
   players?: Record<string, Player>;
   /** The game players see and the main screen shows. Absent = the game selection screen (where every session starts). */
   game?: GameId;

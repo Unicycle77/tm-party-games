@@ -3,7 +3,8 @@ import { Jukebox } from "./Jukebox";
 import { HOSTED_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { Screen, screenState } from "./Screen";
 import { StageGate } from "./StageGate";
-import { JoinError, checkResume, createSession, ensureSignedIn, migrateLegacySession, resumeSession, store, useSession, useUid, watchHost } from "./session";
+import { PinStep } from "./HostPin";
+import { JoinError, PinNeededError, checkResume, createSession, ensureSignedIn, migrateLegacySession, resumeSession, resumeWithPin, store, useSession, useUid, watchHost } from "./session";
 
 const KEY = "ba.hostCode";
 export function MainScreen() {
@@ -14,6 +15,8 @@ export function MainScreen() {
   const [recent, setRecent] = useState(() => loadRecent(HOSTED_KEY));
   /** A session another screen has (or had): take it over, or show it here as an extra screen? */
   const [choice, setChoice] = useState<string>();
+  /** A pinned session this computer hasn't entered the pin for: entering it is the takeover. */
+  const [pinFor, setPinFor] = useState<PinNeededError>();
   /** The session another screen just took over from this one. */
   const [lost, setLost] = useState<string>();
   // On the start page, sign in and follow who owns each recent session straight away: this warms up the
@@ -74,6 +77,7 @@ export function MainScreen() {
       store.set(KEY, c);
       setCode(c);
       setResumeCode("");
+      setPinFor(undefined);
     } catch (e) {
       fail(e, recentCode);
     } finally { setBusy(false); }
@@ -90,7 +94,8 @@ export function MainScreen() {
     }
     setBusy(true);
     try {
-      const { code: c, elsewhere } = await checkResume(raw);
+      const { code: c, elsewhere, pin } = await checkResume(raw);
+      if (pin) { setPinFor(pin); return; }
       if (elsewhere) { setChoice(c); return; }
     } catch (e) {
       fail(e, recentCode);
@@ -100,6 +105,20 @@ export function MainScreen() {
   }
 
   const showHere = (c: string) => location.assign(`/screen?code=${c}`);
+
+  if (!code && pinFor) {
+    return (
+      <PinStep stage title="Taskmaster" opening="Opening" name={pinFor.partyName} code={pinFor.code}
+        hint="This computer will remember it, so you'll only type it once here." action="Open the party"
+        busy={busy} error={error} onSubmit={(pin) => void open(() => resumeWithPin(pinFor.code, pin))}
+        onExit={() => { setPinFor(undefined); setError(undefined); }}>
+        <div className="extra-screen">
+          <button disabled={busy} onClick={() => showHere(pinFor.code)}>📺 Show it here too</button>
+          <p className="muted small">An extra screen that controls nothing. No pin needed.</p>
+        </div>
+      </PinStep>
+    );
+  }
 
   if (!code && choice) {
     return (
