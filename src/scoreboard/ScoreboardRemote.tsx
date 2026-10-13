@@ -263,8 +263,8 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
   const [adding, setAdding] = useState<"live" | "game">();
   const [editing, setEditing] = useState<string>();
   const ids = tasks.map(([id]) => id);
-  // Only needed while some tasks are scored and some aren't: with all of them in, the haul comes by itself.
-  const declarable = !board?.final && tasks.some(([, t]) => scored(t)) && tasks.some(([, t]) => !scored(t));
+  // Any time once a task has points. Tapping it again after declaring brings the scoreboard (and the haul button) back.
+  const declarable = tasks.some(([, t]) => scored(t));
   const [dragging, setDragging] = useState<{ id: string; order: string[] }>();
   const rows = useRef<Record<string, HTMLLIElement | null>>({});
   const order = dragging?.order ?? ids;
@@ -334,9 +334,9 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
             onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>
             <span className="sb-task-title">🏆 Declare the winner</span>
             <span className="muted small sb-task-note">
-              {board?.final ? "Declared on the points so far"
-                : !tasks.some(([, t]) => scored(t)) ? "Once a task has points"
-                : declarable ? "Ends the night on the points so far, with one last update" : "Every task has points"}
+              {!declarable ? "Once a task has points"
+                : board?.final ? "Declared · tap to bring the scoreboard and the haul back up"
+                : "The scoreboard for one last update, then the prize haul"}
             </span>
           </button>
         </li>
