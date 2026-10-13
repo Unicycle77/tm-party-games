@@ -388,11 +388,13 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 /* whole photos on a dark mat (never cropped), three to a row; "+ Add more" is the last tile */
 .prize-picks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
 .prize-picks li { position: relative; aspect-ratio: 1; }
-.slot .prize-picks img { width: 100%; height: 100%; max-height: none; object-fit: contain; background: #1a0f08; }
+.slot .prize-picks img { box-sizing: border-box; width: 100%; height: 100%; max-height: none; object-fit: contain; background: #1a0f08; }
 .prize-picks .x { position: absolute; top: 0.3rem; right: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 0.9rem; }
 /* the run of show's ≡, in the tile's other top corner; the dragged photo goes faint like a dragged task */
 .prize-picks .handle { position: absolute; top: 0.3rem; left: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.1rem; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .prize-picks li.dragging { opacity: 0.7; }
+/* the main photo, the one the winner's haul shows: gold, since it's the chosen one */
+.prize-picks .star { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold-gradient); border: 2px solid var(--gold-edge); color: var(--ink); font-size: 1rem; box-shadow: 0 2px 0 #0006; pointer-events: none; }
 .prize-add { width: 100%; height: 100%; padding: 0.3rem; background: #1a0f08; color: var(--muted); border: 3px dashed var(--gold); border-radius: 2px; box-shadow: none; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }

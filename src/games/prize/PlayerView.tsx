@@ -50,8 +50,8 @@ export function PrizeChoose({ onAdd }: { onAdd: () => void }) {
 /**
  * Checking the picks before submitting: every photo as a whole thumbnail (never cropped), each with ✕,
  * and "+ Add more" as the last tile, where the next photo will go. ≡ drags a photo to a new place, as on
- * the run of show; the host's previews follow this order, and the first photo is the prize's photo in the
- * winner's haul at the end of the night. Only the ≡ drags, so a thumb landing on a
+ * the run of show; the host's previews follow this order. The first photo, starred, is the prize's photo
+ * in the winner's haul at the end of the night. Only the ≡ drags, so a thumb landing on a
  * photo still scrolls the page. Removing the last photo goes back to the empty card.
  */
 export function PrizeCheck({ picked, onAdd, onRemove, onReorder, onSubmit }: {
@@ -95,11 +95,12 @@ export function PrizeCheck({ picked, onAdd, onRemove, onReorder, onSubmit }: {
             <button className="handle" aria-label={`Move photo ${i + 1}`}
               onPointerDown={(e) => drag.start(e, p.url)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>
             <button className="x" aria-label={`Remove photo ${i + 1}`} onClick={() => onRemove(i)}>✕</button>
+            {i === 0 && <span className="star" role="img" aria-label="Main photo">★</span>}
           </li>
         ))}
         <li><button className="prize-add" onClick={onAdd}>+ Add more</button></li>
       </ul>
-      <p className="slot-hint">{n} {n === 1 ? "photo" : "photos"}, not submitted yet. Are these the right ones? The first one stands for your prize at the end of the night. Drag ≡ to change the order.</p>
+      <p className="slot-hint">{n} {n === 1 ? "photo" : "photos"}, not submitted yet. Are these the right ones? Drag ≡ to change the order.</p>
       <button className="big" onClick={onSubmit}>Submit</button>
       <p className="slot-hint">{WHO_SEES}</p>
     </section>
