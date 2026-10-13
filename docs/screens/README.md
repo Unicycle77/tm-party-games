@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
-Style sheet (taken on 2026-10-13, from `src/styles.css` and the real `Toggle`, `TaskCard` and `PinField` components):
+Style sheet (taken on 2026-10-13, from `src/styles.css` and the real `Toggle`, `TaskCard` and `PinField` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
