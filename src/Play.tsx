@@ -52,7 +52,7 @@ export function Play() {
       <main className="phone">
         <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
         <Headshot code={code} uid={uid} id={guest[0]} name={name} />
-        <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
+        <button className="link" onClick={() => leave()}>Not {name}? Not the right party?</button>
       </main>
     );
   }
@@ -81,8 +81,8 @@ export function Play() {
       {/* When the party plays Secret Tasks, a player picks their envelope on arrival and can pull it up any time, whatever the game. */}
       {game?.id === "secretTasks" || !secretTasksPlanned(session) ? content
         : <SecretTaskArea code={code} uid={uid} session={session}>{content}</SecretTaskArea>}
-      {/* Disconnects this phone only: the player's tile and entries stay. Only the host removes players. */}
-      <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
+      {/* Disconnects this phone only, back to the join screen to pick a name or a different code: the player's tile and entries stay. Only the host removes players. */}
+      <button className="link" onClick={() => leave()}>Not {name}? Not the right party?</button>
     </main>
   );
 }
