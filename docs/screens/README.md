@@ -2,6 +2,12 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
+Style sheet (taken on 2026-10-13, from `src/styles.css` and the real `Toggle`, `TaskCard` and `PinField` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+
+| File | What it shows |
+|---|---|
+| `style-sheet.jpg` | Every piece of [the style guide](../style-guide.md) on one page: the six materials, the colour tokens, type, buttons, toggles and inputs, the host header's icon states, row states, cards, aged paper, framed media, QR codes, help and the icons |
+
 Host phone (`/host`, 390px wide):
 
 | File | What it shows |
@@ -85,6 +91,12 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
 | `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
 | `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
+| `run-of-show-host-haul-waiting.jpg` | The run of show with the scoreboard up and a task still without points: "The prize haul comes once every task has points. Still none for Prize task." over gold "Lower the curtain" |
+| `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
+| `run-of-show-host-declare.jpg` | The run of show mid-party with a task still unscored: "🏆 Declare the winner" in the task list, under the Tiebreaker task |
+| `run-of-show-host-declare-update.jpg` | After "Declare the winner": the scoreboard is up, gold "Update the scores · 1 new task" for one last update, and "Declaring the winner with Prize task unscored. Not yet" |
+| `run-of-show-host-declare-haul.jpg` | After that last update: gold "🎁 Show the prize haul · Priya", the winner decided on the points so far |
+| `run-of-show-host-declared.jpg` | Back at the curtain after the haul: the declare row reads "Declared · tap to bring the scoreboard and the haul back up" |
 
 Tiebreaker task (taken on 2026-10-13, from the real components with a made-up party):
 

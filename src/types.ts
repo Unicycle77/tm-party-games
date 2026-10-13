@@ -226,6 +226,8 @@ export interface Scoreboard {
   contestants?: Record<string, ScoreboardContestant>;
   tasks?: Record<string, ScoreboardTask>;
   shown?: Record<string, Record<string, number>>;
+  /** The host has declared the winner: the night is decided on the tasks scored so far, unscored ones and all. */
+  final?: boolean;
   /**
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
