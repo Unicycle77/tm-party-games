@@ -1,0 +1,15 @@
+/* Only for the shareable image (export.cjs): the phones in one row instead of a swipe strip,
+   and the curtain once at the top, fading to burgundy, instead of a fixed backdrop. */
+body::before{position:absolute;height:100%;background:linear-gradient(rgba(20,0,0,.35),rgba(42,8,7,1) 1500px),url(img/curtains.webp) top center/100% auto no-repeat,var(--burgundy-deep)}
+
+body{position:relative}
+
+.phones{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;overflow:visible;margin-inline:0;padding-inline:0}
+
+.phones .caption{font-size:.72rem;padding:.15rem .4rem;text-align:center}
+
+.phone{border-radius:16px;padding:4px}
+.phone img{border-radius:12px}
+
+.swipe{display:none}
+
