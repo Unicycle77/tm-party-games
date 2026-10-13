@@ -87,6 +87,9 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
 | `run-of-show-host-haul-waiting.jpg` | The run of show with the scoreboard up and a task still without points: "The prize haul comes once every task has points. Still none for Prize task." over gold "Lower the curtain" |
 | `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
+| `run-of-show-host-declare.jpg` | The run of show mid-party with a task still unscored: a paper "🏆 Declare the winner" under "Show the scoreboard" |
+| `run-of-show-host-declare-update.jpg` | After "Declare the winner": the scoreboard is up, gold "Update the scores · 1 new task" for one last update, and "Declaring the winner with Prize task unscored. Not yet" |
+| `run-of-show-host-declare-haul.jpg` | After that last update: gold "🎁 Show the prize haul · Priya", the winner decided on the points so far |
 
 Tiebreaker task (taken on 2026-10-13, from the real components with a made-up party):
 

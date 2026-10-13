@@ -6,7 +6,7 @@ import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
   addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
+  declareWinner, setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
 
@@ -102,8 +102,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   // The haul goes up from the scoreboard, or from the curtain once a tiebreaker has been won (it's
   // played with the scoreboard down).
   const winner = now && "winner" in now && !pending && (up || now.tied) ? now.winner : undefined;
-  // Why there's no winner yet: the tasks still without points, which the haul waits for.
+  // The tasks still without points: the haul waits for them, unless the host declares the winner first.
   const unscored = sorted(board?.tasks).filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
+  const final = !!board?.final;
+  const anyScored = Object.values(board?.tasks ?? {}).some(scored);
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -143,11 +145,19 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (
-        <>
-          {unscored.length > 0 && <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}.</p>}
-          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
-        </>
+        <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
       )}
+      {!haulUp && unscored.length > 0 && (final ? (
+        <p className="muted small">
+          Declaring the winner with {list(unscored)} unscored. <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button>
+        </p>
+      ) : anyScored && (
+        // The end of the night can come before every task is played: one last update, then the haul.
+        <>
+          {up && !pending && <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}.</p>}
+          <button onClick={() => void declareWinner(code)}>🏆 Declare the winner</button>
+        </>
+      ))}
     </>
   );
 }

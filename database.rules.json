@@ -297,6 +297,7 @@
             }
           },
           "shown": { "$task": { "$cid": { ".validate": "newData.isNumber()" } } },
+          "final": { ".validate": "newData.val() === true" },
           "tiebreaker": {
             "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
             "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
