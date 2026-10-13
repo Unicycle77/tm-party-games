@@ -2,6 +2,10 @@
 
 The look is a **Taskmaster-style studio**: red curtains, sepia paper, gold picture frames, a typewriter font. Everything should feel like a slightly theatrical, hand-made game show, not a web app. When adding something new, find the closest existing piece below and copy it. Each section links to screenshots in [docs/screens](screens/README.md) that show it in the real app.
 
+[![The style sheet: every component below on one page](screens/style-sheet.jpg)](screens/style-sheet.jpg)
+
+*The style sheet: the materials, tokens, type, icons and every component below, drawn with the app's own `src/styles.css` and components.*
+
 All styling lives in `src/styles.css` (no CSS framework, no CSS-in-JS). The colours are tokens on `:root`. Use the token, not a new hex value.
 
 ## 1. The materials
@@ -83,7 +87,6 @@ See: [host-pin-connect.jpg](screens/host-pin-connect.jpg) (pin), [player-join-co
 
 ### Cards and panels
 - **Player tile** (`.tile`): an index card, 3px radius, **slightly rotated** (`-1deg`, `1.2deg`, `-0.4deg` by position). On hover it straightens, grows 4% and gets a gold ring.
-- **Game card** (`.game-card`): the game picker's 3x5 index card: 5:3, a `--burgundy` rule under the title and faint ruled lines below it, in a 4-column grid (3 on narrower screens). Each card gets a random tilt and nudge (`--tilt`, `--dx`, `--dy`) when the picker opens, so they look scattered on a table; hover straightens it like a tile. Keep the one-line `blurb` short enough to fit the card.
 - **Slot** (`.slot`): the phone's paper panel. The heading is `--burgundy`, the hints are `#6b5a44`.
 - **Floating label** (`.stage-label`, `.review-name`, `.review-loading`, `.sound-hint`): a paper strip over the stage, typewriter font, centred, with a drop shadow.
 

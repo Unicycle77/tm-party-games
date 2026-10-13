@@ -2,6 +2,12 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
+Style sheet (taken on 2026-10-13, from `src/styles.css` and the real `Toggle`, `TaskCard` and `PinField` components):
+
+| File | What it shows |
+|---|---|
+| `style-sheet.jpg` | Every piece of [the style guide](../style-guide.md) on one page: the six materials, the colour tokens, type, buttons, toggles and inputs, the host header's icon states, row states, cards, aged paper, framed media, QR codes, help and the icons |
+
 Host phone (`/host`, 390px wide):
 
 | File | What it shows |
