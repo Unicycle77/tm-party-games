@@ -50,7 +50,7 @@ async function freeCode(): Promise<string> {
 /** Every party has a Headshot task and a Prize task, so a new one starts with them on its list. */
 function starterScoreboard(code: string) {
   const id = () => push(ref(db(), `sessions/${code}/scoreboard/tasks`)).key!;
-  return { tasks: { [id()]: { order: 0, game: "headshots" }, [id()]: { order: 1, name: "Prize task" } } };
+  return { tasks: { [id()]: { order: 0, game: "headshots" }, [id()]: { order: 1, name: "Prize task", prize: true } } };
 }
 
 export async function createSession(): Promise<string> {

@@ -82,3 +82,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link (in design) |
 | `run-of-show-host-haul-remote-tie.jpg` | The same with a tie at the top: "Priya and Tom are tied for first. Play a tiebreaker task before the prize haul." (in design) |
 | `prize-host-adding.jpg` | Prize task on the iPad: the host adding photos to Jo's prize, one sent (★, since Jo had none) and one still sending (in design; stand-in photos) |
+| `run-of-show-host-prizes-in.jpg` | The run of show mid-party: the Prize task's row reads "🎁 4 of 6 prizes in · waiting on Jo and Tom" (in design) |

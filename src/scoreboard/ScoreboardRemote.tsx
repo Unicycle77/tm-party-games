@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { haulState, showHaul } from "../games/prize/data";
+import { haulState, prizesIn, showHaul } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
@@ -69,7 +69,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
                 Give points: {tasks.findIndex(([t]) => t === upNext) + 1}&nbsp; {titleOf(board!.tasks![upNext]!)} →
               </button>
             )}
-            <TaskList code={code} board={board} tasks={tasks} next={next} onOpen={contestants.length ? open : undefined}
+            <TaskList code={code} board={board} tasks={tasks} next={next} prizeNote={prizesIn(session, list)} onOpen={contestants.length ? open : undefined}
               onStart={(id, game) => void (async () => {
                 // A photo task brings its own photos (see switchPhotosTask).
                 if (game === "photos") await switchPhotosTask(code, session, id);
@@ -190,8 +190,10 @@ function PointsRow({ name, points, total, onSet }: { name: string; points?: numb
  * The task list in running order: live tasks the host names and app games. Tap a task for its points;
  * ≡ drags it to a new place; ✎ fixes its name or note, or removes it; ▶ Start starts an app game.
  */
-function TaskList({ code, board, tasks, next, onOpen, onStart }: {
+function TaskList({ code, board, tasks, next, prizeNote, onOpen, onStart }: {
   code: string; board: Scoreboard | undefined; tasks: [string, ScoreboardTask][]; next?: string;
+  /** Whose prizes are in, on the prize task's row. */
+  prizeNote?: string;
   onOpen?: (id: string) => void; onStart: (id: string, game: GameId) => void;
 }) {
   const [adding, setAdding] = useState<"live" | "game">();
@@ -242,6 +244,7 @@ function TaskList({ code, board, tasks, next, onOpen, onStart }: {
               <button className="sb-task" disabled={!onOpen} onClick={() => onOpen?.(id)}>
                 <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app game</span>}</span>
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
+                {t.prize && prizeNote && <span className="muted small">🎁 {prizeNote}</span>}
                 <span className="muted small">{scored(t) ? "scored" : id === next ? "← next" : ""}</span>
               </button>
               {t.game && <button className="sb-start" onClick={() => onStart(id, t.game!)}>▶ Start</button>}

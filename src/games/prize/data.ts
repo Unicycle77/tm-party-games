@@ -21,4 +21,18 @@ export function haulState(session: Session): { winner: string } | { tied: string
   return leaders.length === 1 ? { winner: leaders[0]! } : { tied: leaders };
 }
 
+/**
+ * The prize task's line on the run of show, from check-in onwards: "4 of 6 prizes in · waiting on Jo
+ * and Tom". Names only while there are three or fewer to wait on, so the line stays one line.
+ */
+export function prizesIn(session: Session, list: (names: string[]) => string): string | undefined {
+  const contestants = Object.entries(session.scoreboard?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order);
+  if (!contestants.length) return undefined;
+  const photos = prizePhotos(session);
+  const missing = contestants.filter(([id]) => !photos[id]?.length).map(([, c]) => c.name);
+  const n = contestants.length - missing.length;
+  if (!missing.length) return `All ${n} prizes in`;
+  return `${n} of ${contestants.length} prizes in${missing.length <= 3 ? ` · waiting on ${list(missing)}` : ""}`;
+}
+
 export const showHaul = (code: string) => setDisplay(code, { step: "haul" });

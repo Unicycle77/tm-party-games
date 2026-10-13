@@ -211,6 +211,8 @@ export interface ScoreboardTask {
   game?: GameId;
   /** The host's note about the task. Only ever shown on the host remote. */
   description?: string;
+  /** The party's prize task (every new party starts with one): its row says whose prizes are in. */
+  prize?: boolean;
   /** Points by contestant id. A contestant with none gets nothing for this task. */
   scores?: Record<string, number>;
 }
