@@ -384,6 +384,13 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .sending progress::-webkit-progress-value { background: var(--burgundy); }
 .sending progress::-moz-progress-bar { background: var(--burgundy); }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
+/* ---- prize task: the guest's picks ---- */
+/* whole photos on a dark mat (never cropped), three to a row; "+ Add more" is the last tile */
+.prize-picks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.prize-picks li { position: relative; aspect-ratio: 1; }
+.slot .prize-picks img { width: 100%; height: 100%; max-height: none; object-fit: contain; background: #1a0f08; }
+.prize-picks .x { position: absolute; top: 0.3rem; right: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 0.9rem; }
+.prize-add { width: 100%; height: 100%; padding: 0.3rem; background: #1a0f08; color: var(--muted); border: 3px dashed var(--gold); border-radius: 2px; box-shadow: none; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }
 .remote.split { row-gap: 1.25rem; }
