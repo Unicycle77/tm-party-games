@@ -75,3 +75,5 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (in design; stand-in photos) |
 | `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (in design; stand-in photos) |
 | `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Priya's prize, her photos as previews with ★, nothing on the big screen yet (in design; stand-in photos) |
+| `prize-host-up.jpg` | Prize task on the iPad with Priya's second photo on the big screen: gold ring and "on the big screen", Lower the curtain enabled (in design; stand-in photos) |
+| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Priya" (in design; stand-in photo) |
