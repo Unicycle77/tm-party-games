@@ -8,7 +8,7 @@ import { activeGame } from "./games";
 import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
-import { resetController, setDisplay, setGame, showContestant } from "./session";
+import { removeHostPin, resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
 
@@ -62,6 +62,10 @@ export function Screen({ code, session, viewOnly = false, footer }: {
             <p className="muted small">Or open <strong>{site}/host</strong> on your phone and enter the same code.</p>
           </>
         )}
+      {/* Only ever removed here, never set or shown: the big screen faces the room. */}
+      {session.hostPin && (
+        <p className="muted small">🔑 Host pin on: a new phone needs it to connect. <button className="link" onClick={() => void removeHostPin(code)}>Remove the pin</button></p>
+      )}
       <p className="muted small">
         📺 To show this on another screen too, open <strong>{site}/screen</strong> there and enter the same code.
       </p>
