@@ -93,7 +93,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
-  const haul = up ? haulState(session) : undefined;
+  // A tie settled by the tiebreaker task can go to the haul from the curtain too: the tiebreaker
+  // was played with the scoreboard down.
+  const settled = haulState(session);
+  const haul = up || (settled && "winner" in settled && settled.tiebreaker) ? settled : undefined;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -109,7 +112,7 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
           <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
           <button className="link" onClick={() => void showScoreboard(code)}>Back to the scoreboard</button>
         </>
-      ) : !up ? (
+      ) : !up && !haul ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
           {pending && <p className="muted small">At the totals you last showed. {pending} to add when you update.</p>}
@@ -123,7 +126,7 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
         // The end of the party: the winner's haul is the one next thing.
         <>
           <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
-          <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+          {up && <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
         </>
       ) : haul ? (
         // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing.
