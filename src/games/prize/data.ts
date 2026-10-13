@@ -26,13 +26,13 @@ export function standing(session: Session): { winner: string; tied?: string[] } 
   return settled && leaders.includes(settled) ? { winner: settled, tied: leaders } : { tied: leaders };
 }
 
-/** Whether any prize has a photo, so the haul has something to hang. */
-export const anyPrizes = (session: Session) => Object.values(prizePhotos(session)).some((p) => p.length);
-
-/** Whose haul can go up: the night's winner (see `standing`), once at least one prize has a photo. */
+/**
+ * Whose haul can go up: the night's winner (see `standing`). With no prize photos (a party from before
+ * guests could send them, or nobody did), the haul is the winner alone, so the night still gets its winner.
+ */
 export function haulWinner(session: Session): string | undefined {
   const now = standing(session);
-  return now && "winner" in now && anyPrizes(session) ? now.winner : undefined;
+  return now && "winner" in now ? now.winner : undefined;
 }
 
 /**

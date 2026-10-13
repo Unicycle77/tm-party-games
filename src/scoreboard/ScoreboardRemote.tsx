@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { anyPrizes, prizesIn, showHaul, standing } from "../games/prize/data";
+import { prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
@@ -101,7 +101,9 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   const tied = now && !("winner" in now) ? now.tied : undefined;
   // The haul goes up from the scoreboard, or from the curtain once a tiebreaker has been won (it's
   // played with the scoreboard down).
-  const winner = now && "winner" in now && !pending && anyPrizes(session) && (up || now.tied) ? now.winner : undefined;
+  const winner = now && "winner" in now && !pending && (up || now.tied) ? now.winner : undefined;
+  // Why there's no winner yet: the tasks still without points, which the haul waits for.
+  const unscored = sorted(board?.tasks).filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -141,7 +143,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (
-        <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        <>
+          {unscored.length > 0 && <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}.</p>}
+          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        </>
       )}
     </>
   );

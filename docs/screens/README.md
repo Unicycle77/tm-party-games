@@ -85,6 +85,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
 | `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
 | `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
+| `run-of-show-host-haul-waiting.jpg` | The run of show with the scoreboard up and a task still without points: "The prize haul comes once every task has points. Still none for Prize task." over gold "Lower the curtain" |
+| `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
 
 Tiebreaker task (taken on 2026-10-13, from the real components with a made-up party):
 
