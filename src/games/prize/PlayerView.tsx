@@ -2,26 +2,20 @@ import { useRef } from "react";
 
 /**
  * The prize task's card on a guest's phone, open from check-in until the host starts presenting their
- * prize. A prize is one or more photos. Guests often bring the prize itself, so taking and choosing weigh
- * the same: Photos' two equal paper buttons, and no gold until something is picked. Choosing takes
- * several at once; more can be added before submitting.
+ * prize. A prize is one or more photos. One paper "Add photos" button: the phone's own picker already
+ * offers the library and the camera, so a separate camera button would only save a tap. No gold until
+ * something is picked; more can be added before submitting.
  */
 export function PrizeCard({ onPick }: { onPick: (files: File[]) => void }) {
-  const camera = useRef<HTMLInputElement>(null);
   const library = useRef<HTMLInputElement>(null);
-  const pick = (input: HTMLInputElement) => { onPick([...(input.files ?? [])]); input.value = ""; };
   return (
     <section className="slot task">
       <h2>🎁 Your prize</h2>
       <div className="ph">Your prize</div>
       <p className="slot-hint">Not submitted yet. Add one or more photos of your prize.</p>
-      <div className="row">
-        <button onClick={() => camera.current?.click()}>📷 Take a photo</button>
-        <button onClick={() => library.current?.click()}>Choose photos</button>
-      </div>
+      <button onClick={() => library.current?.click()}>Add photos</button>
       <p className="slot-hint">Only the host sees them until your prize is presented. You can change them until then.</p>
-      <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={(e) => pick(e.target)} />
-      <input ref={library} type="file" accept="image/*" multiple hidden onChange={(e) => pick(e.target)} />
+      <input ref={library} type="file" accept="image/*" multiple hidden onChange={(e) => { onPick([...(e.target.files ?? [])]); e.target.value = ""; }} />
     </section>
   );
 }
