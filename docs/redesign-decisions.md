@@ -216,6 +216,19 @@ The Taskmaster Scoreboard (Jeffrey's fork of VodBox's tm-scoreboard, with iPad c
 | Big screen | Ported exactly from the fork: its background, frames, seals, typewriter font, lowest-to-highest order with the leader enlarged, and the hold, tick-up and re-sort animation. Only the host remote is reworked to fit this app. Editing moves to the host remote, so the TV's own add, remove, photo, Play and Remote buttons don't come across. | Restyling it with this app's wax seal, gold frames and a paper title label: the fork's big screen is already exactly how Jeffrey wants it. |
 | Credit | Keep VodBox's MIT notice in a third-party notices file and a visible credit. Check the Veteran Typewriter font and the images, which have no stated licence, before shipping. | |
 
+## Prize task
+
+Each contestant brings a prize; the winner takes the whole haul. Today the Prize task is only a live task on the run of show. This work makes it a task guests submit to, and adds the haul to the end of the night. Designed one step at a time with Jeffrey.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Moments, in order | 1. A guest submits their prize. 2. The haul on the big screen when the winner is declared. 3. Presenting each prize during the task. 4. The host checks who's in. 5. Fixing a prize. | |
+| What a prize is | Some photos (one or more) or one video, never both. | Photos and a video mixed. |
+| When guests submit | From check-in onward. | Only once the host opens the task: prizes are made ahead, so guests can get it done on arrival. |
+| Changing it | The guest can change it until the host starts presenting their prize. After that only the host can add photos to it. | Locked on submit, as in Photos: nothing is judged before it's presented, so a lock buys nothing. |
+| Presenting | The host sees previews of every photo and video in that guest's prize, and picks which one goes on the big screen. Nothing goes up until the host taps one. | Showing the first one automatically. |
+| Choosing (phone) | A "🎁 Your prize" card under the "✓ You're in" card: a "Your prize" placeholder, "Not submitted yet. Add some photos of your prize, or one video.", two equal paper buttons "Choose photos" (several at once) and "Choose a video", then "Only the host sees it until your prize is presented. You can change it until then." No gold until something is picked. Both open the library; the phone's own picker still offers the camera. *Proposed.* | One "Choose photos or a video" button: the either/or rule would only show up as an error after picking. A third "📷 Take a photo" button: prizes are usually photographed at home. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

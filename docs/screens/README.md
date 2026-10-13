@@ -71,3 +71,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `secret-tasks-player-envelope.jpg` | A guest's envelope: sealed ("Tap the seal to open it."), and open with "Seal it again" |
 | `secret-tasks-player-rules.jpg` | A guest's envelope with the circled ? beside the heading, closed and then open on the rules card |
 | `secret-tasks-host-send-back.jpg` | "Who has what" with Sam's ✎ open: Save, Cancel and "Send it back to the pile" |
+| `prize-player-choose.jpg` | Prize task on a guest's phone after check-in: "🎁 Your prize", "Choose photos" and "Choose a video" (proposed, in design) |
