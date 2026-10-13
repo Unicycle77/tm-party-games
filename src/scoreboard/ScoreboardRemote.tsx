@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
+import { haulState, showHaul } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
@@ -20,6 +21,8 @@ const titleOf = (t: ScoreboardTask) => {
 };
 const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+/** "Priya and Sam", "Priya, Sam and Mei". */
+const list = (names: string[]) => names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] ?? "";
 
 /**
  * The host remote's home, the run of show (🏆 in the header always comes back here): the scoreboard's
@@ -87,6 +90,8 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
+  const haul = up ? haulState(session) : undefined;
+  const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
@@ -105,7 +110,18 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
           <button className="big" onClick={() => void updateScores(code, board)}>Update the scores · {pending}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
-      ) : <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
+      ) : haul && "winner" in haul ? (
+        // The end of the party: the winner's haul is the one next thing.
+        <>
+          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
+          <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        </>
+      ) : (
+        <>
+          {haul && <p className="muted small">{list(haul.tied.map(nameOf))} are tied for first. Play a tiebreaker task before the prize haul.</p>}
+          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        </>
+      )}
     </>
   );
 }
