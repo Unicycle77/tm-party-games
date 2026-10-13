@@ -1,0 +1,261 @@
+<title>Taskmaster Party</title>
+<meta name="description" content="A Taskmaster party in your living room: one TV for the stage, a phone for every contestant, a phone for the host.">
+<style>
+/* Layout: one narrow column on the curtain, like the player phone; each moment is a paper label, a typewriter heading, one line, then the real screens. */
+@font-face {
+  font-family: "Typewriter";
+  src: url("img/veteran_typewriter-webfont.woff2") format("woff2");
+  font-display: swap;
+}
+:root {
+  color-scheme: dark;
+  --burgundy: #580f0d;
+  --burgundy-deep: #2a0807;
+  --gold: #d9b24c;
+  --gold-bright: #f3d37a;
+  --gold-dark: #8a6a1f;
+  --paper: #efe6d2;
+  --ink: #2b1d12;
+  --fg: #f6ecd6;
+  --muted: #c9b48f;
+  --mat: #1a0f08;
+  --typewriter: "Typewriter", "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--fg);
+  background: var(--burgundy-deep);
+  font: 17px/1.5 system-ui, sans-serif;
+}
+/* the curtain stays put while the page scrolls over it */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(20, 0, 0, 0.35), rgba(20, 0, 0, 0.6)), url("img/curtains.webp") center / cover no-repeat;
+}
+main {
+  max-width: 980px; margin: 0 auto;
+  padding-inline: 16px; padding-block: 3rem 4rem;
+  display: grid; gap: 4.5rem;
+}
+h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.03em; margin: 0; text-wrap: balance; }
+
+/* ---- opening ---- */
+.hero { display: grid; gap: 1.6rem; justify-items: center; text-align: center; }
+.eyebrow {
+  font-family: var(--typewriter); color: var(--gold-bright); font-size: 1.15rem; letter-spacing: 0.08em;
+  text-shadow: 0 2px 0 #0008;
+}
+.hero h1 {
+  color: var(--gold-bright); text-shadow: 0 2px 0 #000a, 0 0 24px #f3d37a33;
+  font-size: clamp(2.1rem, 7.5vw, 4rem); line-height: 1.1; max-width: 16ch;
+}
+.hero p { margin: 0; max-width: 34ch; color: var(--fg); font-size: 1.1rem; }
+
+/* the gold picture frame, same 9-slice as the stage */
+.frame {
+  --bw: clamp(14px, 3vw, 30px);
+  border: var(--bw) solid transparent;
+  border-image: url("img/frame.png") 100 / var(--bw) round;
+  background: var(--mat); background-clip: padding-box;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.7));
+  line-height: 0; width: 100%; max-width: 860px;
+}
+.frame img { width: 100%; height: auto; display: block; }
+.caption {
+  font-family: var(--typewriter); font-size: 0.95rem; color: var(--ink);
+  background: var(--paper); border: 2px solid var(--gold-dark); padding: 0.2rem 0.9rem;
+  box-shadow: 0 3px 8px #000a;
+}
+.hero figure { margin: 0; display: grid; justify-items: center; gap: 0.9rem; width: 100%; }
+
+/* ---- a moment ---- */
+.moment { display: grid; gap: 1.4rem; }
+.moment header { display: grid; gap: 0.7rem; max-width: 40rem; }
+.step {
+  justify-self: start; font-family: var(--typewriter); color: var(--burgundy);
+  background: var(--paper); border: 2px solid var(--gold-dark); border-radius: 3px;
+  padding: 0.1rem 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.85rem;
+  transform: rotate(-1.5deg); box-shadow: 0 3px 0 #0006;
+}
+.moment h2 { color: var(--gold-bright); font-size: clamp(1.7rem, 5.5vw, 2.5rem); line-height: 1.15; text-shadow: 0 2px 0 #000a; }
+.moment header p { margin: 0; max-width: 36rem; }
+
+/* phones: a swipeable strip on a phone, a row on a wider screen */
+.phones {
+  display: grid; grid-auto-flow: column; grid-auto-columns: min(62vw, 250px);
+  gap: 1.1rem; justify-content: start;
+  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  margin-inline: -16px; padding-inline: 16px; padding-block: 0.4rem 0.8rem;
+}
+.phones::-webkit-scrollbar { display: none; }
+@media (min-width: 820px) { .phones { justify-content: center; margin-inline: 0; overflow: visible; } }
+.phones figure { margin: 0; display: grid; gap: 0.7rem; justify-items: center; scroll-snap-align: center; }
+.phone {
+  width: 100%; border-radius: 26px; padding: 7px; line-height: 0;
+  background: #120806; border: 1px solid #ffffff22;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.6);
+}
+.phone img { width: 100%; height: auto; border-radius: 20px; display: block; }
+.phones figure:nth-child(1) .phone { transform: rotate(-1deg); }
+.phones figure:nth-child(2) .phone { transform: rotate(0.8deg); }
+.phones figure:nth-child(3) .phone { transform: rotate(-0.4deg); }
+.swipe { font-family: var(--typewriter); color: var(--muted); font-size: 0.9rem; margin: -0.6rem 0 0; }
+@media (min-width: 820px) { .swipe { display: none; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero .frame { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+}
+@keyframes hang { from { transform: translateY(-14px) rotate(-1deg); } to { transform: none; } }
+
+/* tasks: each one an index card under its screen, scattered a little like the game picker */
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.2rem; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; } }
+.task { display: grid; gap: 0; min-width: 0; transform: rotate(var(--tilt)); }
+.task:nth-child(1) { --tilt: -0.8deg; }
+.task:nth-child(2) { --tilt: 0.7deg; }
+.task:nth-child(3) { --tilt: -0.3deg; }
+.task img {
+  width: 100%; height: auto; display: block; aspect-ratio: 4 / 3;
+  border: 3px solid var(--gold); border-bottom: 0; border-radius: 4px 4px 0 0;
+}
+.card {
+  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 0 0 3px 3px;
+  padding: 0.8rem 1rem 1rem; display: grid; gap: 0.5rem;
+  /* faint ruled lines, like a 3x5 index card */
+  background-image: repeating-linear-gradient(transparent 0 1.55rem, #580f0d14 1.55rem calc(1.55rem + 1px));
+  background-position: 0 2.9rem;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.55);
+}
+.card h3 {
+  margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--burgundy); font-size: 1.35rem;
+  padding-bottom: 0.35rem; border-bottom: 2px solid var(--burgundy);
+}
+.card p { margin: 0; font-size: 0.98rem; line-height: 1.55rem; }
+
+/* a TV screen inside a moment: the same frame and placard as the opening */
+.tv { margin: 0; display: grid; justify-items: center; gap: 0.9rem; width: 100%; }
+
+/* ---- sign-off ---- */
+.signoff { display: grid; gap: 0.8rem; justify-items: center; text-align: center; padding-block: 1rem 0; }
+.signoff h2 { color: var(--gold-bright); font-size: clamp(2rem, 7vw, 3.2rem); text-shadow: 0 2px 0 #000a, 0 0 24px #f3d37a33; }
+.signoff p { margin: 0; max-width: 32ch; color: var(--muted); }
+</style>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Taskmaster · a party game</div>
+    <h1>Your living room is the Taskmaster's house.</h1>
+    <p>One TV for the stage. A phone for every contestant. A phone for the host.</p>
+    <figure>
+      <div class="frame"><img src="img/tv-secret.jpg" width="1200" height="675" alt="The TV during Secret Tasks: a sealed envelope with a red TM wax seal under the words What was Priya's secret?"></div>
+      <figcaption class="caption">The TV, mid-reveal</figcaption>
+    </figure>
+  </section>
+
+  <section class="moment" id="check-in">
+    <header>
+      <span class="step">1 · Walk in</span>
+      <h2>Scan the TV. Tap your name.</h2>
+      <p>Every guest joins from their own phone, with nothing to download. The QR on the TV opens the party, you tap your name, and the stamp says you're in.</p>
+    </header>
+    <div class="phones">
+      <figure>
+        <div class="phone"><img src="img/p-list.jpg" width="520" height="747" alt="A guest's phone: Joining Halloween party, tap your name, with six name buttons."></div>
+        <figcaption class="caption">Tap your name</figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><img src="img/p-confirm.jpg" width="520" height="747" alt="You're Sam? with a gold That's me button."></div>
+        <figcaption class="caption">Make sure it's you</figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><img src="img/p-in.jpg" width="520" height="747" alt="A red You're in stamp and Welcome, Alex!"></div>
+        <figcaption class="caption">You're in</figcaption>
+      </figure>
+    </div>
+    <p class="swipe">Swipe for more →</p>
+  </section>
+
+  <section class="moment" id="tasks">
+    <header>
+      <span class="step">2 · The tasks</span>
+      <h2>Tasks straight out of the show.</h2>
+      <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three.</p>
+    </header>
+    <ul class="tasks">
+      <li class="task">
+        <img src="img/t-noise.jpg" width="720" height="540" alt="Noisemaster on a phone: a red board of sixteen glowing buttons, next to the host's board showing the word behind each button.">
+        <div class="card">
+          <h3>Noisemaster</h3>
+          <p>Sixteen blank buttons on your phone, each one a sound on the TV. Press them in the right order to make it say the phrase.</p>
+        </div>
+      </li>
+      <li class="task">
+        <img src="img/t-secret.jpg" width="720" height="540" alt="A guest's secret task: a sealed envelope with a red TM seal, and the same envelope open on Get three people to high-five.">
+        <div class="card">
+          <h3>Secret Tasks</h3>
+          <p>A sealed envelope on your phone. Do what it says without anyone catching you, until the Taskmaster asks who can keep a secret.</p>
+        </div>
+      </li>
+      <li class="task">
+        <img src="img/t-prize.jpg" width="720" height="540" alt="A prize photo hung in the gold frame on the TV, labelled Prize, Sam.">
+        <div class="card">
+          <h3>Prize task</h3>
+          <p>Everyone brings a prize. Each one is hung in the gold frame on the TV, and the winner takes the whole haul home.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="moment" id="host">
+    <header>
+      <span class="step">3 · Run the show</span>
+      <h2>The host holds the remote.</h2>
+      <p>One phone runs the night: the order of tasks, who goes up on the TV next, and everyone's points. The gold button is always the next thing to press.</p>
+    </header>
+    <div class="phones">
+      <figure>
+        <div class="phone"><img src="img/p-host-run.jpg" width="520" height="747" alt="The host's run of show: now playing Photos, best costume, and the list of tasks with Start buttons."></div>
+        <figcaption class="caption">The run of show</figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><img src="img/p-host-next.jpg" width="520" height="747" alt="The host's phone during the Headshot task: Sam on the big screen, and a gold Next: Mei button."></div>
+        <figcaption class="caption">Who's up next</figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><img src="img/p-host-points.jpg" width="520" height="747" alt="Giving points for Build the tallest tower: a row of 0 to 5 for each contestant, with their running total."></div>
+        <figcaption class="caption">Give points</figcaption>
+      </figure>
+    </div>
+    <p class="swipe">Swipe for more →</p>
+  </section>
+
+  <section class="moment" id="scoreboard">
+    <header>
+      <span class="step">4 · The scoreboard</span>
+      <h2>Scores go up on the TV.</h2>
+      <p>When the host updates the scores, the wax seals tick up, everyone shuffles into order, and the leader's frame grows.</p>
+    </header>
+    <figure class="tv">
+      <div class="frame"><img src="img/tv-scores.jpg" width="1200" height="675" alt="The scoreboard on the TV: five gold-framed headshots over an old typewriter, each with a red wax seal showing their score, 7, 7, 8, 11 and 12."></div>
+      <figcaption class="caption">The scoreboard, leader on the right</figcaption>
+    </figure>
+  </section>
+
+  <section class="moment" id="haul">
+    <header>
+      <span class="step">5 · The Prize Haul</span>
+      <h2>The winner takes the lot.</h2>
+      <p>At the end of the night the winner goes up in the middle, with every prize hung around them and a placard saying who brought it.</p>
+    </header>
+    <figure class="tv">
+      <div class="frame"><img src="img/tv-haul.jpg" width="1200" height="675" alt="Prize Haul on the TV: the winner in the large centre frame captioned Priya is the winner!, with prizes from Sam and Priya hung either side."></div>
+      <figcaption class="caption">Priya is the winner!</figcaption>
+    </figure>
+  </section>
+
+  <section class="signoff">
+    <p>All you need is a TV, a phone each, and a prize to bring.</p>
+    <h2>Your time starts now.</h2>
+  </section>
+</main>

@@ -1,0 +1,16 @@
+/* Only for the shareable images (export.cjs): each section becomes its own picture on its own curtain,
+   and the phones sit in one row instead of a swipe strip. */
+body::before { display: none; }
+main { padding: 0; gap: 0; max-width: none; }
+main > section {
+  padding: 2.2rem 16px 2.4rem;
+  background: linear-gradient(rgba(20, 0, 0, 0.4), rgba(42, 8, 7, 0.9)), url(img/curtains.webp) center / cover no-repeat, var(--burgundy-deep);
+}
+/* the Prize Haul and the sign-off share the last picture */
+#haul { padding-bottom: 0.5rem; }
+.signoff { background: var(--burgundy-deep) !important; padding-bottom: 2.6rem !important; }
+.phones { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; overflow: visible; margin-inline: 0; padding-inline: 0; }
+.phones .caption { font-size: 0.72rem; padding: 0.15rem 0.4rem; text-align: center; }
+.phone { border-radius: 16px; padding: 4px; }
+.phone img { border-radius: 12px; }
+.swipe { display: none; }
