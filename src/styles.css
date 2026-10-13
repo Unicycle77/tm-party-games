@@ -325,18 +325,20 @@ input::placeholder { color: #8b7a63; }
 /* ---- main screen: the prize haul ---- */
 /* a gallery wall (each frame hugs its photo, never cropped): the winner's headshot in the centre column, the prizes hung in the columns either side */
 .stage.haul {
-  grid-template-columns: repeat(var(--side), minmax(0, 1fr)) minmax(0, 1.5fr) repeat(var(--side), minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr));
-  place-items: center; gap: 2vh 2.5vw; padding: 5vh 4vw 10vh; box-sizing: border-box;
+  grid-template-columns: repeat(var(--side), minmax(0, 1fr)) minmax(0, 1.5fr) repeat(var(--side), minmax(0, 1fr)); grid-template-rows: auto repeat(2, minmax(0, 1fr));
+  place-items: center; gap: 2vh 2.5vw; padding: 3vh 4vw 5vh; box-sizing: border-box;
 }
 .haul figure { margin: 0; display: grid; justify-items: center; gap: 1.2vh; animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; animation-delay: calc(var(--i) * 0.6s); }
-.haul-winner { grid-row: 1 / span 2; }
+.haul-winner { grid-row: 2 / span 2; }
+.haul-title { grid-column: 1 / -1; margin: 0; font-size: clamp(2.5rem, 9vmin, 7rem); animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.haul .haul-winner figcaption { font-size: clamp(1.2rem, 3.4vmin, 2.6rem); padding: 0.3rem 1.4rem; }
 .haul-frame { --bw: clamp(12px, 2.4vmin, 32px); border: var(--bw) solid transparent; border-image: url("./assets/frame.png") 100 / var(--bw) round; background: #1a0f08; background-clip: padding-box; filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.7)); line-height: 0; }
-.haul-frame img { display: block; width: auto; height: auto; max-height: 26vh; max-width: calc(88vw / (2 * var(--side) + 1.5) - 2 * var(--bw)); object-fit: contain; }
+.haul-frame img { display: block; width: auto; height: auto; max-height: 23vh; max-width: calc(88vw / (2 * var(--side) + 1.5) - 2 * var(--bw)); object-fit: contain; }
 .haul-winner .haul-frame { --bw: clamp(18px, 4vmin, 56px); }
-.haul-winner .haul-frame img { max-height: 60vh; max-width: calc(88vw * 1.5 / (2 * var(--side) + 1.5) - 2 * var(--bw) - 2.5vw); }
+.haul-winner .haul-frame img { max-height: 52vh; max-width: calc(88vw * 1.5 / (2 * var(--side) + 1.5) - 2 * var(--bw) - 2.5vw); }
 /* the gallery placard under each prize */
 .haul figcaption { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.2rem 0.9rem; font-family: var(--typewriter); font-size: clamp(0.9rem, 2vmin, 1.5rem); box-shadow: 0 3px 8px #000a; }
-@media (prefers-reduced-motion: reduce) { .haul figure { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .haul figure, .haul-title { animation: none; } }
 .sound-hint { position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 2; background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.4rem 1rem; font-family: var(--typewriter); box-shadow: 0 4px 10px #000a; }
 
 /* ---- phones ---- */

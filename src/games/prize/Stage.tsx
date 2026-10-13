@@ -24,7 +24,8 @@ export function PrizePhoto({ name, photo }: { name: string; photo: string }) {
  * Main screen, at the end of the party: the winner's prize haul as a gallery wall. The winner's headshot
  * hangs first in the centre, then every prize's ★ photo hangs around it one by one, like pictures going
  * up in a gallery, each with a small paper placard naming who brought it. The winner's own prize is part
- * of the haul. Guests with no prize photo are left out.
+ * of the haul. Guests with no prize photo are left out. "Prize Haul" heads the wall, and the winner's
+ * portrait has its own, larger placard: "Priya is the winner!".
  */
 export function Haul({ winner, headshot, prizes }: { winner: string; headshot?: string; prizes: { from: string; photo: string }[] }) {
   // Two rows of prizes either side of the headshot, filled from the centre outwards, alternating sides,
@@ -32,12 +33,14 @@ export function Haul({ winner, headshot, prizes }: { winner: string; headshot?: 
   const side = Math.max(1, Math.ceil(prizes.length / 4));
   const place = (k: number) => {
     const ring = Math.floor(k / 4), j = k % 4;
-    return { gridRow: Math.floor(j / 2) + 1, gridColumn: j % 2 === 0 ? side - ring : side + 2 + ring };
+    return { gridRow: Math.floor(j / 2) + 2, gridColumn: j % 2 === 0 ? side - ring : side + 2 + ring };
   };
   return (
     <main className="stage haul" style={{ "--side": side } as React.CSSProperties}>
+      <h1 className="haul-title">Prize Haul</h1>
       <figure className="haul-winner" style={{ "--i": 0, gridColumn: side + 1 } as React.CSSProperties}>
         <div className="haul-frame"><SafeImg src={headshot ?? ""} alt={winner} /></div>
+        <figcaption>{winner} is the winner!</figcaption>
       </figure>
       {prizes.map((p, i) => (
         <figure key={p.from} className="haul-prize" style={{ "--i": i + 1, ...place(i) } as React.CSSProperties}>
@@ -45,7 +48,6 @@ export function Haul({ winner, headshot, prizes }: { winner: string; headshot?: 
           <figcaption>from {p.from}</figcaption>
         </figure>
       ))}
-      <div className="stage-label"><span>prize haul</span> · {winner}</div>
     </main>
   );
 }

@@ -77,5 +77,5 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Priya's prize, her photos as previews with ★, nothing on the big screen yet (in design; stand-in photos) |
 | `prize-host-up.jpg` | Prize task on the iPad with Priya's second photo on the big screen: gold ring and "on the big screen", Lower the curtain enabled (in design; stand-in photos) |
 | `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Priya" (in design; stand-in photo) |
-| `main-prize-haul.jpg` | Main screen at the end of the party: the prize haul, the winner's headshot in the centre and every prize's ★ photo hung around it with "from Sam" placards (in design; stand-in photos) |
+| `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (in design; stand-in photos) |
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards (in design) |
