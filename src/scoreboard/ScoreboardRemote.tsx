@@ -122,11 +122,14 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
           <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
-      ) : (
+      ) : haul ? (
+        // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing.
         <>
-          {haul && <p className="muted small">{list(haul.tied.map(nameOf))} are tied for first. Play a tiebreaker task before the prize haul.</p>}
-          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+          <button className="big">Play the tiebreaker · {list(haul.tied.map(nameOf))}</button>
+          <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
+      ) : (
+        <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
       )}
     </>
   );
