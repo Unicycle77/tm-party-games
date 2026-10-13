@@ -125,7 +125,7 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
       ) : haul ? (
         // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing.
         <>
-          <button className="big">Play the tiebreaker · {list(haul.tied.map(nameOf))}</button>
+          <button className="big">Play the tiebreaker task · {list(haul.tied.map(nameOf))}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (
