@@ -75,11 +75,11 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
     </>
   );
 
-  // The scoreboard belongs to no game; it's run from 🏆, and lowering it goes back to the curtain.
-  if (display.step === "scoreboard") {
+  // The scoreboard (and the prize haul) belong to no game; they're run from 🏆, and lowering goes back to the curtain.
+  if (display.step === "scoreboard" || display.step === "haul") {
     return (
       <section className="remote">
-        <p className="on-screen">On the big screen: the scoreboard</p>
+        <p className="on-screen">On the big screen: {display.step === "haul" ? "the prize haul" : "the scoreboard"}</p>
         <p className="muted small">Update the scores from 🏆.</p>
         <button className="big" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
       </section>
@@ -137,11 +137,16 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
 
   // Games the host runs (Box): no entries to collect.
   if (!status) {
-    return (
-      <section className="remote">
+    const head = (
+      <>
         {gameLine}
         <p className="on-screen">On the big screen: {game.onScreen?.(session, display) ?? (display.step === "boxes" ? "the boxes" : display.step === "soundboard" ? "the soundboard" : display.step === "envelopes" ? "the envelopes" : "the curtain")}</p>
-        <game.HostLobby code={code} session={session} display={display} />
+      </>
+    );
+    return (
+      <section className="remote">
+        {!game.headInLobby && head}
+        <game.HostLobby code={code} session={session} display={display} head={game.headInLobby ? head : undefined} />
         {/* The setup already lists everyone; the plain list is only for removing people. */}
         {managing && plainList}
         {manageLink}

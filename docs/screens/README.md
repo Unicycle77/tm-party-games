@@ -71,6 +71,21 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `secret-tasks-player-envelope.jpg` | A guest's envelope: sealed ("Tap the seal to open it."), and open with "Seal it again" |
 | `secret-tasks-player-rules.jpg` | A guest's envelope with the circled ? beside the heading, closed and then open on the rules card |
 | `secret-tasks-host-send-back.jpg` | "Who has what" with Sam's ✎ open: Save, Cancel and "Send it back to the pile" |
+| `prize-player-choose.jpg` | Prize task on a guest's phone after check-in: "🎁 Your prize" under "✓ You're in", one "Add photos" button |
+| `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (stand-in photos) |
+| `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (stand-in photos) |
+| `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Sam's prize, his photos as previews with ★, nothing on the big screen yet (stand-in photos) |
+| `prize-host-up.jpg` | Prize task on the iPad with Sam's second photo on the big screen: gold ring and "on the big screen", ✕ to remove a photo and ☆ to move the ★, Lower the curtain enabled (stand-in photos) |
+| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Sam" (stand-in photo) |
+| `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
+| `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards |
+| `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link |
+| `run-of-show-host-haul-remote-tie.jpg` | The same with a tie at the top: "Priya and Sam are tied for first. Play a tiebreaker task before the prize haul." |
+| `prize-host-adding.jpg` | Prize task on the iPad: the host adding photos to Jo's prize, one sent (★, since Jo had none) and one still sending (rendered from the component with stand-in photos) |
+| `run-of-show-host-prizes-in.jpg` | The run of show mid-party: the Prize task's row reads "🎁 2 of 3 prizes in · waiting on Mei" |
+| `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
+| `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
+| `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
 
 Host pin (taken on 2026-10-13, from the real components with a made-up party):
 

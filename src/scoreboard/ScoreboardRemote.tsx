@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
+import { haulState, prizesIn, showHaul } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
@@ -20,6 +21,8 @@ const titleOf = (t: ScoreboardTask) => {
 };
 const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+/** "Priya and Sam", "Priya, Sam and Mei". */
+const list = (names: string[]) => names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] ?? "";
 
 /**
  * The host remote's home, the run of show (🏆 in the header always comes back here): the scoreboard's
@@ -66,7 +69,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
                 Give points: {tasks.findIndex(([t]) => t === upNext) + 1}&nbsp; {titleOf(board!.tasks![upNext]!)} →
               </button>
             )}
-            <TaskList code={code} board={board} tasks={tasks} next={next} onOpen={contestants.length ? open : undefined}
+            <TaskList code={code} board={board} tasks={tasks} next={next} prizeNote={prizesIn(session, list)} onOpen={contestants.length ? open : undefined}
               onStart={(id, game) => void (async () => {
                 // A photo task brings its own photos (see switchPhotosTask).
                 if (game === "photos") await switchPhotosTask(code, session, id);
@@ -87,7 +90,10 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
-  const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard"
+  const haul = up ? haulState(session) : undefined;
+  const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
+  const haulUp = session.display?.step === "haul";
+  const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
 
@@ -95,7 +101,12 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
     <>
       <p className="on-screen">On the big screen: {line}</p>
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
-      {!up ? (
+      {haulUp ? (
+        <>
+          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+          <button className="link" onClick={() => void showScoreboard(code)}>Back to the scoreboard</button>
+        </>
+      ) : !up ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
           {pending && <p className="muted small">At the totals you last showed. {pending} to add when you update.</p>}
@@ -105,7 +116,18 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
           <button className="big" onClick={() => void updateScores(code, board)}>Update the scores · {pending}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
-      ) : <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
+      ) : haul && "winner" in haul ? (
+        // The end of the party: the winner's haul is the one next thing.
+        <>
+          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
+          <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        </>
+      ) : (
+        <>
+          {haul && <p className="muted small">{list(haul.tied.map(nameOf))} are tied for first. Play a tiebreaker task before the prize haul.</p>}
+          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+        </>
+      )}
     </>
   );
 }
@@ -174,8 +196,10 @@ function PointsRow({ name, points, total, onSet }: { name: string; points?: numb
  * The task list in running order: live tasks the host names and app games. Tap a task for its points;
  * ≡ drags it to a new place; ✎ fixes its name or note, or removes it; ▶ Start starts an app game.
  */
-function TaskList({ code, board, tasks, next, onOpen, onStart }: {
+function TaskList({ code, board, tasks, next, prizeNote, onOpen, onStart }: {
   code: string; board: Scoreboard | undefined; tasks: [string, ScoreboardTask][]; next?: string;
+  /** Whose prizes are in, on the prize task's row. */
+  prizeNote?: string;
   onOpen?: (id: string) => void; onStart: (id: string, game: GameId) => void;
 }) {
   const [adding, setAdding] = useState<"live" | "game">();
@@ -226,6 +250,7 @@ function TaskList({ code, board, tasks, next, onOpen, onStart }: {
               <button className="sb-task" disabled={!onOpen} onClick={() => onOpen?.(id)}>
                 <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app game</span>}</span>
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
+                {t.game === "prize" && prizeNote && <span className="muted small">🎁 {prizeNote}</span>}
                 <span className="muted small">{scored(t) ? "scored" : id === next ? "← next" : ""}</span>
               </button>
               {t.game && <button className="sb-start" onClick={() => onStart(id, t.game!)}>▶ Start</button>}

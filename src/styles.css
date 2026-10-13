@@ -322,6 +322,23 @@ input::placeholder { color: #8b7a63; }
   z-index: 1;
 }
 .stage-label span { text-transform: uppercase; color: var(--burgundy); font-weight: bold; }
+/* ---- main screen: the prize haul ---- */
+/* a gallery wall (each frame hugs its photo, never cropped): the winner's headshot in the centre column, the prizes hung in the columns either side */
+.stage.haul {
+  grid-template-columns: repeat(var(--side), minmax(0, 1fr)) minmax(0, 1.5fr) repeat(var(--side), minmax(0, 1fr)); grid-template-rows: auto repeat(2, minmax(0, 1fr));
+  place-items: center; gap: 2vh 2.5vw; padding: 3vh 4vw 5vh; box-sizing: border-box;
+}
+.haul figure { margin: 0; display: grid; justify-items: center; gap: 1.2vh; animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; animation-delay: calc(var(--i) * 0.6s); }
+.haul-winner { grid-row: 2 / span 2; }
+.haul-title { grid-column: 1 / -1; margin: 0; font-size: clamp(2.5rem, 9vmin, 7rem); animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
+.haul .haul-winner figcaption { font-size: clamp(1.2rem, 3.4vmin, 2.6rem); padding: 0.3rem 1.4rem; }
+.haul-frame { --bw: clamp(12px, 2.4vmin, 32px); border: var(--bw) solid transparent; border-image: url("./assets/frame.png") 100 / var(--bw) round; background: #1a0f08; background-clip: padding-box; filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.7)); line-height: 0; }
+.haul-frame img { display: block; width: auto; height: auto; max-height: 23vh; max-width: calc(88vw / (2 * var(--side) + 1.5) - 2 * var(--bw)); object-fit: contain; }
+.haul-winner .haul-frame { --bw: clamp(18px, 4vmin, 56px); }
+.haul-winner .haul-frame img { max-height: 52vh; max-width: calc(88vw * 1.5 / (2 * var(--side) + 1.5) - 2 * var(--bw) - 2.5vw); }
+/* the gallery placard under each prize */
+.haul figcaption { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.2rem 0.9rem; font-family: var(--typewriter); font-size: clamp(0.9rem, 2vmin, 1.5rem); box-shadow: 0 3px 8px #000a; }
+@media (prefers-reduced-motion: reduce) { .haul figure, .haul-title { animation: none; } }
 .sound-hint { position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 2; background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.4rem 1rem; font-family: var(--typewriter); box-shadow: 0 4px 10px #000a; }
 
 /* ---- phones ---- */
@@ -398,6 +415,33 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .sending progress::-webkit-progress-value { background: var(--burgundy); }
 .sending progress::-moz-progress-bar { background: var(--burgundy); }
 .slot img, .slot video { width: 100%; max-height: 40vh; object-fit: contain; border: 3px solid var(--gold); border-radius: 2px; background: #000; }
+/* ---- prize task: the guest's picks ---- */
+/* whole photos on a dark mat (never cropped), three to a row; "+ Add more" is the last tile */
+.prize-picks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.prize-picks li { position: relative; aspect-ratio: 1; }
+.slot .prize-picks img { box-sizing: border-box; width: 100%; height: 100%; max-height: none; object-fit: contain; background: #1a0f08; }
+.prize-picks .x { position: absolute; top: 0.3rem; right: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 0.9rem; }
+/* the run of show's ≡, in the tile's other top corner; the dragged photo goes faint like a dragged task */
+.prize-picks .handle { position: absolute; top: 0.3rem; left: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; font-size: 1.1rem; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.prize-picks li.dragging { opacity: 0.7; }
+/* the host's prize task: the list beside the picked prize's previews (stacked on phones) */
+.prize-host { display: grid; gap: 1.25rem; }
+@media (min-width: 900px) { .prize-host { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); column-gap: 2.5rem; align-items: start; } }
+.prize-previews { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.prize-previews li { display: grid; gap: 0.25rem; justify-items: center; }
+.prize-preview { position: relative; width: 100%; }
+.prize-previews button:first-child { width: 100%; aspect-ratio: 1; padding: 0; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; }
+.prize-previews img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* a photo the host is adding: an empty tile with its progress until it's sent */
+.prize-sending { width: 100%; aspect-ratio: 1; display: grid; place-items: center; padding: 1rem; box-sizing: border-box; background: #1a0f08; border: 3px dashed var(--gold); border-radius: 2px; }
+/* the photo on the big screen: gold, like the stage step that's on */
+.prize-previews .x { position: absolute; top: 0.4rem; right: 0.4rem; width: 2.2rem; height: 2.2rem; padding: 0; display: grid; place-items: center; }
+/* ☆ sits where the ★ would: tapping it moves the ★ here */
+.prize-previews .unstar { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 2rem; height: 2rem; padding: 0; display: grid; place-items: center; border-radius: 50%; font-size: 1.1rem; }
+.prize-previews button.active { border-color: var(--gold-edge); box-shadow: 0 0 0 4px var(--gold-bright), 0 0 16px var(--gold-bright); }
+/* the main photo, the one the winner's haul shows: gold, since it's the chosen one */
+.prize-previews .star, .prize-picks .star { position: absolute; bottom: 0.3rem; right: 0.3rem; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border-radius: 50%; background: var(--gold-gradient); border: 2px solid var(--gold-edge); color: var(--ink); font-size: 1rem; box-shadow: 0 2px 0 #0006; pointer-events: none; }
+.prize-add { width: 100%; height: 100%; padding: 0.3rem; background: #1a0f08; color: var(--muted); border: 3px dashed var(--gold); border-radius: 2px; box-shadow: none; }
 progress { width: 100%; accent-color: var(--burgundy); }
 .remote, .remote-game, .remote-players { display: grid; gap: 0.75rem; align-content: start; }
 .remote.split { row-gap: 1.25rem; }

@@ -7,6 +7,7 @@ import { box } from "./box";
 import { noisemaster } from "./noisemaster";
 import { headshotsGame } from "./headshots";
 import { photos } from "./photos";
+import { prize } from "./prize";
 import { secretTasks } from "./secretTasks";
 
 /**
@@ -48,12 +49,17 @@ export interface Game {
   scoreboardOnly?: boolean;
   /** Can be on the run of show more than once (Photos: a general tool, one entry per photo task). Other games go on it once. */
   repeatable?: boolean;
+  /**
+   * Host phone, for games the host runs: lays out `head` (the game's name, the way back and what's on the
+   * big screen) itself, e.g. over one column of two. Otherwise the remote puts it above the lobby.
+   */
+  headInLobby?: boolean;
   /** Host phone: the buttons above the player list (e.g. show everyone at once). */
-  HostLobby: ComponentType<{ code: string; session: Session; display: Display }>;
+  HostLobby: ComponentType<{ code: string; session: Session; display: Display; head?: ReactNode }>;
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize };
 
 /** The games on the game picker (the rest only start from the scoreboard's task list). */
 export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);
