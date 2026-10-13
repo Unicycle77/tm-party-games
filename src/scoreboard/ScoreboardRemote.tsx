@@ -105,7 +105,6 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   // The tasks still without points: the haul waits for them, unless the host declares the winner first.
   const unscored = sorted(board?.tasks).filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const final = !!board?.final;
-  const anyScored = Object.values(board?.tasks ?? {}).some(scored);
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -151,12 +150,8 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
         <p className="muted small">
           Declaring the winner with {list(unscored)} unscored. <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button>
         </p>
-      ) : anyScored && (
-        // The end of the night can come before every task is played: one last update, then the haul.
-        <>
-          {up && !pending && <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}.</p>}
-          <button onClick={() => void declareWinner(code)}>🏆 Declare the winner</button>
-        </>
+      ) : up && !pending && (
+        <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or declare the winner from the task list.</p>
       ))}
     </>
   );
@@ -268,6 +263,8 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
   const [adding, setAdding] = useState<"live" | "game">();
   const [editing, setEditing] = useState<string>();
   const ids = tasks.map(([id]) => id);
+  // Only needed while some tasks are scored and some aren't: with all of them in, the haul comes by itself.
+  const declarable = !board?.final && tasks.some(([, t]) => scored(t)) && tasks.some(([, t]) => !scored(t));
   const [dragging, setDragging] = useState<{ id: string; order: string[] }>();
   const rows = useRef<Record<string, HTMLLIElement | null>>({});
   const order = dragging?.order ?? ids;
@@ -331,6 +328,18 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
             <button className="x" aria-label="Fix the tiebreaker task" onClick={() => setEditing("tiebreaker")}>✎</button>
           </li>
         )}
+        {/* The end of the night can come before every task is played: one last update, then the haul. */}
+        <li>
+          <button className="sb-task sb-declare" disabled={!declarable}
+            onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>
+            <span className="sb-task-title">🏆 Declare the winner</span>
+            <span className="muted small sb-task-note">
+              {board?.final ? "Declared on the points so far"
+                : !tasks.some(([, t]) => scored(t)) ? "Once a task has points"
+                : declarable ? "Ends the night on the points so far, with one last update" : "Every task has points"}
+            </span>
+          </button>
+        </li>
       </ul>
       {adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
         : adding === "game" ? (
