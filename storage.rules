@@ -12,6 +12,11 @@ service firebase.storage {
             && request.resource.contentType.matches('image/.*')
             && request.resource.size < 15 * 1024 * 1024)
           ||
+          // Prize photos go up several at once: prize-<time>-<n>.
+          (file.matches('prize-[0-9]+-[0-9]+')
+            && request.resource.contentType.matches('image/.*')
+            && request.resource.size < 15 * 1024 * 1024)
+          ||
           (file.matches('video-[0-9]+')
             && request.resource.contentType.matches('video/.*')
             && request.resource.size < 300 * 1024 * 1024)

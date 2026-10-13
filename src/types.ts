@@ -1,5 +1,5 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /**
@@ -14,6 +14,8 @@ export interface Display {
   uid?: string;
   /** The Headshot task: the scoreboard contestant whose headshot is up (they may not have checked in). */
   contestant?: string;
+  /** The prize task: which of that contestant's prize photos is up (0 is the first). */
+  index?: number;
   step: Step;
   /** Video step only: the host remote's play/pause. Treated as playing when absent. */
   playing?: boolean;
@@ -211,8 +213,6 @@ export interface ScoreboardTask {
   game?: GameId;
   /** The host's note about the task. Only ever shown on the host remote. */
   description?: string;
-  /** The party's prize task (every new party starts with one): its row says whose prizes are in. */
-  prize?: boolean;
   /** Points by contestant id. A contestant with none gets nothing for this task. */
   scores?: Record<string, number>;
 }

@@ -90,6 +90,23 @@
               ".validate": false
             }
           },
+          "prize": {
+            "photos": {
+              "$id": {
+                ".write": "auth != null && ((root.child('sessions').child($code).child('scoreboard').child('contestants').child($id).child('uid').val() === auth.uid && root.child('sessions').child($code).child('games').child('prize').child('presented').child($id).val() !== true) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                "$i": { ".validate": "$i.matches(/^[0-9]+$/) && newData.isString() && newData.val().length <= 2000" }
+              }
+            },
+            "presented": {
+              "$id": {
+                ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "box": {
             "round": {
               ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
@@ -189,7 +206,7 @@
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks' || newData.val() === 'headshots'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks' || newData.val() === 'headshots' || newData.val() === 'prize'"
         },
         "jukebox": {
           "tracks": {

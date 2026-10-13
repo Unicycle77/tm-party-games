@@ -1,3 +1,79 @@
+import { useRef, useState, type ReactNode } from "react";
+import { useKeepAwake } from "../../keepAwake";
+import { setDisplay, useUid } from "../../session";
+import type { Display, Session } from "../../types";
+import { addPrizePhotos, presentedOf, presentPrize, prizePhotos, removePrizePhoto, showPrizePhoto, starPrizePhoto } from "./data";
+
+/** Unused: the whole task runs from HostLobby, since contestants aren't players. */
+export function HostPlayer(_: { code: string; session: Session; display: Display; uid: string }) {
+  return null;
+}
+
+/** The host remote while the prize task is on: everyone on the scoreboard, in its order. */
+export function HostLobby({ code, session, display, head }: { code: string; session: Session; display: Display; head?: ReactNode }) {
+  const uid = useUid();
+  const photos = prizePhotos(session);
+  const entries = Object.entries(session.scoreboard?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order)
+    .map(([id, c]) => ({ id, name: c.name, photos: photos[id] ?? [] }));
+  const up = display.step === "photo" && display.contestant ? { id: display.contestant, index: display.index ?? 0 } : undefined;
+  // Who's being talked about: picked here, or whoever's prize is on the big screen (e.g. after a reload).
+  const [picked, setPicked] = useState<string>();
+  const presenting = picked ?? up?.id;
+  // Photos this remote is adding, as fractions sent, for the prize being presented.
+  const [sending, setSending] = useState<{ id: string; sent: number[] }>();
+  const input = useRef<HTMLInputElement>(null);
+  useKeepAwake(!!sending);
+
+  function pick(id: string) {
+    setPicked(id);
+    // Presenting locks the guest's phone.
+    if (!presentedOf(session)[id]) void presentPrize(code, id);
+  }
+
+  async function add(id: string, files: File[]) {
+    if (!uid || !files.length) return;
+    const sent = files.map(() => 0);
+    setSending({ id, sent: [...sent] });
+    try {
+      await addPrizePhotos(code, uid, id, files, (n, f) => { sent[n] = f; setSending({ id, sent: [...sent] }); });
+    } catch {
+      alert("Some photos didn't finish sending. Check your Wi-Fi and try again.");
+    } finally {
+      setSending(undefined);
+    }
+  }
+
+  const url = (id: string, i: number) => photos[id]?.[i];
+  return (
+    <>
+      <PrizePresenting head={head} entries={entries} presenting={presenting} presented={presentedOf(session)} up={up}
+        sending={sending && sending.id === presenting ? sending.sent.filter((f) => f < 1) : []}
+        onPick={pick}
+        onShow={(id, i) => void showPrizePhoto(code, id, i)}
+        onAdd={() => input.current?.click()}
+        onRemove={(id, i) => {
+          const u = url(id, i);
+          if (!u) return;
+          // The photo on the big screen (never the one removed) stays up as the ones after it move along.
+          void removePrizePhoto(code, id, u).then(() => {
+            if (up?.id === id && up.index > i) void showPrizePhoto(code, id, up.index - 1);
+          });
+        }}
+        onStar={(id, i) => {
+          const u = url(id, i);
+          if (!u) return;
+          // The photo on the big screen stays up as it moves to the front.
+          void starPrizePhoto(code, id, u).then(() => {
+            if (up?.id === id) void showPrizePhoto(code, id, up.index === i ? 0 : up.index < i ? up.index + 1 : up.index);
+          });
+        }}
+        onLower={() => void setDisplay(code, { step: "curtain" })} />
+      <input ref={input} type="file" accept="image/*" multiple hidden
+        onChange={(e) => { if (presenting) void add(presenting, [...(e.target.files ?? [])]); e.target.value = ""; }} />
+    </>
+  );
+}
+
 export interface PrizeEntry { id: string; name: string; photos: string[] }
 
 /**
@@ -12,7 +88,9 @@ export interface PrizeEntry { id: string; name: string; photos: string[] }
  * first, since it's the guest's; never the one on the big screen), and ☆ on any other photo moves the ★
  * to it, which makes it the first.
  */
-export function PrizePresenting({ entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onRemove, onStar, onLower }: {
+export function PrizePresenting({ head, entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onRemove, onStar, onLower }: {
+  /** The task's name, the way back to the run of show and what's on the big screen, over the list. */
+  head?: ReactNode;
   entries: PrizeEntry[];
   presenting?: string;
   presented: Record<string, boolean>;
@@ -29,15 +107,10 @@ export function PrizePresenting({ entries, presenting, presented, up, sending = 
   onLower: () => void;
 }) {
   const current = entries.find((e) => e.id === presenting);
-  const line = up ? `On the big screen: ${entries.find((e) => e.id === up.id)?.name}'s prize, photo ${up.index + 1}` : "The curtain is down.";
   return (
     <div className="prize-host">
       <section className="remote prize-list">
-        <div className="remote-head">
-          <h2>Prize task</h2>
-          <button className="link">← Run of show</button>
-        </div>
-        <p className="on-screen">{line}</p>
+        {head}
         <ul className="picker running">
           {entries.map((e) => (
             <li key={e.id} className={e.id === presenting ? "up" : presented[e.id] ? "shown" : ""}>

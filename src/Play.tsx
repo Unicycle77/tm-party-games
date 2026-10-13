@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
+import { prizePlanned } from "./games/prize/data";
+import { PrizeArea } from "./games/prize/PlayerView";
 import { secretTasksPlanned } from "./games/secretTasks/data";
 import { SecretTaskArea } from "./games/secretTasks/PlayerView";
 import { QrScannerModal } from "./QrScannerModal";
@@ -55,7 +57,7 @@ export function Play() {
     );
   }
 
-  const content = game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
+  const gameCard = game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
       <section className="slot waiting">
         <h2>Waiting for the next game.</h2>
         <p className="slot-hint">When the host picks it, it'll show up here.</p>
@@ -68,6 +70,10 @@ export function Play() {
         <p className="slot-hint">When the host picks a game, it'll show up here.</p>
       </section>
     );
+
+  // The prize task: a guest on the guest list can send their prize from check-in onwards, whatever is on.
+  const content = guest && prizePlanned(session)
+    ? <>{gameCard}<PrizeArea code={code} uid={uid} id={guest[0]} session={session} /></> : gameCard;
 
   return (
     <main className="phone">

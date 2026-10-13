@@ -92,7 +92,8 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
   const game = activeGame(session);
   const haul = up ? haulState(session) : undefined;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
-  const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard"
+  const haulUp = session.display?.step === "haul";
+  const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
 
@@ -100,7 +101,12 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
     <>
       <p className="on-screen">On the big screen: {line}</p>
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
-      {!up ? (
+      {haulUp ? (
+        <>
+          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+          <button className="link" onClick={() => void showScoreboard(code)}>Back to the scoreboard</button>
+        </>
+      ) : !up ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
           {pending && <p className="muted small">At the totals you last showed. {pending} to add when you update.</p>}
@@ -244,7 +250,7 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onStart }: {
               <button className="sb-task" disabled={!onOpen} onClick={() => onOpen?.(id)}>
                 <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app game</span>}</span>
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
-                {t.prize && prizeNote && <span className="muted small">🎁 {prizeNote}</span>}
+                {t.game === "prize" && prizeNote && <span className="muted small">🎁 {prizeNote}</span>}
                 <span className="muted small">{scored(t) ? "scored" : id === next ? "← next" : ""}</span>
               </button>
               {t.game && <button className="sb-start" onClick={() => onStart(id, t.game!)}>▶ Start</button>}
