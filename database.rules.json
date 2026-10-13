@@ -297,6 +297,12 @@
             }
           },
           "shown": { "$task": { "$cid": { ".validate": "newData.isNumber()" } } },
+          "tiebreaker": {
+            "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
+            "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
+            "winner": { ".validate": "newData.isString() && root.child('sessions').child($code).child('scoreboard').child('contestants').child(newData.val()).exists()" },
+            "$other": { ".validate": false }
+          },
           "$other": { ".validate": false }
         },
         "display": {

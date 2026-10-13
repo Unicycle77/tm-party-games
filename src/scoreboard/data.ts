@@ -83,3 +83,11 @@ export const updateScores = (code: string, board: Scoreboard | undefined) => {
 };
 
 export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain" });
+
+/** Records who won the tiebreaker task (null clears it). Nothing changes on the big screen. */
+export const setTiebreakerWinner = (code: string, contestant: string | null) =>
+  set(at(code, "tiebreaker/winner"), contestant);
+
+/** Fixes the tiebreaker task's name or note. It can't be removed: every party has one. */
+export const editTiebreaker = (code: string, name: string, description: string) =>
+  update(at(code, "tiebreaker"), { name: name.trim() || null, description: description.trim() || null });

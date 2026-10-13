@@ -61,7 +61,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Party settings: renaming the party |
-| `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks, contestants with "checked in" / "not yet", someone not on the scoreboard yet |
+| `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks ending with the tiebreaker task (disabled until there's a tie), contestants with "not yet", Jo here but not on the scoreboard yet |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |
 | `run-of-show-host-add-game.jpg` | "+ App game" on the run of show: Noisemaster and Headshot greyed out as "on the list", Photos still offered |
@@ -79,13 +79,22 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Sam" (stand-in photo) |
 | `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards |
-| `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link |
-| `run-of-show-host-haul-remote-tie.jpg` | The same with a tie at the top: "Priya and Sam are tied for first. Play a tiebreaker task before the prize haul." |
+| `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link, the tiebreaker task's row disabled |
 | `prize-host-adding.jpg` | Prize task on the iPad: the host adding photos to Jo's prize, one sent (★, since Jo had none) and one still sending (rendered from the component with stand-in photos) |
 | `run-of-show-host-prizes-in.jpg` | The run of show mid-party: the Prize task's row reads "🎁 2 of 3 prizes in · waiting on Mei" |
 | `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
 | `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
 | `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
+
+Tiebreaker task (taken on 2026-10-13, from the real components with a made-up party):
+
+| File | What it shows |
+|---|---|
+| `run-of-show-host-tiebreaker.jpg` | The run of show before the party: "Tiebreaker task · only if there's a tie" last in the task list, with its note, no number or ≡, disabled until there's a tie |
+| `run-of-show-host-tiebreaker-edit.jpg` | ✎ on the tiebreaker task: its name and note, Save and Cancel, no "Remove this task" |
+| `run-of-show-host-haul-remote-tie.jpg` | The run of show after the last update with Sam and Priya tied at the top: gold "Play the tiebreaker task · Sam and Priya", "Lower the curtain" as a link, the tiebreaker row enabled |
+| `tiebreaker-host-playing.jpg` | The tiebreaker task's page, with the curtain down: "Tiebreaker task: Sam and Priya", the note to read out, "Tap who won.", nobody tapped |
+| `tiebreaker-host-won.jpg` | The same page with Sam tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Sam" from the curtain |
 
 Host pin (taken on 2026-10-13, from the real components with a made-up party):
 

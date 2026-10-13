@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { haulState, prizesIn, showHaul } from "../games/prize/data";
+import { anyPrizes, prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
-  addContestant, addPlayerToScoreboard, addTask, editTask, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  setPoints, showScoreboard, updateScores, uploadHeadshot,
+  addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
+  setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
 
@@ -44,6 +44,10 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
     ? tasks[lastScored]![0] : undefined;
   // The task whose points are open. Pinned when opened, so scoring everyone never moves the page on.
   const [picked, setPicked] = useState<string>();
+  // The tiebreaker task's page, opened from the gold button when the last update leaves a tie.
+  const [tiebreak, setTiebreak] = useState<string[]>();
+  // Who's tied at the top once every task is in and shown (still so once the tiebreaker has a winner).
+  const tied = standing(session)?.tied;
   const upNext = unfinished ?? next;
   const open = (id: string) => { setPicked(id); window.scrollTo(0, 0); };
   const game = activeGame(session);
@@ -58,8 +62,9 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
           <button onClick={onOpenGame}>Open →</button>
         </div>
       )}
-      <ShowControls code={code} session={session} />
-      {picked && board?.tasks?.[picked] && contestants.length > 0
+      <ShowControls code={code} session={session} onTiebreak={(tied) => { setTiebreak(tied); window.scrollTo(0, 0); }} />
+      {tiebreak ? <Tiebreaker code={code} board={board} tied={tiebreak} onClose={() => setTiebreak(undefined)} />
+      : picked && board?.tasks?.[picked] && contestants.length > 0
         ? <Points code={code} board={board} id={picked} tasks={tasks} contestants={contestants}
             onChange={() => setPicked(undefined)} onNext={open} />
         : (
@@ -70,6 +75,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
               </button>
             )}
             <TaskList code={code} board={board} tasks={tasks} next={next} prizeNote={prizesIn(session, list)} onOpen={contestants.length ? open : undefined}
+              onTiebreak={tied ? () => { setTiebreak(tied); window.scrollTo(0, 0); } : undefined}
               onStart={(id, game) => void (async () => {
                 // A photo task brings its own photos (see switchPhotosTask).
                 if (game === "photos") await switchPhotosTask(code, session, id);
@@ -84,13 +90,18 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
 }
 
 /** What the big screen shows, and the one button that moves the scoreboard on it. */
-function ShowControls({ code, session }: { code: string; session: Session }) {
+function ShowControls({ code, session, onTiebreak }: { code: string; session: Session; onTiebreak: (tied: string[]) => void }) {
   const board = session.scoreboard;
   const up = session.display?.step === "scoreboard";
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
-  const haul = up ? haulState(session) : undefined;
+  const now = standing(session);
+  // Still tied at the top: the tiebreaker task is the next thing.
+  const tied = now && !("winner" in now) ? now.tied : undefined;
+  // The haul goes up from the scoreboard, or from the curtain once a tiebreaker has been won (it's
+  // played with the scoreboard down).
+  const winner = now && "winner" in now && !pending && anyPrizes(session) && (up || now.tied) ? now.winner : undefined;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -106,27 +117,31 @@ function ShowControls({ code, session }: { code: string; session: Session }) {
           <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
           <button className="link" onClick={() => void showScoreboard(code)}>Back to the scoreboard</button>
         </>
-      ) : !up ? (
+      ) : !up && !winner ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
           {pending && <p className="muted small">At the totals you last showed. {pending} to add when you update.</p>}
         </>
-      ) : pending ? (
+      ) : up && pending ? (
         <>
           <button className="big" onClick={() => void updateScores(code, board)}>Update the scores · {pending}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
-      ) : haul && "winner" in haul ? (
+      ) : winner ? (
         // The end of the party: the winner's haul is the one next thing.
         <>
-          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
+          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(winner)}</button>
+          {up && <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
+        </>
+      ) : tied ? (
+        // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing. It's a
+        // live task, so the curtain comes down while it's played.
+        <>
+          <button className="big" onClick={() => { void lowerCurtain(code); onTiebreak(tied); }}>Play the tiebreaker task · {list(tied.map(nameOf))}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (
-        <>
-          {haul && <p className="muted small">{list(haul.tied.map(nameOf))} are tied for first. Play a tiebreaker task before the prize haul.</p>}
-          <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
-        </>
+        <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
       )}
     </>
   );
@@ -158,6 +173,37 @@ function Points({ code, board, id, tasks, contestants, onChange, onNext }: {
         ))}
       </ul>
       {following && <button className="link sb-next" onClick={() => { onNext(following); window.scrollTo(0, 0); }}>Next task →</button>}
+    </section>
+  );
+}
+
+/**
+ * The tiebreaker task's page: just the tied contestants, and a tap on whoever won. It has one winner
+ * and no points, so nobody's total changes, and nothing goes on the big screen from here.
+ */
+function Tiebreaker({ code, board, tied, onClose }: {
+  code: string; board: Scoreboard | undefined; tied: string[]; onClose: () => void;
+}) {
+  const tb = board?.tiebreaker;
+  const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
+  return (
+    <section className="sb-points">
+      <div className="remote-head">
+        <h3>{tb?.name || "Tiebreaker task"}: {list(tied.map(nameOf))}</h3>
+        <button className="link" onClick={onClose}>← All tasks</button>
+      </div>
+      {tb?.description && <p className="muted small sb-note">{tb.description}</p>}
+      <p className="muted small">Tap who won.</p>
+      <ul className="picker running">
+        {tied.map((id) => (
+          <li key={id} className={tb?.winner === id ? "up" : ""}>
+            <button aria-pressed={tb?.winner === id} onClick={() => void setTiebreakerWinner(code, tb?.winner === id ? null : id)}>
+              <span>{nameOf(id)}</span>
+              <span className="muted small">{tb?.winner === id ? "won the tiebreaker" : ""}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -196,11 +242,13 @@ function PointsRow({ name, points, total, onSet }: { name: string; points?: numb
  * The task list in running order: live tasks the host names and app games. Tap a task for its points;
  * ≡ drags it to a new place; ✎ fixes its name or note, or removes it; ▶ Start starts an app game.
  */
-function TaskList({ code, board, tasks, next, prizeNote, onOpen, onStart }: {
+function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onStart }: {
   code: string; board: Scoreboard | undefined; tasks: [string, ScoreboardTask][]; next?: string;
   /** Whose prizes are in, on the prize task's row. */
   prizeNote?: string;
   onOpen?: (id: string) => void; onStart: (id: string, game: GameId) => void;
+  /** Opens the tiebreaker task's page, once there's a tie at the top. */
+  onTiebreak?: () => void;
 }) {
   const [adding, setAdding] = useState<"live" | "game">();
   const [editing, setEditing] = useState<string>();
@@ -258,6 +306,16 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onStart }: {
             </li>
           );
         })}
+        {editing === "tiebreaker" ? <li><TiebreakerEdit code={code} board={board} onClose={() => setEditing(undefined)} /></li> : (
+          // Every party's tiebreaker: always last, outside the running order, played only on a tie.
+          <li>
+            <button className="sb-task sb-tiebreaker" disabled={!onTiebreak} onClick={onTiebreak}>
+              <span className="sb-task-title">{board?.tiebreaker?.name || "Tiebreaker task"}<span className="muted small"> · only if there's a tie</span></span>
+              <span className="muted small sb-task-note">{board?.tiebreaker?.description ? `"${board.tiebreaker.description}"` : "Add how it's won with ✎"}</span>
+            </button>
+            <button className="x" aria-label="Fix the tiebreaker task" onClick={() => setEditing("tiebreaker")}>✎</button>
+          </li>
+        )}
       </ul>
       {adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
         : adding === "game" ? (
@@ -330,6 +388,28 @@ function TaskEdit({ code, id, task, onClose }: { code: string; id: string; task:
         <button className="link" onClick={onClose}>Cancel</button>
       </div>
       <button className="link" onClick={drop}>Remove this task</button>
+    </div>
+  );
+}
+
+/** Fixing the tiebreaker task: its name and note. There's no removing it; every party has one. */
+function TiebreakerEdit({ code, board, onClose }: { code: string; board: Scoreboard | undefined; onClose: () => void }) {
+  const [name, setName] = useState(board?.tiebreaker?.name ?? "Tiebreaker task");
+  const [description, setDescription] = useState(board?.tiebreaker?.description ?? "");
+  const save = () => { void editTiebreaker(code, name, description); onClose(); };
+  return (
+    <div className="sb-add sb-edit">
+      <label>Task name
+        <input value={name} maxLength={80} autoFocus onChange={(e) => setName(e.target.value)} />
+      </label>
+      <label>Note for you (optional)
+        <textarea rows={2} value={description} maxLength={600} placeholder="How it's played, and how it's won: one winner."
+          onChange={(e) => setDescription(e.target.value)} />
+      </label>
+      <div className="row">
+        <button disabled={!name.trim()} onClick={save}>Save</button>
+        <button className="link" onClick={onClose}>Cancel</button>
+      </div>
     </div>
   );
 }

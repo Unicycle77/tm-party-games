@@ -5,7 +5,7 @@ import { SafeImg } from "../../SafeImg";
 import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
-import { haulState, prizePhotos } from "./data";
+import { haulWinner, prizePhotos } from "./data";
 
 /** Main screen while the prize task is on: the photo the host put up, or the curtain. */
 export function Stage({ code, session, display, viewOnly }: { code: string; session: Session; display: Display; viewOnly: boolean }) {
@@ -91,8 +91,8 @@ export function Haul({ winner, headshot, prizes }: { winner: string; headshot?: 
 /** The haul as the big screen shows it: the scoreboard's winner, and every prize's ★ photo in the scoreboard's order. */
 export function HaulStage({ code, session }: { code: string; session: Session }) {
   const contestants = session.scoreboard?.contestants ?? {};
-  const haul = haulState(session);
-  const winner = haul && "winner" in haul ? contestants[haul.winner] : undefined;
+  const won = haulWinner(session);
+  const winner = won ? contestants[won] : undefined;
   // A tie (or a score changed since) has no winner to show: the curtain until the host calls it again.
   if (!winner) return <Curtain code={code} session={session} />;
   const photos = prizePhotos(session);

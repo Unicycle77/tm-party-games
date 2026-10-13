@@ -226,6 +226,11 @@ export interface Scoreboard {
   contestants?: Record<string, ScoreboardContestant>;
   tasks?: Record<string, ScoreboardTask>;
   shown?: Record<string, Record<string, number>>;
+  /**
+   * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
+   * contestants. It has one winner and no points, so nobody's total changes.
+   */
+  tiebreaker?: { name?: string; description?: string; winner?: string };
 }
 
 export interface Session {
