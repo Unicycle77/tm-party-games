@@ -107,4 +107,29 @@ export function PrizeCheck({ picked, onAdd, onRemove, onReorder, onSubmit }: {
   );
 }
 
+/**
+ * Submitted: a still receipt, no gold button. The photos as on the check screen, in their order with the
+ * ★, but with nothing to press on them. Sam can still change them until their prize is presented, so
+ * "Change my photos" goes back to the check screen with these photos on it.
+ */
+export function PrizeReceipt({ photos, onChange }: { photos: string[]; onChange: () => void }) {
+  const n = photos.length;
+  return (
+    <section className="slot task">
+      <span className="stamp">✓ Submitted</span>
+      <h2>🎁 Your prize</h2>
+      <ul className="prize-picks">
+        {photos.map((url, i) => (
+          <li key={url}>
+            <img src={url} alt={`Photo ${i + 1}`} />
+            {i === 0 && <span className="star" role="img" aria-label="Main photo">★</span>}
+          </li>
+        ))}
+      </ul>
+      <p className="slot-hint">{n} {n === 1 ? "photo" : "photos"}. {WHO_SEES}</p>
+      <button className="link" onClick={onChange}>Change my photos</button>
+    </section>
+  );
+}
+
 export interface Picked { file: File; url: string }

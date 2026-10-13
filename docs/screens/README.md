@@ -73,3 +73,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `secret-tasks-host-send-back.jpg` | "Who has what" with Sam's ✎ open: Save, Cancel and "Send it back to the pile" |
 | `prize-player-choose.jpg` | Prize task on a guest's phone after check-in: "🎁 Your prize", one "Add photos" button (in design) |
 | `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (in design; stand-in photos) |
+| `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (in design; stand-in photos) |
