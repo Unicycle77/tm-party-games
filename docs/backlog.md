@@ -2,10 +2,10 @@
 
 Status: nothing here is fixed yet. Notes under each item are initial diagnosis or design thoughts, not decisions.
 
-## Still to fix (added 2026-10-13, not started)
+## Still to fix (added 2026-10-13)
 - [ ] Whenever a new task is started, update the scoreboard, even though it hasn't been shown yet.
 - [ ] Make sure Noisemaster works in Chrome on Windows. The speech handling change is merged; it still needs a try on a Windows PC after the next deploy.
-- [ ] When "Show QR code" is tapped on the host remote, also show the QR on the stage, just above the URL and code. Hiding it on the host hides it on the stage too.
+- [x] When "Show QR code" is tapped on the host remote, also show the QR on the stage, just above the URL and code. Hiding it on the host hides it on the stage too. Built: only on screens that already have the corner line (see "Show QR code" in `docs/redesign-decisions.md`).
 
 ## Bugs
 

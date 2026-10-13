@@ -126,6 +126,7 @@ Scenarios, in the agreed order: running the reveals, starting a game and collect
 | Remove | Behind "Manage contestants", with the existing confirm: "Remove Sam and everything they submitted? They can then rejoin fresh." | |
 | Music | The 🎵 icon (with ▶ while a song plays) opens today's jukebox, with "← Back to the show". Songs still never advance on their own, and music pauses during videos. | |
 | Connecting and settings | Scan the host QR on the setup gate, type the code, or tap the party in the recent list. A quiet "Party settings" link holds "Show download button on the big screen" and Disconnect. | "Hide game descriptions": the game cards are gone from the big screen. |
+| Show QR code | The host remote's quiet "Show QR code" also puts the join QR on the big screen, about a quarter of its height, with the player QR's gold border, just above the corner "site/play · ABCD" line; Close hides it on both. Only on screens that already have that line (the curtain, and while entries come in). No "Scan to join" caption: the address underneath does that job. | Showing it on every big screen, adding the address where there's none: the host's phone is the fallback, so it isn't worth covering a reveal. |
 
 ## The light
 
