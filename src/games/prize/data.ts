@@ -13,7 +13,7 @@ export const prizePhotos = (session: Session): Record<string, string[]> => sessi
  * is on the scoreboard, with at least one prize photo. A tie at the top waits for a tiebreaker task
  * (just the tied contestants), so it names who's tied instead of a winner.
  */
-export function haulState(session: Session): { winner: string; tiebreaker?: boolean } | { tied: string[] } | undefined {
+export function haulState(session: Session): { winner: string; tied?: string[] } | { tied: string[] } | undefined {
   const board = session.scoreboard;
   const tasks = Object.values(board?.tasks ?? {});
   if (!tasks.length || tasks.some((t) => !Object.keys(t.scores ?? {}).length)) return undefined;
@@ -24,7 +24,7 @@ export function haulState(session: Session): { winner: string; tiebreaker?: bool
   if (leaders.length === 1) return { winner: leaders[0]! };
   // A tie settled by the tiebreaker task: its winner, as long as they're still among the tied.
   const settled = board?.tiebreaker?.winner;
-  return settled && leaders.includes(settled) ? { winner: settled, tiebreaker: true } : { tied: leaders };
+  return settled && leaders.includes(settled) ? { winner: settled, tied: leaders } : { tied: leaders };
 }
 
 /**
