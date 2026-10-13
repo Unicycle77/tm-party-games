@@ -82,7 +82,7 @@ export function HostPage() {
         <>
           <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")}
             onOpenGame={() => setView("show")} onAdHoc={() => setView("show")} />
-          <JoinQr code={code} />
+          <JoinQr code={code} session={session} />
           {settings}
         </>
       ) : view === "show" ? (

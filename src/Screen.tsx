@@ -1,7 +1,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
 import { DownloadZip } from "./DownloadZip";
-import { Curtain } from "./Curtain";
+import { CornerCode, Curtain } from "./Curtain";
 import { TaskCard } from "./TaskCard";
 import { ScoreboardStage } from "./scoreboard/ScoreboardStage";
 import { HaulStage } from "./games/prize/Stage";
@@ -134,7 +134,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
           ))}
         </ul>
       </aside>
-      <p className="corner-code">{site}/play · <strong>{code}</strong></p>
+      <CornerCode code={code} session={session} />
       {!viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>}
       {menu}
       {viewOnly && footer}
