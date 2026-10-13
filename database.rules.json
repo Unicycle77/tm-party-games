@@ -8,6 +8,10 @@
           ".write": "auth != null && data.exists() && newData.val() === auth.uid",
           ".validate": "newData.isString() && newData.val() === auth.uid"
         },
+        "name": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40"
+        },
         "createdAt": {
           ".validate": "newData.val() === now"
         },
@@ -61,6 +65,24 @@
             "shown": {
               "$uid": {
                 ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "task": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isString()"
+            },
+            "sets": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "headshots": {
+            "shown": {
+              "$id": {
+                ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
                 ".validate": "newData.val() === true"
               }
             },
@@ -167,7 +189,7 @@
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks' || newData.val() === 'headshots'"
         },
         "jukebox": {
           "tracks": {
@@ -224,6 +246,37 @@
             "status": { ".validate": "newData.val() === 'asked' || newData.val() === 'allowed' || newData.val() === 'declined'" },
             "$other": { ".validate": false }
           }
+        },
+        "scoreboard": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          "contestants": {
+            "$id": {
+              ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+              "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" },
+              "photo": {
+                ".write": "auth != null && data.parent().child('uid').val() === auth.uid",
+                ".validate": "newData.isString() && newData.val().length <= 2000"
+              },
+              "order": { ".validate": "newData.isNumber()" },
+              "uid": {
+                ".write": "auth != null && data.parent().exists() && newData.val() === auth.uid && (!data.exists() || data.val() === auth.uid || !root.child('sessions').child($code).child('players').child(data.val()).exists())",
+                ".validate": "newData.isString()"
+              },
+              "$other": { ".validate": false }
+            }
+          },
+          "tasks": {
+            "$id": {
+              "order": { ".validate": "newData.isNumber()" },
+              "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
+              "game": { ".validate": "newData.isString()" },
+              "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
+              "scores": { "$cid": { ".validate": "newData.isNumber()" } },
+              "$other": { ".validate": false }
+            }
+          },
+          "shown": { "$task": { "$cid": { ".validate": "newData.isNumber()" } } },
+          "$other": { ".validate": false }
         },
         "display": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"

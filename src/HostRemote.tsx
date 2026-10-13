@@ -1,8 +1,8 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { joinUrlFor } from "./firebase";
-import { GAMES, activeGame } from "./games";
-import { removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
+import { PICKER_GAMES, activeGame } from "./games";
+import { noBigScreen, removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -17,12 +17,20 @@ const SHOWING: Partial<Record<Display["step"], string>> = {
  * running order (shown ones dimmed, the next one outlined). Removing people sits behind
  * "Manage contestants", so it can't be hit mid-show.
  */
-export function HostRemote({ code, session }: { code: string; session: Session }) {
+export function HostRemote({ code, session, onRunOfShow }: { code: string; session: Session; onRunOfShow: () => void }) {
+  return (
+    <>
+      <RemoteBody code={code} session={session} onRunOfShow={onRunOfShow} />
+      <JoinQr code={code} />
+    </>
+  );
+}
+
+/** For anyone who arrives late: the join code, on the host's phone to hold up. */
+export function JoinQr({ code }: { code: string }) {
   const [showQr, setShowQr] = useState(false);
   return (
     <>
-      <RemoteBody code={code} session={session} />
-      {/* For anyone who arrives late: the join code, on the host's phone to hold up. */}
       <button className="link" onClick={() => setShowQr(true)}>Show QR code</button>
       {showQr && (
         <div className="qr-overlay" onClick={() => setShowQr(false)}>
@@ -38,7 +46,7 @@ export function HostRemote({ code, session }: { code: string; session: Session }
   );
 }
 
-function RemoteBody({ code, session }: { code: string; session: Session }) {
+function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Session; onRunOfShow: () => void }) {
   const game = activeGame(session);
   const [managing, setManaging] = useState(false);
   const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
@@ -67,29 +75,39 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
     </>
   );
 
-  // No game yet: the big screen shows the welcome, and the host picks what to play.
+  // The scoreboard belongs to no game; it's run from 🏆, and lowering it goes back to the curtain.
+  if (display.step === "scoreboard") {
+    return (
+      <section className="remote">
+        <p className="on-screen">On the big screen: the scoreboard</p>
+        <p className="muted small">Update the scores from 🏆.</p>
+        <button className="big" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
+      </section>
+    );
+  }
+
+  // A game that's not on the run of show, played ad hoc: picked here, reached from the run of show's link.
   if (!game) {
     return (
       <section className="remote">
-        <p className="on-screen">
-          On the big screen: {!session.begun ? "the welcome" : session.portrait ? "the Taskmaster's portrait" : "the curtain"}
-        </p>
-        {session.begun && !session.portrait && <p className="muted small">Add this party's Taskmaster portrait in Party settings.</p>}
-        <h2>Choose a game</h2>
-        <div className="steps">
-          {Object.values(GAMES).map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}
+        <div className="remote-head">
+          <h2>Play a game</h2>
+          <button className="link" onClick={onRunOfShow}>← Run of show</button>
         </div>
-        <h2>Contestants ({players.length})</h2>
-        {plainList}
-        {manageLink}
+        <p className="muted small">For a game that's not on the run of show. It won't be scored unless you add it to the list.</p>
+        <div className="steps">
+          {PICKER_GAMES.map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}
+        </div>
       </section>
     );
   }
 
   const gameLine = (
     <div className="remote-head">
-      <h2>{game.name}</h2>
-      <button className="link" onClick={() => void setGame(code, null)}>Change game</button>
+      {/* Several photo tasks a night: say whose photos these are. */}
+      <h2>{game.name}{game.id === "photos" && taskName(session) && `: ${taskName(session)}`}</h2>
+      {/* Ends the game (the big screen goes back to the curtain); 🏆 visits the run of show without ending it. */}
+      <button className="link" onClick={() => { void setGame(code, null); onRunOfShow(); }}>← Run of show</button>
     </div>
   );
 
@@ -178,3 +196,9 @@ function RemoteBody({ code, session }: { code: string; session: Session }) {
     </section>
   );
 }
+
+/** The name the host gave the scoreboard task whose photos are on, if any. */
+const taskName = (session: Session) => {
+  const task = session.games?.photos?.task;
+  return task ? session.scoreboard?.tasks?.[task]?.name : undefined;
+};

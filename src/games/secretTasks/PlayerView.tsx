@@ -68,6 +68,8 @@ function Arrival({ name }: { name: string }) {
 /**
  * The pile of sealed envelopes, scattered where they fell, that a player picks one from. Nothing on the
  * pile says what's inside: the choice is theirs alone, and the first player to take an envelope has it.
+ * Envelopes can be dragged around first (on this phone only), so none stays hidden under another;
+ * a tap picks one.
  * Guests pick at the door, before they can see the big screen, so the phone carries the moment: they're in,
  * the rules, then the pile.
  */
@@ -75,6 +77,10 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
   const pile = Object.entries(session.games?.secretTasks?.pile ?? {});
   const [picked, setPicked] = useState<string>();
   const [error, setError] = useState<string>();
+  // Where this player has dragged envelopes to, and which they touched last (it lies on top).
+  const [moved, setMoved] = useState<Record<string, { x: number; y: number }>>({});
+  const [top, setTop] = useState<string[]>([]);
+  const area = useRef<HTMLDivElement>(null);
   const gone = !!picked && !session.games?.secretTasks?.pile?.[picked];
   const name = session.players?.[uid]?.name ?? "";
 
@@ -107,13 +113,13 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
     <section className="slot envelope-slot arrival">
       <Arrival name={name} />
       <h2>Pick an envelope</h2>
-      {picked && <p className="slot-hint">Opening it…</p>}
-      <div className="env-pile">
+      <p className="slot-hint">{picked ? "Opening it…" : "Move them around if you like, then tap one."}</p>
+      <div className="env-pile" ref={area}>
         {pile.map(([id, spot]) => (
-          <span key={id} className={id === picked ? "pile-spot picked" : "pile-spot"}
-            style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `rotate(${spot.r}deg)` }}>
-            {picked ? <Envelope mini /> : <Envelope mini label="Pick this envelope" onOpen={() => void pick(id)} />}
-          </span>
+          <PileEnvelope key={id} spot={{ ...spot, ...moved[id] }} z={top.indexOf(id) + 1} picked={id === picked} disabled={!!picked} area={area}
+            onTouch={() => setTop((t) => [...t.filter((x) => x !== id), id])}
+            onMove={(x, y) => setMoved((m) => ({ ...m, [id]: { x, y } }))}
+            onPick={() => void pick(id)} />
         ))}
       </div>
       {error && <p className="error">{error}</p>}
@@ -123,57 +129,92 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
 
 /**
  * A player's secret task. Until they have one: the pile of envelopes to pick from. After: their own
- * envelope, sealed. The first reading (straight after picking) is tap to open, with "Seal it again"; after
- * that it's hold to peek, so a phone put down mid-peek never leaves the task open. While it's sealed,
- * "Read the task again" unfolds the rules card above it.
+ * envelope, sealed. Tap the seal to open it and "Seal it again" to close it, every time (holding it open was
+ * too awkward mid-game); it also seals itself when the phone locks or the page is left. While it's sealed,
+ * the circled ? beside the heading unfolds the rules card (the Taskmaster task) right under it, and folds it away.
  */
 export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { code: string; uid: string; session: Session; onPicked?: () => void }) {
   const task = useMyTask(code, uid);
   const seen = useSeen(code, uid);
   const [open, setOpen] = useState(false);
-  const [holding, setHolding] = useState(false);
+  // Typed out only on the first reading. Decided as it opens: opening marks it seen straight away, which
+  // would otherwise flip it to "shown at once" mid-typing.
+  const [typeIt, setTypeIt] = useState(false);
   const [rules, setRules] = useState(false);
   // Once they've read it, the host phone stops flagging them as "haven't looked yet".
-  useEffect(() => { if ((open || holding) && task) void markSeen(code, uid).catch(() => {}); }, [open, holding, task, code, uid]);
+  useEffect(() => { if (open && task) void markSeen(code, uid).catch(() => {}); }, [open, task, code, uid]);
+  // A phone put down open seals itself once the screen locks or the page is left.
+  useEffect(() => {
+    const seal = () => { if (document.hidden) setOpen(false); };
+    document.addEventListener("visibilitychange", seal);
+    return () => document.removeEventListener("visibilitychange", seal);
+  }, []);
   // A task that arrives while the player is choosing from the pile opens by itself: that's the pick paying off.
   const before = useRef(task);
   useEffect(() => {
-    if (before.current === null && typeof task === "string") setOpen(true);
+    if (before.current === null && typeof task === "string") { setTypeIt(true); setOpen(true); }
     before.current = task;
   }, [task]);
 
   if (task === undefined || seen === undefined) return <section className="slot waiting"><p className="slot-hint">Loading…</p></section>;
   if (task === null) return <Pile code={code} uid={uid} session={session} onPicked={onPicked} />;
 
-  // Tap to open only for the first reading (or while that reading is still open).
-  const tapping = !seen || open;
-  const showing = open || holding;
-  const stop = () => setHolding(false);
   return (
     <section className="slot envelope-slot">
-      <h2>Your secret task</h2>
-      {rules && !showing && <TaskCard lines={RULES} small />}
-      {tapping ? (
-        <div className="env-stack">
-          <Envelope open={open} onOpen={() => { setOpen(true); setRules(false); }} />
-          {open && <Letter task={task} />}
-        </div>
-      ) : (
-        <button className="env-stack env-hold" aria-label="Hold to read your secret task"
-          onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); setHolding(true); setRules(false); }}
-          onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} onContextMenu={(e) => e.preventDefault()}
-          onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") setHolding(true); }} onKeyUp={stop} onBlur={stop}>
-          <Envelope open={holding} />
-          {holding && <Letter task={task} instant />}
-        </button>
-      )}
+      <h2 className="with-help">
+        Your secret task
+        <button className="help-q" aria-label={rules ? "Hide the rules" : "Read the rules again"} aria-expanded={rules}
+          style={open ? { visibility: "hidden" } : undefined} onClick={() => setRules(!rules)}>?</button>
+      </h2>
+      {rules && !open && <TaskCard lines={RULES} small />}
+      <div className="env-stack">
+        <Envelope open={open} onOpen={() => { setTypeIt(!seen); setOpen(true); setRules(false); }} />
+        {open && <Letter task={task} instant={!typeIt} />}
+      </div>
       {open ? <button className="link" onClick={() => setOpen(false)}>Seal it again</button>
-        : holding ? <p className="slot-hint">Let go and it seals.</p>
-        : <>
-            <p className="slot-hint">{tapping ? "Tap the seal to open it. Tell no one." : "Hold the seal to read it. Tell no one."}</p>
-            <button className="link" aria-expanded={rules} onClick={() => setRules(!rules)}>{rules ? "Hide the task" : "Read the task again"}</button>
-          </>}
+        : <p className="slot-hint">Tap the seal to open it. Tell no one.</p>}
     </section>
+  );
+}
+
+/**
+ * One envelope on the pile: drag it to move it (it lifts while held), tap it to pick it. A press that
+ * travels more than a few pixels is a drag, so it never picks.
+ */
+function PileEnvelope({ spot, z, picked, disabled, area, onTouch, onMove, onPick }: {
+  spot: { x: number; y: number; r: number }; z: number; picked: boolean; disabled: boolean; area: React.RefObject<HTMLDivElement>;
+  onTouch: () => void; onMove: (x: number, y: number) => void; onPick: () => void;
+}) {
+  const start = useRef<{ px: number; py: number; x: number; y: number; w: number; h: number; ew: number; eh: number }>();
+  const dragged = useRef(false);
+  const [lifted, setLifted] = useState(false);
+  const end = () => { start.current = undefined; setLifted(false); };
+  return (
+    <button className={picked ? "pile-spot picked" : lifted ? "pile-spot lifted" : "pile-spot"} disabled={disabled} aria-label="Pick this envelope"
+      style={{ left: `${spot.x}%`, top: `${spot.y}%`, transform: `rotate(${spot.r}deg)`, zIndex: picked ? 99 : z }}
+      onPointerDown={(e) => {
+        const box = area.current?.getBoundingClientRect();
+        const me = e.currentTarget.getBoundingClientRect();
+        if (!box) return;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        start.current = { px: e.clientX, py: e.clientY, x: spot.x, y: spot.y, w: box.width, h: box.height, ew: (me.width / box.width) * 100, eh: (me.height / box.height) * 100 };
+        dragged.current = false;
+        onTouch();
+      }}
+      onPointerMove={(e) => {
+        const s = start.current;
+        if (!s) return;
+        const dx = e.clientX - s.px, dy = e.clientY - s.py;
+        if (!dragged.current && Math.hypot(dx, dy) < 8) return;
+        dragged.current = true;
+        setLifted(true);
+        const clamp = (v: number, max: number) => Math.min(Math.max(v, 0), Math.max(max, 0));
+        onMove(clamp(s.x + (dx / s.w) * 100, 100 - s.ew), clamp(s.y + (dy / s.h) * 100, 100 - s.eh));
+      }}
+      onPointerUp={end} onPointerCancel={end} onContextMenu={(e) => e.preventDefault()}
+      onClick={() => { if (dragged.current) dragged.current = false; else onPick(); }}>
+      <Envelope mini />
+    </button>
   );
 }
 

@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
 import { useUid } from "../../session";
 import type { Session } from "../../types";
-import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
+import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, returnTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
 
 /**
  * The host's phone, behind ✉ in the header whichever game is on: load the pile of secret tasks (any number,
  * one per line), take in envelopes left over from earlier parties, and correct a task in place. Each task is
  * an envelope on the pile that players pick from when they check in. What needs the host (someone who hasn't
  * looked, or is waiting for an envelope) comes first, and "Who has what" shows one task at a time, while held.
+ * The pile itself comes last, folded.
  */
+const PILE_KEY = "ba.pileOpen";
+
 export function TaskPile({ code, session }: { code: string; session: Session }) {
   const uid = useUid();
   const tasks = useSecretTasks(code);
   const leftovers = useLeftovers(code, uid, tasks);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pileOpen, setPileOpen] = useState(() => { try { return localStorage.getItem(PILE_KEY) === "open"; } catch { return false; } });
+  const togglePile = () => setPileOpen((o) => { try { localStorage.setItem(PILE_KEY, o ? "closed" : "open"); } catch { /* fine */ } return !o; });
   const [note, setNote] = useState<string>();
   const [error, setError] = useState<string>();
 
@@ -93,45 +98,58 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
         <button className="link" onClick={() => void dealRest(code, session, tasks)}>Deal at random to anyone who hasn't picked</button>
       )}
 
-      <h3>The pile ({undealt.length})</h3>
-      {undealt.length > 0 && <p className="muted small">Tap a task to fix it.</p>}
-      <ul className="task-list">
-        {undealt.map(([id, t]) => <PileTask key={id} code={code} text={t} onRemove={() => void removeTask(code, id)} />)}
-      </ul>
-
       <h3>Who has what</h3>
-      {players.length > 0 && <p className="muted small">Hold a name to see their task.</p>}
+      {players.length > 0 && <p className="muted small">Tap a name to see their task, and again to hide it.</p>}
       <ul className="picker running">
         {players.map(([id, p]) => {
           const task = tasks?.assigned?.[id];
           const state = task ? (tasks?.seen?.[id] ? "✉ looked" : "✉ hasn't looked") : undealt.length ? "hasn't picked" : "waiting for an envelope";
-          return <WhoRow key={id} code={code} name={p.name} task={task} state={state} />;
+          return <WhoRow key={id} code={code} uid={id} name={p.name} task={task} state={state} />;
         })}
       </ul>
+
+      {/* below the guests, folded away unless the host opens it (remembered on this device) */}
+      <h3 className="fold-head">
+        <button aria-expanded={pileOpen} onClick={() => togglePile()}>{pileOpen ? "▾" : "▸"} The pile ({undealt.length})</button>
+      </h3>
+      {pileOpen && (
+        <>
+          {undealt.length > 0 && <p className="muted small">Tap a task to fix it.</p>}
+          <ul className="task-list">
+            {undealt.map(([id, t]) => <PileTask key={id} code={code} text={t} onRemove={() => void removeTask(code, id)} />)}
+          </ul>
+        </>
+      )}
     </div>
   );
 }
 
 /**
- * One guest in "Who has what": hold the name to see their task in the row, under the thumb, and it hides
- * the moment you let go (the peeker's gesture from [BLANK] in a Box). ✎ opens the task to fix it.
+ * One guest in "Who has what": tap the name to show their task in the row, and tap again to hide it
+ * (holding was too awkward mid-game). ✎ opens the task to fix it, or (rarely) to send it back to the pile.
  */
-function WhoRow({ code, name, task, state }: { code: string; name: string; task?: string; state: string }) {
-  const [holding, setHolding] = useState(false);
+function WhoRow({ code, uid, name, task, state }: { code: string; uid: string; name: string; task?: string; state: string }) {
+  const [showing, setShowing] = useState(false);
   const [editing, setEditing] = useState(false);
   if (editing && task) {
-    return <li className="stacked"><strong>{name}</strong><EditableTask code={code} text={task} editing onClose={() => setEditing(false)} /></li>;
+    return (
+      <li className="stacked">
+        <strong>{name}</strong>
+        <EditableTask code={code} text={task} editing onClose={() => setEditing(false)} />
+        {/* very rare, so it lives only here, behind ✎ */}
+        <button className="link" onClick={() => {
+          if (confirm(`Put ${name}'s task back on the pile? ${name} picks a new envelope.`)) void returnTask(code, uid).then(() => setEditing(false));
+        }}>Send it back to the pile</button>
+      </li>
+    );
   }
-  const stop = () => setHolding(false);
   return (
     <li>
-      <button className={holding ? "peek holding" : "peek"} disabled={!task} aria-label={task ? `Hold to see ${name}'s task` : name}
-        onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); setHolding(true); }}
-        onPointerUp={stop} onPointerCancel={stop} onLostPointerCapture={stop} onContextMenu={(e) => e.preventDefault()}
-        onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") setHolding(true); }} onKeyUp={stop} onBlur={stop}>
+      <button className={showing ? "peek holding" : "peek"} disabled={!task} aria-pressed={showing}
+        aria-label={task ? `${showing ? "Hide" : "Show"} ${name}'s task` : name} onClick={() => setShowing(!showing)}>
         <span>{name}</span>
-        {holding && task
-          ? <span className="peek-task">"{task}"<small>Let go and it hides.</small></span>
+        {showing && task
+          ? <span className="peek-task">"{task}"<small>Tap again to hide it.</small></span>
           : <span className="muted small">{state}</span>}
       </button>
       {task && <button className="x" aria-label={`Fix ${name}'s task`} onClick={() => setEditing(true)}>✎</button>}

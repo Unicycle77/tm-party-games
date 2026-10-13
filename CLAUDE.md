@@ -2,4 +2,5 @@
 
 - UI work follows [docs/style-guide.md](docs/style-guide.md): reuse its materials, tokens, components and copy voice rather than inventing new ones.
 - The light's triggers (what the camera can detect: all face readings, body points, what's impossible, how to add one) are in [docs/light-signals.md](docs/light-signals.md). Check it before digging into MediaPipe.
+- Every new or changed screen gets a screenshot in [docs/screens](docs/screens) (JPEG, rendered from the real components), with a row in its README. Not only in chat or a scratch folder.
 - Merge with `git merge --no-ff`, so every merge leaves a merge commit. Never fast-forward.

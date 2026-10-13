@@ -29,8 +29,8 @@ export function ViewScreen() {
   useEffect(() => {
     if (!code || exists === undefined) return;
     const watched = loadRecent(WATCHED_KEY);
-    saveRecent(WATCHED_KEY, exists ? withRecent(watched, code) : withoutRecent(watched, code));
-  }, [code, exists]);
+    saveRecent(WATCHED_KEY, exists ? withRecent(watched, code, session?.name) : withoutRecent(watched, code));
+  }, [code, exists, session?.name]);
 
   useEffect(() => {
     if (code) {

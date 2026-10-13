@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { activeGame } from "./games";
+import { secretTasksPlanned } from "./games/secretTasks/data";
 import { SecretTaskArea } from "./games/secretTasks/PlayerView";
 import { QrScannerModal } from "./QrScannerModal";
-import { JoinError, SameNameError, askToMove, cancelMove, extractCode, joinSession, sameName, store, useSession, useUid } from "./session";
+import { Headshot } from "./scoreboard/Headshot";
+import { JoinError, SameNameError, TakenError, askToMove, cancelMove, extractCode, joinAsContestant, joinSession, sameName, store, useSession, useUid } from "./session";
+import type { ScoreboardContestant } from "./types";
 
 const CODE_KEY = "ba.playCode";
 const NAME_KEY = "ba.playName";
@@ -39,27 +42,39 @@ export function Play() {
   const game = activeGame(session);
   if (game) hadGame.current = true;
   const name = session.players[uid]!.name;
+
+  // On the guest list with no headshot yet: adding one finishes checking in.
+  const guest = Object.entries(session.scoreboard?.contestants ?? {}).find(([, c]) => c.uid === uid);
+  if (guest && !guest[1].photo) {
+    return (
+      <main className="phone">
+        <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
+        <Headshot code={code} uid={uid} id={guest[0]} name={name} />
+        <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
+      </main>
+    );
+  }
+
+  const content = game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
+      <section className="slot waiting">
+        <h2>Waiting for the next game.</h2>
+        <p className="slot-hint">When the host picks it, it'll show up here.</p>
+      </section>
+    ) : (
+      <section className="slot waiting">
+        <span className="stamp">✓ You're in</span>
+        <h2>Welcome, {name}!</h2>
+        <p className="slot-hint">Look for your name on the big screen.</p>
+        <p className="slot-hint">When the host picks a game, it'll show up here.</p>
+      </section>
+    );
+
   return (
     <main className="phone">
       <header><strong>{name}</strong><span className="muted"> · {code}</span></header>
-      {/* Whatever the game, a player picks their secret envelope on arrival and can pull it up any time. */}
-      {game?.id === "secretTasks" ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : (
-        <SecretTaskArea code={code} uid={uid} session={session}>
-          {game ? <game.Player key={game.id} code={code} uid={uid} session={session} /> : hadGame.current ? (
-            <section className="slot waiting">
-              <h2>Waiting for the next game.</h2>
-              <p className="slot-hint">When the host picks it, it'll show up here.</p>
-            </section>
-          ) : (
-            <section className="slot waiting">
-              <span className="stamp">✓ You're in</span>
-              <h2>Welcome, {name}!</h2>
-              <p className="slot-hint">Look for your name on the big screen.</p>
-              <p className="slot-hint">When the host picks a game, it'll show up here.</p>
-            </section>
-          )}
-        </SecretTaskArea>
-      )}
+      {/* When the party plays Secret Tasks, a player picks their envelope on arrival and can pull it up any time, whatever the game. */}
+      {game?.id === "secretTasks" || !secretTasksPlanned(session) ? content
+        : <SecretTaskArea code={code} uid={uid} session={session}>{content}</SecretTaskArea>}
       {/* Disconnects this phone only: the player's tile and entries stay. Only the host removes players. */}
       <button className="link" onClick={() => leave()}>Not {name}? Switch player</button>
     </main>
@@ -78,6 +93,12 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
   const [clash, setClash] = useState<string>();
   const [moving, setMoving] = useState(false);
   const clashes = !!clash && sameName(name, clash);
+  // A party with a guest list: guests tap their name. Typing one is the rare way in for anyone not on it.
+  const party = useSession(code.length === 4 ? code : undefined);
+  const guests = Object.entries(party?.scoreboard?.contestants ?? {}).sort(([, a], [, b]) => a.name.localeCompare(b.name));
+  const [typing, setTyping] = useState(false);
+  const [tapped, setTapped] = useState<string>();
+  const listed = !editingCode && !typing && guests.length > 0;
 
   async function askMove() {
     setBusy(true);
@@ -88,6 +109,83 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
   }
 
   if (moving) return <MoveWait code={code} onJoined={(c) => { store.set(NAME_KEY, name.trim()); onJoined(c); }} onBack={() => setMoving(false)} />;
+
+  async function checkIn(id: string, guestName: string) {
+    setBusy(true);
+    setError(undefined);
+    try {
+      const c = await joinAsContestant(code, id);
+      store.set(NAME_KEY, guestName);
+      onJoined(c);
+    } catch (err) {
+      // Checked in on another phone: maybe theirs, so ask the host to move them here.
+      if (err instanceof TakenError) {
+        setName(guestName);
+        try { await askToMove(code, guestName); setMoving(true); }
+        catch (e2) { setError(e2 instanceof JoinError ? e2.message : "Something went wrong. Try again."); }
+        return;
+      }
+      setError(err instanceof JoinError ? err.message : "Something went wrong. Try again.");
+    } finally { setBusy(false); }
+  }
+
+  const tappedGuest = tapped ? party?.scoreboard?.contestants?.[tapped] : undefined;
+  if (listed && tapped && tappedGuest) {
+    return <ConfirmGuest guest={tappedGuest} busy={busy} error={error}
+      onYes={() => void checkIn(tapped, tappedGuest.name)} onNo={() => { setTapped(undefined); setError(undefined); }} />;
+  }
+
+  if (listed) {
+    return (
+      <main className="join">
+        <h1>Taskmaster</h1>
+        {notice && <p className="notice">{notice}</p>}
+        <p className="joining">Joining {party?.name ? <strong className="party-name">{party.name}</strong> : <>party <strong>{code}</strong></>}</p>
+        <h2 className="tap-name">Tap your name</h2>
+        <div className="choices two guest-list">
+          {guests.map(([id, g]) => <button key={id} onClick={() => { setTapped(id); setError(undefined); }}>{g.name}</button>)}
+        </div>
+        <button className="link" onClick={() => setTyping(true)}>Not on the list? Type your name</button>
+        <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>
+      </main>
+    );
+  }
+
+  // First the code alone; the name comes after, from the party's list (or typed, if it has none).
+  if (editingCode) {
+    const ready = code.length === 4;
+    const next = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!ready || party === undefined) return;
+      if (party === null) { setError(`No session found for code ${code}.`); return; }
+      setError(undefined);
+      setTyping(false);
+      setEditingCode(false);
+    };
+    return (
+      <main className="join">
+        <h1>Taskmaster</h1>
+        {notice && <p className="notice">{notice}</p>}
+        <form onSubmit={next}>
+          <label>Game code
+            <div className="row">
+              <input value={code} onChange={(e) => { setCode(e.target.value.toUpperCase().slice(0, 4)); setError(undefined); }}
+                maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
+              <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
+            </div>
+          </label>
+          <p className="muted small join-hint">It's on the big screen.</p>
+          <button type="submit" className="big" disabled={!ready || party === undefined}>{ready && party === undefined ? "Finding the party…" : "Next"}</button>
+          {error && <p className="error">{error}</p>}
+        </form>
+        {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
+          setScanning(false);
+          const c = extractCode(t);
+          if (c) { setCode(c); setError(undefined); }
+        }} />}
+      </main>
+    );
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -111,17 +209,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       <h1>Taskmaster</h1>
       {notice && <p className="notice">{notice}</p>}
       <form onSubmit={(e) => void submit(e)}>
-        {editingCode ? (
-          <label>Game code
-            <div className="row">
-              <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
-                maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
-              <button type="button" aria-label="Scan QR code" onClick={() => setScanning(true)}>📷</button>
-            </div>
-          </label>
-        ) : (
-          <p className="joining">Joining party <strong>{code}</strong></p>
-        )}
+        <p className="joining">Joining {party?.name ? <strong className="party-name">{party.name}</strong> : <>party <strong>{code}</strong></>}</p>
         <label>Your first name
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={20}
             autoCapitalize="words" autoComplete="given-name" placeholder="e.g. Alex" required />
@@ -133,15 +221,29 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
             <p className="muted small">Someone else? Add your last initial, like "{clash} B".</p>
           </div>
         ) : <p className="muted small join-hint">This is how you'll appear on the big screen.</p>}
-        <button type="submit" className="big" disabled={busy || code.length !== 4 || clashes}>{busy ? "Joining…" : "Join"}</button>
+        <button type="submit" className="big" disabled={busy || clashes}>{busy ? "Joining…" : "Join"}</button>
         {error && <p className="error">{error}</p>}
       </form>
-      {!editingCode && <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>}
-      {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
-        setScanning(false);
-        const c = extractCode(t);
-        if (c) { setCode(c); setError(undefined); }
-      }} />}
+      {typing && guests.length > 0 && <button className="link" onClick={() => { setTyping(false); setError(undefined); }}>Back to the list</button>}
+      <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>
+    </main>
+  );
+}
+
+/** After tapping a name: "You're Alex?", with their headshot if the host added one, so a mis-tap is obvious. */
+function ConfirmGuest({ guest, busy, error, onYes, onNo }: {
+  guest: ScoreboardContestant; busy: boolean; error?: string; onYes: () => void; onNo: () => void;
+}) {
+  return (
+    <main className="join">
+      <h1>Taskmaster</h1>
+      <section className="slot waiting">
+        {guest.photo && <img className="guest-photo" src={guest.photo} alt="" />}
+        <h2>You're {guest.name}?</h2>
+        <button className="big" disabled={busy} onClick={onYes}>{busy ? "Checking in…" : "That's me"}</button>
+        {error && <p className="error">{error}</p>}
+        <button className="link" onClick={onNo}>Not me</button>
+      </section>
     </main>
   );
 }

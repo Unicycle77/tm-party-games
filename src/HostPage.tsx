@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { HostRemote } from "./HostRemote";
+import { HostRemote, JoinQr } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
-import { needsOf, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
+import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
+import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { JoinError, allowMove, claimController, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, allowMove, claimController, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "music" | "light" | "tasks";
+type View = "show" | "scoreboard" | "music" | "light" | "tasks";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
@@ -25,7 +26,8 @@ export function HostPage() {
   // is open, so a refresh mid-game lands where the host was.
   const [view, setViewState] = useState<View>(() => {
     const saved = store.get(VIEW_KEY);
-    return saved === "music" || saved === "light" || saved === "tasks" ? saved : "show";
+    // Home is the run of show (🏆); a game in progress is the "show" view.
+    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" ? saved : "scoreboard";
   });
   const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
@@ -34,8 +36,8 @@ export function HostPage() {
   // Connected: keep this session at the top of the phone's recent list.
   const connected = !!code && !!uid && session?.controllerUid === uid;
   useEffect(() => {
-    if (connected) saveRecent(REMOTE_KEY, withRecent(loadRecent(REMOTE_KEY), code));
-  }, [connected, code]);
+    if (connected) saveRecent(REMOTE_KEY, withRecent(loadRecent(REMOTE_KEY), code, session?.name));
+  }, [connected, code, session?.name]);
 
   // Session gone, or the main screen reset our remote → back to code entry.
   useEffect(() => {
@@ -43,34 +45,53 @@ export function HostPage() {
     if (session === null || session.controllerUid !== uid) disconnect();
   }, [uid, session]);
 
-  if (!code) return <Connect onConnected={(c) => { store.set(KEY, c); setCode(c); }} />;
+  if (!code) {
+    return <Connect onConnected={(c, created) => {
+      store.set(KEY, c);
+      setCode(c);
+      // Every party opens on the run of show.
+      if (created) setView("scoreboard");
+    }} />;
+  }
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
 
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
+  const scoresUp = session.display?.step === "scoreboard";
+  // Closing the music, envelopes or light goes back to the game in progress, or else the run of show.
+  const home: View = session.game ? "show" : "scoreboard";
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
     <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
-      onClick={() => setView(view === v ? "show" : v)}>{glyph}</button>
+      onClick={() => setView(view === v && v !== "scoreboard" ? home : v)}>{glyph}</button>
   );
+  const settings = <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />;
 
   return (
     <main className="phone host">
       <header className="host-head">
-        <span><strong>🎮 Host</strong><span className="muted"> · {code}</span></span>
+        <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
+        {icon("scoreboard", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
-      {view === "show" ? (
+      {view === "scoreboard" ? (
         <>
-          <HostRemote code={code} session={session} />
-          <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />
+          <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")}
+            onOpenGame={() => setView("show")} onAdHoc={() => setView("show")} />
+          <JoinQr code={code} />
+          {settings}
+        </>
+      ) : view === "show" ? (
+        <>
+          <HostRemote code={code} session={session} onRunOfShow={() => setView("scoreboard")} />
+          {settings}
         </>
       ) : (
         <>
-          <button className="link back" onClick={() => setView("show")}>← Back to the show</button>
+          <button className="link back" onClick={() => setView(home)}>← Back to {session.game ? "the game" : "the run of show"}</button>
           {view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
         </>
       )}
@@ -78,10 +99,11 @@ export function HostPage() {
   );
 }
 
-/** ✉ in the header, with a burgundy dot while a guest hasn't looked at their task or is waiting for one. */
+/** ✉ in the header, with a burgundy dot while a guest has no secret task yet (whether they've read theirs doesn't count). */
 function TasksIcon({ code, session, icon }: { code: string; session: Session; icon: (v: View, label: string, glyph: string, lit: boolean, alert?: boolean) => React.ReactNode }) {
-  const needs = needsOf(session, useSecretTasks(code));
-  const alert = needs.unseen.length + needs.waiting.length > 0;
+  const tasks = useSecretTasks(code);
+  // Guests only get envelopes once Secret Tasks is on the run of show, so until then nobody is waiting on one.
+  const alert = secretTasksPlanned(session) && !!tasks && Object.keys(session.players ?? {}).some((uid) => !tasks.assigned?.[uid]);
   return <>{icon("tasks", alert ? "Secret tasks (needs you)" : "Secret tasks", "✉", false, alert)}</>;
 }
 
@@ -151,6 +173,32 @@ function Portrait({ code, session }: { code: string; session: Session }) {
   );
 }
 
+/** The party's name, as typed when it was started (or none, for a party started on the big screen). */
+function PartyName({ code, session }: { code: string; session: Session }) {
+  const [name, setName] = useState(session.name ?? "");
+  // Someone else renaming it (another remote) shows up here, unless it's being edited.
+  const [editing, setEditing] = useState(false);
+  useEffect(() => { if (!editing) setName(session.name ?? ""); }, [session.name, editing]);
+  const changed = name.trim() !== (session.name ?? "") && !!name.trim();
+  const save = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!changed) return;
+    void renameParty(code, name);
+    setEditing(false);
+  };
+  return (
+    <form className="party-name" onSubmit={save}>
+      <label>Party name
+        <div className="row">
+          <input value={name} maxLength={40} placeholder="Halloween party"
+            onChange={(e) => { setName(e.target.value); setEditing(true); }} />
+          <button type="submit" disabled={!changed}>Save</button>
+        </div>
+      </label>
+    </form>
+  );
+}
+
 /** Set-once things, behind a quiet link at the bottom of the show. */
 function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
   const [open, setOpen] = useState(false);
@@ -161,6 +209,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
+      <PartyName code={code} session={session} />
       <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
@@ -175,11 +224,13 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
   );
 }
 
-function Connect({ onConnected }: { onConnected: (code: string) => void }) {
+function Connect({ onConnected }: { onConnected: (code: string, created?: boolean) => void }) {
   const [code, setCode] = useState(() => (new URLSearchParams(location.search).get("code") ?? "").toUpperCase().slice(0, 4));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [scanning, setScanning] = useState(false);
+  /** The new party's name, while "Start a new party" is open. */
+  const [naming, setNaming] = useState<string>();
   const autoTried = useRef(false);
   // Sessions this phone has been the host remote for.
   const [recent, setRecent] = useState(() => loadRecent(REMOTE_KEY));
@@ -212,11 +263,40 @@ function Connect({ onConnected }: { onConnected: (code: string) => void }) {
     void connect(code);
   }
 
+  async function start(e: React.FormEvent) {
+    e.preventDefault();
+    if (!naming?.trim()) return;
+    setBusy(true);
+    setError(undefined);
+    try { onConnected(await createParty(naming), true); }
+    catch { setError("Couldn't start the party. Try again."); }
+    finally { setBusy(false); }
+  }
+
+  // Days ahead: name the party, and it's made right here, with no big screen yet.
+  if (naming !== undefined) {
+    return (
+      <main className="join">
+        <h1>Host remote</h1>
+        <form onSubmit={(e) => void start(e)}>
+          <label>Name this party
+            <input value={naming} maxLength={40} autoFocus onChange={(e) => setNaming(e.target.value)} placeholder="Halloween party" />
+          </label>
+          <button type="submit" className="big" disabled={busy || !naming.trim()}>{busy ? "Starting…" : "Start the party"}</button>
+          {error && <p className="error">{error}</p>}
+        </form>
+        <button className="link" onClick={() => { setNaming(undefined); setError(undefined); }}>Cancel</button>
+      </main>
+    );
+  }
+
   return (
     <main className="join">
       <h1>Host remote</h1>
+      {/* Start and Connect weigh the same (days ahead you start one, on the night you connect), so both are paper. */}
+      <button onClick={() => { setNaming(""); setError(undefined); }}>Start a new party</button>
       <form onSubmit={submit}>
-        <label>Game code (from the main screen)
+        <label>Or connect to one: the party code
           <div className="row">
             <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
               maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
