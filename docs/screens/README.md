@@ -72,4 +72,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `secret-tasks-player-rules.jpg` | A guest's envelope with the circled ? beside the heading, closed and then open on the rules card |
 | `secret-tasks-host-send-back.jpg` | "Who has what" with Sam's ✎ open: Save, Cancel and "Send it back to the pile" |
 | `prize-player-choose.jpg` | Prize task on a guest's phone after check-in: "🎁 Your prize", one "Add photos" button (in design) |
-| `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ✕, "+ Add more", gold Submit (in design; stand-in photos) |
+| `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, one being dragged to first place, "+ Add more", gold Submit (in design; stand-in photos) |
