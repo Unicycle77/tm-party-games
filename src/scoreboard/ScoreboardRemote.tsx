@@ -129,9 +129,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
           {up && <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
         </>
       ) : haul ? (
-        // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing.
+        // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing. It's a
+        // live task, so the curtain comes down while it's played.
         <>
-          <button className="big" onClick={() => onTiebreak(haul.tied)}>Play the tiebreaker task · {list(haul.tied.map(nameOf))}</button>
+          <button className="big" onClick={() => { void lowerCurtain(code); onTiebreak(haul.tied); }}>Play the tiebreaker task · {list(haul.tied.map(nameOf))}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (
