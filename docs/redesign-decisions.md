@@ -223,11 +223,11 @@ Each contestant brings a prize; the winner takes the whole haul. Today the Prize
 | Moment | Decision | Rejected, and why |
 | --- | --- | --- |
 | Moments, in order | 1. A guest submits their prize. 2. The haul on the big screen when the winner is declared. 3. Presenting each prize during the task. 4. The host checks who's in. 5. Fixing a prize. | |
-| What a prize is | Some photos (one or more) or one video, never both. | Photos and a video mixed. |
+| What a prize is | One or more photos. | One video instead of photos (agreed at first, then dropped by Jeffrey: photos only). Photos and a video mixed. |
 | When guests submit | From check-in onward. | Only once the host opens the task: prizes are made ahead, so guests can get it done on arrival. |
 | Changing it | The guest can change it until the host starts presenting their prize. After that only the host can add photos to it. | Locked on submit, as in Photos: nothing is judged before it's presented, so a lock buys nothing. |
 | Presenting | The host sees previews of every photo and video in that guest's prize, and picks which one goes on the big screen. Nothing goes up until the host taps one. | Showing the first one automatically. |
-| Choosing (phone) | A "🎁 Your prize" card under the "✓ You're in" card: a "Your prize" placeholder, "Not submitted yet. Add some photos of your prize, or one video.", two equal paper buttons "Choose photos" (several at once) and "Choose a video", then "Only the host sees it until your prize is presented. You can change it until then." No gold until something is picked. Both open the library; the phone's own picker still offers the camera. *Proposed.* | One "Choose photos or a video" button: the either/or rule would only show up as an error after picking. A third "📷 Take a photo" button: prizes are usually photographed at home. |
+| Choosing (phone) | A "🎁 Your prize" card under the "✓ You're in" card: a "Your prize" placeholder, "Not submitted yet. Add one or more photos of your prize.", Photos' two equal paper buttons "📷 Take a photo" and "Choose photos" (several at once), then "Only the host sees them until your prize is presented. You can change them until then." No gold until something is picked. | "Choose photos" and "Choose a video" side by side (the first version, while videos were in). One "Choose photos or a video" button: the either/or rule would only show up as an error after picking. A lone "Choose photos": guests often bring the prize itself, so snapping it there is as likely as choosing from home, which is Photos' reason for two equal buttons. |
 
 ## Notes for building
 
