@@ -1081,7 +1081,7 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-task { flex: 1; display: grid; gap: 0.15rem; text-align: left; min-width: 0; }
 .sb-task:disabled { opacity: 1; cursor: default; }
 /* The tiebreaker task is played only on a tie, so until then it looks disabled, as the style guide says (its ✎ still works). */
-.sb-task.sb-tiebreaker:disabled { opacity: 0.45; cursor: not-allowed; }
+.sb-task.sb-tiebreaker:disabled, .sb-task.sb-declare:disabled { opacity: 0.45; cursor: not-allowed; }
 .sb-task-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-task .muted, .sb-contestant-name .muted { color: #7a6a55; }
 .sb-start { flex: none; white-space: nowrap; }

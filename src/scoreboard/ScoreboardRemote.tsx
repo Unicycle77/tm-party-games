@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { anyPrizes, prizesIn, showHaul, standing } from "../games/prize/data";
+import { prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
   addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
+  declareWinner, setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
 
@@ -101,7 +101,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   const tied = now && !("winner" in now) ? now.tied : undefined;
   // The haul goes up from the scoreboard, or from the curtain once a tiebreaker has been won (it's
   // played with the scoreboard down).
-  const winner = now && "winner" in now && !pending && anyPrizes(session) && (up || now.tied) ? now.winner : undefined;
+  const winner = now && "winner" in now && !pending && (up || now.tied) ? now.winner : undefined;
+  // The tasks still without points: the haul waits for them, unless the host declares the winner first.
+  const unscored = sorted(board?.tasks).filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
+  const final = !!board?.final;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -143,6 +146,13 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
       ) : (
         <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
       )}
+      {!haulUp && unscored.length > 0 && (final ? (
+        <p className="muted small">
+          Declaring the winner with {list(unscored)} unscored. <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button>
+        </p>
+      ) : up && !pending && (
+        <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or declare the winner from the task list.</p>
+      ))}
     </>
   );
 }
@@ -253,6 +263,8 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
   const [adding, setAdding] = useState<"live" | "game">();
   const [editing, setEditing] = useState<string>();
   const ids = tasks.map(([id]) => id);
+  // Any time once a task has points. Tapping it again after declaring brings the scoreboard (and the haul button) back.
+  const declarable = tasks.some(([, t]) => scored(t));
   const [dragging, setDragging] = useState<{ id: string; order: string[] }>();
   const rows = useRef<Record<string, HTMLLIElement | null>>({});
   const order = dragging?.order ?? ids;
@@ -316,6 +328,18 @@ function TaskList({ code, board, tasks, next, prizeNote, onOpen, onTiebreak, onS
             <button className="x" aria-label="Fix the tiebreaker task" onClick={() => setEditing("tiebreaker")}>✎</button>
           </li>
         )}
+        {/* The end of the night can come before every task is played: one last update, then the haul. */}
+        <li>
+          <button className="sb-task sb-declare" disabled={!declarable}
+            onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>
+            <span className="sb-task-title">🏆 Declare the winner</span>
+            <span className="muted small sb-task-note">
+              {!declarable ? "Once a task has points"
+                : board?.final ? "Declared · tap to bring the scoreboard and the haul back up"
+                : "The scoreboard for one last update, then the prize haul"}
+            </span>
+          </button>
+        </li>
       </ul>
       {adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
         : adding === "game" ? (

@@ -82,6 +82,15 @@ export const updateScores = (code: string, board: Scoreboard | undefined) => {
   return set(at(code, "shown"), now);
 };
 
+/**
+ * The end of the night, whatever's left unscored: the scoreboard goes up for one last update, then the
+ * winner is decided on the points so far. Undone with `null`, if the host jumped the gun.
+ */
+export const declareWinner = (code: string, on = true) =>
+  update(ref(db(), `sessions/${code}`), on
+    ? { "scoreboard/final": true, display: { step: "scoreboard" } }
+    : { "scoreboard/final": null });
+
 export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain" });
 
 /** Records who won the tiebreaker task (null clears it). Nothing changes on the big screen. */
