@@ -5,14 +5,19 @@ export interface PrizeEntry { id: string; name: string; photos: string[] }
  * to whoever they like next: no gold "Next". Tapping a name starts presenting that prize (locking the
  * guest's phone) and opens its previews beside the list, in the guest's order with the ★ on the first.
  * Nothing goes on the big screen until a preview is tapped; the one up is gold, as the stage's current
- * step is. Tapping another name switches straight to them.
+ * step is. Tapping another name switches straight to them. "+ Add photos" lets the host photograph a
+ * prize in the room (only the host can add to a prize once it's presented): new photos join the end,
+ * each as a tile with its progress until it's sent, so the ★ stays on the guest's first. A prize with
+ * no photos gets its first, and its ★, this way.
  */
-export function PrizePresenting({ entries, presenting, presented, up, onPick, onShow, onAdd, onLower }: {
+export function PrizePresenting({ entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onLower }: {
   entries: PrizeEntry[];
   presenting?: string;
   presented: Record<string, boolean>;
   /** The photo on the big screen, if any. */
   up?: { id: string; index: number };
+  /** Photos the host is adding to the prize being presented, as fractions sent. */
+  sending?: number[];
   onPick: (id: string) => void;
   onShow: (id: string, index: number) => void;
   onAdd: (id: string) => void;
@@ -46,7 +51,7 @@ export function PrizePresenting({ entries, presenting, presented, up, onPick, on
         {current ? (
           <>
             <h2 className="contestant">{current.name}'s prize</h2>
-            {current.photos.length === 0 && <p className="muted">{current.name} hasn't added any photos.</p>}
+            {current.photos.length === 0 && !sending.length && <p className="muted">{current.name} hasn't added any photos. Add some of the prize itself.</p>}
             <ul className="prize-previews">
               {current.photos.map((url, i) => {
                 const isUp = up?.id === current.id && up.index === i;
@@ -60,6 +65,12 @@ export function PrizePresenting({ entries, presenting, presented, up, onPick, on
                   </li>
                 );
               })}
+              {sending.map((f, i) => (
+                <li key={`sending-${i}`}>
+                  <div className="prize-sending"><progress value={f} max={1} /></div>
+                  <span className="muted small">sending… {Math.round(f * 100)}%</span>
+                </li>
+              ))}
             </ul>
             <p className="muted small">Tap a photo to put it on the big screen.</p>
             <button onClick={() => onAdd(current.id)}>+ Add photos</button>

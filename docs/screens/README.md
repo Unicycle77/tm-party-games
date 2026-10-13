@@ -81,3 +81,4 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards (in design) |
 | `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link (in design) |
 | `run-of-show-host-haul-remote-tie.jpg` | The same with a tie at the top: "Priya and Tom are tied for first. Play a tiebreaker task before the prize haul." (in design) |
+| `prize-host-adding.jpg` | Prize task on the iPad: the host adding photos to Jo's prize, one sent (★, since Jo had none) and one still sending (in design; stand-in photos) |

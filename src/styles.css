@@ -417,6 +417,8 @@ label { display: grid; gap: 0.3rem; color: var(--muted); }
 .prize-previews li { display: grid; gap: 0.25rem; justify-items: center; }
 .prize-previews button { position: relative; width: 100%; aspect-ratio: 1; padding: 0; background: #1a0f08; border: 3px solid var(--gold); border-radius: 2px; }
 .prize-previews img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* a photo the host is adding: an empty tile with its progress until it's sent */
+.prize-sending { width: 100%; aspect-ratio: 1; display: grid; place-items: center; padding: 1rem; box-sizing: border-box; background: #1a0f08; border: 3px dashed var(--gold); border-radius: 2px; }
 /* the photo on the big screen: gold, like the stage step that's on */
 .prize-previews button.active { border-color: var(--gold-edge); box-shadow: 0 0 0 4px var(--gold-bright), 0 0 16px var(--gold-bright); }
 /* the main photo, the one the winner's haul shows: gold, since it's the chosen one */
