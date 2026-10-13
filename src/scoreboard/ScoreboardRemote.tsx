@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
-import { haulState, prizesIn, showHaul } from "../games/prize/data";
+import { anyPrizes, prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
@@ -47,7 +47,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
   // The tiebreaker task's page, opened from the gold button when the last update leaves a tie.
   const [tiebreak, setTiebreak] = useState<string[]>();
   // Who's tied at the top once every task is in and shown (still so once the tiebreaker has a winner).
-  const tied = haulState(session)?.tied;
+  const tied = standing(session)?.tied;
   const upNext = unfinished ?? next;
   const open = (id: string) => { setPicked(id); window.scrollTo(0, 0); };
   const game = activeGame(session);
@@ -96,10 +96,12 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   const { added, changed } = pendingTasks(board);
   const pending = [added && plural(added, "new task"), changed && `${changed} changed`].filter(Boolean).join(", ");
   const game = activeGame(session);
-  // A tie settled by the tiebreaker task can go to the haul from the curtain too: the tiebreaker
-  // was played with the scoreboard down.
-  const settled = haulState(session);
-  const haul = up || (settled && "winner" in settled && settled.tied) ? settled : undefined;
+  const now = standing(session);
+  // Still tied at the top: the tiebreaker task is the next thing.
+  const tied = now && !("winner" in now) ? now.tied : undefined;
+  // The haul goes up from the scoreboard, or from the curtain once a tiebreaker has been won (it's
+  // played with the scoreboard down).
+  const winner = now && "winner" in now && !pending && anyPrizes(session) && (up || now.tied) ? now.winner : undefined;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
@@ -115,27 +117,27 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
           <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
           <button className="link" onClick={() => void showScoreboard(code)}>Back to the scoreboard</button>
         </>
-      ) : !up && !haul ? (
+      ) : !up && !winner ? (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
           {pending && <p className="muted small">At the totals you last showed. {pending} to add when you update.</p>}
         </>
-      ) : pending ? (
+      ) : up && pending ? (
         <>
           <button className="big" onClick={() => void updateScores(code, board)}>Update the scores · {pending}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
-      ) : haul && "winner" in haul ? (
+      ) : winner ? (
         // The end of the party: the winner's haul is the one next thing.
         <>
-          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(haul.winner)}</button>
+          <button className="big" onClick={() => void showHaul(code)}>🎁 Show the prize haul · {nameOf(winner)}</button>
           {up && <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>}
         </>
-      ) : haul ? (
+      ) : tied ? (
         // A tie at the top: the tiebreaker, for just the tied contestants, is the one next thing. It's a
         // live task, so the curtain comes down while it's played.
         <>
-          <button className="big" onClick={() => { void lowerCurtain(code); onTiebreak(haul.tied); }}>Play the tiebreaker task · {list(haul.tied.map(nameOf))}</button>
+          <button className="big" onClick={() => { void lowerCurtain(code); onTiebreak(tied); }}>Play the tiebreaker task · {list(tied.map(nameOf))}</button>
           <button className="link" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
         </>
       ) : (

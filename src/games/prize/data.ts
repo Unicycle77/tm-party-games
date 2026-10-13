@@ -9,15 +9,14 @@ import type { Session } from "../../types";
 export const prizePhotos = (session: Session): Record<string, string[]> => session.games?.prize?.photos ?? {};
 
 /**
- * Whether the prize haul can go up: once every task on the run of show has points and the last of them
- * is on the scoreboard, with at least one prize photo. A tie at the top waits for a tiebreaker task
- * (just the tied contestants), so it names who's tied instead of a winner.
+ * Who won the night, once every task on the run of show has points and the last of them is on the
+ * scoreboard: the leader, or the winner of the tiebreaker task when the top is tied. A tie the
+ * tiebreaker hasn't settled names who's tied; `tied` stays on a settled one, for its page.
  */
-export function haulState(session: Session): { winner: string; tied?: string[] } | { tied: string[] } | undefined {
+export function standing(session: Session): { winner: string; tied?: string[] } | { tied: string[] } | undefined {
   const board = session.scoreboard;
   const tasks = Object.values(board?.tasks ?? {});
   if (!tasks.length || tasks.some((t) => !Object.keys(t.scores ?? {}).length)) return undefined;
-  if (!Object.values(prizePhotos(session)).some((p) => p.length)) return undefined;
   const totals = shownTotals(board);
   const top = Math.max(...Object.keys(board?.contestants ?? {}).map((c) => totals[c] ?? 0));
   const leaders = Object.keys(board?.contestants ?? {}).filter((c) => (totals[c] ?? 0) === top);
@@ -25,6 +24,15 @@ export function haulState(session: Session): { winner: string; tied?: string[] }
   // A tie settled by the tiebreaker task: its winner, as long as they're still among the tied.
   const settled = board?.tiebreaker?.winner;
   return settled && leaders.includes(settled) ? { winner: settled, tied: leaders } : { tied: leaders };
+}
+
+/** Whether any prize has a photo, so the haul has something to hang. */
+export const anyPrizes = (session: Session) => Object.values(prizePhotos(session)).some((p) => p.length);
+
+/** Whose haul can go up: the night's winner (see `standing`), once at least one prize has a photo. */
+export function haulWinner(session: Session): string | undefined {
+  const now = standing(session);
+  return now && "winner" in now && anyPrizes(session) ? now.winner : undefined;
 }
 
 /**
