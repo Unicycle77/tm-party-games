@@ -101,14 +101,15 @@ export function speak(word: string, inPhrase: boolean) {
   const synth = window.speechSynthesis;
   const busy = synth.speaking || synth.pending;
   if (busy) synth.cancel();
-  // English voices, best first: on the device before online (an online voice waits on the network, so it lags behind
-  // the press), then British, then men (Daniel, Arthur and Oliver on Apple devices, George on Windows, David and Mark in
+  // English voices, best first: Microsoft's Andrew then Ava (picked by ear, on Windows), then on the device before
+  // online (an online voice waits on the network, so it lags behind the press), then British, then men (Daniel, Arthur and Oliver on Apple devices, George on Windows, David and Mark in
   // Chrome on Windows, which can't see Windows' newer British voices). The phrase gets the first and decoys the second,
   // if that's as quick; otherwise decoys reuse the first, pitched lower to tell them apart.
   const male = ["daniel", "arthur", "oliver", "george", "ryan", "thomas", "david", "mark", "alex", "fred", "aaron", "male"];
   const manOf = (v: SpeechSynthesisVoice) => (v.name.toLowerCase().includes("female") ? -1 : male.findIndex((n) => v.name.toLowerCase().includes(n)));
-  const rank = (v: SpeechSynthesisVoice) => (v.localService ? 0 : 1000) + (v.lang.toLowerCase().replace("_", "-") === "en-gb" ? 0 : 100)
-    + (manOf(v) < 0 ? male.length : manOf(v));
+  const favourite = (v: SpeechSynthesisVoice) => ["microsoft andrew", "microsoft ava"].findIndex((n) => v.name.toLowerCase().includes(n));
+  const rank = (v: SpeechSynthesisVoice) => favourite(v) >= 0 ? favourite(v) - 10
+    : (v.localService ? 0 : 1000) + (v.lang.toLowerCase().replace("_", "-") === "en-gb" ? 0 : 100) + (manOf(v) < 0 ? male.length : manOf(v));
   const english = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b));
   const twoVoices = english.length > 1 && english[1]!.localService === english[0]!.localService;
   const voice = inPhrase || !twoVoices ? english[0] : english[1];
