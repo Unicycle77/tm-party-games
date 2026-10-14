@@ -101,19 +101,22 @@ export function speak(word: string, inPhrase: boolean) {
   const synth = window.speechSynthesis;
   const busy = synth.speaking || synth.pending;
   if (busy) synth.cancel();
-  // British men (Daniel, Arthur and Oliver on Apple devices, George and Ryan on Windows, Google's UK male): the phrase
-  // gets the first and decoys the second, voices on the device ahead of online ones. With only one on the device,
-  // decoys reuse it, pitched lower to tell them apart.
-  const male = ["daniel", "arthur", "oliver", "george", "ryan", "thomas", "male"];
-  const rank = (v: SpeechSynthesisVoice) => (v.localService ? 0 : male.length) + male.findIndex((n) => v.name.toLowerCase().includes(n));
-  const british = synth.getVoices().filter((v) => v.lang.toLowerCase().replace("_", "-") === "en-gb"
-    && male.some((n) => v.name.toLowerCase().includes(n)) && !v.name.toLowerCase().includes("female"))
-    .sort((a, b) => rank(a) - rank(b));
-  const voice = inPhrase ? british[0] : british[1] ?? british[0];
+  // English voices, best first: Microsoft's Andrew then Ava (picked by ear, on Windows), then on the device before
+  // online (an online voice waits on the network, so it lags behind the press), then British, then men (Daniel, Arthur and Oliver on Apple devices, George on Windows, David and Mark in
+  // Chrome on Windows, which can't see Windows' newer British voices). The phrase gets the first and decoys the second,
+  // if that's as quick; otherwise decoys reuse the first, pitched lower to tell them apart.
+  const male = ["daniel", "arthur", "oliver", "george", "ryan", "thomas", "david", "mark", "alex", "fred", "aaron", "male"];
+  const manOf = (v: SpeechSynthesisVoice) => (v.name.toLowerCase().includes("female") ? -1 : male.findIndex((n) => v.name.toLowerCase().includes(n)));
+  const favourite = (v: SpeechSynthesisVoice) => ["microsoft andrew", "microsoft ava"].findIndex((n) => v.name.toLowerCase().includes(n));
+  const rank = (v: SpeechSynthesisVoice) => favourite(v) >= 0 ? favourite(v) - 10
+    : (v.localService ? 0 : 1000) + (v.lang.toLowerCase().replace("_", "-") === "en-gb" ? 0 : 100) + (manOf(v) < 0 ? male.length : manOf(v));
+  const english = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en")).sort((a, b) => rank(a) - rank(b));
+  const twoVoices = english.length > 1 && english[1]!.localService === english[0]!.localService;
+  const voice = inPhrase || !twoVoices ? english[0] : english[1];
   const utterance = (withVoice: boolean) => {
     const say = new SpeechSynthesisUtterance(word);
     if (withVoice && voice) { say.voice = voice; say.lang = voice.lang; }
-    if (!inPhrase && british.length < 2) say.pitch = 0.6;
+    if (!inPhrase && !twoVoices) say.pitch = 0.6;
     say.onerror = (e) => {
       // A voice that fails (an online one offline, say) gets one more go in the device's default voice.
       if (withVoice && voice && saying === say && e.error !== "interrupted" && e.error !== "canceled") start(utterance(false));
