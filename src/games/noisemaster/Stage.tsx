@@ -7,7 +7,7 @@ import { useStageBarVisible } from "../../stageBar";
 import type { Display, NoisemasterPress, NoisemasterRound, Session } from "../../types";
 import { elapsedOf, formatTime, recordPress, restartRound, roundOf, useNoisemasterSecret, useServerNow, useServerOffset } from "./data";
 import { Soundboard } from "./Soundboard";
-import { playSound, prepareSounds } from "./sounds";
+import { hasSound, playSound, prepareSounds, speak } from "./sounds";
 
 /**
  * Main screen: the phrase's words as they are said, a picture of the soundboard lighting up with each press, and the
@@ -16,6 +16,7 @@ import { playSound, prepareSounds } from "./sounds";
 export function Stage({ code, session, viewOnly }: { code: string; session: Session; display: Display; viewOnly: boolean }) {
   const round = roundOf(session);
   useReferee(code, round, !viewOnly);
+  useEcho(round, viewOnly);
   const controls = !viewOnly && <StageControls code={code} round={round} />;
   // the curtain while the host sets up: the room looks at the host
   if (!round) return <Curtain code={code} session={session}>{controls}</Curtain>;
@@ -121,10 +122,28 @@ function useReferee(code: string, round: NoisemasterRound | undefined, enabled: 
       else { mistakes++; progress = word === phrase[0] ? 1 : 0; }
       if (progress === phrase.length) doneAt = p.at;
       // Only presses from the last couple of seconds: not the whole round again after a refresh.
-      if (p.at > Date.now() + offset.current - 2000) void playSound(word, phrase.includes(word));
-      void recordPress(code, { progress, mistakes, firstAt, doneAt: doneAt ?? null, last: { key: s.key!, i: p.i, ok } }).catch(() => {});
+      const inPhrase = phrase.includes(word);
+      const fresh = p.at > Date.now() + offset.current - 2000;
+      if (fresh) void playSound(word, inPhrase);
+      // Extra screens speak the word too, when it's spoken here (and only fresh presses, as here).
+      const say = fresh && !hasSound(word) ? { say: { word, inPhrase } } : {};
+      void recordPress(code, { progress, mistakes, firstAt, doneAt: doneAt ?? null, last: { key: s.key!, i: p.i, ok, ...say } }).catch(() => {});
     });
   }, [code, enabled, boardKey, round?.startedAt]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+/**
+ * Extra screens: speak each press the main screen spoke (they have no sound files, so words with one stay silent).
+ * Not the press that was already there when the screen opened.
+ */
+function useEcho(round: NoisemasterRound | undefined, enabled: boolean) {
+  const last = round?.last;
+  const heard = useRef(last?.key);
+  useEffect(() => {
+    if (!enabled || !last || last.key === heard.current) return;
+    heard.current = last.key;
+    if (last.say) speak(last.say.word, last.say.inPhrase);
+  }, [enabled, last?.key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /**

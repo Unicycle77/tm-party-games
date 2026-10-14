@@ -91,8 +91,11 @@ export interface NoisemasterRound {
   /** Main screen: when the first press came (the clock starts) and when the last word was said (it stops). */
   firstAt?: number;
   doneAt?: number;
-  /** Main screen: the latest press, so every screen can light that button up. */
-  last?: { key: string; i: number; ok: boolean };
+  /**
+   * Main screen: the latest press, so every screen can light that button up. `say` is the word when the main screen
+   * spoke it (no sound file for it), so extra screens can speak it too, in the phrase's voice or the decoys'.
+   */
+  last?: { key: string; i: number; ok: boolean; say?: { word: string; inPhrase: boolean } };
 }
 
 /** Kept outside the session (at noisemasterSecrets/{code}) so only the host and the main screen can read it. */
