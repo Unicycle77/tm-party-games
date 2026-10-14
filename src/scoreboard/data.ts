@@ -69,9 +69,33 @@ export const removeTask = (code: string, id: string) => remove(at(code, `tasks/$
 export const reorderTasks = (code: string, ids: string[]) =>
   update(at(code, "tasks"), Object.fromEntries(ids.map((id, i) => [`${id}/order`, i])));
 
-/** A contestant's points for a task; null takes them away (they get nothing for it). */
-export const setPoints = (code: string, task: string, contestant: string, points: number | null) =>
-  set(at(code, `tasks/${task}/scores/${contestant}`), points);
+/**
+ * The totals the big screen will show, caught up on every task but `task`: so that showing the scoreboard after
+ * `task` opens on the scores from just before it, and the update ticks up that one task alone. Unchanged while
+ * the scoreboard is up, where catching up would tick the totals in front of the room.
+ */
+function catchUp(board: Scoreboard | undefined, task: string, onScreen: boolean) {
+  if (onScreen) return {};
+  const shown: Record<string, unknown> = Object.fromEntries(
+    Object.entries(currentPoints(board)).filter(([id, s]) => id !== task && s && Object.keys(s).length));
+  if (board?.shown?.[task]) shown[task] = board.shown[task];
+  return { shown };
+}
+
+/**
+ * A contestant's points for a task; null takes them away (they get nothing for it). The first points given on a
+ * task start it: every earlier task is caught up on the big screen (see catchUp).
+ */
+export const setPoints = (code: string, board: Scoreboard | undefined, onScreen: boolean, task: string, contestant: string, points: number | null) => {
+  const starting = points !== null && !Object.keys(board?.tasks?.[task]?.scores ?? {}).length;
+  return update(at(code), { [`tasks/${task}/scores/${contestant}`]: points, ...(starting ? catchUp(board, task, onScreen) : {}) });
+};
+
+/** ▶ Start on an app game in the task list: it starts that task (see catchUp). */
+export const startTask = (code: string, board: Scoreboard | undefined, onScreen: boolean, task: string) => {
+  const patch = catchUp(board, task, onScreen);
+  return "shown" in patch ? update(at(code), patch) : Promise.resolve();
+};
 
 /** Puts the scoreboard on the big screen, at the totals last shown. */
 export const showScoreboard = (code: string) => setDisplay(code, { step: "scoreboard" });

@@ -28,6 +28,7 @@ Main screen (`/`, 1600×900):
 | `main-welcome.jpg` | The welcome: join QR, code, contestants |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
+| `main-curtain-join-qr.jpg` | The curtain while the host remote's "Show QR code" is open: the join QR in the bottom-right corner, above the address (taken 2026-10-13, stand-in portrait) |
 
 They were rendered from the real components with a made-up session (no Firebase), so names and counts are invented and photos are missing.
 

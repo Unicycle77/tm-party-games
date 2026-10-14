@@ -2,7 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { joinUrlFor } from "./firebase";
 import { PICKER_GAMES, activeGame } from "./games";
-import { noBigScreen, removePlayer, setDisplay, setGame, setUnlocked, showContestant } from "./session";
+import { noBigScreen, removePlayer, setDisplay, setGame, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -21,25 +21,28 @@ export function HostRemote({ code, session, onRunOfShow }: { code: string; sessi
   return (
     <>
       <RemoteBody code={code} session={session} onRunOfShow={onRunOfShow} />
-      <JoinQr code={code} />
+      <JoinQr code={code} session={session} />
     </>
   );
 }
 
-/** For anyone who arrives late: the join code, on the host's phone to hold up. */
-export function JoinQr({ code }: { code: string }) {
-  const [showQr, setShowQr] = useState(false);
+/**
+ * For anyone who arrives late: the join code, on the host's phone to hold up. While it's open the big screen
+ * shows it too, above its corner code (on the curtain and while entries come in), and closing it hides both.
+ */
+export function JoinQr({ code, session }: { code: string; session: Session }) {
+  const close = () => void setShowQr(code, false);
   return (
     <>
-      <button className="link" onClick={() => setShowQr(true)}>Show QR code</button>
-      {showQr && (
-        <div className="qr-overlay" onClick={() => setShowQr(false)}>
+      <button className="link" onClick={() => void setShowQr(code, true)}>Show QR code</button>
+      {session.showQr && (
+        <div className="qr-overlay" onClick={close}>
           <figure className="join-qr">
             <QRCodeSVG value={joinUrlFor(code)} size={300} bgColor="#fff" marginSize={2} />
             <figcaption>Scan to join</figcaption>
           </figure>
           <p className="code">{code}</p>
-          <button type="button" onClick={() => setShowQr(false)}>Close</button>
+          <button type="button" onClick={close}>Close</button>
         </div>
       )}
     </>

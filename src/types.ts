@@ -280,6 +280,8 @@ export interface Session {
   portrait?: string;
   /** Host remote toggles this to reveal the download-all button on the main screen. */
   showDownload?: boolean;
+  /** The host remote's "Show QR code" is open: the big screen puts the join QR above its corner code too. */
+  showQr?: boolean;
   jukebox?: Jukebox;
   scoreboard?: Scoreboard;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */

@@ -6,7 +6,7 @@ import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
   addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  declareWinner, setPoints, setTiebreakerWinner, showScoreboard, updateScores, uploadHeadshot,
+  declareWinner, setPoints, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot,
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
 
@@ -65,7 +65,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
       <ShowControls code={code} session={session} onTiebreak={(tied) => { setTiebreak(tied); window.scrollTo(0, 0); }} />
       {tiebreak ? <Tiebreaker code={code} board={board} tied={tiebreak} onClose={() => setTiebreak(undefined)} />
       : picked && board?.tasks?.[picked] && contestants.length > 0
-        ? <Points code={code} board={board} id={picked} tasks={tasks} contestants={contestants}
+        ? <Points code={code} board={board} onScreen={session.display?.step === "scoreboard"} id={picked} tasks={tasks} contestants={contestants}
             onChange={() => setPicked(undefined)} onNext={open} />
         : (
           <>
@@ -77,6 +77,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
             <TaskList code={code} board={board} tasks={tasks} next={next} prizeNote={prizesIn(session, list)} onOpen={contestants.length ? open : undefined}
               onTiebreak={tied ? () => { setTiebreak(tied); window.scrollTo(0, 0); } : undefined}
               onStart={(id, game) => void (async () => {
+                await startTask(code, board, session.display?.step === "scoreboard", id);
                 // A photo task brings its own photos (see switchPhotosTask).
                 if (game === "photos") await switchPhotosTask(code, session, id);
                 await setGame(code, game);
@@ -158,8 +159,8 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
 }
 
 /** Giving points for one task: a row of chips per contestant. Every tap saves; nothing goes on the big screen. */
-function Points({ code, board, id, tasks, contestants, onChange, onNext }: {
-  code: string; board: Scoreboard | undefined; id: string; tasks: [string, ScoreboardTask][];
+function Points({ code, board, onScreen, id, tasks, contestants, onChange, onNext }: {
+  code: string; board: Scoreboard | undefined; onScreen: boolean; id: string; tasks: [string, ScoreboardTask][];
   contestants: [string, { name: string }][]; onChange: () => void; onNext: (id: string) => void;
 }) {
   const task = board!.tasks![id]!;
@@ -179,7 +180,7 @@ function Points({ code, board, id, tasks, contestants, onChange, onNext }: {
       <ul className="sb-rows">
         {contestants.map(([c, con]) => (
           <PointsRow key={c} name={con.name} points={task.scores?.[c]} total={totals[c] ?? 0}
-            onSet={(n) => void setPoints(code, id, c, n)} />
+            onSet={(n) => void setPoints(code, board, onScreen, id, c, n)} />
         ))}
       </ul>
       {following && <button className="link sb-next" onClick={() => { onNext(following); window.scrollTo(0, 0); }}>Next task →</button>}
