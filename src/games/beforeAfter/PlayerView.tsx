@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useKeepAwake } from "../../keepAwake";
 import { submitMedia } from "../../media";
 import { setUnlocked } from "../../session";
+import { videoLimitText, videoTooBig, videoTooLong } from "../../videoLimits";
 import { isLocked } from "../../submission";
 import type { Session } from "../../types";
 import { mediaOf, submissionStatus } from "./data";
@@ -53,9 +54,13 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
     discard();
     setError(undefined);
     setDetail(undefined);
+    const tooBig = videoTooBig(file);
+    if (tooBig) { setError(tooBig); return; }
     setChecking(true);
     try {
-      const { first, last } = await extractFrames(file);
+      const { first, last, duration } = await extractFrames(file);
+      const tooLong = videoTooLong(duration);
+      if (tooLong) { setError(tooLong); return; }
       setPicked({
         file, first, last,
         videoUrl: URL.createObjectURL(file), firstUrl: URL.createObjectURL(first), lastUrl: URL.createObjectURL(last),
@@ -170,7 +175,7 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
         </>
       ) : (
         <>
-          <p className="slot-hint">Pick the video you made for the task. We'll take your Before and After from its first and last frame.</p>
+          <p className="slot-hint">Pick the video you made for the task ({videoLimitText}). We'll take your Before and After from its first and last frame.</p>
           {checking && <p className="slot-hint">Checking your video…</p>}
           <button className="big" disabled={busy} onClick={() => pick(library)}>Choose your video</button>
           <button className="link" disabled={busy} onClick={() => pick(camera)}>Didn't make one? Record it now</button>

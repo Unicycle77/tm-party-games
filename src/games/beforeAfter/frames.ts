@@ -3,7 +3,7 @@ const QUALITY = 0.8;
 const METADATA_TIMEOUT_MS = 15_000;
 const SEEK_TIMEOUT_MS = 10_000;
 
-export interface VideoFrames { first: Blob; last: Blob }
+export interface VideoFrames { first: Blob; last: Blob; duration: number }
 
 /** Why frame capture failed, in words for the player plus technical detail for us. */
 export class FrameError extends Error {
@@ -119,7 +119,7 @@ export async function extractFrames(file: Blob): Promise<VideoFrames> {
     step = "last frame";
     await seekTo(video, Math.max(0, duration - 0.1));
     const last = await snapshot(video);
-    return { first, last };
+    return { first, last, duration };
   } catch (e) {
     const detail = describe(file, video, step, e);
     console.error("Frame capture failed:", detail);

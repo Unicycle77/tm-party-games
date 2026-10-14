@@ -1,6 +1,7 @@
 import { ref as dbRef, set, update } from "firebase/database";
 import { db, storage } from "./firebase";
 import type { GameId } from "./types";
+import { videoTooBig } from "./videoLimits";
 
 /**
  * Downscale phone photos (often 4000px+/8MB) so uploads are quick and the TV loads them instantly.
@@ -49,6 +50,8 @@ export async function submitMedia(
   // alreadySized: frames we already resized/encoded ourselves. signal: aborting it cancels the upload.
   opts: { alreadySized?: boolean; signal?: AbortSignal } = {},
 ): Promise<void> {
+  const tooBig = kind === "video" ? videoTooBig(file) : undefined;
+  if (tooBig) throw new Error(tooBig);
   const body = kind === "video" || opts.alreadySized ? file : await shrinkImage(file as File);
   const contentType = kind === "video" ? file.type || "video/mp4" : body.type || "image/jpeg";
   const { getDownloadURL, ref, uploadBytesResumable } = await import("firebase/storage");

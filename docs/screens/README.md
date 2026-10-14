@@ -119,3 +119,9 @@ Host pin (taken on 2026-10-13, from the real components with a made-up party):
 | `host-party-settings-pin-set.jpg` | Party settings with a pin set: the pin as dots with 👁, "Remove the pin", "Type a new one to change it" |
 | `main-pin-open.jpg` | The big screen opening a pinned party: the same pin step at TV size, gold "Open the party", "📺 Show it here too" needing no pin |
 | `main-hidden-menu-pin.jpg` | The ☰ Menu with "🔑 Host pin on: a new phone needs it to connect. Remove the pin" |
+
+Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up party and a 45-second test video):
+
+| File | What it shows |
+|---|---|
+| `before-after-player-too-long.jpg` | Before & After on a guest's phone: the hint now says "up to 30 seconds", and the error after choosing a longer video ("That video is 45 seconds long… Trim it in your phone's Photos app, then choose it again."). A file over 100 MB gets the same kind of error before it's even read |
