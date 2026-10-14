@@ -149,6 +149,11 @@ function Sheet() {
               <figure className="host-qr"><QRCodeSVG value="https://example.com/host" style={{ width: 120, height: 120 }} /><figcaption>Host scans here</figcaption></figure>
             </div>
             <Cap>Players: <code>--gold</code> border · Host: <code>--paper</code> border, so the two can't be confused</Cap>
+            <div className="corner-code" style={{ position: "static", justifySelf: "end" }}>
+              <QRCodeSVG value="https://example.com/play?code=ABCD" bgColor="#fff" marginSize={2} style={{ width: 110, height: 110 }} />
+              <p>example.com/play · <strong>ABCD</strong></p>
+            </div>
+            <Cap><code>.corner-code</code>: the join address in the big screen's corner; while the host's "Show QR code" is open, the player QR sits above it, with no caption</Cap>
             <div className="slot" style={{ gridTemplateColumns: "1fr auto", alignItems: "center" }}><h2>Your secret task</h2><button className="help-q" aria-expanded>?</button></div>
             <Cap><code>.help-q</code>: a circled ? that opens the rules in place, burgundy while open</Cap>
           </Sec>
