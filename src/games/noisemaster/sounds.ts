@@ -56,6 +56,9 @@ function decode(name: string): Promise<AudioBuffer | undefined> {
   return buffer;
 }
 
+/** Whether this screen has a sound file for a word (if not, the word is spoken). */
+export const hasSound = (word: string) => !!fileFor(word);
+
 /** Decodes a board's sounds ahead of the first press. */
 export const prepareSounds = (names: string[]) => { names.forEach((n) => { const f = fileFor(n); if (f) void decode(f); }); };
 
@@ -92,7 +95,7 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.addEventListener?.("voiceschanged", () => window.speechSynthesis.getVoices());
 }
 
-function speak(word: string, inPhrase: boolean) {
+export function speak(word: string, inPhrase: boolean) {
   if (!("speechSynthesis" in window)) return;
   try { playing?.stop(); } catch { /* already finished */ }
   const synth = window.speechSynthesis;
