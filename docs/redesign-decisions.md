@@ -268,6 +268,25 @@ Every party has a tiebreaker task, played only if the last update leaves two or 
 | A tied tiebreaker | Nothing new: the host calls a draw and they go again. Nobody is tapped until someone wins, and the haul waits. | A "Tied again" button or a rematch count. |
 | A score fixed after it | The tiebreaker's winner counts only while they're still among those tied at the top; otherwise the scoreboard's leader (or a new tie) takes over. | |
 
+## Task songs
+
+The host can pick a jukebox song for any task, so a button to play it is ready when the task comes up. It may not get played. The strip is a small remote for the jukebox, not a second player. Scenarios, in the agreed order: playing it in the moment, picking it while planning, a song that can't play on the night, and the strip alongside the jukebox. Designed one step at a time with Jeffrey.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| Where songs come from | The main-screen PC's music folder, the jukebox's own. A task keeps the song's title, not its place in the list, so adding files doesn't shift every task's song. | Uploading a file per task: storage, and songs put online. A Spotify or YouTube link: the remote can't reliably control it. |
+| Where it plays | On the big screen, through the jukebox: one song at a time, so a task's song replaces whatever was playing. | The host's phone speaker: too quiet for a party. |
+| On the row | A task with a song gets a slim paper strip under its row, in line with the task card: "♪ Entry of the Gladiators ▶ 2:40". Tapping it plays the song; it goes gold ("⏸ …") while it plays, and tapping again pauses. No strip without a song. Every task can have one, app games and the tiebreaker included. | A ♪ button as a fifth column: it squeezes the task name at phone width. The song inside the task card: the card is already a button. |
+| On the task's page | The same strip under the heading and the note: on the points page above "1 of 6 scored", on an app game's page under its name, on the tiebreaker's page above "Tap who won." It's when the song gets played: just after the task is read out. | At the bottom by "Next task →": the song plays at the start, not the end. |
+| How it ends | Once, then it stops, as the jukebox does. Tapping a strip turns the jukebox's Repeat off. | Repeating until paused. |
+| In step with the jukebox | The strip shows the song playing whoever started it: played from 🎵, a task's strip goes gold too. 🎵 glows as for any song. Volume stays in 🎵. | A volume slider on the strip: it would no longer be slim. |
+| Pauses | Music pauses on its own while a video plays (as before) and while the Noisemaster board is up, then carries on. | Leaving it playing over Noisemaster's sounds. |
+| Picking it | ✎ gains "Song (optional)" under the note: a paper field ("♪ Hall of the Mountain King 2:31 ▾", or "No song") with ✕ to clear it. Tapping it opens the jukebox's song list inline, the chosen one gold; a tap picks and closes it. "From the main screen's music folder, as it was on Oct 12." under the list. | A separate song page: it's one choice. A ▶ preview in the list: it would play on the TV, maybe in front of guests. A search box: the folder is small, and the list scrolls. |
+| Planning with the PC off | The list is the last one the main screen published, so songs can be picked from the phone days before. With no list ever published: "Open the music folder on the main screen once to pick songs." | Picking only while the folder is open: planning would mean sitting at the PC. Typing a title to match on the night: fragile. |
+| Folder not open on the night | Every strip disabled (the style guide's), reading "music folder not open" on the right. One fix on the main screen brings them all back. | A warning card on the run of show: loud for a song that may never be played. Hiding the strips: they'd look like tasks with no song. |
+| Song gone from the folder | Only that strip disabled, reading "not in the music folder". In ✎ the title is struck through, with "Not in the music folder any more. Pick another, or ✕." | Clearing the song silently. |
+| Points page, narrower names | Each contestant on one line at phone width: a narrow name column with "now 9" under the name, then the chips. Names at a party are short; a long one wraps rather than squeezing the chips. | The name on its own line above the chips at phone width (before): six contestants took twelve rows. |
+
 ## Host pin
 
 An optional pin per party, so guests can't take the host remote or the big screen and change things out from under the host. Moments, in the agreed order: entering the pin to connect, adding it in Party settings, changing or removing it, forgetting it, and the big screen.

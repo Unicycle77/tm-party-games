@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
-Style sheet (taken on 2026-10-13, from `src/styles.css` and the real `Toggle`, `TaskCard` and `PinField` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+Style sheet (taken on 2026-10-14, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
@@ -51,8 +51,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | Giving points for one task: chips 0 to 5 and "…", "now N", "← All tasks", "Next task →" |
-| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width |
+| `scoreboard-host-points.jpg` | Giving points for one task: the task's song strip, then each contestant on one line, the name with "now N" under it and chips 0 to 5 and "…", "← All tasks", "Next task →" (2026-10-14) |
+| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant (2026-10-14) |
 | `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |
@@ -70,6 +70,11 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Party settings: renaming the party |
 | `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks ending with the tiebreaker task (disabled until there's a tie), contestants with "not yet", Jo here but not on the scoreboard yet |
+| `run-of-show-host-task-songs.jpg` | Task songs on the run of show (2026-10-14): a slim strip under each task with a song, one playing in gold with ⏸, "Theme from Jaws · not in the music folder" disabled, the tiebreaker's song |
+| `run-of-show-host-task-songs-folder-closed.jpg` | The same with the main screen's music folder not open: every strip disabled, "music folder not open" |
+| `task-song-edit.jpg` | ✎ on a task: "Song (optional)" with the jukebox's song list open, the chosen song gold, "as it was on Oct 12" |
+| `task-song-edit-missing.jpg` | ✎ on a task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." |
+| `host-game-task-song.jpg` | A game's page on the remote (Photos: best costume) with its task's song strip under the heading |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |
 | `run-of-show-host-add-game.jpg` | "+ App game" on the run of show: Noisemaster and Headshot greyed out as "on the list", Photos still offered |

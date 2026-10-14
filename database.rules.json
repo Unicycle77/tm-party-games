@@ -219,6 +219,14 @@
           "durations": {
             ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
           },
+          "tracksAt": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid",
+            ".validate": "newData.isNumber()"
+          },
+          "open": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid",
+            ".validate": "newData.val() === true"
+          },
           "state": {
             ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
           }
@@ -296,6 +304,7 @@
               "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
               "game": { ".validate": "newData.isString()" },
               "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
+              "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "scores": { "$cid": { ".validate": "newData.isNumber()" } },
               "$other": { ".validate": false }
             }
@@ -305,6 +314,7 @@
           "tiebreaker": {
             "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
             "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
+            "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
             "winner": { ".validate": "newData.isString() && root.child('sessions').child($code).child('scoreboard').child('contestants').child(newData.val()).exists()" },
             "$other": { ".validate": false }
           },

@@ -192,6 +192,13 @@ export interface Jukebox {
   tracks?: string[];
   /** Song lengths in seconds, same order as `tracks` (0 = unknown). */
   durations?: number[];
+  /**
+   * When the main screen last read its music folder. `tracks` stays after the PC goes off, so the host can
+   * still pick tasks' songs from it; this says how old that list is.
+   */
+  tracksAt?: number;
+  /** The main screen has its music folder open right now, so songs can play. Gone when it disconnects. */
+  open?: boolean;
   /** Playback state, written by the host remote (and by the main screen when a song ends). */
   state?: { current?: number; playing?: boolean; volume?: number; repeat?: boolean };
 }
@@ -216,6 +223,8 @@ export interface ScoreboardTask {
   game?: GameId;
   /** The host's note about the task. Only ever shown on the host remote. */
   description?: string;
+  /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
+  song?: string;
   /** Points by contestant id. A contestant with none gets nothing for this task. */
   scores?: Record<string, number>;
 }
@@ -235,7 +244,7 @@ export interface Scoreboard {
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
    */
-  tiebreaker?: { name?: string; description?: string; winner?: string };
+  tiebreaker?: { name?: string; description?: string; song?: string; winner?: string };
 }
 
 export interface Session {

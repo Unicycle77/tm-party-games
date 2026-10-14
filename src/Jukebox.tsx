@@ -26,7 +26,7 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
   const wantPlaying = jukebox?.state?.playing === true;
   const volume = jukebox?.state?.volume ?? 0.8;
   const repeat = jukebox?.state?.repeat === true;
-  const shouldPlay = wantPlaying && !duck; // music pauses while a video is playing
+  const shouldPlay = wantPlaying && !duck; // music pauses while a video plays or the Noisemaster board is up
 
   async function load(dir: DirHandle) {
     setError(undefined);

@@ -102,6 +102,8 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | The chosen one | A small gold `★` disc in the corner; `☆` on the others moves it | Prize photos (the one the haul shows) |
 | Not available yet | Disabled (`opacity: 0.45`, `not-allowed`), with a muted line saying when it will be ("· only if there's a tie"). Its side buttons, like ✎, still work | The tiebreaker task |
 | Already used | Disabled, with a small uppercase "on the list" label inside | "+ App game" choices |
+| Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder") | A task's song strip |
+| Playing | Gold (`button.active`), ▶ becomes ⏸ | A task's song strip, the jukebox's current song |
 | Not tappable but not unavailable | `.sb-task:disabled` keeps full opacity: the row is just information until there are contestants | Task rows before anyone is added |
 
 State is never colour alone: each one also has its words (✓, "next", "on the big screen", "scored", "not yet").
@@ -174,7 +176,7 @@ See: [checkin-phone-list.jpg](screens/checkin-phone-list.jpg), [checkin-phone-co
   2. One `.on-screen` line saying what the big screen shows ("On the big screen: the scoreboard", "…: not connected yet"), with at most one `.muted.small` line under it.
   3. **The one next thing** in gold: "Update the scores · 2 new tasks", "🎁 Show the prize haul · Priya", "Play the tiebreaker task · Sam and Priya", or "Lower the curtain". The quiet way out sits under it as a `.link`. When nothing is next, it's a paper button ("Show the scoreboard").
   4. "Give points: 2  Build the tallest tower →": a paper shortcut to the next unscored task.
-  5. **Tasks (N)**: one row per task in running order: `≡` (drag to reorder), the task as a left-aligned paper button (number, name, "· app game", the note in quotes, then "← next" or "scored"), `▶ Start` for an app game, and `✎`. The tiebreaker task is always last, outside the numbering, with no ≡ (see Row states, §3). Under the list, "+ Live task" and "+ App game" side by side.
+  5. **Tasks (N)**: one row per task in running order: `≡` (drag to reorder), the task as a left-aligned paper button (number, name, "· app game", the note in quotes, then "← next" or "scored"), `▶ Start` for an app game, and `✎`. A task with a song has a slim **song strip** (`SongStrip.tsx`, `.sb-song`) under its row, in line with the task card: "♪ title ▶ 2:40", gold with ⏸ while it plays. It's a small remote for the jukebox, and the same strip sits under the heading on the task's own page (points page, game page, tiebreaker page). ✎ picks it from the jukebox's song list (`SongField`). The tiebreaker task is always last, outside the numbering, with no ≡ (see Row states, §3). Under the list, "+ Live task" and "+ App game" side by side.
   6. **Contestants (N)**: `+` (give points) · name with "checked in" / "not yet" on the right · `×`. Guests who are here but not on the scoreboard come after them as plain text with "+ Add", then a "Name of the next contestant" field.
   7. Quiet links at the bottom: "Play a game that's not on the list", "Show QR code", "Party settings".
 - **On a wide iPad** (≥1000px) the run of show splits into two columns, tasks on the left and contestants on the right, with the heading, the big-screen line and the gold action spanning both.
@@ -182,7 +184,7 @@ See: [checkin-phone-list.jpg](screens/checkin-phone-list.jpg), [checkin-phone-co
 - **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
 
-See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-playing.jpg](screens/run-of-show-host-playing.jpg), [scoreboard-host-tasks-contestants.jpg](screens/scoreboard-host-tasks-contestants.jpg) (wide iPad), [scoreboard-host-points.jpg](screens/scoreboard-host-points.jpg), [host-contestant-on-screen.jpg](screens/host-contestant-on-screen.jpg), [host-running-order.jpg](screens/host-running-order.jpg).
+See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-playing.jpg](screens/run-of-show-host-playing.jpg), [scoreboard-host-tasks-contestants.jpg](screens/scoreboard-host-tasks-contestants.jpg) (wide iPad), [scoreboard-host-points.jpg](screens/scoreboard-host-points.jpg), [run-of-show-host-task-songs.jpg](screens/run-of-show-host-task-songs.jpg), [task-song-edit.jpg](screens/task-song-edit.jpg), [host-contestant-on-screen.jpg](screens/host-contestant-on-screen.jpg), [host-running-order.jpg](screens/host-running-order.jpg).
 
 ## 6. Motion
 

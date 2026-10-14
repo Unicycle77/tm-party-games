@@ -160,14 +160,14 @@ export function MainScreen() {
   }
   if (!session) return <main className="center"><p>Loading…</p></main>;
 
-  const { onStage, videoPlaying } = screenState(session);
+  const { onStage, videoPlaying, display } = screenState(session);
   const end = () => { store.set(KEY, ""); setCode(""); };
   return (
     <>
       {raised
         ? <Screen code={code} session={session} footer={<button className="link" onClick={end}>End session</button>} />
         : <StageGate code={code} session={session} onRaised={() => setRaised(true)} onEnd={end} />}
-      <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying} showUi={raised && !onStage} />
+      <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying || display.step === "soundboard"} showUi={raised && !onStage} />
     </>
   );
 }
