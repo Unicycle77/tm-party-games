@@ -63,6 +63,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `checkin-phone-confirm.jpg` | "You're Sam?" with gold "That's me" |
 | `checkin-phone-not-on-list.jpg` | Not on the list: typing a name, "Back to the list" |
 | `checkin-phone-headshot.jpg` | No headshot on file: "Add your headshot" |
+| `player-not-right-party.jpg` | A guest's phone after check-in with the quiet "Not Jeffrey? Not the right party?" at the bottom, and where it lands: the party's list to tap a name, with "Wrong party? Enter a different code" |
 | `headshot-task-host.jpg` | Headshot task on the remote: running order, "no headshot", Show everyone |
 | `headshot-task-host-up.jpg` | A headshot on the big screen: still the one list, Sam pressed in as "on the big screen", Next, Lower the curtain |
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
