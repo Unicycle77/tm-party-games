@@ -7,10 +7,16 @@ import "./sheet.css";
 import { Toggle } from "../../src/Toggle";
 import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
+import { SongStrip } from "../../src/SongStrip";
+import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
 
 const noop = () => {};
+// A task's song strip, idle, playing and unable to play, drawn by the real component from a pretend jukebox.
+const jukebox = (playing: boolean, open = true) => ({
+  jukebox: { tracks: ["Entry of the Gladiators", "Hall of the Mountain King"], durations: [160, 151], open: open || undefined, state: { current: 1, playing } },
+}) as unknown as Session;
 const Sec = ({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) => (
   <section className="sec"><h2>{title}{note && <small>{note}</small>}</h2>{children}</section>
 );
@@ -121,6 +127,12 @@ function Sheet() {
               <li><button disabled><span>Tiebreaker task <span className="muted small">· only if there's a tie</span></span></button><button className="x" aria-label="Fix">✎</button></li>
             </ul>
             <Cap>Shown: dimmed · On the big screen: pressed in · Next: gold outline · Done: the stamp · Not yet available: disabled, its ✎ still works</Cap>
+            <div className="mini-phone" style={{ width: "100%", display: "grid", gap: 8, marginTop: 12 }}>
+              <SongStrip code="HVQB" session={jukebox(false)} song="Entry of the Gladiators" />
+              <SongStrip code="HVQB" session={jukebox(true)} song="Hall of the Mountain King" />
+              <SongStrip code="HVQB" session={jukebox(false, false)} song="Hall of the Mountain King" />
+            </div>
+            <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
           </Sec>
         </div>
 

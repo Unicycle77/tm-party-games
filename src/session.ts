@@ -1,5 +1,5 @@
 import { onAuthStateChanged, signInAnonymously, type User } from "firebase/auth";
-import { get, onValue, push, ref, remove, serverTimestamp, set, update } from "firebase/database";
+import { get, onDisconnect, onValue, push, ref, remove, serverTimestamp, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session } from "./types";
@@ -431,9 +431,15 @@ export const setShowDownload = (code: string, show: boolean) =>
 export const setShowQr = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showQr`), show ? true : null);
 
-/** Main screen: publishes the song titles found in the chosen music folder. */
-export const publishTracks = (code: string, titles: string[]) =>
-  set(ref(db(), `sessions/${code}/jukebox/tracks`), titles);
+/**
+ * Main screen: publishes the song titles found in the chosen music folder, and marks the folder open
+ * until this screen disconnects. The titles stay after that, for picking tasks' songs while the PC is off.
+ */
+export async function publishTracks(code: string, titles: string[]) {
+  const open = ref(db(), `sessions/${code}/jukebox/open`);
+  await update(ref(db(), `sessions/${code}/jukebox`), { tracks: titles, tracksAt: Date.now(), open: titles.length ? true : null });
+  if (titles.length) await onDisconnect(open).remove();
+}
 
 /** Main screen: publishes song lengths in seconds (same order as the titles); null clears them. */
 export const publishDurations = (code: string, seconds: number[] | null) =>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { joinUrlFor } from "./firebase";
 import { PICKER_GAMES, activeGame } from "./games";
 import { noBigScreen, removePlayer, setDisplay, setGame, setShowQr, setUnlocked, showContestant } from "./session";
+import { SongStrip } from "./SongStrip";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -113,6 +114,8 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
       <button className="link" onClick={() => { void setGame(code, null); onRunOfShow(); }}>← Run of show</button>
     </div>
   );
+  const song = gameTask(session)?.song;
+  const gameHead = <>{gameLine}{song && <SongStrip code={code} session={session} song={song} />}</>;
 
   const status = game.status;
   const data = session.games?.[game.id];
@@ -126,7 +129,7 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
     const place = ready.findIndex(([uid]) => uid === display.uid) + 1;
     return (
       <section className="remote">
-        {gameLine}
+        {gameHead}
         <p className="on-screen">
           On the big screen: {current.name}'s {SHOWING[display.step]}{display.step === "video" && display.playing === false && " (paused)"}
         </p>
@@ -142,7 +145,7 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
   if (!status) {
     const head = (
       <>
-        {gameLine}
+        {gameHead}
         <p className="on-screen">On the big screen: {game.onScreen?.(session, display) ?? (display.step === "boxes" ? "the boxes" : display.step === "soundboard" ? "the soundboard" : display.step === "envelopes" ? "the envelopes" : "the curtain")}</p>
       </>
     );
@@ -166,7 +169,7 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
 
   return (
     <section className="remote">
-      {gameLine}
+      {gameHead}
       <p className="on-screen">{line}</p>
       {/* Always rendered, so the gold button never moves: disabled with a reason when there's no one to show. */}
       <button className="big" disabled={!next} onClick={() => next && show(next[0])}>
@@ -204,6 +207,17 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
     </section>
   );
 }
+
+/**
+ * The run-of-show task the game in progress belongs to: the photo task whose photos are on, or else the
+ * list's entry for that game (each game is on the list once).
+ */
+const gameTask = (session: Session) => {
+  const tasks = session.scoreboard?.tasks ?? {};
+  const photos = session.games?.photos?.task;
+  if (session.game === "photos" && photos) return tasks[photos];
+  return Object.values(tasks).find((t) => t.game === session.game);
+};
 
 /** The name the host gave the scoreboard task whose photos are on, if any. */
 const taskName = (session: Session) => {

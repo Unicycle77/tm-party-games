@@ -4,16 +4,16 @@ import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 /** m:ss (or h:mm:ss); blank when unknown. */
-function fmt(seconds: number | undefined): string {
+export function fmt(seconds: number | undefined): string {
   if (!seconds || seconds < 0) return "";
   const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
   const ss = String(s).padStart(2, "0");
   return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
 }
 
-const asNums = (v: unknown): number[] => (Array.isArray(v) ? (v as number[]) : Object.values((v ?? {}) as Record<string, number>));
+export const asNums = (v: unknown): number[] => (Array.isArray(v) ? (v as number[]) : Object.values((v ?? {}) as Record<string, number>));
 
-const asList = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : Object.values((v ?? {}) as Record<string, string>));
+export const asList = (v: unknown): string[] => (Array.isArray(v) ? (v as string[]) : Object.values((v ?? {}) as Record<string, string>));
 
 /** The host's phone: pick songs and control the main-screen jukebox. */
 export function JukeboxRemote({ code, session }: { code: string; session: Session }) {
@@ -69,7 +69,7 @@ export function JukeboxRemote({ code, session }: { code: string; session: Sessio
           </li>
         ))}
       </ul>
-      <p className="muted small">Plays the song you pick once, or on repeat. It never moves on by itself, and it pauses while a video plays.</p>
+      <p className="muted small">Plays the song you pick once, or on repeat. It never moves on by itself, and it pauses while a video plays or the Noisemaster board is up.</p>
     </section>
   );
 }

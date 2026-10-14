@@ -1069,16 +1069,39 @@ button.help-q:active { transform: none; box-shadow: none; }
 .scoreboard-remote section { display: grid; gap: 0.5rem; }
 .sb-note { white-space: pre-wrap; }
 .sb-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
-.sb-rows li { display: grid; grid-template-columns: minmax(5rem, 9rem) 1fr auto; align-items: center; gap: 0.6rem; }
-.sb-name { font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
+/* names are short, so a narrow name column keeps each contestant on one line, with "now N" under the name */
+.sb-rows li { display: grid; grid-template-columns: 4.5rem 1fr; align-items: center; gap: 0.6rem; }
+.sb-name { display: grid; line-height: 1.2; font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
 .sb-chips { flex-wrap: nowrap; }
 .sb-chips button, .sb-chips .sb-other { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
 .sb-chips .sb-other { width: 3.4rem; flex: none; padding: 0.4rem; }
-.sb-now { white-space: nowrap; min-width: 4.2rem; text-align: right; }
+.sb-now { white-space: nowrap; font-family: var(--typewriter); }
 .sb-next { justify-self: end; }
 .sb-task-list, .sb-contestant-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
 .sb-task-list li, .sb-contestant-list li { display: flex; gap: 0.5rem; align-items: stretch; }
 .sb-task-list li.dragging { opacity: 0.7; }
+/* a task's song: a slim strip under its row, in line with the task card (see SongStrip.tsx) */
+.sb-task-list li.has-song { display: grid; grid-template-columns: auto 1fr auto auto; }
+.sb-task-list li.has-song > .sb-task { grid-column: 2; }
+.sb-task-list li.has-song.live > .sb-task { grid-column: 2 / 4; }
+.sb-task-list li.has-song > .x { grid-column: 4; }
+.sb-task-list li.has-song > .sb-song { grid-column: 2 / -1; }
+.sb-task-list li.has-song.tiebreaker { grid-template-columns: 1fr auto; }
+.sb-task-list li.has-song.tiebreaker > .sb-task { grid-column: 1; }
+.sb-task-list li.has-song.tiebreaker > .x { grid-column: 2; }
+.sb-task-list li.has-song.tiebreaker > .sb-song { grid-column: 1 / -1; }
+.sb-song { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; width: 100%; text-align: left; padding: 0.45rem 0.8rem; font-size: 0.95rem; }
+.sb-song .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-song .dur { flex: none; font-variant-numeric: tabular-nums; opacity: 0.75; }
+.sb-song:disabled { opacity: 0.55; }
+.sb-song-field { display: grid; gap: 0.3rem; }
+.sb-song-field .label { color: var(--muted); }
+.sb-song-pick { display: flex; gap: 0.5rem; }
+.sb-song-field .pick { flex: 1; display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; min-width: 0; text-align: left; padding: 0.7rem; }
+.sb-song-field .pick .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-song-field .pick .dur { flex: none; opacity: 0.75; }
+.sb-song-field .tracklist { max-height: 15rem; }
+.sb-song-field p { margin: 0; }
 .sb-task-list li > .sb-add { flex: 1; }
 .sb-handle { flex: none; padding: 0 0.7rem; font-size: 1.3rem; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
 .sb-task { flex: 1; display: grid; gap: 0.15rem; text-align: left; min-width: 0; }
@@ -1109,8 +1132,7 @@ button.help-q:active { transform: none; box-shadow: none; }
   .scoreboard-remote > h2, .scoreboard-remote > .sb-now-playing, .scoreboard-remote > .on-screen, .scoreboard-remote > button, .scoreboard-remote > p { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
-  .sb-rows li { grid-template-columns: 1fr auto; row-gap: 0.3rem; }
-  .sb-rows .sb-chips { grid-column: 1 / -1; grid-row: 2; }
+  .sb-chips { gap: 0.3rem; }
   .sb-chips button { min-width: 0; }
 }
 .recent-name { font-family: var(--typewriter); }
