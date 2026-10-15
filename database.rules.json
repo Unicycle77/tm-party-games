@@ -243,6 +243,14 @@
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"
         },
+        "conversion": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['lead', 'main', 'how'])",
+          "lead": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "main": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "how": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "$other": { ".validate": false }
+        },
         "showQr": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"
@@ -305,6 +313,14 @@
               "game": { ".validate": "newData.isString()" },
               "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
               "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "unit": {
+                ".validate": "newData.hasChildren(['name', 'amount', 'unit', 'kind'])",
+                "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30" },
+                "amount": { ".validate": "newData.isNumber() && newData.val() > 0" },
+                "unit": { ".validate": "newData.val() === 'mm' || newData.val() === 'cm' || newData.val() === 'm' || newData.val() === 'in' || newData.val() === 'ft' || newData.val() === 'g' || newData.val() === 'kg' || newData.val() === 'oz' || newData.val() === 'lb' || newData.val() === 'sec' || newData.val() === 'min' || newData.val() === 'hr'" },
+                "kind": { ".validate": "newData.val() === 'height' || newData.val() === 'length' || newData.val() === 'weight' || newData.val() === 'time'" },
+                "$other": { ".validate": false }
+              },
               "scores": { "$cid": { ".validate": "newData.isNumber()" } },
               "$other": { ".validate": false }
             }

@@ -10,17 +10,18 @@ import {
 } from "./data";
 import { currentTotals, pendingTasks } from "./scoring";
 import { SongField, SongStrip } from "../SongStrip";
+import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 
-const sorted = <T extends { order: number }>(items: Record<string, T> | undefined) =>
+export const sorted = <T extends { order: number }>(items: Record<string, T> | undefined) =>
   Object.entries(items ?? {}).sort(([, a], [, b]) => a.order - b.order);
 
 /** A live task goes by its name; an app game by the game's, plus the host's name for it when there are several. */
-const titleOf = (t: ScoreboardTask) => {
+export const titleOf = (t: ScoreboardTask) => {
   if (!t.game) return t.name || "Untitled task";
   const game = GAMES[t.game]?.name ?? t.game;
   return t.name ? `${game}: ${t.name}` : game;
 };
-const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
+export const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 /** "Priya and Sam", "Priya, Sam and Mei". */
 const list = (names: string[]) => names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] ?? "";
@@ -394,7 +395,8 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   const [name, setName] = useState(task.name ?? "");
   const [description, setDescription] = useState(task.description ?? "");
   const [song, setSong] = useState(task.song ?? "");
-  const save = () => { void editTask(code, id, name, description, song); onClose(); };
+  const [unit, setUnit] = useState(() => draftOf(task.unit));
+  const save = () => { void editTask(code, id, name, description, song, unitOf(unit)); onClose(); };
   const drop = () => {
     if (scored(task) && !confirm(`Remove "${titleOf(task)}" and its points?`)) return;
     void removeTask(code, id);
@@ -415,6 +417,7 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
         <textarea rows={2} value={description} maxLength={600} onChange={(e) => setDescription(e.target.value)} />
       </label>
       <SongField session={session} song={song} onChange={setSong} />
+      <UnitField draft={unit} onChange={setUnit} />
       <div className="row">
         <button disabled={!task.game && !name.trim()} onClick={save}>Save</button>
         <button className="link" onClick={onClose}>Cancel</button>

@@ -9,6 +9,7 @@ import { activeGame } from "./games";
 import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
+import { ConversionStage } from "./conversions/ConversionStage";
 import { removeHostPin, resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
@@ -44,6 +45,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     preloadImages(photoUrls.split("\n"));
   }, [photoUrls]);
 
+  // A useless conversion covers whatever is on, until the host takes it down.
+  if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // The scoreboard belongs to no game, so it can go up whatever is on.
   if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
   // So is the winner's prize haul, at the end of the party.

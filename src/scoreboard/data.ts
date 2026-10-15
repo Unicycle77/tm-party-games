@@ -2,7 +2,7 @@ import { push, ref, remove, set, update } from "firebase/database";
 import { db, storage } from "../firebase";
 import { shrinkImage } from "../media";
 import { setDisplay } from "../session";
-import type { GameId, Scoreboard, ScoreboardTask } from "../types";
+import type { GameId, Scoreboard, ScoreboardTask, TaskUnit } from "../types";
 import { currentPoints } from "./scoring";
 
 /** The party's scoreboard lives at sessions/{code}/scoreboard. Only the host and the host remote write it. */
@@ -59,8 +59,8 @@ export async function addTask(code: string, board: Scoreboard | undefined, task:
 }
 
 /** Changes a task's name, note and song in place. An empty note or song removes it. */
-export const editTask = (code: string, id: string, name: string, description: string, song: string) =>
-  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null });
+export const editTask = (code: string, id: string, name: string, description: string, song: string, unit: TaskUnit | null) =>
+  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null, unit });
 
 /** Takes a task off the list, with its points. The big screen keeps showing them until the next update. */
 export const removeTask = (code: string, id: string) => remove(at(code, `tasks/${id}`));

@@ -34,7 +34,7 @@ const tokens: [string, string, string][] = [
   ["--tm-red", "#c8102e", "Noisemaster"], ["--key", "#1e1d1c", "soundboard keys"],
 ];
 const icons: [string, string][] = [
-  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["🎁", "Prizes"],
+  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["🎲", "Dice preset"], ["🎁", "Prizes"],
   ["☰", "Hidden menu"], ["📺", "Screen"], ["📷", "Scan a QR"], ["◫", "Side by side"], ["▶ ⏸ ↺", "Play, pause, restart"],
   ["←", "Back"], ["→", "Next thing"], ["✕ ×", "Close, remove"], ["✎", "Fix in place"], ["+", "Add"], ["≡", "Drag to reorder"],
   ["★ ☆", "Chosen photo"], ["✓", "Done"], ["🔒 🔓", "Locked, may resubmit"], ["🔇", "Sound blocked"], ["👁", "Show the pin"],
@@ -113,6 +113,7 @@ function Sheet() {
                 <button className="head-icon lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
+                <button className="head-icon" aria-label="Useless conversions">📏</button>
               </header>
             </div>
             <p className="on-screen">On the big screen: the scoreboard</p>
@@ -143,6 +144,7 @@ function Sheet() {
               <Item cap={<><code>.tile</code>: an index card, slightly askew</>}><ul className="tiles" style={{ gridTemplateColumns: "1fr", paddingTop: 0 }}><li><button className="tile static"><span className="name">Priya</span><span className="stamp">✓ You're in</span></button></li></ul></Item>
               <Item cap={<><code>.slot</code>: the phone's paper panel</>}><div className="slot"><h2>🎁 Your prize</h2><p className="slot-hint">Add photos of what you brought.</p><button className="big" style={{ fontSize: "1rem", padding: ".7rem" }}>Add photos</button></div></Item>
             </div>
+            <Item cap={<><code>.slot.conversion</code>: a result to read aloud (<code>.conversion-card</code> on the big screen)</>}><div className="slot conversion"><p className="lead">39 dice tall is</p><p className="main">65 LEGO bricks</p><p className="lead">a 2×4 brick, without its studs</p><p className="small">39 dice = 62.4 cm · a LEGO brick is 9.6 mm</p></div></Item>
             <Item cap={<><code>.stamp</code>: the one look for "done", with ✓ and words</>}><div style={{ display: "flex", gap: 16 }}><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ Submitted</span><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ You're in</span></div></Item>
           </Sec>
           <Sec title="Aged paper" note="a task's words, never UI">
