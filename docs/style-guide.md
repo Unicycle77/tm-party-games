@@ -88,6 +88,7 @@ See: [host-pin-connect.jpg](screens/host-pin-connect.jpg) (pin), [player-join-co
 ### Cards and panels
 - **Player tile** (`.tile`): an index card, 3px radius, **slightly rotated** (`-1deg`, `1.2deg`, `-0.4deg` by position). On hover it straightens, grows 4% and gets a gold ring.
 - **Slot** (`.slot`): the phone's paper panel. The heading is `--burgundy`, the hints are `#6b5a44`.
+- **Read-aloud card** (`.slot.conversion`, and `.conversion-card` on the big screen): the three lines of a useless conversion on plain paper: the lead and the "what was measured" line in typewriter ink, the result between them in large `--burgundy` typewriter. On the big screen it hangs on the curtain like a photo (§6). See: [converter-host-result.jpg](screens/converter-host-result.jpg), [converter-main-whole.jpg](screens/converter-main-whole.jpg).
 - **Floating label** (`.stage-label`, `.review-name`, `.review-loading`, `.sound-hint`): a paper strip over the stage, typewriter font, centred, with a drop shadow.
 
 ### Row states
@@ -170,7 +171,7 @@ See: [checkin-phone-list.jpg](screens/checkin-phone-list.jpg), [checkin-phone-co
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
-- **Header** (`HostPage.tsx`): `🎮 Host · Party name · CODE`, then four icon buttons, in this order: 🏆 the run of show (glows while the scoreboard is on the big screen), 🎵 the jukebox (shows ▶ and glows while a song plays), ✉ Secret Tasks, 💡 the light (glows while it's on). The open one has a `--gold-bright` outline. Idle icons are faded and greyed (`.head-icon`); `.lit` is the gold glow, meaning "running"; `.alert` is a small burgundy dot, meaning "needs the host". Never use the glow for "needs you". 🎵 ✉ 💡 open in place of the show with "← Back to the game" (or "← Back to the run of show"). A new all-evening feature gets a header icon, not another section on a page.
+- **Header** (`HostPage.tsx`): `🎮 Host · Party name · CODE`, then five icon buttons, in this order: 🏆 the run of show (glows while the scoreboard is on the big screen), 🎵 the jukebox (shows ▶ and glows while a song plays), ✉ Secret Tasks, 💡 the light (glows while it's on), 📏 Useless conversions (glows while a conversion is on the big screen). The open one has a `--gold-bright` outline. Idle icons are faded and greyed (`.head-icon`); `.lit` is the gold glow, meaning "running"; `.alert` is a small burgundy dot, meaning "needs the host". Never use the glow for "needs you". 🎵 ✉ 💡 📏 open in place of the show with "← Back to the game" (or "← Back to the run of show"). A new all-evening feature gets a header icon, not another section on a page.
 - **Home is the run of show** (🏆, `ScoreboardRemote.tsx`). Every party opens on it. Top to bottom:
   1. `Run of show` heading, and while a game is on, "Now playing: Photos: best costume" with a paper "Open →".
   2. One `.on-screen` line saying what the big screen shows ("On the big screen: the scoreboard", "…: not connected yet"), with at most one `.muted.small` line under it.
@@ -225,6 +226,8 @@ See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-pla
 | 🔒 🔓 | Locked / may resubmit |
 | 🔇 | Sound blocked |
 | 💡 | The light (`/light`), its Hue lamp and its host-remote tab |
+| 📏 | Useless conversions: the host's tool, and a task's "Measured in" |
+| 🎲 | The dice preset for a task's unit |
 | 👁 | Show a hidden pin (inside the field, pressed in while shown) |
 | 🔑 | The host pin, in the big screen's hidden menu |
 | … | In progress (`Joining…`, `sending…`) |

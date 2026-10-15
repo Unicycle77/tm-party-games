@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
-Style sheet (taken on 2026-10-14, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+Style sheet (taken on 2026-10-15, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
@@ -27,6 +27,8 @@ Main screen (`/`, 1600×900):
 |---|---|
 | `main-welcome.jpg` | The welcome: join QR, code, contestants |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
+| `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
+| `converter-main-fraction.jpg` | The same with a fraction: "exactly 1/300 the height of Big Ben" |
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
 | `main-curtain-join-qr.jpg` | The curtain while the host remote's "Show QR code" is open: the join QR in the bottom-right corner, above the address (taken 2026-10-13, stand-in portrait) |
 
@@ -74,6 +76,13 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-task-songs-folder-closed.jpg` | The same with the main screen's music folder not open: every strip disabled, "music folder not open" |
 | `task-song-edit.jpg` | ✎ on a task: "Song (optional)" with the jukebox's song list open, the chosen song gold, "as it was on Oct 12" |
 | `task-song-edit-missing.jpg` | ✎ on a task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." |
+| `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time and the common units, dimmed while a task's unit is in use |
+| `converter-host-result.jpg` | After "Surprise me": three lines to read aloud, the working in small print, "Use a different unit ▾", "Show on the big screen" |
+| `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |
+| `converter-host-common.jpg` | Measuring in a common unit: Weight, kg, 70 |
+| `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |
+| `task-unit-edit.jpg` | ✎ on a task: "📏 Measured in" filled in as dice, one is 16 mm, "Stacked up (height)", the line repeating it back |
+| `task-unit-empty.jpg` | ✎ on a task with no unit: the name field and "🎲 Dice (16 mm)" |
 | `host-game-task-song.jpg` | A game's page on the remote (Photos: best costume) with its task's song strip under the heading |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |

@@ -2,7 +2,7 @@ import { onAuthStateChanged, signInAnonymously, type User } from "firebase/auth"
 import { get, onDisconnect, onValue, push, ref, remove, serverTimestamp, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
-import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session } from "./types";
+import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session, type ShownConversion } from "./types";
 
 let signIn: Promise<User> | undefined;
 
@@ -426,6 +426,10 @@ export const renameParty = (code: string, name: string) =>
 
 export const setShowDownload = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showDownload`), show);
+
+/** Host remote: puts a useless conversion on the big screen over whatever's there, or (null) takes it down. */
+export const showConversion = (code: string, conversion: ShownConversion | null) =>
+  set(ref(db(), `sessions/${code}/conversion`), conversion);
 
 /** Host remote: opens or closes the join QR, on the host's phone and above the big screen's corner code. */
 export const setShowQr = (code: string, show: boolean) =>

@@ -227,6 +227,25 @@ export interface ScoreboardTask {
   song?: string;
   /** Points by contestant id. A contestant with none gets nothing for this task. */
   scores?: Record<string, number>;
+  /** What the task is measured in, like "dice": the 📏 converter offers it for this task. */
+  unit?: TaskUnit;
+}
+
+/** A unit a task measures in, like "dice" at 16 mm. `kind` is what it measures, and so which useless units it's compared with. */
+export interface TaskUnit {
+  name: string;
+  /** How big one is, in `unit`. */
+  amount: number;
+  /** One of the converter's common units (mm, cm, m, in, ft, g, kg, oz, lb, sec, min, hr). */
+  unit: string;
+  kind: "height" | "length" | "weight" | "time";
+}
+
+/** A useless conversion on the big screen: the three lines the host reads out. */
+export interface ShownConversion {
+  lead: string;
+  main: string;
+  how: string;
 }
 
 /**
@@ -294,6 +313,8 @@ export interface Session {
   showDownload?: boolean;
   /** The host remote's "Show QR code" is open: the big screen puts the join QR above its corner code too. */
   showQr?: boolean;
+  /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down. */
+  conversion?: ShownConversion;
   jukebox?: Jukebox;
   scoreboard?: Scoreboard;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */

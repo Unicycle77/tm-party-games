@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { HostRemote, JoinQr } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
+import { ConverterRemote } from "./conversions/ConverterRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
 import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
@@ -16,7 +17,7 @@ import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "scoreboard" | "music" | "light" | "tasks";
+type View = "show" | "scoreboard" | "music" | "light" | "tasks" | "convert";
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
@@ -28,7 +29,7 @@ export function HostPage() {
   const [view, setViewState] = useState<View>(() => {
     const saved = store.get(VIEW_KEY);
     // Home is the run of show (🏆); a game in progress is the "show" view.
-    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" ? saved : "scoreboard";
+    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" || saved === "convert" ? saved : "scoreboard";
   });
   const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
 
@@ -59,7 +60,7 @@ export function HostPage() {
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
   const scoresUp = session.display?.step === "scoreboard";
-  // Closing the music, envelopes or light goes back to the game in progress, or else the run of show.
+  // Closing the music, envelopes, light or converter goes back to the game in progress, or else the run of show.
   const home: View = session.game ? "show" : "scoreboard";
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
     <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
@@ -75,6 +76,7 @@ export function HostPage() {
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
+        {icon("convert", session.conversion ? "Useless conversions (on the big screen)" : "Useless conversions", "📏", !!session.conversion)}
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
@@ -93,7 +95,10 @@ export function HostPage() {
       ) : (
         <>
           <button className="link back" onClick={() => setView(home)}>← Back to {session.game ? "the game" : "the run of show"}</button>
-          {view === "music" ? <JukeboxRemote code={code} session={session} /> : view === "tasks" ? <TaskPile code={code} session={session} /> : <LightRemote code={code} session={session} />}
+          {view === "music" ? <JukeboxRemote code={code} session={session} />
+            : view === "tasks" ? <TaskPile code={code} session={session} />
+            : view === "convert" ? <ConverterRemote code={code} session={session} />
+            : <LightRemote code={code} session={session} />}
         </>
       )}
     </main>
