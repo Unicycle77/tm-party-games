@@ -8,7 +8,7 @@ import {
   addContestant, addKeptGame, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
   declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot, type TaskEntry,
 } from "./data";
-import { isMeasured, ordinal, parseClock, workOut } from "./measured";
+import { isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
 import { formatTime } from "../games/noisemaster/data";
 import { currentTotals, pendingTasks } from "./scoring";
 import { SongField, SongStrip } from "../SongStrip";
@@ -183,6 +183,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
   const worked = workOut(task);
   const measured = isMeasured(task);
   const timed = task.game === "noisemaster";
+  const loud = task.unit?.kind === "loudness";
   // The light's order comes from 💡, where it's marked: here it's only shown.
   const light = task.game === "light";
   const enter = (entry: TaskEntry) => void enterPoints(code, board, onScreen, id, entry);
@@ -193,7 +194,8 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
   const status = light
     ? `Fastest wins · order from the light · ${contestants.filter(([c]) => task.results?.[c] !== undefined).length} of ${contestants.length} got it`
     : measured
-    ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"} · ${
+    ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
+      loud && task.dqOver !== undefined ? ` · over ${task.dqOver} dB is a DQ` : ""} · ${
       contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
     : `${contestants.filter(([c]) => task.scores?.[c] !== undefined).length} of ${contestants.length} scored`;
 
@@ -216,6 +218,8 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
         {contestants.map(([c, con]) => measured
           ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
+              lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
+              line={loud ? (reading) => overLine(task, c, reading) : undefined}
               result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]}
               points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />
           : <PointsRow key={c} name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
@@ -310,20 +314,24 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
 /**
  * One contestant on a measured task: DQ by the name, their number (a time, for Noisemaster), and their points
  * with the place under them. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
+ * On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the line they went over, and
+ * `lo` offers LO, under the box while it's being typed in.
  */
-function MeasuredRow({ name, total, timed, light, unit, result, restarts, dq, given, points, auto, place, before, onEnter }: {
-  name: string; total: number; timed: boolean; light: boolean; unit?: string; result?: number; restarts?: number; dq: boolean; given?: number;
-  points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
+function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, points, auto, place, before, onEnter }: {
+  name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
+  result?: number; restarts?: number; dq: boolean; given?: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
 }) {
-  const format = (n: number) => timed ? formatTime(n) : String(n);
+  const format = (n: number) => timed ? formatTime(n) : n === LO ? "LO" : String(n);
   const [typing, setTyping] = useState<string>();
+  const [focused, setFocused] = useState(false);
   const [open, setOpen] = useState(false);
   const [other, setOther] = useState<string>();
+  const enterResult = (n: number | undefined) => onEnter((c) => ({ results: one(c, n ?? null), ...line?.(n) }));
   const type = (text: string) => {
     setTyping(text);
     const n = timed ? parseClock(text) : parseFloat(text.replace(",", "."));
-    if (text.trim() === "") onEnter((c) => ({ results: one(c, null) }));
-    else if (n !== undefined && Number.isFinite(n)) onEnter((c) => ({ results: one(c, n) }));
+    if (text.trim() === "") enterResult(undefined);
+    else if (n !== undefined && Number.isFinite(n)) enterResult(n);
   };
   const give = (n: number | null) => { onEnter((c) => ({ given: one(c, n) })); setOther(undefined); };
   const saveOther = () => {
@@ -339,22 +347,31 @@ function MeasuredRow({ name, total, timed, light, unit, result, restarts, dq, gi
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
         <div className="choices marks sb-dq">
-          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true) })); }}>DQ</button>
+          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
         </div>
         {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result === undefined ? "not yet" : `got it ${ordinal(result)}`}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
             placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
-            onChange={(e) => type(e.target.value)} onBlur={() => setTyping(undefined)} />
+            onChange={(e) => type(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => { setTyping(undefined); setFocused(false); }} />
         )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
         {points !== undefined
           ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
               disabled={dq} onClick={() => setOpen(!open)}>
               <b>{points}{overridden && <span className="sb-hand">✎</span>}{before !== undefined && <span className="sb-before">{before}</span>}</b>
-              <span className="small">{dq ? "DQ" : place !== undefined ? ordinal(place) : ""}</span>
+              <span className="small">{dq ? (over !== undefined ? `over ${over}` : "DQ") : place !== undefined ? ordinal(place) : ""}</span>
             </button>
           : <span />}
       </div>
+      {lo && focused && (
+        <div className="sb-override sb-lo">
+          {/* On pointer down, so the box doesn't lose focus (and this go away) before the tap lands. */}
+          <div className="choices marks sb-chips">
+            <button aria-label={`LO for ${name}`} onPointerDown={(e) => { e.preventDefault(); setTyping(undefined); enterResult(LO); }}>LO</button>
+          </div>
+          <span className="muted small">The meter shows LO: quieter than it can read. Everyone on LO ties.</span>
+        </div>
+      )}
       {open && !dq && (
         <div className="sb-override">
           <div className="choices marks sb-chips">
@@ -522,12 +539,28 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   const [song, setSong] = useState(task.song ?? "");
   const [unit, setUnit] = useState(() => draftOf(task.unit));
   const [scoring, setScoringDraft] = useState(task.scoring);
+  const [dqOver, setDqOver] = useState(task.dqOver === undefined ? "" : String(task.dqOver));
   const save = () => {
     const rescored = !task.game && scoring !== task.scoring;
     // By-hand points with no numbers to work from would be lost.
     const lost = rescored && scoring && !isMeasured(task) && Object.keys(task.given ?? task.scores ?? {}).some((c) => !task.dq?.[c] && task.results?.[c] === undefined);
     if (lost && !confirm(`Score "${titleOf(task)}" by its numbers? Points given by hand to anyone without a number are cleared.`)) return;
-    void editTask(code, id, name, description, song, unitOf(unit));
+    const saved = unitOf(unit);
+    const line = Number(dqOver.replace(",", "."));
+    const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
+    void editTask(code, id, name, description, song, saved, over ?? null).then(() => {
+      // A new line, or none, applies to the readings already in.
+      if (over === task.dqOver) return;
+      const now = { ...task, dqOver: over };
+      const entry: TaskEntry = { dq: {}, overDq: {} };
+      for (const c of new Set([...Object.keys(task.results ?? {}), ...Object.keys(task.overDq ?? {})])) {
+        const e = overLine(now, c, task.results?.[c]);
+        Object.assign(entry.dq!, e.dq);
+        Object.assign(entry.overDq!, e.overDq);
+      }
+      const board = session.scoreboard && { ...session.scoreboard, tasks: { ...session.scoreboard.tasks, [id]: now } };
+      if (Object.keys(entry.dq!).length) void enterPoints(code, board, session.display?.step === "scoreboard", id, entry);
+    });
     if (rescored) void setScoring(code, session.scoreboard, session.display?.step === "scoreboard", id, scoring);
     onClose();
   };
@@ -553,6 +586,18 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
       {!task.game && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
       <SongField session={session} song={song} onChange={setSong} />
       {task.game !== "light" && <UnitField draft={unit} onChange={setUnit} />}
+      {unit.kind === "loudness" && (
+        <div className="unit-field">
+          <span>🔇 DQ if louder than (optional)</span>
+          <div className="unit-size after">
+            <input inputMode="decimal" value={dqOver} placeholder="60" aria-label="DQ if louder than, in dB" onChange={(e) => setDqOver(e.target.value)} />
+            <span className="muted">dB</span>
+          </div>
+          <p className="muted small">
+            {dqOver.trim() ? `A reading over ${dqOver.trim()} dB is a DQ as soon as you type it. Exactly ${dqOver.trim()} is safe.` : "Leave it empty for no limit."} Tap DQ on the points page to undo one.
+          </p>
+        </div>
+      )}
       <div className="row">
         <button disabled={!task.game && !name.trim()} onClick={save}>Save</button>
         <button className="link" onClick={onClose}>Cancel</button>

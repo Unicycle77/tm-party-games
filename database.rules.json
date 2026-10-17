@@ -330,8 +330,8 @@
                 ".validate": "newData.hasChildren(['name', 'amount', 'unit', 'kind'])",
                 "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30" },
                 "amount": { ".validate": "newData.isNumber() && newData.val() > 0" },
-                "unit": { ".validate": "newData.val() === 'mm' || newData.val() === 'cm' || newData.val() === 'm' || newData.val() === 'in' || newData.val() === 'ft' || newData.val() === 'g' || newData.val() === 'kg' || newData.val() === 'oz' || newData.val() === 'lb' || newData.val() === 'sec' || newData.val() === 'min' || newData.val() === 'hr' || newData.val() === 'ml' || newData.val() === 'L' || newData.val() === 'tsp' || newData.val() === 'tbsp' || newData.val() === 'fl oz' || newData.val() === 'cup' || newData.val() === 'pt' || newData.val() === 'qt' || newData.val() === 'gal'" },
-                "kind": { ".validate": "newData.val() === 'height' || newData.val() === 'length' || newData.val() === 'weight' || newData.val() === 'time' || newData.val() === 'volume'" },
+                "unit": { ".validate": "newData.val() === 'mm' || newData.val() === 'cm' || newData.val() === 'm' || newData.val() === 'in' || newData.val() === 'ft' || newData.val() === 'g' || newData.val() === 'kg' || newData.val() === 'oz' || newData.val() === 'lb' || newData.val() === 'sec' || newData.val() === 'min' || newData.val() === 'hr' || newData.val() === 'ml' || newData.val() === 'L' || newData.val() === 'tsp' || newData.val() === 'tbsp' || newData.val() === 'fl oz' || newData.val() === 'cup' || newData.val() === 'pt' || newData.val() === 'qt' || newData.val() === 'gal' || newData.val() === 'dB'" },
+                "kind": { ".validate": "newData.val() === 'height' || newData.val() === 'length' || newData.val() === 'weight' || newData.val() === 'time' || newData.val() === 'volume' || newData.val() === 'loudness'" },
                 "$other": { ".validate": false }
               },
               "scores": { "$cid": { ".validate": "newData.isNumber()" } },
@@ -340,6 +340,8 @@
               "given": { "$cid": { ".validate": "newData.isNumber()" } },
               "dq": { "$cid": { ".validate": "newData.val() === true" } },
               "dqStays": { ".validate": "newData.val() === true" },
+              "dqOver": { ".validate": "newData.isNumber()" },
+              "overDq": { "$cid": { ".validate": "newData.val() === true" } },
               "restarts": { "$cid": { ".validate": "newData.isNumber()" } },
               "$other": { ".validate": false }
             }
