@@ -302,7 +302,7 @@ function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
           <button key={n} className={cls(n)} aria-pressed={shown === n} aria-label={`${n} for ${name}`} onClick={() => set(shown === n ? null : n)}>{n}</button>
         ))}
         {odd !== undefined && (
-          <button className={dq ? "was" : undefined} aria-pressed={!dq} aria-label={`${odd} for ${name}. Take it away`} onClick={() => set(null)}>{odd}</button>
+          <button className={dq ? "was" : undefined} aria-pressed={!dq} aria-label={dq ? `${odd} for ${name}` : `${odd} for ${name}. Take it away`} onClick={() => set(dq ? odd : null)}>{odd}</button>
         )}
       </div>
       <BonusChip name={name} bonus={bonus} onEnter={onEnter} />
