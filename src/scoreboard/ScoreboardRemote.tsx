@@ -3,9 +3,9 @@ import { GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
 import { prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen, removePlayer, setGame, useUid } from "../session";
-import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
+import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
 import {
-  addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
+  addContestant, addKeptGame, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
   declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot, type TaskEntry,
 } from "./data";
 import { isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
@@ -17,10 +17,14 @@ import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 export const sorted = <T extends { order: number }>(items: Record<string, T> | undefined) =>
   Object.entries(items ?? {}).sort(([, a], [, b]) => a.order - b.order);
 
+/** An app game's name on the task list. */
+const LIGHT = "💡 The light";
+const gameName = (g: TaskGame) => g === "light" ? LIGHT : GAMES[g]?.name ?? g;
+
 /** A live task goes by its name; an app game by the game's, plus the host's name for it when there are several. */
 export const titleOf = (t: ScoreboardTask) => {
   if (!t.game) return t.name || "Untitled task";
-  const game = GAMES[t.game]?.name ?? t.game;
+  const game = gameName(t.game);
   return t.name ? `${game}: ${t.name}` : game;
 };
 export const scored = (t: ScoreboardTask) => Object.keys(t.scores ?? {}).length > 0;
@@ -34,8 +38,10 @@ const list = (names: string[]) => names.length > 1 ? `${names.slice(0, -1).join(
  * on that task until the host moves on. The big screen only moves when the host shows or updates the
  * scoreboard, or starts a game. Games not on the list are behind a quiet link at the bottom.
  */
-export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdHoc }: {
+export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdHoc, onLight }: {
   code: string; session: Session; onStartGame: () => void; onOpenGame: () => void; onAdHoc: () => void;
+  /** Opens 💡 the light, where its order is marked. */
+  onLight: () => void;
 }) {
   const board = session.scoreboard;
   const tasks = sorted(board?.tasks);
@@ -70,7 +76,7 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
       {tiebreak ? <Tiebreaker code={code} session={session} board={board} tied={tiebreak} onClose={() => setTiebreak(undefined)} />
       : picked && board?.tasks?.[picked] && contestants.length > 0
         ? <Points code={code} session={session} board={board} onScreen={session.display?.step === "scoreboard"} id={picked} tasks={tasks} contestants={contestants}
-            onChange={() => setPicked(undefined)} onNext={open} />
+            onChange={() => setPicked(undefined)} onNext={open} onLight={onLight} />
         : (
           <>
             {upNext && contestants.length > 0 && (
@@ -166,9 +172,9 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
  * Giving points for one task. By hand: a row of chips per contestant. Measured: a box for each contestant's
  * number, and the points by place. Every tap saves; nothing goes on the big screen.
  */
-function Points({ code, session, board, onScreen, id, tasks, contestants, onChange, onNext }: {
+function Points({ code, session, board, onScreen, id, tasks, contestants, onChange, onNext, onLight }: {
   code: string; session: Session; board: Scoreboard | undefined; onScreen: boolean; id: string; tasks: [string, ScoreboardTask][];
-  contestants: [string, { name: string }][]; onChange: () => void; onNext: (id: string) => void;
+  contestants: [string, { name: string }][]; onChange: () => void; onNext: (id: string) => void; onLight: () => void;
 }) {
   const task = board!.tasks![id]!;
   const place = tasks.findIndex(([t]) => t === id);
@@ -178,12 +184,16 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
   const measured = isMeasured(task);
   const timed = task.game === "noisemaster";
   const loud = task.unit?.kind === "loudness";
+  // The light's order comes from 💡, where it's marked: here it's only shown.
+  const light = task.game === "light";
   const enter = (entry: TaskEntry) => void enterPoints(code, board, onScreen, id, entry);
   const nameOf = (c: string) => board?.contestants?.[c]?.name ?? "";
   // The DQs that change anyone else's points: those with points or a number of their own.
   const outs = contestants.map(([c]) => c).filter((c) => task.dq?.[c] && (measured ? task.results?.[c] : (task.given ?? task.scores)?.[c]) !== undefined);
   const before = Object.keys(worked.before).length > 0;
-  const status = measured
+  const status = light
+    ? `Fastest wins · order from the light · ${contestants.filter(([c]) => task.results?.[c] !== undefined).length} of ${contestants.length} got it`
+    : measured
     ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
       loud && task.dqOver !== undefined ? ` · over ${task.dqOver} dB is a DQ` : ""} · ${
       contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
@@ -207,7 +217,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       )}
       <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
         {contestants.map(([c, con]) => measured
-          ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} unit={task.unit?.name}
+          ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
               result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]}
@@ -216,6 +226,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
               dq={!!task.dq?.[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
       </ul>
       {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
+      {light && <p className="muted small">Change the order on <button className="link" onClick={onLight}>{LIGHT}</button>.</p>}
       {following && <button className="link sb-next" onClick={() => { onNext(following); window.scrollTo(0, 0); }}>Next task →</button>}
     </section>
   );
@@ -260,7 +271,7 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
 const CHIPS = [1, 2, 3, 4, 5];
 
 /**
- * One contestant on a by-hand task: DQ, 1 to 5, and "…" for any other number (0 included). Tapping the
+ * One contestant on a by-hand task: DQ by the name, then 1 to 5, and "…" for any other number (0 included). Tapping the
  * pressed chip takes the points away. A DQ keeps the points they were given, struck through; a dashed chip
  * is what they had before someone else's DQ moved them up.
  */
@@ -284,8 +295,10 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
   return (
     <li>
       <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
-      <div className="choices marks sb-chips">
+      <div className="choices marks sb-dq">
         <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => onEnter((c) => ({ dq: one(c, dq ? null : true) }))}>DQ</button>
+      </div>
+      <div className="choices marks sb-chips">
         {CHIPS.map((n) => (
           <button key={n} className={cls(n)} aria-pressed={shown === n} aria-label={`${n} for ${name}`} onClick={() => set(shown === n ? null : n)}>{n}</button>
         ))}
@@ -299,15 +312,13 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
 }
 
 /**
- * One contestant on a measured task: their number (a time, for Noisemaster), their points with the place
- * under them, and DQ. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
+ * One contestant on a measured task: DQ by the name, their number (a time, for Noisemaster), and their points
+ * with the place under them. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
+ * On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the line they went over, and
+ * `lo` offers LO, under the box while it's being typed in.
  */
-/**
- * One contestant on a measured task's points page. On a dB task, `line` is what its DQ line makes of a reading (see
- * overLine), `over` the line they went over, and `lo` offers LO, under the box while it's being typed in.
- */
-function MeasuredRow({ name, total, timed, unit, lo, over, line, result, restarts, dq, given, points, auto, place, before, onEnter }: {
-  name: string; total: number; timed: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
+function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, points, auto, place, before, onEnter }: {
+  name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
   result?: number; restarts?: number; dq: boolean; given?: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
 }) {
   const format = (n: number) => timed ? formatTime(n) : n === LO ? "LO" : String(n);
@@ -335,9 +346,14 @@ function MeasuredRow({ name, total, timed, unit, lo, over, line, result, restart
     <li className={dq ? "dq" : undefined}>
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
-        <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
-          placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
-          onChange={(e) => type(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => { setTyping(undefined); setFocused(false); }} />
+        <div className="choices marks sb-dq">
+          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
+        </div>
+        {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result === undefined ? "not yet" : `got it ${ordinal(result)}`}</span> : (
+          <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
+            placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
+            onChange={(e) => type(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => { setTyping(undefined); setFocused(false); }} />
+        )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
         {points !== undefined
           ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
@@ -346,9 +362,6 @@ function MeasuredRow({ name, total, timed, unit, lo, over, line, result, restart
               <span className="small">{dq ? (over !== undefined ? `over ${over}` : "DQ") : place !== undefined ? ordinal(place) : ""}</span>
             </button>
           : <span />}
-        <div className="choices marks sb-dq">
-          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
-        </div>
       </div>
       {lo && focused && (
         <div className="sb-override sb-lo">
@@ -444,7 +457,8 @@ function TaskList({ code, session, board, tasks, next, prizeNote, onOpen, onTieb
                 {t.game === "prize" && prizeNote && <span className="muted small">🎁 {prizeNote}</span>}
                 <span className="muted small">{scored(t) ? "scored" : id === next ? "← next" : ""}</span>
               </button>
-              {t.game && <button className="sb-start" onClick={() => onStart(id, t.game!)}>▶ Start</button>}
+              {/* the light runs all evening from 💡, so there's nothing to start */}
+              {t.game && t.game !== "light" && <button className="sb-start" onClick={() => onStart(id, t.game as GameId)}>▶ Start</button>}
               <button className="x" aria-label={`Fix ${titleOf(t)}`} onClick={() => setEditing(id)}>✎</button>
               {t.song && <SongStrip code={code} session={session} song={t.song} />}
             </li>
@@ -480,10 +494,12 @@ function TaskList({ code, session, board, tasks, next, prizeNote, onOpen, onTieb
             <p className="muted small">Which game?</p>
             <div className="choices">
               {/* each game once (Photos as often as needed): a game already on the list is greyed out */}
-              {Object.values(GAMES).map((g) => {
+              {[...Object.values(GAMES).map((g) => ({ id: g.id as TaskGame, name: g.name, repeatable: g.repeatable })), { id: "light" as const, name: LIGHT, repeatable: false }].map((g) => {
                 const listed = !g.repeatable && Object.values(board?.tasks ?? {}).some((t) => t.game === g.id);
+                // The light and Noisemaster bring across what was kept while they weren't on the list.
+                const add = () => g.id === "light" || g.id === "noisemaster" ? addKeptGame(code, session, g.id) : addTask(code, board, { game: g.id });
                 return <button key={g.id} disabled={listed} title={listed ? "Already on the run of show" : undefined}
-                  onClick={() => { void addTask(code, board, { game: g.id }); setAdding(undefined); }}>{g.name}{listed && <span className="played">on the list</span>}</button>;
+                  onClick={() => { void add(); setAdding(undefined); }}>{g.name}{listed && <span className="played">on the list</span>}</button>;
               })}
             </div>
             <button className="link" onClick={() => setAdding(undefined)}>Cancel</button>
@@ -556,7 +572,7 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   return (
     <div className="sb-add sb-edit">
       {task.game ? (
-        <label>{GAMES[task.game]?.name ?? task.game}: name it (optional)
+        <label>{gameName(task.game)}: name it (optional)
           <input value={name} maxLength={80} placeholder="e.g. best costume" onChange={(e) => setName(e.target.value)} />
         </label>
       ) : (
@@ -569,7 +585,7 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
       </label>
       {!task.game && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
       <SongField session={session} song={song} onChange={setSong} />
-      <UnitField draft={unit} onChange={setUnit} />
+      {task.game !== "light" && <UnitField draft={unit} onChange={setUnit} />}
       {unit.kind === "loudness" && (
         <div className="unit-field">
           <span>🔇 DQ if louder than (optional)</span>

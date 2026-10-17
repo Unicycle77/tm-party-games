@@ -2,7 +2,7 @@ import { push, ref, remove, set, update } from "firebase/database";
 import { db, storage } from "../firebase";
 import { shrinkImage } from "../media";
 import { setDisplay } from "../session";
-import type { GameId, Scoreboard, ScoreboardTask, TaskUnit } from "../types";
+import type { Session, Scoreboard, ScoreboardTask, TaskGame, TaskUnit } from "../types";
 import { isMeasured, workOut } from "./measured";
 import { currentPoints } from "./scoring";
 
@@ -56,12 +56,42 @@ export async function uploadHeadshot(code: string, uid: string, id: string, file
 }
 
 /** Adds a live task (a name, and the host's note) or an app game to the end of the task list. */
-export async function addTask(code: string, board: Scoreboard | undefined, task: { name: string; description?: string } | { game: GameId }) {
+export async function addTask(code: string, board: Scoreboard | undefined, task: { name: string; description?: string } | { game: TaskGame }) {
   const key = push(at(code, "tasks")).key!;
   const entry: ScoreboardTask = "game" in task
     ? { order: nextOrder(board?.tasks), game: task.game }
     : { order: nextOrder(board?.tasks), name: task.name.trim(), ...(task.description?.trim() ? { description: task.description.trim() } : {}) };
   await set(at(code, `tasks/${key}`), entry);
+  return key;
+}
+
+/** The task for an app game on the list (the light and Noisemaster are each on it at most once). */
+export const taskFor = (board: Scoreboard | undefined, game: TaskGame) =>
+  Object.entries(board?.tasks ?? {}).find(([, t]) => t.game === game)?.[0];
+
+/** Each contestant's place in the light's order (1 got it first), from the light's `got`; anyone taken off the scoreboard drops out. */
+export const lightPlaces = (got: Record<string, number> | undefined, board: Scoreboard | undefined) =>
+  Object.fromEntries(Object.entries(got ?? {}).filter(([c]) => board?.contestants?.[c]).sort(([, a], [, b]) => a - b).map(([c], i) => [c, i + 1]));
+
+/**
+ * Adds the light or Noisemaster to the task list, bringing across what was kept while it wasn't on it:
+ * who got the light's secret, in order, or Noisemaster's finished goes.
+ */
+export async function addKeptGame(code: string, session: Session, game: "light" | "noisemaster") {
+  const board = session.scoreboard;
+  const id = await addTask(code, board, { game });
+  const entry: TaskEntry = {};
+  if (game === "light") entry.results = lightPlaces(session.light?.got, board);
+  else {
+    const kept = Object.entries(session.games?.noisemaster?.kept ?? {}).filter(([c]) => board?.contestants?.[c]);
+    entry.results = Object.fromEntries(kept.filter(([, k]) => k.ms !== undefined).map(([c, k]) => [c, k.ms!]));
+    entry.restarts = Object.fromEntries(kept.filter(([, k]) => k.restarts !== undefined).map(([c, k]) => [c, k.restarts!]));
+    entry.dq = Object.fromEntries(kept.filter(([, k]) => k.dq).map(([c]) => [c, true as const]));
+    void remove(ref(db(), `sessions/${code}/games/noisemaster/kept`));
+  }
+  if (!Object.values(entry).some((v) => Object.keys(v).length)) return;
+  const added: ScoreboardTask = { order: nextOrder(board?.tasks), game };
+  await enterPoints(code, { ...board, tasks: { ...board?.tasks, [id]: added } }, session.display?.step === "scoreboard", id, entry);
 }
 
 /** Changes a task's name, note, song, unit and DQ line in place. An empty note or song removes it. */

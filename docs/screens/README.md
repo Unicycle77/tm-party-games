@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
-Style sheet (taken on 2026-10-15, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip` and `GotIt` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
@@ -18,6 +18,13 @@ Host phone (`/host`, 390px wide):
 | `host-running-order.jpg` | Curtain down between contestants: the running order |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
 | `host-light.jpg` | 💡 The light, "All at once" mode |
+| `host-light-got-it.jpg` | 💡 The light's "Got it" list: Sam 1st, Priya just tapped in 2nd ("✓ Priya got it 2nd · 4 points."), their chips dimmed with ✓ (2026-10-17) |
+| `host-light-got-it-fix.jpg` | Fixing a mark: Tom's row open with the place chips (3rd pressed in) and "Take Tom off the list" (2026-10-17) |
+| `host-light-got-it-listed.jpg` | The light on the task list: "✓ Mei got it 4th · 2 points on the scoreboard.", no nudge (2026-10-17) |
+| `host-light-got-it-dq.jpg` | Sam DQ'd on the scoreboard: struck through with "DQ", the others moved up (2026-10-17) |
+| `run-of-show-host-light.jpg` | "3 💡 The light · app game" on the task list, with no ▶ Start (2026-10-17) |
+| `scoreboard-host-points-light.jpg` | The light's points page: "got it 2nd" or "not yet" for each contestant, "Fastest wins · order from the light · 4 of 8 got it", Sam DQ'd and the others moved up, "Change the order on 💡 The light" (2026-10-17) |
+| `noisemaster-host-kept.jpg` | A Noisemaster go while it isn't on the task list: "Kept. Not on the task list yet, so this time isn't on the scoreboard. Add it" (2026-10-17) |
 | `host-jukebox.jpg` | 🎵 The jukebox |
 | `host-party-settings.jpg` | Party settings (portrait, download button, disconnect) |
 
@@ -55,12 +62,12 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it and chips DQ, 1 to 5 and "…", "← All tasks", "Next task →" (2026-10-17) |
+| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it, a small DQ chip by the name, then chips 1 to 5 and "…", "← All tasks", "Next task →" (2026-10-17) |
 | `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant (2026-10-17) |
 | `scoreboard-host-points-dq.jpg` | A by-hand task with a DQ after the points: Sam's 4 struck through, the people below him moved up with dashed chips for what they had, "Sam's DQ moved 3 people up. Don't move them", and Tom DQ'd with no points (2026-10-17) |
-| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins"): a box per contestant with "dice" after it, the points over the place, DQ; Alex DQ'd, his 19 struck through, the others moved up; Tom not measured yet (2026-10-17) |
+| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins"): DQ by the name, a box per contestant with "dice" after it, the points over the place; Alex DQ'd, his 19 struck through, the others moved up; Tom not measured yet (2026-10-17) |
 | `scoreboard-host-points-override.jpg` | Overriding a measured point: Mei's points open the chips, "Automatic: 4 for 2nd"; Sam's 3 was set by hand (✎) (2026-10-17) |
-| `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: the box keeps its width, "now N" beside the name (2026-10-17) |
+| `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 20", the box keeps its width (2026-10-17) |
 | `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Tom "not played" (2026-10-17) |
 | `task-edit-scoring.jpg` | ✎ on a live task: "Scoring" with By hand, Highest wins and Lowest wins under the note (2026-10-17) |
 | `task-edit-db-meter.jpg` | ✎ on a task with no unit: 🔊 dB meter beside 🎲 Dice under "Measured in" (2026-10-17) |
@@ -90,7 +97,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-song-edit-missing.jpg` | ✎ on a task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." |
 | `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time · Volume and the common units, dimmed while a task's unit is in use |
 | `converter-host-result.jpg` | After "Surprise me": three lines to read aloud, the working in small print, "Use a different unit ▾", "Show on the big screen" |
-| `converter-host-loudness.jpg` | The converter on a dB task's reading: Loudness among the kinds, "94.2 dB is / about 26 garbage disposals at once / at the sink" and "a garbage disposal is about 80 dB" (2026-10-17) |
+| `converter-host-loudness.jpg` | The converter on a dB task's reading: Loudness among the kinds, "94.2 dB is / about 4.2 blenders at once / on high, at the counter" and "a blender is about 88 dB" (2026-10-17) |
 | `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |
 | `converter-host-common.jpg` | Measuring in a common unit: Weight, kg, 70 |
 | `converter-host-volume.jpg` | Volume (2026-10-17): the five kinds three and two, the volume units (ml L tsp tbsp fl oz cup pt qt gal), 2 cups as a fraction of a minute of shower |

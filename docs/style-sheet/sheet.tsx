@@ -8,6 +8,7 @@ import { Toggle } from "../../src/Toggle";
 import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
 import { SongStrip } from "../../src/SongStrip";
+import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
@@ -91,9 +92,13 @@ function Sheet() {
             </div>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
-            <Item cap={<>Points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
-              <div className="choices marks sb-chips"><button aria-pressed>DQ</button><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div>
-              <div className="choices marks sb-chips"><button>DQ</button><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div>
+            <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
+              <ul className="sb-rows">
+                <li><span className="sb-name">Sam<span className="muted small sb-now">now 5</span></span><div className="choices marks sb-dq"><button aria-pressed>DQ</button></div>
+                  <div className="choices marks sb-chips"><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div></li>
+                <li><span className="sb-name">Mei<span className="muted small sb-now">now 6</span></span><div className="choices marks sb-dq"><button>DQ</button></div>
+                  <div className="choices marks sb-chips"><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div></li>
+              </ul>
             </Item>
             <Item cap={<><code>.sb-lo</code>: LO for a dB meter, under the box while it's typed in</>}>
               <div className="sb-override sb-lo"><div className="choices marks sb-chips"><button>LO</button></div><span className="muted small">The meter shows LO: quieter than it can read. Everyone on LO ties.</span></div>
@@ -141,6 +146,11 @@ function Sheet() {
               <SongStrip code="HVQB" session={jukebox(false, false)} song="Hall of the Mountain King" />
             </div>
             <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
+                ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
+            </div>
+            <Cap>The light's "Got it" list (<code>.light-got</code>): a row per guesser (place, name, points); everyone keeps a chip in place, dimmed with ✓ once on the list</Cap>
           </Sec>
         </div>
 

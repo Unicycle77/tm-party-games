@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Toggle } from "../Toggle";
+import { addKeptGame, taskFor } from "../scoreboard/data";
+import { ordinal, pointsForPlace, workOut } from "../scoreboard/measured";
 import type { Session } from "../types";
 import {
-  DELAY_MS, cameraText, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, modeOf, setArmed, setMode, setTrigger, triggerOf,
+  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, markGot, modeOf, moveGot, setArmed,
+  setMode, setTrigger, triggerOf, unmarkGot,
 } from "./data";
 import { MODES, TRIGGERS } from "./triggers";
 
@@ -101,8 +104,80 @@ export function LightRemote({ code, session }: { code: string; session: Session 
         </>
       )}
 
+      <GotIt code={code} session={session} />
+
       {/* Safe only while guests aren't watching: a test mid-game would throw off their guesses. */}
       {!armed && <button disabled={!running} onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
     </section>
+  );
+}
+
+/**
+ * Who has worked out the secret, in the order the host tapped them: the place and the points, so the host
+ * can say them out loud. Every contestant keeps a chip in the same spot (dimmed once they're on the list),
+ * and a tap on a row or a dimmed chip opens it to move them or take them off. While the light is on the
+ * task list the points are the scoreboard's (a DQ there shows here); until then a line offers to add it.
+ */
+export function GotIt({ code, session }: { code: string; session: Session }) {
+  const [last, setLast] = useState<string>();
+  const [open, setOpen] = useState<string>();
+  const contestants = session.scoreboard?.contestants ?? {};
+  const names = Object.entries(contestants).sort(([, a], [, b]) => a.name.localeCompare(b.name));
+  if (names.length === 0) return null;
+  const nameOf = (c: string) => contestants[c]?.name ?? "";
+  // Someone taken off the scoreboard drops out of the order.
+  const order = gotOrder(lightOf(session)).filter((c) => contestants[c]);
+  const placeOf = (c: string) => order.indexOf(c) + 1;
+  const id = taskFor(session.scoreboard, "light");
+  const task = id ? session.scoreboard?.tasks?.[id] : undefined;
+  const worked = task && workOut(task);
+  const pointsOf = (c: string) => worked ? worked.points[c] ?? 0 : pointsForPlace(placeOf(c));
+  const mark = (c: string) => { void markGot(code, session, c); setLast(c); setOpen(undefined); };
+  const lastPlace = last ? placeOf(last) : 0;
+
+  return (
+    <div className="light-got">
+      <div className="remote-head"><h3>Got it</h3><span className="muted small">{order.length} of {names.length}</span></div>
+      {order.length > 0 && (
+        <ol>
+          {order.map((c, i) => (
+            <li key={c} className={[open === c && "open", task?.dq?.[c] && "dq"].filter(Boolean).join(" ") || undefined}>
+              <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
+                <span className="muted">{ordinal(i + 1)}</span><span className="light-got-name">{nameOf(c)}</span>
+                <span className="light-got-pts">{task?.dq?.[c] ? "DQ" : `${pointsOf(c)} pts`}</span>
+              </button>
+              {open === c && (
+                <div className="light-got-fix">
+                  <p className="muted small">{nameOf(c)}'s place. Tap another to move {nameOf(c)}; the others shift.</p>
+                  <div className="choices marks" role="group" aria-label={`${nameOf(c)}'s place`}>
+                    {order.map((_, k) => (
+                      <button key={k} aria-pressed={k === i} onClick={() => { if (k !== i) void moveGot(code, session, c, k + 1); }}>{ordinal(k + 1)}</button>
+                    ))}
+                  </div>
+                  <button className="link" onClick={() => { void unmarkGot(code, session, c); setOpen(undefined); if (last === c) setLast(undefined); }}>
+                    Take {nameOf(c)} off the list
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+      {lastPlace > 0 && (
+        <p className="muted small">✓ {nameOf(last!)} got it {ordinal(lastPlace)} · {pointsOf(last!)} points{task ? " on the scoreboard" : ""}.</p>
+      )}
+      {!task && (
+        <p className="muted small">
+          Not on the task list yet, so these points aren't on the scoreboard.{" "}
+          <button className="link" onClick={() => void addKeptGame(code, session, "light")}>Add it</button>
+        </p>
+      )}
+      <p className="muted small">Tap whoever just got it:</p>
+      <div className="choices">
+        {names.map(([c, { name }]) => placeOf(c) > 0
+          ? <button key={c} className="got" aria-label={`${name}, got it ${ordinal(placeOf(c))}. Change`} onClick={() => setOpen(c)}>✓ {name}</button>
+          : <button key={c} onClick={() => mark(c)}>{name}</button>)}
+      </div>
+    </div>
   );
 }
