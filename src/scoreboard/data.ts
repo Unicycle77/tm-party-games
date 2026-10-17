@@ -3,10 +3,14 @@ import { db, storage } from "../firebase";
 import { shrinkImage } from "../media";
 import { setDisplay } from "../session";
 import type { GameId, Scoreboard, ScoreboardTask, TaskUnit } from "../types";
+import { isMeasured, workOut } from "./measured";
 import { currentPoints } from "./scoring";
 
 /** The party's scoreboard lives at sessions/{code}/scoreboard. Only the host and the host remote write it. */
 const at = (code: string, path = "") => ref(db(), `sessions/${code}/scoreboard${path ? `/${path}` : ""}`);
+
+/** What the host enters on a task, from which its points are worked out. */
+const ENTERED = ["given", "results", "restarts", "dq", "dqStays"] as const;
 
 const nextOrder = (items: Record<string, { order: number }> | undefined) =>
   Math.max(-1, ...Object.values(items ?? {}).map((i) => i.order)) + 1;
@@ -30,7 +34,9 @@ export const renameContestant = (code: string, id: string, name: string) => set(
 /** Takes them off the scoreboard, with every point they were given. */
 export async function removeContestant(code: string, board: Scoreboard | undefined, id: string) {
   const patch: Record<string, null> = { [`contestants/${id}`]: null };
-  for (const t of Object.keys(board?.tasks ?? {})) patch[`tasks/${t}/scores/${id}`] = null;
+  for (const t of Object.keys(board?.tasks ?? {})) {
+    for (const k of ["scores", ...ENTERED.filter((k) => k !== "dqStays")]) patch[`tasks/${t}/${k}/${id}`] = null;
+  }
   for (const t of Object.keys(board?.shown ?? {})) patch[`shown/${t}/${id}`] = null;
   await update(at(code), patch);
 }
@@ -82,14 +88,52 @@ function catchUp(board: Scoreboard | undefined, task: string, onScreen: boolean)
   return { shown };
 }
 
+/** What the host enters on a task's points page: a contestant's value, or null to take it away. */
+export interface TaskEntry {
+  given?: Record<string, number | null>;
+  results?: Record<string, number | null>;
+  restarts?: Record<string, number | null>;
+  dq?: Record<string, true | null>;
+  dqStays?: true | null;
+}
+
+
+function merged<T>(now: Record<string, T> | undefined, patch: Record<string, T | null>) {
+  const out: Record<string, T> = { ...now };
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === null) delete out[k];
+    else out[k] = v;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 /**
- * A contestant's points for a task; null takes them away (they get nothing for it). The first points given on a
- * task start it: every earlier task is caught up on the big screen (see catchUp).
+ * Saves what the host entered on a task and the points it works out to (see workOut), which are what
+ * the scoreboard adds up. The first points given on a task start it: every earlier task is caught up on
+ * the big screen (see catchUp).
  */
-export const setPoints = (code: string, board: Scoreboard | undefined, onScreen: boolean, task: string, contestant: string, points: number | null) => {
-  const starting = points !== null && !Object.keys(board?.tasks?.[task]?.scores ?? {}).length;
-  return update(at(code), { [`tasks/${task}/scores/${contestant}`]: points, ...(starting ? catchUp(board, task, onScreen) : {}) });
-};
+export function enterPoints(code: string, board: Scoreboard | undefined, onScreen: boolean, id: string, entry: TaskEntry) {
+  const task = board!.tasks![id]!;
+  // A task scored by hand before the host's points were kept apart from the points that count.
+  const next: ScoreboardTask = isMeasured(task) || task.given || !task.scores ? { ...task } : { ...task, given: task.scores };
+  if (entry.given) next.given = merged(next.given, entry.given);
+  if (entry.results) next.results = merged(next.results, entry.results);
+  if (entry.restarts) next.restarts = merged(next.restarts, entry.restarts);
+  if (entry.dq) next.dq = merged<true>(next.dq, entry.dq);
+  if (entry.dqStays !== undefined) next.dqStays = entry.dqStays ?? undefined;
+  const points = workOut(next).points;
+  const patch: Record<string, unknown> = { [`tasks/${id}/scores`]: Object.keys(points).length ? points : null };
+  for (const k of ENTERED) if (next[k] !== task[k]) patch[`tasks/${id}/${k}`] = next[k] ?? null;
+  const starting = Object.keys(points).length > 0 && !Object.keys(task.scores ?? {}).length;
+  return update(at(code), { ...patch, ...(starting ? catchUp(board, id, onScreen) : {}) });
+}
+
+/**
+ * Changes how a live task is won. Its points are cleared, since by-hand points and points by place
+ * don't carry over; the host is asked first on the ✎ page.
+ */
+export const setScoring = (code: string, id: string, scoring: "highest" | "lowest" | undefined) =>
+  update(at(code, `tasks/${id}`), { scoring: scoring ?? null, scores: null, given: null, results: null, dq: null, dqStays: null, restarts: null });
 
 /** ▶ Start on an app game in the task list: it starts that task (see catchUp). */
 export const startTask = (code: string, board: Scoreboard | undefined, onScreen: boolean, task: string) => {

@@ -6,8 +6,10 @@ import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session } from "../types";
 import {
   addContestant, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  declareWinner, setPoints, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot,
+  declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot, type TaskEntry,
 } from "./data";
+import { isMeasured, ordinal, parseClock, workOut } from "./measured";
+import { formatTime } from "../games/noisemaster/data";
 import { currentTotals, pendingTasks } from "./scoring";
 import { SongField, SongStrip } from "../SongStrip";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
@@ -160,7 +162,10 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   );
 }
 
-/** Giving points for one task: a row of chips per contestant. Every tap saves; nothing goes on the big screen. */
+/**
+ * Giving points for one task. By hand: a row of chips per contestant. Measured: a box for each contestant's
+ * number, and the points by place. Every tap saves; nothing goes on the big screen.
+ */
 function Points({ code, session, board, onScreen, id, tasks, contestants, onChange, onNext }: {
   code: string; session: Session; board: Scoreboard | undefined; onScreen: boolean; id: string; tasks: [string, ScoreboardTask][];
   contestants: [string, { name: string }][]; onChange: () => void; onNext: (id: string) => void;
@@ -169,7 +174,18 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
   const place = tasks.findIndex(([t]) => t === id);
   const following = tasks[place + 1]?.[0];
   const totals = currentTotals(board);
-  const given = contestants.filter(([c]) => task.scores?.[c] !== undefined).length;
+  const worked = workOut(task);
+  const measured = isMeasured(task);
+  const timed = task.game === "noisemaster";
+  const enter = (entry: TaskEntry) => void enterPoints(code, board, onScreen, id, entry);
+  const nameOf = (c: string) => board?.contestants?.[c]?.name ?? "";
+  // The DQs that change anyone else's points: those with points or a number of their own.
+  const outs = contestants.map(([c]) => c).filter((c) => task.dq?.[c] && (measured ? task.results?.[c] : (task.given ?? task.scores)?.[c]) !== undefined);
+  const before = Object.keys(worked.before).length > 0;
+  const status = measured
+    ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"} · ${
+      contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
+    : `${contestants.filter(([c]) => task.scores?.[c] !== undefined).length} of ${contestants.length} scored`;
 
   return (
     <section className="sb-points">
@@ -179,17 +195,31 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       </div>
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
-      <p className="muted small">{given} of {contestants.length} scored</p>
-      <ul className="sb-rows">
-        {contestants.map(([c, con]) => (
-          <PointsRow key={c} name={con.name} points={task.scores?.[c]} total={totals[c] ?? 0}
-            onSet={(n) => void setPoints(code, board, onScreen, id, c, n)} />
-        ))}
+      <p className="muted small">{status}</p>
+      {outs.length > 0 && worked.moved > 0 && (
+        <p className="muted small sb-dq-line">
+          {list(outs.map(nameOf))}'s {outs.length === 1 ? "DQ" : "DQs"}{" "}
+          {task.dqStays ? <>{outs.length === 1 ? "doesn't" : "don't"} move anyone. <button className="link" onClick={() => enter({ dqStays: null })}>Move them up</button></>
+            : <>moved {plural(worked.moved, "person", "people")} up. <button className="link" onClick={() => enter({ dqStays: true })}>Don't move them</button></>}
+        </p>
+      )}
+      <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
+        {contestants.map(([c, con]) => measured
+          ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} unit={task.unit?.name}
+              result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]}
+              points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />
+          : <PointsRow key={c} name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
+              dq={!!task.dq?.[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
       </ul>
+      {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
       {following && <button className="link sb-next" onClick={() => { onNext(following); window.scrollTo(0, 0); }}>Next task →</button>}
     </section>
   );
 }
+
+/** One contestant's entry, made for them: `(c) => ({ given: { [c]: 3 } })`. */
+type EntryFor = (entry: (c: string) => TaskEntry) => void;
+const one = <T,>(c: string, v: T) => ({ [c]: v });
 
 /**
  * The tiebreaker task's page: just the tied contestants, and a tap on whoever won. It has one winner
@@ -223,31 +253,108 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
   );
 }
 
-const CHIPS = [0, 1, 2, 3, 4, 5];
+const CHIPS = [1, 2, 3, 4, 5];
 
-/** One contestant: 0 to 5, and "…" for any other number. Tapping the pressed chip takes the points away. */
-function PointsRow({ name, points, total, onSet }: { name: string; points?: number; total: number; onSet: (n: number | null) => void }) {
+/**
+ * One contestant on a by-hand task: DQ, 1 to 5, and "…" for any other number (0 included). Tapping the
+ * pressed chip takes the points away. A DQ keeps the points they were given, struck through; a dashed chip
+ * is what they had before someone else's DQ moved them up.
+ */
+function PointsRow({ name, total, points, given, dq, before, onEnter }: {
+  name: string; total: number; points?: number; given?: number; dq: boolean; before?: number; onEnter: EntryFor;
+}) {
   const [other, setOther] = useState<string>();
-  const isOther = points !== undefined && !CHIPS.includes(points);
+  // What a tap means: the points they end up with, so take off what the DQs moved them up by.
+  const moved = !dq && points !== undefined && given !== undefined ? points - given : 0;
+  const set = (n: number | null) => onEnter((c) => ({ given: one(c, n === null ? null : n - moved), ...(dq ? { dq: one(c, null) } : {}) }));
+  const shown = dq ? undefined : points;
+  const isOther = shown !== undefined && !CHIPS.includes(shown);
   const saveOther = () => {
     if (other === undefined) return;
     const n = parseFloat(other.replace(",", "."));
-    if (other.trim() === "") { if (isOther) onSet(null); }
-    else if (Number.isFinite(n)) onSet(n);
+    if (other.trim() === "") { if (isOther) set(null); }
+    else if (Number.isFinite(n)) set(n);
     setOther(undefined);
   };
+  const cls = (n: number) => dq && given === n ? "was" : before === n ? "before" : undefined;
   return (
     <li>
       <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
       <div className="choices marks sb-chips">
+        <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => onEnter((c) => ({ dq: one(c, dq ? null : true) }))}>DQ</button>
         {CHIPS.map((n) => (
-          <button key={n} aria-pressed={points === n} aria-label={`${n} for ${name}`} onClick={() => onSet(points === n ? null : n)}>{n}</button>
+          <button key={n} className={cls(n)} aria-pressed={shown === n} aria-label={`${n} for ${name}`} onClick={() => set(shown === n ? null : n)}>{n}</button>
         ))}
         {other !== undefined
           ? <input className="sb-other" type="text" inputMode="decimal" autoFocus value={other} aria-label={`Other points for ${name}`}
               onChange={(e) => setOther(e.target.value)} onBlur={saveOther} onKeyDown={(e) => { if (e.key === "Enter") saveOther(); if (e.key === "Escape") setOther(undefined); }} />
-          : <button aria-pressed={isOther} aria-label={`Other points for ${name}`} onClick={() => setOther(isOther ? String(points) : "")}>{isOther ? points : "…"}</button>}
+          : <button aria-pressed={isOther} aria-label={`Other points for ${name}`} onClick={() => setOther(isOther ? String(shown) : "")}>{isOther ? shown : "…"}</button>}
       </div>
+    </li>
+  );
+}
+
+/**
+ * One contestant on a measured task: their number (a time, for Noisemaster), their points with the place
+ * under them, and DQ. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
+ */
+function MeasuredRow({ name, total, timed, unit, result, restarts, dq, given, points, auto, place, before, onEnter }: {
+  name: string; total: number; timed: boolean; unit?: string; result?: number; restarts?: number; dq: boolean; given?: number;
+  points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
+}) {
+  const format = (n: number) => timed ? formatTime(n) : String(n);
+  const [typing, setTyping] = useState<string>();
+  const [open, setOpen] = useState(false);
+  const [other, setOther] = useState<string>();
+  const type = (text: string) => {
+    setTyping(text);
+    const n = timed ? parseClock(text) : parseFloat(text.replace(",", "."));
+    if (text.trim() === "") onEnter((c) => ({ results: one(c, null) }));
+    else if (n !== undefined && Number.isFinite(n)) onEnter((c) => ({ results: one(c, n) }));
+  };
+  const give = (n: number | null) => { onEnter((c) => ({ given: one(c, n) })); setOther(undefined); };
+  const saveOther = () => {
+    if (other === undefined) return;
+    const n = parseFloat(other.replace(",", "."));
+    if (Number.isFinite(n)) give(n);
+    setOther(undefined);
+  };
+  const overridden = given !== undefined && !dq;
+  const autoLine = auto !== undefined && place !== undefined ? `${auto} for ${ordinal(place)}` : undefined;
+  return (
+    <li className={dq ? "dq" : undefined}>
+      <div className="sb-measure">
+        <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
+        <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
+          placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
+          onChange={(e) => type(e.target.value)} onBlur={() => setTyping(undefined)} />
+        <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
+        {points !== undefined
+          ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
+              disabled={dq} onClick={() => setOpen(!open)}>
+              <b>{points}{overridden && <span className="sb-hand">✎</span>}{before !== undefined && <span className="sb-before">{before}</span>}</b>
+              <span className="small">{dq ? "DQ" : place !== undefined ? ordinal(place) : ""}</span>
+            </button>
+          : <span />}
+        <div className="choices marks sb-dq">
+          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true) })); }}>DQ</button>
+        </div>
+      </div>
+      {open && !dq && (
+        <div className="sb-override">
+          <div className="choices marks sb-chips">
+            {CHIPS.map((n) => <button key={n} aria-pressed={points === n} aria-label={`${n} for ${name}`} onClick={() => give(n)}>{n}</button>)}
+            {other !== undefined
+              ? <input className="sb-other" type="text" inputMode="decimal" autoFocus value={other} aria-label={`Other points for ${name}`}
+                  onChange={(e) => setOther(e.target.value)} onBlur={saveOther} onKeyDown={(e) => { if (e.key === "Enter") saveOther(); if (e.key === "Escape") setOther(undefined); }} />
+              : <button aria-pressed={points !== undefined && !CHIPS.includes(points)} aria-label={`Other points for ${name}`}
+                  onClick={() => setOther(points !== undefined && !CHIPS.includes(points) ? String(points) : "")}>{points !== undefined && !CHIPS.includes(points) ? points : "…"}</button>}
+          </div>
+          {overridden
+            ? autoLine && <button className="link small" onClick={() => give(null)}>Back to {autoLine}</button>
+            : autoLine && <span className="muted small">Automatic: {autoLine}. Tap a chip to change it.</span>}
+        </div>
+      )}
     </li>
   );
 }
@@ -396,7 +503,14 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   const [description, setDescription] = useState(task.description ?? "");
   const [song, setSong] = useState(task.song ?? "");
   const [unit, setUnit] = useState(() => draftOf(task.unit));
-  const save = () => { void editTask(code, id, name, description, song, unitOf(unit)); onClose(); };
+  const [scoring, setScoringDraft] = useState(task.scoring);
+  const save = () => {
+    const rescored = !task.game && scoring !== task.scoring;
+    if (rescored && scored(task) && !confirm(`Change how "${titleOf(task)}" is scored? Its points so far are cleared.`)) return;
+    void editTask(code, id, name, description, song, unitOf(unit));
+    if (rescored) void setScoring(code, id, scoring);
+    onClose();
+  };
   const drop = () => {
     if (scored(task) && !confirm(`Remove "${titleOf(task)}" and its points?`)) return;
     void removeTask(code, id);
@@ -416,6 +530,7 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
       <label>Note for you (optional)
         <textarea rows={2} value={description} maxLength={600} onChange={(e) => setDescription(e.target.value)} />
       </label>
+      {!task.game && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
       <SongField session={session} song={song} onChange={setSong} />
       <UnitField draft={unit} onChange={setUnit} />
       <div className="row">
@@ -423,6 +538,26 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
         <button className="link" onClick={onClose}>Cancel</button>
       </div>
       <button className="link" onClick={drop}>Remove this task</button>
+    </div>
+  );
+}
+
+const SCORING = [["By hand", undefined], ["Highest wins", "highest"], ["Lowest wins", "lowest"]] as const;
+
+/** "Scoring" on a live task's ✎ page: by hand, or points by place from each contestant's number. */
+function ScoringField({ scoring, onChange }: { scoring: ScoreboardTask["scoring"]; onChange: (s: ScoreboardTask["scoring"]) => void }) {
+  return (
+    <div className="sb-scoring">
+      <span>Scoring</span>
+      <div className="choices">
+        {SCORING.map(([label, value]) => (
+          <button type="button" key={label} className={scoring === value ? "active" : ""} aria-pressed={scoring === value} onClick={() => onChange(value)}>{label}</button>
+        ))}
+      </div>
+      <p className="muted small">
+        {scoring ? `Type each result on the points page: 5 for the ${scoring === "highest" ? "most" : "least"}, then 4, 3, 2, and 1 for everyone else. DQ gets 0.`
+          : "Tap each contestant's points on the points page. DQ gets 0."}
+      </p>
     </div>
   );
 }

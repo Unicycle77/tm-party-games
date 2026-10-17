@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { setDisplay, store } from "../../session";
 import { Toggle } from "../../Toggle";
 import type { Display, NoisemasterRound, Session } from "../../types";
@@ -7,6 +7,8 @@ import {
   useNoisemasterSecret, useServerNow,
 } from "./data";
 import { Soundboard } from "./Soundboard";
+import { enterPoints } from "../../scoreboard/data";
+import { ordinal, workOut } from "../../scoreboard/measured";
 
 /** The host's phone, above the player list: set up a round, then follow it. */
 export function HostLobby({ code, session, display }: { code: string; session: Session; display: Display }) {
@@ -224,6 +226,12 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
   // Off by default: the host's copy of the board is a picture, unless they switch on pressing it (to test, or to demonstrate).
   const [pressing, setPressing] = useState(false);
   const [pressError, setPressError] = useState<string>();
+  const saved = useSavedGo(code, session, round);
+  const end = () => {
+    if (midway && !confirm(`End ${name}'s go? They haven't finished.${saved ? " They'll get a DQ." : ""}`)) return;
+    if (midway) saved?.disqualify();
+    void newRound(code);
+  };
 
   return (
     <div className="box-setup nm-round">
@@ -234,6 +242,7 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
           : round.firstAt ? <>⏱ <span className="soundboard-time">{time}</span> · {round.progress ?? 0} of {round.phrase.length} words · {restarts}</>
           : `Waiting for ${name}'s first press…`}
       </p>
+      {done && saved?.line && <p className="muted small nm-saved">{saved.line}</p>}
       {display.step !== "soundboard" && (
         <button onClick={() => void setDisplay(code, { step: "soundboard" })}>Show it on the big screen</button>
       )}
@@ -247,8 +256,47 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
       {pressError && <p className="error">{pressError}</p>}
       <div className="steps two">
         <button onClick={() => { if (!midway || confirm(`Restart ${name}'s go? The clock goes back to zero.`)) void restartRound(code, round); }}>↺ Restart</button>
-        <button onClick={() => { if (!midway || confirm(`End ${name}'s go? They haven't finished.`)) void newRound(code); }}>Next round</button>
+        <button onClick={end}>Next round</button>
       </div>
     </div>
   );
+}
+
+/**
+ * A finished go, saved for the scoreboard when Noisemaster is on the task list and the player is on the
+ * scoreboard: the time (the latest go counts) and the restarts, for colour commentary. `line` says so, with
+ * where it puts them; `disqualify` saves a go ended before the end as a DQ.
+ */
+function useSavedGo(code: string, session: Session, round: NoisemasterRound) {
+  const board = session.scoreboard;
+  const id = Object.entries(board?.tasks ?? {}).find(([, t]) => t.game === "noisemaster")?.[0];
+  const task = id ? board?.tasks?.[id] : undefined;
+  const contestant = session.players?.[round.player]?.contestant;
+  const known = !!task && !!contestant && !!board?.contestants?.[contestant];
+  // Their time from an earlier go, as it stood when this go was set up.
+  const earlier = useRef<{ startedAt: number; ms?: number }>();
+  if (known && earlier.current?.startedAt !== round.startedAt) earlier.current = { startedAt: round.startedAt, ms: task.results?.[contestant] };
+  const ms = round.doneAt && round.firstAt ? Math.floor((round.doneAt - round.firstAt) / 100) * 100 : undefined;
+  const mistakes = round.mistakes ?? 0;
+  const onScreen = session.display?.step === "scoreboard";
+
+  // Saved once per go, so a time the host fixes on the points page afterwards isn't put back.
+  const savedGo = useRef<number>();
+  useEffect(() => {
+    if (!known || ms === undefined || savedGo.current === round.startedAt) return;
+    savedGo.current = round.startedAt;
+    if (task.results?.[contestant] === ms && task.restarts?.[contestant] === mistakes && !task.dq?.[contestant]) return;
+    void enterPoints(code, board, onScreen, id!, { results: { [contestant]: ms }, restarts: { [contestant]: mistakes }, dq: { [contestant]: null } });
+  }, [known, ms, mistakes, task, contestant, code, board, onScreen, id, round.startedAt]);
+
+  if (!known) return undefined;
+  const disqualify = () => void enterPoints(code, board, onScreen, id!, { dq: { [contestant]: true } });
+  if (ms === undefined || task.results?.[contestant] !== ms) return { disqualify };
+  const worked = workOut(task);
+  const place = worked.place[contestant];
+  const out = Object.keys(task.results ?? {}).filter((c) => !task.dq?.[c]).length;
+  const was = earlier.current?.ms;
+  const replacing = was !== undefined && was !== ms ? `, replacing ${formatTime(was)}` : "";
+  const line = `Saved for the scoreboard${replacing}${place ? `: ${ordinal(place)} fastest of ${out} so far.` : "."}`;
+  return { line, disqualify };
 }

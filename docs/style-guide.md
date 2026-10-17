@@ -69,6 +69,8 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Selected / active** (`button.active`): the same gold as the primary button, for what's currently on screen or playing (stage steps, tabs, the current track, the backup stage controls). One shared rule, `button.big, button.active`, supplies the gold; adding `active` to any button is all it takes.
 - **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
 - **Marks** (`.choices.marks`): marking several things true at once, like Secret Tasks' scoring ("Did Sam do it?", "Who guessed it?"). The same paper chips, but a marked one stays pressed in, with a ✓ and `aria-pressed`, and never turns gold, so gold stays on the screen's one next action.
+- **Points chips** (`.choices.marks.sb-chips`): a contestant's points on the scoreboard, "DQ 1 2 3 4 5 …", one line per contestant. The picked chip is pressed in like a mark. A DQ'd contestant's points stay on their chip, struck through and faded (`.was`); a **dashed** chip (`.before`) is what someone had before a DQ moved them up, explained by a key under the list. DQ is only ever on the host's screens.
+- **Measured rows** (`.sb-measured`): a number box per contestant, the unit (or Noisemaster's "↺ 2") after it, the points over the place ("4" over "2nd") as a quiet button that opens the points chips, and a DQ chip. One subgrid, so the columns line up. A point set by hand carries a small ✎; a small dashed number beside the points is the one before a DQ. A DQ'd row strikes its number through. On a wide iPad the box keeps a fixed width.
 - **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Not Alex? Not the right party?, Disconnect, End session, Lower the curtain, Reset.
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
@@ -105,11 +107,13 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | Already used | Disabled, with a small uppercase "on the list" label inside | "+ App game" choices |
 | Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder") | A task's song strip |
 | Playing | Gold (`button.active`), ▶ becomes ⏸ | A task's song strip, the jukebox's current song |
+| Disqualified | DQ chip pressed in; what they'd have had struck through and faded (`.was`), never removed | The points page |
+| Before a DQ moved them | A dashed outline (`.before`, `.sb-before`), with a key under the list | The points page |
 | Not tappable but not unavailable | `.sb-task:disabled` keeps full opacity: the row is just information until there are contestants | Task rows before anyone is added |
 
 State is never colour alone: each one also has its words (✓, "next", "on the big screen", "scored", "not yet").
 
-See: [headshot-task-host-up.jpg](screens/headshot-task-host-up.jpg), [prize-host-up.jpg](screens/prize-host-up.jpg), [run-of-show-host-tiebreaker.jpg](screens/run-of-show-host-tiebreaker.jpg), [run-of-show-host-add-game.jpg](screens/run-of-show-host-add-game.jpg).
+See: [scoreboard-host-points-dq.jpg](screens/scoreboard-host-points-dq.jpg), [scoreboard-host-points-measured.jpg](screens/scoreboard-host-points-measured.jpg), [headshot-task-host-up.jpg](screens/headshot-task-host-up.jpg), [prize-host-up.jpg](screens/prize-host-up.jpg), [run-of-show-host-tiebreaker.jpg](screens/run-of-show-host-tiebreaker.jpg), [run-of-show-host-add-game.jpg](screens/run-of-show-host-add-game.jpg).
 
 ### Help
 `.help-q`: a circled `?` beside a heading, drawn in `currentColor` with no fill. It opens an explanation in place, and fills `--burgundy` while open (`aria-expanded`). Use it when the rules are worth having but not worth showing every time (Secret Tasks' envelope rules). See: [secret-tasks-player-rules.jpg](screens/secret-tasks-player-rules.jpg).

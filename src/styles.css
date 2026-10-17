@@ -1077,6 +1077,41 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-chips .sb-other { width: 3.4rem; flex: none; padding: 0.4rem; }
 .sb-now { white-space: nowrap; font-family: var(--typewriter); }
 .sb-next { justify-self: end; }
+/* DQ in the chips: what a DQ'd contestant was given, struck through; a dashed chip is what someone had before a DQ moved them up */
+.sb-chips button.was { text-decoration: line-through; opacity: 0.55; }
+.sb-chips button.before, .sb-before { border: 2px dashed var(--gold-dark); background: transparent; color: var(--fg); box-shadow: none; }
+.sb-before { display: inline-block; margin-left: 0.25em; padding: 0 0.25em; border-width: 1.5px; border-radius: 4px; font-size: 0.55em; vertical-align: middle; color: var(--muted); }
+.sb-before-key { margin: 0; }
+.sb-before-key .sb-before { width: 1.4rem; height: 1.4rem; margin: 0 0.3rem 0 0; }
+.sb-dq-line .link { padding: 0; }
+/* a measured task: one line per contestant, the number box, the unit (or Noisemaster's restarts), the points over the place, DQ */
+/* one grid for every row (subgrid), so the columns line up whatever each row's unit or restarts say */
+.sb-rows.sb-measured { grid-template-columns: 4.5rem minmax(0, 1fr) auto 3.2rem 3rem; column-gap: 0.5rem; }
+.sb-rows.sb-measured li { grid-column: 1 / -1; grid-template-columns: subgrid; row-gap: 0.35rem; column-gap: 0.5rem; }
+.sb-measure { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; }
+.sb-override { grid-column: 1 / -1; }
+.sb-result { min-width: 0; padding: 0.5rem 0.6rem; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.sb-measured li.dq .sb-result { opacity: 0.45; text-decoration: line-through; }
+.sb-unit { font-family: var(--typewriter); white-space: nowrap; }
+.sb-pts { display: grid; justify-items: center; padding: 0.15rem 0; line-height: 1.1; background: none; border: 0; border-radius: 6px; box-shadow: none; color: var(--fg); }
+.sb-pts b { font-size: 1.5rem; font-weight: normal; white-space: nowrap; }
+.sb-pts .small { color: var(--muted); }
+.sb-pts.open { outline: 2px solid var(--gold); }
+.sb-pts:disabled { opacity: 1; cursor: default; }
+.sb-hand { margin-left: 0.1em; font-size: 0.55em; color: var(--muted); }
+.sb-dq button { width: 100%; padding: 0.55rem 0; font-size: 0.95rem; }
+.sb-override { display: grid; gap: 0.3rem; }
+.sb-override > :last-child { justify-self: end; }
+.sb-scoring { display: grid; gap: 0.5rem; }
+.sb-scoring p { margin: 0; }
+.sb-scoring .choices button { flex: 1 1 5rem; white-space: nowrap; }
+/* iPad in landscape: the box keeps its width, so the points and DQ stay by the name */
+@media (min-width: 900px) {
+  .sb-rows.sb-measured { grid-template-columns: 10rem 16rem auto 3.4rem 3rem; justify-content: start; column-gap: 1rem; }
+  .sb-rows.sb-measured li { column-gap: 1rem; }
+  .sb-measured .sb-name { grid-auto-flow: column; justify-content: start; align-items: baseline; column-gap: 0.6rem; }
+  .sb-override { max-width: 36rem; }
+}
 .sb-task-list, .sb-contestant-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
 .sb-task-list li, .sb-contestant-list li { display: flex; gap: 0.5rem; align-items: stretch; }
 .sb-task-list li.dragging { opacity: 0.7; }

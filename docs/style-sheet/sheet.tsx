@@ -91,6 +91,10 @@ function Sheet() {
             </div>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
+            <Item cap={<>Points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
+              <div className="choices marks sb-chips"><button aria-pressed>DQ</button><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div>
+              <div className="choices marks sb-chips"><button>DQ</button><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div>
+            </Item>
             <div className="pair">
               <Item cap={<><code>.link</code>: quiet exits</>}><div><button className="link">Lower the curtain</button> <button className="link">Party settings</button></div></Item>
               <Item cap="Icon buttons: aria-label always"><ul className="picker"><li><button>Sam</button><button className="x" aria-label="Fix">✎</button><button className="x" aria-label="Remove">×</button></li></ul></Item>
