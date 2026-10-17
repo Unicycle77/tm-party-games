@@ -1147,16 +1147,16 @@ button.help-q:active { transform: none; box-shadow: none; }
 .converter .choices.tasks button.active .muted { color: inherit; }
 /* the common units while a task's unit is in use: still tappable, but plainly not the one in use */
 .converter .choices.idle button { opacity: 0.55; }
-/* the four kinds and up to five units each fit on one row */
-.converter .choices.kinds button { flex-basis: 4.5rem; }
-.converter .choices.units button { flex-basis: 3rem; }
+/* the five kinds sit three and two, never four and a lone one; a unit ("fl oz") never breaks over two lines */
+.converter .choices.kinds button { flex-basis: 5.5rem; }
+.converter .choices.units button { flex-basis: 3rem; white-space: nowrap; }
 .slot.conversion p { margin: 0; color: #6b5a44; }
 .slot.conversion .lead { font-family: var(--typewriter); color: #1f1a14; font-size: 1.05rem; }
 .slot.conversion .main { font-family: var(--typewriter); color: var(--burgundy); font-size: 2rem; line-height: 1.1; }
 .slot.conversion .tracklist { max-height: 15rem; }
 .unit-field { display: grid; gap: 0.5rem; }
 .unit-field .unit-size { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; align-items: center; }
-.unit-field .choices.units button { flex: 1 1 3.5rem; }
+.unit-field .choices.units button { flex: 1 1 3.5rem; white-space: nowrap; }
 .unit-field p { margin: 0; }
 /* the big screen: the same three lines on a paper card, hung on the curtain */
 .conversion-card { background: var(--paper); border: 3px solid var(--gold-dark); border-radius: 6px; box-shadow: 0 18px 28px rgba(0, 0, 0, 0.7);

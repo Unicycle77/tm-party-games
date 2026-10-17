@@ -76,10 +76,11 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-task-songs-folder-closed.jpg` | The same with the main screen's music folder not open: every strip disabled, "music folder not open" |
 | `task-song-edit.jpg` | ✎ on a task: "Song (optional)" with the jukebox's song list open, the chosen song gold, "as it was on Oct 12" |
 | `task-song-edit-missing.jpg` | ✎ on a task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." |
-| `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time and the common units, dimmed while a task's unit is in use |
+| `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time · Volume and the common units, dimmed while a task's unit is in use |
 | `converter-host-result.jpg` | After "Surprise me": three lines to read aloud, the working in small print, "Use a different unit ▾", "Show on the big screen" |
 | `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |
 | `converter-host-common.jpg` | Measuring in a common unit: Weight, kg, 70 |
+| `converter-host-volume.jpg` | Volume (2026-10-17): the five kinds three and two, the volume units (ml L tsp tbsp fl oz cup pt qt gal), 2 cups as a fraction of a minute of shower |
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |
 | `task-unit-edit.jpg` | ✎ on a task: "📏 Measured in" filled in as dice, one is 16 mm, "Stacked up (height)", the line repeating it back |
 | `task-unit-empty.jpg` | ✎ on a task with no unit: the name field and "🎲 Dice (16 mm)" |
