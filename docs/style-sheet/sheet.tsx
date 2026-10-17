@@ -92,12 +92,14 @@ function Sheet() {
             </div>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
-            <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
+            <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them; then the +1 bonus chip (<code>.sb-bonus</code>), kept through a DQ</>}>
               <ul className="sb-rows">
                 <li><span className="sb-name">Sam<span className="muted small sb-now">now 5</span></span><div className="choices marks sb-dq"><button aria-pressed>DQ</button></div>
-                  <div className="choices marks sb-chips"><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div></li>
+                  <div className="choices marks sb-chips"><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button></div>
+                  <div className="choices marks sb-bonus"><button aria-pressed>+1</button></div></li>
                 <li><span className="sb-name">Mei<span className="muted small sb-now">now 6</span></span><div className="choices marks sb-dq"><button>DQ</button></div>
-                  <div className="choices marks sb-chips"><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div></li>
+                  <div className="choices marks sb-chips"><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button></div>
+                  <div className="choices marks sb-bonus"><button>+1</button></div></li>
               </ul>
             </Item>
             <div className="pair">

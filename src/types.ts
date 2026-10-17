@@ -236,7 +236,7 @@ export interface ScoreboardTask {
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
   /**
-   * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `pointsFor` and
+   * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `workOut`, plus any `bonus`, and
    * saved with them. A contestant with none gets nothing for this task.
    */
   scores?: Record<string, number>;
@@ -246,7 +246,9 @@ export interface ScoreboardTask {
   results?: Record<string, number>;
   /** Points the host tapped: every point on a by-hand task, an override on a measured one. */
   given?: Record<string, number>;
-  /** Disqualified contestants: 0 points, whatever they were given or measured. */
+  /** Contestants given a bonus point on top of their points for this task. A DQ keeps it. */
+  bonus?: Record<string, true>;
+  /** Disqualified contestants: 0 points, whatever they were given or measured (a bonus still counts). */
   dq?: Record<string, true>;
   /** The host turned off DQs moving everyone else up, for this task. */
   dqStays?: true;

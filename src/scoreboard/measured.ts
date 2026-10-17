@@ -85,6 +85,13 @@ export function workOut(t: ScoreboardTask): Worked {
   return { points, before, place, auto, moved, held };
 }
 
+/** The points that count on the scoreboard: the task's points, and one more for each bonus. */
+export function withBonus(t: ScoreboardTask, points: Points): Points {
+  const out = { ...points };
+  for (const c of Object.keys(t.bonus ?? {})) out[c] = (out[c] ?? 0) + 1;
+  return out;
+}
+
 /** 1st, 2nd, 3rd, 4th, … 11th, 12th, 13th, 21st. */
 export function ordinal(n: number) {
   const tens = n % 100;
