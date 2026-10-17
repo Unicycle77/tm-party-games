@@ -41,6 +41,7 @@ Games:
 | `noisemaster-soundboard.jpg` | Noisemaster's board: the player's phone before the first press and while playing (every button glowing), and the host phone's board with its words |
 | `noisemaster-host-landscape.jpg` | Noisemaster round on the host app in landscape (iPad): controls left, the whole board right, no scrolling |
 | `noisemaster-host-typed-words.jpg` | Noisemaster setup with no sound files: the host app (not the main screen) says to click the main screen once, and where recordings go |
+| `noisemaster-host-saved.jpg` | A finished Noisemaster go on the host phone: "Saved for the scoreboard: 2nd fastest of 4 so far." under the time (the board is left out of this one) (2026-10-17) |
 
 Scoreboard (taken on 2026-10-12, from the real components with made-up sessions; the photos in the Headshot task are stand-ins):
 
@@ -53,8 +54,14 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | Giving points for one task: the task's song strip, then each contestant on one line, the name with "now N" under it and chips 0 to 5 and "…", "← All tasks", "Next task →" (2026-10-14) |
-| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant (2026-10-14) |
+| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it and chips DQ, 1 to 5 and "…", "← All tasks", "Next task →" (2026-10-17) |
+| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant (2026-10-17) |
+| `scoreboard-host-points-dq.jpg` | A by-hand task with a DQ after the points: Sam's 4 struck through, the people below him moved up with dashed chips for what they had, "Sam's DQ moved 3 people up. Don't move them", and Tom DQ'd with no points (2026-10-17) |
+| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins"): a box per contestant with "dice" after it, the points over the place, DQ; Alex DQ'd, his 19 struck through, the others moved up; Tom not measured yet (2026-10-17) |
+| `scoreboard-host-points-override.jpg` | Overriding a measured point: Mei's points open the chips, "Automatic: 4 for 2nd"; Sam's 3 was set by hand (✎) (2026-10-17) |
+| `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: the box keeps its width, "now N" beside the name (2026-10-17) |
+| `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Tom "not played" (2026-10-17) |
+| `task-edit-scoring.jpg` | ✎ on a live task: "Scoring" with By hand, Highest wins and Lowest wins under the note (2026-10-17) |
 | `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |

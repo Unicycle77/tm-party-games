@@ -225,8 +225,23 @@ export interface ScoreboardTask {
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
-  /** Points by contestant id. A contestant with none gets nothing for this task. */
+  /**
+   * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `pointsFor` and
+   * saved with them. A contestant with none gets nothing for this task.
+   */
   scores?: Record<string, number>;
+  /** A live task scored from a count or measurement: the highest or the lowest wins. Absent: scored by hand. */
+  scoring?: "highest" | "lowest";
+  /** The count or measurement per contestant (Noisemaster's times in ms). */
+  results?: Record<string, number>;
+  /** Points the host tapped: every point on a by-hand task, an override on a measured one. */
+  given?: Record<string, number>;
+  /** Disqualified contestants: 0 points, whatever they were given or measured. */
+  dq?: Record<string, true>;
+  /** The host turned off DQs moving everyone else up, for this task. */
+  dqStays?: true;
+  /** Noisemaster: the restarts in each contestant's go, for the host's colour commentary. */
+  restarts?: Record<string, number>;
   /** What the task is measured in, like "dice": the 📏 converter offers it for this task. */
   unit?: TaskUnit;
 }
