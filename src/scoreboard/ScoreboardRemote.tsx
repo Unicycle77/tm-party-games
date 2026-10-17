@@ -506,9 +506,11 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   const [scoring, setScoringDraft] = useState(task.scoring);
   const save = () => {
     const rescored = !task.game && scoring !== task.scoring;
-    if (rescored && scored(task) && !confirm(`Change how "${titleOf(task)}" is scored? Its points so far are cleared.`)) return;
+    // By-hand points with no numbers to work from would be lost.
+    const lost = rescored && scoring && !isMeasured(task) && Object.keys(task.given ?? task.scores ?? {}).some((c) => !task.dq?.[c] && task.results?.[c] === undefined);
+    if (lost && !confirm(`Score "${titleOf(task)}" by its numbers? Points given by hand to anyone without a number are cleared.`)) return;
     void editTask(code, id, name, description, song, unitOf(unit));
-    if (rescored) void setScoring(code, id, scoring);
+    if (rescored) void setScoring(code, session.scoreboard, session.display?.step === "scoreboard", id, scoring);
     onClose();
   };
   const drop = () => {

@@ -34,6 +34,8 @@ export interface Worked {
   auto: Points;
   /** How many contestants the DQs moved up, or would move up if they were allowed to. */
   moved: number;
+  /** Everyone's points as if no DQ had moved anyone, a DQ'd contestant's included: what they'd have had. */
+  held: Points;
 }
 
 /**
@@ -44,7 +46,7 @@ export interface Worked {
 export function workOut(t: ScoreboardTask): Worked {
   const dq = t.dq ?? {};
   const moves = !t.dqStays;
-  const points: Points = {}, before: Points = {}, place: Points = {}, auto: Points = {};
+  const points: Points = {}, before: Points = {}, place: Points = {}, auto: Points = {}, held: Points = {};
   let moved = 0;
   if (isMeasured(t)) {
     const results = t.results ?? {};
@@ -53,8 +55,9 @@ export function workOut(t: ScoreboardTask): Worked {
     const everyone = places(results, all, lowest);
     const ranked = places(results, all.filter((c) => !dq[c]), lowest);
     for (const c of all) {
-      if (dq[c]) continue;
       const was = pointsForPlace(everyone[c]!);
+      held[c] = t.given?.[c] ?? was;
+      if (dq[c]) continue;
       const now = pointsForPlace(ranked[c]!);
       if (now !== was) moved++;
       place[c] = moves ? ranked[c]! : everyone[c]!;
@@ -62,9 +65,13 @@ export function workOut(t: ScoreboardTask): Worked {
       if (moves && now !== was && t.given?.[c] === undefined) before[c] = was;
       points[c] = t.given?.[c] ?? auto[c]!;
     }
-    for (const c of Object.keys(t.given ?? {})) if (!(c in points) && !dq[c]) points[c] = t.given![c]!;
+    for (const c of Object.keys(t.given ?? {})) {
+      held[c] ??= t.given![c]!;
+      if (!(c in points) && !dq[c]) points[c] = t.given![c]!;
+    }
   } else {
     const given = handPoints(t);
+    Object.assign(held, given);
     const out = Object.keys(dq).filter((d) => given[d] !== undefined);
     for (const [c, n] of Object.entries(given)) {
       if (dq[c]) continue;
@@ -75,7 +82,7 @@ export function workOut(t: ScoreboardTask): Worked {
     }
   }
   for (const c of Object.keys(dq)) points[c] = 0;
-  return { points, before, place, auto, moved };
+  return { points, before, place, auto, moved, held };
 }
 
 /** 1st, 2nd, 3rd, 4th, … 11th, 12th, 13th, 21st. */

@@ -129,11 +129,40 @@ export function enterPoints(code: string, board: Scoreboard | undefined, onScree
 }
 
 /**
- * Changes how a live task is won. Its points are cleared, since by-hand points and points by place
- * don't carry over; the host is asked first on the ✎ page.
+ * A measured task's points as by-hand points that work out the same: what DQ'd contestants would have had,
+ * and for everyone else the points that, moved up by the DQs above them, come to what they have now.
  */
-export const setScoring = (code: string, id: string, scoring: "highest" | "lowest" | undefined) =>
-  update(at(code, `tasks/${id}`), { scoring: scoring ?? null, scores: null, given: null, results: null, dq: null, dqStays: null, restarts: null });
+function keptByHand(task: ScoreboardTask) {
+  const { points, held } = workOut(task);
+  const given: Record<string, number> = {};
+  const out = Object.keys(task.dq ?? {}).filter((d) => held[d] !== undefined);
+  for (const [c, n] of Object.entries(points)) {
+    if (task.dq?.[c]) continue;
+    // The closest, if none is exact: 1 is the least anyone gets by place, so the places below 5th can't all move up.
+    const after = (k: number) => task.dqStays ? k : k + out.filter((d) => held[d]! > k).length;
+    let g = n;
+    for (let k = n; k >= 0; k--) if (Math.abs(after(k) - n) < Math.abs(after(g) - n)) g = k;
+    given[c] = g;
+  }
+  for (const d of out) given[d] = held[d]!;
+  return given;
+}
+
+/**
+ * Changes how a live task is won, keeping its DQs. To by hand: everyone keeps the points they had, as the
+ * host's own. To measured: the points are worked out again from the numbers, which stay through both.
+ */
+export function setScoring(code: string, board: Scoreboard | undefined, onScreen: boolean, id: string, scoring: "highest" | "lowest" | undefined) {
+  const task = board!.tasks![id]!;
+  const next: ScoreboardTask = scoring
+    ? { ...task, scoring, given: undefined }
+    : { ...task, scoring: undefined, given: isMeasured(task) ? keptByHand(task) : task.given };
+  if (next.given && !Object.keys(next.given).length) next.given = undefined;
+  const points = workOut(next).points;
+  return update(at(code, `tasks/${id}`), {
+    scoring: next.scoring ?? null, given: next.given ?? null, scores: Object.keys(points).length ? points : null,
+  });
+}
 
 /** ▶ Start on an app game in the task list: it starts that task (see catchUp). */
 export const startTask = (code: string, board: Scoreboard | undefined, onScreen: boolean, task: string) => {
