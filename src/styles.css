@@ -1102,6 +1102,10 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-dq button { width: 100%; padding: 0.55rem 0; font-size: 0.95rem; }
 .sb-override { display: grid; gap: 0.3rem; }
 .sb-override > :last-child { justify-self: end; }
+/* LO, under a dB box while it's typed in: one small chip, since it's rarely needed */
+.sb-lo { grid-template-columns: auto 1fr; align-items: center; gap: 0.6rem; }
+.sb-lo > :last-child { justify-self: start; }
+.sb-lo .sb-chips button { flex: none; width: 4.5rem; }
 .sb-scoring { display: grid; gap: 0.5rem; }
 .sb-scoring p { margin: 0; }
 .sb-scoring .choices button { flex: 1 1 5rem; white-space: nowrap; }
@@ -1191,6 +1195,7 @@ button.help-q:active { transform: none; box-shadow: none; }
 .slot.conversion .tracklist { max-height: 15rem; }
 .unit-field { display: grid; gap: 0.5rem; }
 .unit-field .unit-size { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; align-items: center; }
+.unit-field .unit-size.after { grid-template-columns: 1fr auto; }
 .unit-field .choices.units button { flex: 1 1 3.5rem; white-space: nowrap; }
 .unit-field p { margin: 0; }
 /* the big screen: the same three lines on a paper card, hung on the curtain */

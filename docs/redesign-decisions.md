@@ -341,6 +341,20 @@ Some live tasks are judged by a count or a measurement (the height of a dice tow
 | Noisemaster's times | Noisemaster on the task list is scored "Fastest wins" from the soundboard's times, with no Scoring choice on its ✎. A finished go is saved for the scoreboard on its own, with a muted "Saved for the scoreboard: 2nd fastest of 4 so far." under "✓ Done in 0:42.3", or "…, replacing 0:51.0" for a second go (the latest go counts). "Next round" mid-go saves a DQ, and its confirm says so. Noisemaster played when it isn't on the list saves nothing. This changes the Scoreboard's "the host types every point" for Noisemaster only; Secret Tasks stays scored by hand. | A gold "Save time" button: the time is never wrong, and it's one more tap to forget. |
 | Noisemaster's points | The measured page as is: the times in the boxes as "0:42.3" (editable for a glitch), "↺ 2" for the restarts where a unit would go ("↺ 0" for a clean go), and "Fastest wins · times from the soundboard · 5 of 6 played". A go not played yet reads "not played". | No restarts on the row, since they already cost time: Jeffrey wants them for colour commentary. |
 
+## Loudness
+
+Tasks judged with a dedicated dB meter (not a phone's mic, which isn't calibrated): loudest wins, quietest wins, and loudest without going over. Designed one moment at a time on 2026-10-17. Scenarios, in the agreed order: loudest wins, quietest wins, the read-aloud, and setting a task up. The sound list and its sources are in the project's loudness/sounds.md.
+
+| Moment | Decision | Rejected, and why |
+|---|---|---|
+| Entering a reading | The measured row as is, with "dB" after the box: the reading as the meter shows it, to a tenth. Points by place only need the order, which dB keep, so nothing is converted. The meter's setup ("1 m from the tape, max-hold") goes in the task's note, which already shows on the points page. | A "reset the meter" nudge after each entry: it would show every time, and the same reading twice is easy to spot. |
+| Ties | By the number as shown, even though a cheap meter is only good to about ±1.5 dB. | Readings within 1 dB tying: more honest about the meter, but a rule to explain on the night. |
+| Setting a task up | 🔊 dB meter beside 🎲 Dice under "Measured in": one tap makes it a sound task and hides the name, "One is" and the size chips; tapping it again turns it back. | A dB chip in the unit rows: you had to type "dB" and tap it too. |
+| DQ if louder than | Sound tasks only: an optional "🔇 DQ if louder than … dB" under 🔊. A reading over it is the existing DQ as soon as it's typed, with "over 60" under the 0 and "over 60 dB is a DQ" in the status line; exactly 60.0 is safe. Tapping DQ lifts it until that reading changes; a new or removed line applies to the readings already in. | "DQ if quieter than": not needed yet. A line on every measured task: only sound tasks need it for now. |
+| The meter's LO | On a lowest-wins dB task, a small LO chip opens under the box while it's typed in. LO beats every reading and every LO ties (stored as -1 dB). It has no conversion. | Typing "LO": letters in a number box. Typing the meter's lowest number: it fakes a reading. A full-width button: too loud for something rare. |
+| The read-aloud | Decibels can't be divided, so a reading is compared by counting sources at once: sound energy adds, ten vacuum cleaners are 10 dB louder than one. 94.2 dB is "about 26 garbage disposals at once"; quieter than a source, "about 1/60 the noise of a conversation". Every sound is "about", rounded to two figures, and its distance is on the "how" line. The ranking prefers counts you can picture (about 30) over a fraction. | "+10 dB sounds twice as loud": a rule of thumb, with small, unfunny numbers. "As loud as a lawnmower": a lookup, not a count. |
+| The Guinness records | Kept, as "about": they publish no distance and mix dBA and dBC, so the "how" line names the record instead. | Cutting them: drier. Ticking watches, an ordinary cat's purr and mosquitoes: cut, no source. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

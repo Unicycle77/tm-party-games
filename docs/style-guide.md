@@ -70,7 +70,7 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 - **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
 - **Marks** (`.choices.marks`): marking several things true at once, like Secret Tasks' scoring ("Did Sam do it?", "Who guessed it?"). The same paper chips, but a marked one stays pressed in, with a ✓ and `aria-pressed`, and never turns gold, so gold stays on the screen's one next action.
 - **Points chips** (`.choices.marks.sb-chips`): a contestant's points on the scoreboard, "DQ 1 2 3 4 5 …", one line per contestant. The picked chip is pressed in like a mark. A DQ'd contestant's points stay on their chip, struck through and faded (`.was`); a **dashed** chip (`.before`) is what someone had before a DQ moved them up, explained by a key under the list. DQ is only ever on the host's screens.
-- **Measured rows** (`.sb-measured`): a number box per contestant, the unit (or Noisemaster's "↺ 2") after it, the points over the place ("4" over "2nd") as a quiet button that opens the points chips, and a DQ chip. One subgrid, so the columns line up. A point set by hand carries a small ✎; a small dashed number beside the points is the one before a DQ. A DQ'd row strikes its number through. On a wide iPad the box keeps a fixed width.
+- **Measured rows** (`.sb-measured`): a number box per contestant, the unit (or Noisemaster's "↺ 2") after it, the points over the place ("4" over "2nd") as a quiet button that opens the points chips, and a DQ chip. One subgrid, so the columns line up. A point set by hand carries a small ✎; a small dashed number beside the points is the one before a DQ. A DQ'd row strikes its number through; one a dB task's DQ line made says "over 60" under its 0 instead of "DQ". On a lowest-wins dB task, a small LO chip (`.sb-lo`) opens under the box while it's typed in, for the meter's LO. On a wide iPad the box keeps a fixed width. See: [scoreboard-host-points-db-dq.jpg](screens/scoreboard-host-points-db-dq.jpg), [scoreboard-host-points-db-lo.jpg](screens/scoreboard-host-points-db-lo.jpg).
 - **Link** (`.link`): no chrome, `--muted`, underlined. For quiet or escape actions: Not Alex? Not the right party?, Disconnect, End session, Lower the curtain, Reset.
 - **Icon button** (`.picker .x`, `.picker .lock`): a small paper square next to a row. Always give it an `aria-label`.
 - **Disabled**: `opacity: 0.45`, `not-allowed` cursor. Prefer disabling to hiding when the button's position matters (see §5).
@@ -90,7 +90,7 @@ See: [host-pin-connect.jpg](screens/host-pin-connect.jpg) (pin), [player-join-co
 ### Cards and panels
 - **Player tile** (`.tile`): an index card, 3px radius, **slightly rotated** (`-1deg`, `1.2deg`, `-0.4deg` by position). On hover it straightens, grows 4% and gets a gold ring.
 - **Slot** (`.slot`): the phone's paper panel. The heading is `--burgundy`, the hints are `#6b5a44`.
-- **Read-aloud card** (`.slot.conversion`, and `.conversion-card` on the big screen): the three lines of a useless conversion on plain paper: the lead and the "what was measured" line in typewriter ink, the result between them in large `--burgundy` typewriter. On the big screen it hangs on the curtain like a photo (§6). See: [converter-host-result.jpg](screens/converter-host-result.jpg), [converter-main-whole.jpg](screens/converter-main-whole.jpg).
+- **Read-aloud card** (`.slot.conversion`, and `.conversion-card` on the big screen): the three lines of a useless conversion on plain paper: the lead and the "what was measured" line in typewriter ink, the result between them in large `--burgundy` typewriter. On the big screen it hangs on the curtain like a photo (§6). A sound is always "about", rounded to two figures, and counted "at once" ("about 26 garbage disposals at once"). See: [converter-host-result.jpg](screens/converter-host-result.jpg), [converter-main-whole.jpg](screens/converter-main-whole.jpg), [converter-main-loudness.jpg](screens/converter-main-loudness.jpg).
 - **Floating label** (`.stage-label`, `.review-name`, `.review-loading`, `.sound-hint`): a paper strip over the stage, typewriter font, centred, with a drop shadow.
 
 ### Row states
@@ -108,6 +108,7 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder") | A task's song strip |
 | Playing | Gold (`button.active`), ▶ becomes ⏸ | A task's song strip, the jukebox's current song |
 | Disqualified | DQ chip pressed in; what they'd have had struck through and faded (`.was`), never removed | The points page |
+| Over a dB task's line | The same DQ, with "over 60" under the 0 instead of "DQ" | The points page |
 | Before a DQ moved them | A dashed outline (`.before`, `.sb-before`), with a key under the list | The points page |
 | Not tappable but not unavailable | `.sb-task:disabled` keeps full opacity: the row is just information until there are contestants | Task rows before anyone is added |
 
@@ -228,10 +229,11 @@ See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-pla
 | \|\|\|\| | Points, as tally marks (Secret Tasks only) |
 | ✓ | Submitted |
 | 🔒 🔓 | Locked / may resubmit |
-| 🔇 | Sound blocked |
+| 🔇 | Sound blocked; a dB task's "DQ if louder than" line |
 | 💡 | The light (`/light`), its Hue lamp and its host-remote tab |
 | 📏 | Useless conversions: the host's tool, and a task's "Measured in" |
 | 🎲 | The dice preset for a task's unit |
+| 🔊 | The dB meter preset: a task measured in dB |
 | 👁 | Show a hidden pin (inside the field, pressed in while shown) |
 | 🔑 | The host pin, in the big screen's hidden menu |
 | … | In progress (`Joining…`, `sending…`) |

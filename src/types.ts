@@ -238,6 +238,10 @@ export interface ScoreboardTask {
   given?: Record<string, number>;
   /** Disqualified contestants: 0 points, whatever they were given or measured. */
   dq?: Record<string, true>;
+  /** A dB-meter task: a reading over this many dB is a DQ as soon as it's typed (exactly this many is safe). */
+  dqOver?: number;
+  /** The DQs `dqOver` made, so the points page can say why ("over 60"), and a reading back under it lifts them. */
+  overDq?: Record<string, true>;
   /** The host turned off DQs moving everyone else up, for this task. */
   dqStays?: true;
   /** Noisemaster: the restarts in each contestant's go, for the host's colour commentary. */
@@ -251,9 +255,10 @@ export interface TaskUnit {
   name: string;
   /** How big one is, in `unit`. */
   amount: number;
-  /** One of the converter's common units (mm, cm, m, in, ft, g, kg, oz, lb, sec, min, hr, ml, L, tsp, tbsp, fl oz, cup, pt, qt, gal). */
+  /** One of the converter's common units (mm, cm, m, in, ft, g, kg, oz, lb, sec, min, hr, ml, L, tsp, tbsp, fl oz, cup, pt, qt, gal), or dB. */
   unit: string;
-  kind: "height" | "length" | "weight" | "time" | "volume";
+  /** "loudness" is the 🔊 dB meter: always "dB", at 1 dB. */
+  kind: "height" | "length" | "weight" | "time" | "volume" | "loudness";
 }
 
 /** A useless conversion on the big screen: the three lines the host reads out. */
