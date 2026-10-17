@@ -1084,8 +1084,8 @@ button.help-q:active { transform: none; box-shadow: none; }
 .scoreboard-remote section { display: grid; gap: 0.5rem; }
 .sb-note { white-space: pre-wrap; }
 .sb-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
-/* names are short, so a narrow name column keeps each contestant on one line, with "now N" under the name */
-.sb-rows li { display: grid; grid-template-columns: 4.5rem 1fr; align-items: center; gap: 0.6rem; }
+/* names are short, so a narrow name column keeps each contestant on one line, with "now N" under the name; DQ sits by the name */
+.sb-rows li { display: grid; grid-template-columns: 4.5rem 3rem 1fr; align-items: center; gap: 0.6rem; }
 .sb-name { display: grid; line-height: 1.2; font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
 .sb-chips { flex-wrap: nowrap; }
 .sb-chips button, .sb-chips .sb-other { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
@@ -1099,9 +1099,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-before-key { margin: 0; }
 .sb-before-key .sb-before { width: 1.4rem; height: 1.4rem; margin: 0 0.3rem 0 0; }
 .sb-dq-line .link { padding: 0; }
-/* a measured task: one line per contestant, the number box, the unit (or Noisemaster's restarts), the points over the place, DQ */
+/* a measured task: one line per contestant, DQ, the number box, the unit (or Noisemaster's restarts), the points over the place */
 /* one grid for every row (subgrid), so the columns line up whatever each row's unit or restarts say */
-.sb-rows.sb-measured { grid-template-columns: 4.5rem minmax(0, 1fr) auto 3.2rem 3rem; column-gap: 0.5rem; }
+.sb-rows.sb-measured { grid-template-columns: 4.5rem 3rem minmax(0, 1fr) auto 3.2rem; column-gap: 0.5rem; }
 .sb-rows.sb-measured li { grid-column: 1 / -1; grid-template-columns: subgrid; row-gap: 0.35rem; column-gap: 0.5rem; }
 .sb-measure { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; }
 .sb-override { grid-column: 1 / -1; }
@@ -1117,15 +1117,17 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-pts.open { outline: 2px solid var(--gold); }
 .sb-pts:disabled { opacity: 1; cursor: default; }
 .sb-hand { margin-left: 0.1em; font-size: 0.55em; color: var(--muted); }
+/* DQ: the same small chip on every points row, by the name */
+.sb-dq { flex-wrap: nowrap; }
 .sb-dq button { width: 100%; padding: 0.55rem 0; font-size: 0.95rem; }
 .sb-override { display: grid; gap: 0.3rem; }
 .sb-override > :last-child { justify-self: end; }
 .sb-scoring { display: grid; gap: 0.5rem; }
 .sb-scoring p { margin: 0; }
 .sb-scoring .choices button { flex: 1 1 5rem; white-space: nowrap; }
-/* iPad in landscape: the box keeps its width, so the points and DQ stay by the name */
+/* iPad in landscape: the name column fits the longest name and the box keeps its width, so DQ and the points stay by the name */
 @media (min-width: 900px) {
-  .sb-rows.sb-measured { grid-template-columns: 10rem 16rem auto 3.4rem 3rem; justify-content: start; column-gap: 1rem; }
+  .sb-rows.sb-measured { grid-template-columns: fit-content(14rem) 3rem 16rem auto 3.4rem; justify-content: start; column-gap: 1rem; }
   .sb-rows.sb-measured li { column-gap: 1rem; }
   .sb-measured .sb-name { grid-auto-flow: column; justify-content: start; align-items: baseline; column-gap: 0.6rem; }
   .sb-override { max-width: 36rem; }
