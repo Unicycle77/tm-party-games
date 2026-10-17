@@ -741,6 +741,18 @@ body.idle-cursor .stage { cursor: none; }
 .light-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 .light-key { display: flex; align-items: center; gap: 0.5rem; text-align: left; padding: 0.6rem 0.7rem; line-height: 1.2; }
 .light-key.wide { grid-column: 1 / -1; }
+/* who has worked out the secret: a row per guesser (place, name, points), and a chip per contestant, dimmed once they're on */
+.light-got { display: grid; gap: 0.5rem; margin-top: 1rem; }
+.light-got h3 { margin: 0; }
+.light-got ol { list-style: none; padding: 0; margin: 0; }
+.light-got li { border-bottom: 1px solid #d9b24c44; }
+.light-got li.open { background: #0003; }
+.light-got-row { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: 3rem 1fr auto; align-items: baseline; padding: 0.4rem 0.2rem; font-size: 1.05rem; color: var(--fg); }
+.light-got-row:focus-visible { outline: 2px solid var(--gold-bright); }
+.light-got-pts { color: var(--gold-bright); }
+.light-got-fix { display: grid; gap: 0.4rem; padding: 0 0.2rem 0.6rem; }
+.light-got-fix .link { justify-self: start; }
+.light-got .choices button.got { opacity: 0.55; }
 .light-key .swatch { flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--bulb); border: 2px solid var(--gold-dark); }
 
 /* the light: setting up a real Hue lamp, on the /light page */

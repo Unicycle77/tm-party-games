@@ -8,6 +8,7 @@ import { Toggle } from "../../src/Toggle";
 import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
 import { SongStrip } from "../../src/SongStrip";
+import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
@@ -138,6 +139,11 @@ function Sheet() {
               <SongStrip code="HVQB" session={jukebox(false, false)} song="Hall of the Mountain King" />
             </div>
             <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <GotIt code="HVQB" light={{ got: { sam: 1, priya: 2 } }}
+                contestants={{ sam: { name: "Sam" }, priya: { name: "Priya" }, mei: { name: "Mei" }, alex: { name: "Alex" }, jo: { name: "Jo" } }} />
+            </div>
+            <Cap>The light's "Got it" list (<code>.light-got</code>): a row per guesser (place, name, points); everyone keeps a chip in place, dimmed with ✓ once on the list</Cap>
           </Sec>
         </div>
 

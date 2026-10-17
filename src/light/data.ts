@@ -48,6 +48,21 @@ export const lightOneLater = (code: string, id: string) => window.setTimeout(() 
 export const lightAllNow = (code: string, mode: Mode) =>
   mode.bulbs.forEach((b, i) => window.setTimeout(() => void lightOneNow(code, b.trigger.id), i * (MIN_CHANGE_MS + 100)));
 
+/** Who has worked out the secret, first to last. */
+export const gotOrder = (light: LightState) =>
+  Object.entries(light.got ?? {}).sort(([, a], [, b]) => a - b).map(([c]) => c);
+/** Marks a contestant as the next to work it out. */
+export const markGot = (code: string, light: LightState, contestant: string) =>
+  set(ref(db(), `sessions/${code}/light/got/${contestant}`), Math.max(0, ...Object.values(light.got ?? {})) + 1);
+/** Moves a contestant to a place (1st is 1); the others shift to make room. */
+export function moveGot(code: string, light: LightState, contestant: string, place: number) {
+  const order = gotOrder(light).filter((c) => c !== contestant);
+  order.splice(place - 1, 0, contestant);
+  return set(path(code, "got"), Object.fromEntries(order.map((c, i) => [c, i + 1])));
+}
+/** Takes a contestant off the list, as if they'd never been marked. */
+export const unmarkGot = (code: string, contestant: string) => set(ref(db(), `sessions/${code}/light/got/${contestant}`), null);
+
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 
 /** The light page: becomes the session's light computer (one per session; this browser may already be it). */

@@ -1,6 +1,6 @@
 # Style sheet
 
-One page with every piece of [the style guide](../style-guide.md): materials, colour tokens, type, buttons, toggles, inputs, the host header, row states, cards, aged paper, framed media, QR codes, help and icons. It imports `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components, so it changes when they do. It's a dev-only page and isn't part of the build.
+One page with every piece of [the style guide](../style-guide.md): materials, colour tokens, type, buttons, toggles, inputs, the host header, row states, cards, aged paper, framed media, QR codes, help and icons. It imports `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip` and `GotIt` components, so it changes when they do. It's a dev-only page and isn't part of the build.
 
 **Keep it current.** When a change adds or changes something the style guide describes, update `sheet.tsx` to match and re-render the image:
 

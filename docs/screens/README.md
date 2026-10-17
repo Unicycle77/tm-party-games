@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
 
-Style sheet (taken on 2026-10-15, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField` and `SongStrip` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip` and `GotIt` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
@@ -18,6 +18,8 @@ Host phone (`/host`, 390px wide):
 | `host-running-order.jpg` | Curtain down between contestants: the running order |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
 | `host-light.jpg` | 💡 The light, "All at once" mode |
+| `host-light-got-it.jpg` | 💡 The light's "Got it" list: Sam 1st, Priya just tapped in 2nd ("✓ Priya got it 2nd · 4 points."), their chips dimmed with ✓ (2026-10-17) |
+| `host-light-got-it-fix.jpg` | Fixing a mark: Tom's row open with the place chips (3rd pressed in) and "Take Tom off the list" (2026-10-17) |
 | `host-jukebox.jpg` | 🎵 The jukebox |
 | `host-party-settings.jpg` | Party settings (portrait, download button, disconnect) |
 

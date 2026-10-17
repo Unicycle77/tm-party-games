@@ -165,6 +165,11 @@ export interface LightState {
   lit?: Record<string, number>;
   /** What the light computer's camera sees (people in view; per trigger, how many are "in", e.g. smiling), for the host phone. */
   camera?: { starting?: boolean; off?: boolean; people?: number; each?: Record<string, number>; error?: string };
+  /**
+   * Who has worked out the secret, by scoreboard contestant: a number that puts them in the order they got
+   * it (the smallest got it first). Only the order counts, so taking someone off leaves a gap, not a renumbering.
+   */
+  got?: Record<string, number>;
 }
 
 /**
