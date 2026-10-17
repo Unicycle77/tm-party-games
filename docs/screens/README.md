@@ -35,6 +35,7 @@ Main screen (`/`, 1600×900):
 | `main-welcome.jpg` | The welcome: join QR, code, contestants |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
+| `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
 | `converter-main-fraction.jpg` | The same with a fraction: "exactly 1/300 the height of Big Ben" |
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
 | `main-curtain-join-qr.jpg` | The curtain while the host remote's "Show QR code" is open: the join QR in the bottom-right corner, above the address (taken 2026-10-13, stand-in portrait) |
@@ -69,6 +70,10 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 24", the box keeps its width, "+1" right after the points (2026-10-17) |
 | `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, still whole with the +1 column, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Jo's bonus, Tom "not played" (2026-10-17) |
 | `task-edit-scoring.jpg` | ✎ on a live task: "Scoring" with By hand, Highest wins and Lowest wins under the note (2026-10-17) |
+| `task-edit-db-meter.jpg` | ✎ on a task with no unit: 🔊 dB meter beside 🎲 Dice under "Measured in" (2026-10-17) |
+| `task-edit-db-meter-on.jpg` | 🔊 dB meter tapped: the name, "One is" and size chips gone, and "🔇 DQ if louder than" set to 60 dB (2026-10-17) |
+| `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 90: Priya's 94.2 and Mei's 101.3 struck through with "over 90" under their 0, the others moved up, "over 90 dB is a DQ" in the status line, Sam's +1 bonus (2026-10-17) |
+| `scoreboard-host-points-db-lo.jpg` | A quietest-wins dB task: the LO chip under Mei's box while it's typed in, and Jo's LO in 1st (2026-10-17) |
 | `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |
@@ -92,6 +97,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-song-edit-missing.jpg` | ✎ on a task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." |
 | `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time · Volume and the common units, dimmed while a task's unit is in use |
 | `converter-host-result.jpg` | After "Surprise me": three lines to read aloud, the working in small print, "Use a different unit ▾", "Show on the big screen" |
+| `converter-host-loudness.jpg` | The converter on a dB task's reading: Loudness among the kinds, "94.2 dB is / about 4.2 blenders at once / on high, at the counter" and "a blender is about 88 dB" (2026-10-17) |
 | `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |
 | `converter-host-common.jpg` | Measuring in a common unit: Weight, kg, 70 |
 | `converter-host-volume.jpg` | Volume (2026-10-17): the five kinds three and two, the volume units (ml L tsp tbsp fl oz cup pt qt gal), 2 cups as a fraction of a minute of shower |

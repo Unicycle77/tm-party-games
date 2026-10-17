@@ -92,6 +92,20 @@ export function withBonus(t: ScoreboardTask, points: Points): Points {
   return out;
 }
 
+/** A dB meter's LO, quieter than it can read: stored as -1 dB, so it beats every reading and every LO ties. */
+export const LO = -1;
+
+/**
+ * What a dB task's DQ line makes of a contestant's reading: over it is a DQ, marked as the line's own; back under
+ * it (or cleared) lifts a DQ the line made. A DQ the host gave, or lifted, by hand is left alone.
+ */
+export function overLine(t: ScoreboardTask, c: string, reading: number | undefined) {
+  const over = t.dqOver !== undefined && reading !== undefined && reading > t.dqOver;
+  if (over && !t.dq?.[c]) return { dq: { [c]: true as const }, overDq: { [c]: true as const } };
+  if (!over && t.overDq?.[c]) return { dq: { [c]: null }, overDq: { [c]: null } };
+  return {};
+}
+
 /** 1st, 2nd, 3rd, 4th, … 11th, 12th, 13th, 21st. */
 export function ordinal(n: number) {
   const tens = n % 100;

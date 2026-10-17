@@ -10,7 +10,7 @@ import { currentPoints } from "./scoring";
 const at = (code: string, path = "") => ref(db(), `sessions/${code}/scoreboard${path ? `/${path}` : ""}`);
 
 /** What the host enters on a task, from which its points are worked out. */
-const ENTERED = ["given", "results", "restarts", "dq", "dqStays", "bonus"] as const;
+const ENTERED = ["given", "results", "restarts", "dq", "overDq", "dqStays", "bonus"] as const;
 
 const nextOrder = (items: Record<string, { order: number }> | undefined) =>
   Math.max(-1, ...Object.values(items ?? {}).map((i) => i.order)) + 1;
@@ -94,9 +94,9 @@ export async function addKeptGame(code: string, session: Session, game: "light" 
   await enterPoints(code, { ...board, tasks: { ...board?.tasks, [id]: added } }, session.display?.step === "scoreboard", id, entry);
 }
 
-/** Changes a task's name, note and song in place. An empty note or song removes it. */
-export const editTask = (code: string, id: string, name: string, description: string, song: string, unit: TaskUnit | null) =>
-  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null, unit });
+/** Changes a task's name, note, song, unit and DQ line in place. An empty note or song removes it. */
+export const editTask = (code: string, id: string, name: string, description: string, song: string, unit: TaskUnit | null, dqOver: number | null) =>
+  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null, unit, dqOver });
 
 /** Takes a task off the list, with its points. The big screen keeps showing them until the next update. */
 export const removeTask = (code: string, id: string) => remove(at(code, `tasks/${id}`));
@@ -124,6 +124,7 @@ export interface TaskEntry {
   results?: Record<string, number | null>;
   restarts?: Record<string, number | null>;
   dq?: Record<string, true | null>;
+  overDq?: Record<string, true | null>;
   dqStays?: true | null;
   bonus?: Record<string, true | null>;
 }
@@ -151,6 +152,7 @@ export function enterPoints(code: string, board: Scoreboard | undefined, onScree
   if (entry.results) next.results = merged(next.results, entry.results);
   if (entry.restarts) next.restarts = merged(next.restarts, entry.restarts);
   if (entry.dq) next.dq = merged<true>(next.dq, entry.dq);
+  if (entry.overDq) next.overDq = merged<true>(next.overDq, entry.overDq);
   if (entry.dqStays !== undefined) next.dqStays = entry.dqStays ?? undefined;
   if (entry.bonus) next.bonus = merged<true>(next.bonus, entry.bonus);
   const points = withBonus(next, workOut(next).points);

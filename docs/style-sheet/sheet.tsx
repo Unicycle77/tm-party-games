@@ -35,7 +35,7 @@ const tokens: [string, string, string][] = [
   ["--tm-red", "#c8102e", "Noisemaster"], ["--key", "#1e1d1c", "soundboard keys"],
 ];
 const icons: [string, string][] = [
-  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["🎲", "Dice preset"], ["🎁", "Prizes"],
+  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["🎲", "Dice preset"], ["🔊", "dB meter preset"], ["🎁", "Prizes"],
   ["☰", "Hidden menu"], ["📺", "Screen"], ["📷", "Scan a QR"], ["◫", "Side by side"], ["▶ ⏸ ↺", "Play, pause, restart"],
   ["←", "Back"], ["→", "Next thing"], ["✕ ×", "Close, remove"], ["✎", "Fix in place"], ["+", "Add"], ["≡", "Drag to reorder"],
   ["★ ☆", "Chosen photo"], ["✓", "Done"], ["🔒 🔓", "Locked, may resubmit"], ["🔇", "Sound blocked"], ["👁", "Show the pin"],
@@ -101,6 +101,9 @@ function Sheet() {
                   <div className="choices marks sb-chips"><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button></div>
                   <div className="choices marks sb-bonus"><button>+1</button></div></li>
               </ul>
+            </Item>
+            <Item cap={<><code>.sb-lo</code>: LO for a dB meter, under the box while it's typed in</>}>
+              <div className="sb-override sb-lo"><div className="choices marks sb-chips"><button>LO</button></div><span className="muted small">The meter shows LO: quieter than it can read. Everyone on LO ties.</span></div>
             </Item>
             <div className="pair">
               <Item cap={<><code>.link</code>: quiet exits</>}><div><button className="link">Lower the curtain</button> <button className="link">Party settings</button></div></Item>

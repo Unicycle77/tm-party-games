@@ -1,13 +1,16 @@
 /**
- * The useless units: about 100 each for height and length and 50 each for weight, time and volume, sorted smallest
+ * The useless units: about 100 each for height and length, 50 each for weight, time and volume, and 37 sounds, sorted smallest
  * first. Each is a real figure: a rule, a standard or an official number where one exists, else the generally
  * accepted average, marked `about`, which the converter never calls "exactly". Sources are in the project's
  * unit list (useless-conversions/units.md).
  */
 
-export type Kind = "height" | "length" | "weight" | "time" | "volume";
+export type Kind = "height" | "length" | "weight" | "time" | "volume" | "loudness";
 
-/** Everything is converted through one anchor per kind: millimetres, grams, seconds or millilitres. Volume is US customary. */
+/**
+ * Everything is converted through one anchor per kind: millimetres, grams, seconds or millilitres. Volume is US customary.
+ * Loudness can't be: decibels don't multiply (see `soundEnergy`), so dB has no entry here.
+ */
 export const ANCHOR: Record<string, number> = {
   mm: 1, cm: 10, m: 1000, km: 1e6, in: 25.4, ft: 304.8,
   g: 1, kg: 1000, oz: 28.349523125, lb: 453.59237,
@@ -25,7 +28,7 @@ export interface UselessUnit {
   the?: "the" | "a" | "an" | "";
   /** What exactly was measured, the line under the number: "a regulation ten-pin". */
   measured: string;
-  /** In the kind's anchor (mm, g, s or ml). */
+  /** In the kind's anchor (mm, g, s or ml; for loudness, sound energy, see `soundEnergy`). */
   size: number;
   /** A generally accepted average rather than a rule or an official figure. */
   about?: boolean;
@@ -38,6 +41,21 @@ const about = { about: true } as const;
 const the = { the: "the" } as const;
 /** A famous person: their usually quoted height, and no article ("1/2 the height of Tom Holland"). */
 const person = { about: true, the: "" } as const;
+
+/**
+ * A dB reading as sound energy, the one thing about loudness that adds up: ten vacuum cleaners together are 10 dB
+ * louder than one, a hundred 20 dB. So 94.2 dB over a 70 dB vacuum cleaner is 10^2.42, about 260 vacuum cleaners at once.
+ */
+export const soundEnergy = (db: number) => 10 ** (db / 10);
+
+/**
+ * Sounds, quietest first. All of them are "about": a sound's dB depends on how far away it's measured, and the
+ * Guinness records publish no distance and mix A- and C-weighting. Sources are in the project's loudness/sounds.md.
+ */
+type Sound = [many: string, one: string, measured: string, db: number, the?: UselessUnit["the"]];
+const sounds = (list: Sound[]): UselessUnit[] =>
+  list.map(([many, one, measured, db, the]) => ({ many, one, measured, size: soundEnergy(db), about: true, ...(the !== undefined ? { the } : {}) }))
+    .sort((a, b) => a.size - b.size);
 
 export const UNITS: Record<Kind, UselessUnit[]> = {
   height: rows([
@@ -436,5 +454,44 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["Grand Canyons", "Grand Canyon", "the space it carves out", 4170, "km³", { about: true, the: "the" }],
     ["Earth's oceans", "all the Earth's oceans", "every drop", 1.335e9, "km³", { about: true, the: "" }],
     ["Moons", "Moon", "the whole thing", 2.1958e10, "km³", the],
+  ]),
+  loudness: sounds([
+    ["quietest sounds a person can hear", "quietest sound a person can hear", "the threshold of hearing", 0, "the"],
+    ["people breathing", "person breathing", "normal breathing, close by", 10],
+    ["rustles of leaves", "rustle of leaves", "a light breeze", 20],
+    ["whispers", "whisper", "1 m away", 30],
+    ["fridges", "fridge", "humming, in the kitchen", 40],
+    ["quiet libraries", "quiet library", "the room's background", 40],
+    ["quiet dishwashers", "quiet dishwasher", "a modern \"quiet\" model's rating", 45],
+    ["rain showers", "rain shower", "moderate rain, outdoors", 50],
+    ["electric toothbrushes", "electric toothbrush", "at arm's length", 55],
+    ["conversations", "conversation", "people talking, 1 m away", 60],
+    ["Smokey the cat's purrs", "Smokey the cat's purr", "the loudest purr on record (Guinness, 2011)", 67.8, ""],
+    ["washing machines", "washing machine", "on spin, in the room", 70],
+    ["vacuum cleaners", "vacuum cleaner", "1 m away", 70],
+    ["alarm clocks", "alarm clock", "on the bedside table", 80],
+    ["garbage disposals", "garbage disposal", "at the sink", 80],
+    ["city traffic jams", "city traffic jam", "from inside a car", 85],
+    ["hair dryers", "hair dryer", "in your hand", 85],
+    ["blenders", "blender", "on high, at the counter", 88],
+    ["gas lawnmowers", "gas lawnmower", "from the operator's seat", 90],
+    ["motorcycles", "motorcycle", "riding one", 95],
+    ["subway trains", "subway train", "arriving, on the platform", 100],
+    ["leaf blowers", "leaf blower", "from the operator's spot", 110],
+    ["chainsaws", "chainsaw", "from the operator's spot", 110],
+    ["car horns", "car horn", "1 m away", 110],
+    ["crying babies", "crying baby", "held close", 110],
+    ["Neville Sharp's burps", "Neville Sharp's burp", "the loudest burp on record (Guinness, 2021)", 112.4, ""],
+    ["Charlie the dog's barks", "Charlie the dog's bark", "a golden retriever, the loudest bark on record (Guinness, 2012)", 113.1, ""],
+    ["rock concerts", "rock concert", "in front of the speakers", 115],
+    ["thunderclaps", "thunderclap", "a strike nearby", 120],
+    ["ambulance sirens", "ambulance siren", "passing close", 120],
+    ["vuvuzelas", "vuvuzela", "1 m away", 120],
+    ["Jill Drake's screams", "Jill Drake's scream", "the loudest scream on record (Guinness, 2000)", 129, ""],
+    ["jets taking off", "jet taking off", "close to the runway", 140],
+    ["large balloons popping", "large balloon popping", "0.5 m away, the peak", 140],
+    ["Arrowhead Stadium crowds", "Arrowhead Stadium crowd", "Chiefs fans, the record roar (Guinness, 2014)", 142.2, "the"],
+    ["Krakatoas", "Krakatoa", "the 1883 eruption, on a barometer 160 km away", 172, ""],
+    ["Saturn V launches", "Saturn V launch", "at the first stage's engines", 204],
   ]),
 };

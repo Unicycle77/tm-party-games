@@ -1,5 +1,5 @@
 import type { ShownConversion, TaskUnit } from "../types";
-import { ANCHOR, UNITS, type Kind, type UselessUnit } from "./units";
+import { ANCHOR, soundEnergy, UNITS, type Kind, type UselessUnit } from "./units";
 
 /** The everyday units the host can measure in, by kind. Tasks can bring their own (see `TaskUnit`). */
 export const COMMON: Record<Kind, string[]> = {
@@ -8,12 +8,16 @@ export const COMMON: Record<Kind, string[]> = {
   weight: ["g", "kg", "oz", "lb"],
   time: ["sec", "min", "hr"],
   volume: ["ml", "L", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"],
+  loudness: ["dB"],
 };
-export const KINDS: Kind[] = ["height", "length", "weight", "time", "volume"];
-export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time", volume: "Volume" };
+export const KINDS: Kind[] = ["height", "length", "weight", "time", "volume", "loudness"];
+export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time", volume: "Volume", loudness: "Loudness" };
 
 /** The one built-in prop: a standard six-sided die is 16 mm along each edge. */
 export const DICE: TaskUnit = { name: "dice", amount: 16, unit: "mm", kind: "height" };
+
+/** A task measured with a dB meter (the 🔊 shortcut): readings go in as the meter shows them. */
+export const DB_METER: TaskUnit = { name: "dB", amount: 1, unit: "dB", kind: "loudness" };
 
 /** A result: how much of one useless unit the measurement is, as a whole count or as "1/N of one". */
 export interface Match {
@@ -40,6 +44,12 @@ export function matchFor(unit: UselessUnit, anchor: number): Match | undefined {
   return { unit, count, whole, fraction: true, off: Math.abs(flipped - whole) };
 }
 
+/**
+ * Sounds are always "about" and rounded, so nothing is closer to a round number than anything else. Instead, the
+ * best is a count you can picture and still laugh at, around 30 at once; a fraction of something louder comes after.
+ */
+const loudOff = (m: Match) => Math.abs(Math.log10(m.count) - 1.5) + (m.fraction ? 0.5 : 0);
+
 /** Past a billion (1/94,002,983,111,123,540 of the Grand Canyon) a number can't be read out, and every one looks "exact". */
 const MOST = 1e9;
 
@@ -48,7 +58,8 @@ const MOST = 1e9;
  * to picture), with the closest few shuffled so a repeat isn't a rerun. "Use a different unit" still offers the rest.
  */
 export function rank(kind: Kind, anchor: number, shuffleTop = 5, random = Math.random): Match[] {
-  const all = UNITS[kind].map((u) => matchFor(u, anchor)).filter((m): m is Match => !!m && m.whole <= MOST).sort((a, b) => a.off - b.off || a.whole - b.whole);
+  const all = UNITS[kind].map((u) => matchFor(u, anchor)).filter((m): m is Match => !!m && m.whole <= MOST)
+    .sort(kind === "loudness" ? (a, b) => loudOff(a) - loudOff(b) : (a, b) => a.off - b.off || a.whole - b.whole);
   const top = all.slice(0, shuffleTop);
   for (let i = top.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -57,19 +68,26 @@ export function rank(kind: Kind, anchor: number, shuffleTop = 5, random = Math.r
   return [...top, ...all.slice(shuffleTop)];
 }
 
-/** A measurement in its kind's anchor (mm, g, s or ml). */
-export const toAnchor = (amount: number, unit: string) => amount * (ANCHOR[unit] ?? NaN);
+/** A measurement in its kind's anchor (mm, g, s or ml, or a dB reading's sound energy). */
+export const toAnchor = (amount: number, unit: string) => unit === "dB" ? soundEnergy(amount) : amount * (ANCHOR[unit] ?? NaN);
 
 const num = (n: number, digits = 2) => n.toLocaleString("en-US", { maximumFractionDigits: digits });
 const article = (u: UselessUnit) => u.the ?? (/^[aeiou]/i.test(u.one) ? "an" : "a");
 const withArticle = (u: UselessUnit) => [article(u), u.one].filter(Boolean).join(" ");
-const DIMENSION: Record<Kind, string> = { height: "height", length: "length", weight: "weight", time: "length", volume: "volume" };
-const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weight: "", time: "", volume: "" };
+const DIMENSION: Record<Kind, string> = { height: "height", length: "length", weight: "weight", time: "length", volume: "volume", loudness: "noise" };
+const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weight: "", time: "", volume: "", loudness: "" };
+/** Two significant figures, for a count worked out from a reading to a tenth of a dB: 2,630.3 conversations is "about 2,600". */
+const rough = (n: number) => num(Number(n.toPrecision(2)), 2);
 
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
 export function say(kind: Kind, amount: number, inUnit: string, m: Match): ShownConversion {
   const lead = `${num(amount)} ${inUnit}${ADJECTIVE[kind]} is`;
   const u = m.unit;
+  // Sounds are always "about" (see `sounds`): so many of them going at once, or a fraction of one.
+  if (kind === "loudness") {
+    const main = m.fraction ? `about 1/${rough(Math.max(2, 1 / m.count < 10 ? Math.round(1 / m.count) : 1 / m.count))} the noise of ${withArticle(u)}` : `about ${rough(m.count)} ${rough(m.count) === "1" ? u.one : u.many} at once`;
+    return { lead, main, how: u.measured };
+  }
   // How close: exactly (to the last decimal shown), almost exactly (within 2%), or only roughly.
   const value = m.fraction ? 1 / m.count : m.count;
   const rel = Math.abs(value - m.whole) / m.whole;
@@ -92,6 +110,7 @@ export function say(kind: Kind, amount: number, inUnit: string, m: Match): Shown
 
 /** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm". */
 export function working(kind: Kind, anchor: number, inLabel: string, m: Match): string {
+  if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is about ${num(10 * Math.log10(m.unit.size), 1)} dB`;
   const show = (a: number) => {
     if (kind === "weight") return a >= 1e6 ? `${num(a / 1e6)} t` : a >= 1000 ? `${num(a / 1000)} kg` : `${num(a, 3)} g`;
     if (kind === "time") {
