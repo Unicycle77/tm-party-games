@@ -229,6 +229,8 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["Swiss Army knives", "Swiss Army knife", "a standard Victorinox, closed", 91, "mm"],
     ["capybaras", "capybara", "an adult, nose to rump", 1.2, "m", about],
     ["trash pandas", "trash panda", "a raccoon, nose to the tip of the tail", 85, "cm", about],
+    // No one has measured him; this is a by-eye estimate from his videos, so it's always "about".
+    ["Jimothys", "Jimothy", "Seattle's famously round raccoon, nose to rump", 35, "cm", person],
     ["corn snakes", "corn snake", "an adult, stretched out", 1.2, "m", about],
     ["guinea pigs", "guinea pig", "an adult, nose to rump", 25, "cm", about],
     ["hamsters", "hamster", "a Syrian hamster", 15, "cm", about],
