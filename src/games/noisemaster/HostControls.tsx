@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { setDisplay, store } from "../../session";
 import { Toggle } from "../../Toggle";
-import type { Display, NoisemasterRound, Session } from "../../types";
+import type { Display, KeptGo, NoisemasterRound, Session } from "../../types";
 import {
   BUTTONS, MAX_WORDS, elapsedOf, formatTime, newRound, press, restartRound, roundOf, soundsOf, startRound,
   useNoisemasterSecret, useServerNow,
 } from "./data";
 import { Soundboard } from "./Soundboard";
-import { enterPoints } from "../../scoreboard/data";
+import { ref, set } from "firebase/database";
+import { db } from "../../firebase";
+import { addKeptGame, enterPoints } from "../../scoreboard/data";
 import { ordinal, workOut } from "../../scoreboard/measured";
 
 /** The host's phone, above the player list: set up a round, then follow it. */
@@ -242,7 +244,11 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
           : round.firstAt ? <>⏱ <span className="soundboard-time">{time}</span> · {round.progress ?? 0} of {round.phrase.length} words · {restarts}</>
           : `Waiting for ${name}'s first press…`}
       </p>
-      {done && saved?.line && <p className="muted small nm-saved">{saved.line}</p>}
+      {done && saved?.line && (
+        <p className="muted small nm-saved">{saved.line}
+          {saved.add && <> <button className="link" onClick={saved.add}>Add it</button></>}
+        </p>
+      )}
       {display.step !== "soundboard" && (
         <button onClick={() => void setDisplay(code, { step: "soundboard" })}>Show it on the big screen</button>
       )}
@@ -263,19 +269,22 @@ function RoundControls({ code, session, display, round }: { code: string; sessio
 }
 
 /**
- * A finished go, saved for the scoreboard when Noisemaster is on the task list and the player is on the
- * scoreboard: the time (the latest go counts) and the restarts, for colour commentary. `line` says so, with
- * where it puts them; `disqualify` saves a go ended before the end as a DQ.
+ * A finished go, saved for the scoreboard when the player is on the scoreboard: the time (the latest go
+ * counts) and the restarts, for colour commentary. While Noisemaster isn't on the task list it's kept
+ * aside, and brought across when it's added. `line` says so, with where it puts them; `disqualify` saves
+ * a go ended before the end as a DQ.
  */
 function useSavedGo(code: string, session: Session, round: NoisemasterRound) {
   const board = session.scoreboard;
   const id = Object.entries(board?.tasks ?? {}).find(([, t]) => t.game === "noisemaster")?.[0];
   const task = id ? board?.tasks?.[id] : undefined;
   const contestant = session.players?.[round.player]?.contestant;
-  const known = !!task && !!contestant && !!board?.contestants?.[contestant];
+  const onBoard = !!contestant && !!board?.contestants?.[contestant];
+  const kept = contestant ? session.games?.noisemaster?.kept?.[contestant] : undefined;
+  const keep = (go: KeptGo) => set(ref(db(), `sessions/${code}/games/noisemaster/kept/${contestant}`), go);
   // Their time from an earlier go, as it stood when this go was set up.
   const earlier = useRef<{ startedAt: number; ms?: number }>();
-  if (known && earlier.current?.startedAt !== round.startedAt) earlier.current = { startedAt: round.startedAt, ms: task.results?.[contestant] };
+  if (onBoard && earlier.current?.startedAt !== round.startedAt) earlier.current = { startedAt: round.startedAt, ms: task ? task.results?.[contestant] : kept?.ms };
   const ms = round.doneAt && round.firstAt ? Math.floor((round.doneAt - round.firstAt) / 100) * 100 : undefined;
   const mistakes = round.mistakes ?? 0;
   const onScreen = session.display?.step === "scoreboard";
@@ -283,20 +292,28 @@ function useSavedGo(code: string, session: Session, round: NoisemasterRound) {
   // Saved once per go, so a time the host fixes on the points page afterwards isn't put back.
   const savedGo = useRef<number>();
   useEffect(() => {
-    if (!known || ms === undefined || savedGo.current === round.startedAt) return;
+    if (!onBoard || ms === undefined || savedGo.current === round.startedAt) return;
     savedGo.current = round.startedAt;
+    if (!task) {
+      if (kept?.ms !== ms || kept?.restarts !== mistakes) void keep({ ms, restarts: mistakes });
+      return;
+    }
     if (task.results?.[contestant] === ms && task.restarts?.[contestant] === mistakes && !task.dq?.[contestant]) return;
     void enterPoints(code, board, onScreen, id!, { results: { [contestant]: ms }, restarts: { [contestant]: mistakes }, dq: { [contestant]: null } });
-  }, [known, ms, mistakes, task, contestant, code, board, onScreen, id, round.startedAt]);
+  }, [onBoard, ms, mistakes, task, kept, contestant, code, board, onScreen, id, round.startedAt]);
 
-  if (!known) return undefined;
-  const disqualify = () => void enterPoints(code, board, onScreen, id!, { dq: { [contestant]: true } });
+  if (!onBoard) return undefined;
+  const disqualify = () => void (task ? enterPoints(code, board, onScreen, id!, { dq: { [contestant]: true } }) : keep({ dq: true }));
+  const was = earlier.current?.ms;
+  const replacing = was !== undefined && was !== ms ? `, replacing ${formatTime(was)}` : "";
+  if (!task) {
+    if (ms === undefined || kept?.ms !== ms) return { disqualify };
+    return { line: `Kept${replacing}. Not on the task list yet, so this time isn't on the scoreboard.`, add: () => void addKeptGame(code, session, "noisemaster"), disqualify };
+  }
   if (ms === undefined || task.results?.[contestant] !== ms) return { disqualify };
   const worked = workOut(task);
   const place = worked.place[contestant];
   const out = Object.keys(task.results ?? {}).filter((c) => !task.dq?.[c]).length;
-  const was = earlier.current?.ms;
-  const replacing = was !== undefined && was !== ms ? `, replacing ${formatTime(was)}` : "";
   const line = `Saved for the scoreboard${replacing}${place ? `: ${ordinal(place)} fastest of ${out} so far.` : "."}`;
-  return { line, disqualify };
+  return { line, add: undefined, disqualify };
 }

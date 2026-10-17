@@ -2,9 +2,9 @@ import type { ScoreboardTask } from "../types";
 
 type Points = Record<string, number>;
 
-/** How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time). */
+/** How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time, the light by who got it first). */
 export const scoringOf = (t: ScoreboardTask): "hand" | "highest" | "lowest" =>
-  t.game === "noisemaster" ? "lowest" : t.scoring ?? "hand";
+  t.game === "noisemaster" || t.game === "light" ? "lowest" : t.scoring ?? "hand";
 
 export const isMeasured = (t: ScoreboardTask) => scoringOf(t) !== "hand";
 
@@ -12,7 +12,7 @@ export const isMeasured = (t: ScoreboardTask) => scoringOf(t) !== "hand";
 const handPoints = (t: ScoreboardTask): Points => t.given ?? t.scores ?? {};
 
 /** 5 for 1st, then 4, 3, 2, and 1 for everyone below. */
-const pointsForPlace = (place: number) => Math.max(1, 6 - place);
+export const pointsForPlace = (place: number) => Math.max(1, 6 - place);
 
 /**
  * Each contestant's place among `ids` by their result. Ties share the place and the next place is skipped

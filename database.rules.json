@@ -125,6 +125,16 @@
                 ".validate": "newData.val() === true"
               }
             },
+            "kept": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              "$contestant": {
+                ".validate": "$contestant.length <= 40",
+                "ms": { ".validate": "newData.isNumber()" },
+                "restarts": { ".validate": "newData.isNumber()" },
+                "dq": { ".validate": "newData.val() === true" },
+                "$other": { ".validate": false }
+              }
+            },
             "$other": {
               ".validate": false
             }
@@ -267,6 +277,9 @@
           "litAt": { ".validate": "newData.isNumber()" },
           "lit": {
             "$trigger": { ".validate": "$trigger.length <= 40 && newData.isNumber()" }
+          },
+          "got": {
+            "$contestant": { ".validate": "$contestant.length <= 40 && newData.isNumber()" }
           },
           "camera": {
             "starting": { ".validate": "newData.isBoolean()" },
