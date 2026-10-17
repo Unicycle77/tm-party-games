@@ -85,6 +85,13 @@ export function workOut(t: ScoreboardTask): Worked {
   return { points, before, place, auto, moved, held };
 }
 
+/** The points that count on the scoreboard: the task's points, and one more for each bonus. */
+export function withBonus(t: ScoreboardTask, points: Points): Points {
+  const out = { ...points };
+  for (const c of Object.keys(t.bonus ?? {})) out[c] = (out[c] ?? 0) + 1;
+  return out;
+}
+
 /** A dB meter's LO, quieter than it can read: stored as -1 dB, so it beats every reading and every LO ties. */
 export const LO = -1;
 

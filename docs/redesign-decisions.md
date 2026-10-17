@@ -341,6 +341,17 @@ Some live tasks are judged by a count or a measurement (the height of a dice tow
 | Noisemaster's times | Noisemaster on the task list is scored "Fastest wins" from the soundboard's times, with no Scoring choice on its ✎. A finished go is saved for the scoreboard on its own, with a muted "Saved for the scoreboard: 2nd fastest of 4 so far." under "✓ Done in 0:42.3", or "…, replacing 0:51.0" for a second go (the latest go counts). "Next round" mid-go saves a DQ, and its confirm says so. Noisemaster played when it isn't on the list still keeps its times, with the nudge described under [The light's points](#the-lights-points) (changed on 2026-10-17; it used to save nothing). This changes the Scoreboard's "the host types every point" for Noisemaster only; Secret Tasks stays scored by hand. | A gold "Save time" button: the time is never wrong, and it's one more tap to forget. |
 | Noisemaster's points | The measured page as is: the times in the boxes as "0:42.3" (editable for a glitch), "↺ 2" for the restarts where a unit would go ("↺ 0" for a clean go), and "Fastest wins · times from the soundboard · 5 of 6 played". A go not played yet reads "not played". | No restarts on the row, since they already cost time: Jeffrey wants them for colour commentary. |
 
+## Bonus point
+
+The "…" chip ("any other number") became a +1 bonus point on top of the points scored, on every points row. Designed on 2026-10-17.
+
+| Moment | Decision | Rejected, and why |
+| --- | --- | --- |
+| The chip | A "+1" chip that toggles, the DQ chip's size, at the far end of every points row (by hand: after 1 to 5; measured: after the points and place). It sits apart from the 1–5 chips so it doesn't read as a sixth score, and it goes at the end because it goes on top of the score, where DQ sits by the name because it's about the person. | Typing in any number with "…": Jeffrey wanted a bonus, not free text. Putting +1 inside a measured row's points chips: it would be hidden. |
+| At a glance | The pressed chips read "3 +1"; "now N" includes the bonus; the status line adds "· 2 bonus points". The big screen shows totals only, so it's unchanged. | |
+| A DQ | A DQ keeps the bonus: the task's points go to 0 and the +1 still counts. | DQ wiping the bonus: on the show a DQ'd attempt can still earn a point. |
+| Old typed-in points | Points typed through "…" before the bonus (a 0, a 6, a 2.5) still count, shown as one more pressed chip until tapped away. A plain 0 can't be given any more: no points, or a DQ, gives nothing. The measured override chips are 1 to 5 only. | |
+
 ## The light's points
 
 The first guests to work out the light's secret score by the order they got it, through the measured scoring above. Designed one moment at a time on 2026-10-17. Scenarios, in the agreed order: someone whispers the right guess, fixing a mark, giving out the light's points, putting the light on the task list, and a DQ. Two people at once was dropped: Jeffrey makes guessers queue.

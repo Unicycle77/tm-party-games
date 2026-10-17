@@ -23,7 +23,7 @@ Host phone (`/host`, 390px wide):
 | `host-light-got-it-listed.jpg` | The light on the task list: "✓ Mei got it 4th · 2 points on the scoreboard.", no nudge (2026-10-17) |
 | `host-light-got-it-dq.jpg` | Sam DQ'd on the scoreboard: struck through with "DQ", the others moved up (2026-10-17) |
 | `run-of-show-host-light.jpg` | "3 💡 The light · app game" on the task list, with no ▶ Start (2026-10-17) |
-| `scoreboard-host-points-light.jpg` | The light's points page: "got it 2nd" or "not yet" for each contestant, "Fastest wins · order from the light · 4 of 8 got it", Sam DQ'd and the others moved up, "Change the order on 💡 The light" (2026-10-17) |
+| `scoreboard-host-points-light.jpg` | The light's points page: "got it 2nd" or "not yet" for each contestant, "Fastest wins · order from the light · 4 of 6 got it · 1 bonus point", Sam DQ'd and the others moved up, "Change the order on 💡 The light", Mei's +1 bonus (2026-10-17) |
 | `noisemaster-host-kept.jpg` | A Noisemaster go while it isn't on the task list: "Kept. Not on the task list yet, so this time isn't on the scoreboard. Add it" (2026-10-17) |
 | `host-jukebox.jpg` | 🎵 The jukebox |
 | `host-party-settings.jpg` | Party settings (portrait, download button, disconnect) |
@@ -62,17 +62,17 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it, a small DQ chip by the name, then chips 1 to 5 and "…", "← All tasks", "Next task →" (2026-10-17) |
-| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant (2026-10-17) |
-| `scoreboard-host-points-dq.jpg` | A by-hand task with a DQ after the points: Sam's 4 struck through, the people below him moved up with dashed chips for what they had, "Sam's DQ moved 3 people up. Don't move them", and Tom DQ'd with no points (2026-10-17) |
-| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins"): DQ by the name, a box per contestant with "dice" after it, the points over the place; Alex DQ'd, his 19 struck through, the others moved up; Tom not measured yet (2026-10-17) |
-| `scoreboard-host-points-override.jpg` | Overriding a measured point: Mei's points open the chips, "Automatic: 4 for 2nd"; Sam's 3 was set by hand (✎) (2026-10-17) |
-| `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 20", the box keeps its width (2026-10-17) |
-| `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Tom "not played" (2026-10-17) |
+| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it, a small DQ chip by the name, chips 1 to 5, then "+1" for a bonus point (Priya's pressed: 3 +1), "3 of 6 scored · 1 bonus point", "← All tasks", "Next task →" (2026-10-17) |
+| `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant, with the +1 at the end (2026-10-17) |
+| `scoreboard-host-points-dq.jpg` | A by-hand task with a DQ after the points: Sam's 4 struck through but his +1 bonus kept, the people below him moved up with dashed chips for what they had, "Sam's DQ moved 3 people up. Don't move them", and Tom DQ'd with no points (2026-10-17) |
+| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins · 5 of 6 measured · 2 bonus points"): DQ by the name, a box per contestant with "dice" after it, the points over the place, then "+1"; Priya's bonus on top of her 5; Alex DQ'd, his 19 struck through and his bonus kept, the others moved up; Tom not measured yet (2026-10-17) |
+| `scoreboard-host-points-override.jpg` | Overriding a measured point: Mei's points open the chips 1 to 5 (no "…"), "Automatic: 4 for 2nd"; Sam's 3 was set by hand (✎) (2026-10-17) |
+| `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 24", the box keeps its width, "+1" right after the points (2026-10-17) |
+| `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, still whole with the +1 column, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Jo's bonus, Tom "not played" (2026-10-17) |
 | `task-edit-scoring.jpg` | ✎ on a live task: "Scoring" with By hand, Highest wins and Lowest wins under the note (2026-10-17) |
 | `task-edit-db-meter.jpg` | ✎ on a task with no unit: 🔊 dB meter beside 🎲 Dice under "Measured in" (2026-10-17) |
 | `task-edit-db-meter-on.jpg` | 🔊 dB meter tapped: the name, "One is" and size chips gone, and "🔇 DQ if louder than" set to 60 dB (2026-10-17) |
-| `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 90: Priya's 94.2 and Mei's 101.3 struck through with "over 90" under their 0, the others moved up, "over 90 dB is a DQ" in the status line (2026-10-17) |
+| `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 90: Priya's 94.2 and Mei's 101.3 struck through with "over 90" under their 0, the others moved up, "over 90 dB is a DQ" in the status line, Sam's +1 bonus (2026-10-17) |
 | `scoreboard-host-points-db-lo.jpg` | A quietest-wins dB task: the LO chip under Mei's box while it's typed in, and Jo's LO in 1st (2026-10-17) |
 | `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |

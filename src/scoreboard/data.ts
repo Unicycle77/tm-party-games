@@ -3,14 +3,14 @@ import { db, storage } from "../firebase";
 import { shrinkImage } from "../media";
 import { setDisplay } from "../session";
 import type { Session, Scoreboard, ScoreboardTask, TaskGame, TaskUnit } from "../types";
-import { isMeasured, workOut } from "./measured";
+import { isMeasured, withBonus, workOut } from "./measured";
 import { currentPoints } from "./scoring";
 
 /** The party's scoreboard lives at sessions/{code}/scoreboard. Only the host and the host remote write it. */
 const at = (code: string, path = "") => ref(db(), `sessions/${code}/scoreboard${path ? `/${path}` : ""}`);
 
 /** What the host enters on a task, from which its points are worked out. */
-const ENTERED = ["given", "results", "restarts", "dq", "overDq", "dqStays"] as const;
+const ENTERED = ["given", "results", "restarts", "dq", "overDq", "dqStays", "bonus"] as const;
 
 const nextOrder = (items: Record<string, { order: number }> | undefined) =>
   Math.max(-1, ...Object.values(items ?? {}).map((i) => i.order)) + 1;
@@ -126,6 +126,7 @@ export interface TaskEntry {
   dq?: Record<string, true | null>;
   overDq?: Record<string, true | null>;
   dqStays?: true | null;
+  bonus?: Record<string, true | null>;
 }
 
 
@@ -153,7 +154,8 @@ export function enterPoints(code: string, board: Scoreboard | undefined, onScree
   if (entry.dq) next.dq = merged<true>(next.dq, entry.dq);
   if (entry.overDq) next.overDq = merged<true>(next.overDq, entry.overDq);
   if (entry.dqStays !== undefined) next.dqStays = entry.dqStays ?? undefined;
-  const points = workOut(next).points;
+  if (entry.bonus) next.bonus = merged<true>(next.bonus, entry.bonus);
+  const points = withBonus(next, workOut(next).points);
   const patch: Record<string, unknown> = { [`tasks/${id}/scores`]: Object.keys(points).length ? points : null };
   for (const k of ENTERED) if (next[k] !== task[k]) patch[`tasks/${id}/${k}`] = next[k] ?? null;
   const starting = Object.keys(points).length > 0 && !Object.keys(task.scores ?? {}).length;
@@ -190,7 +192,7 @@ export function setScoring(code: string, board: Scoreboard | undefined, onScreen
     ? { ...task, scoring, given: undefined }
     : { ...task, scoring: undefined, given: isMeasured(task) ? keptByHand(task) : task.given };
   if (next.given && !Object.keys(next.given).length) next.given = undefined;
-  const points = workOut(next).points;
+  const points = withBonus(next, workOut(next).points);
   return update(at(code, `tasks/${id}`), {
     scoring: next.scoring ?? null, given: next.given ?? null, scores: Object.keys(points).length ? points : null,
   });

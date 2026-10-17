@@ -197,7 +197,8 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
     ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
       loud && task.dqOver !== undefined ? ` · over ${task.dqOver} dB is a DQ` : ""} · ${
       contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
-    : `${contestants.filter(([c]) => task.scores?.[c] !== undefined).length} of ${contestants.length} scored`;
+    : `${contestants.filter(([c]) => worked.points[c] !== undefined).length} of ${contestants.length} scored`;
+  const bonuses = contestants.filter(([c]) => task.bonus?.[c]).length;
 
   return (
     <section className="sb-points">
@@ -207,7 +208,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       </div>
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
-      <p className="muted small">{status}</p>
+      <p className="muted small">{status}{bonuses > 0 && ` · ${plural(bonuses, "bonus point", "bonus points")}`}</p>
       {outs.length > 0 && worked.moved > 0 && (
         <p className="muted small sb-dq-line">
           {list(outs.map(nameOf))}'s {outs.length === 1 ? "DQ" : "DQs"}{" "}
@@ -220,10 +221,10 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
           ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
-              result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]}
+              result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={!!task.bonus?.[c]}
               points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />
           : <PointsRow key={c} name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
-              dq={!!task.dq?.[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
+              dq={!!task.dq?.[c]} bonus={!!task.bonus?.[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
       </ul>
       {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
       {light && <p className="muted small">Change the order on <button className="link" onClick={onLight}>{LIGHT}</button>.</p>}
@@ -270,27 +271,29 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
 
 const CHIPS = [1, 2, 3, 4, 5];
 
+/** The +1 at the end of a points row: a bonus point on top of whatever they scored. A DQ keeps it. */
+function BonusChip({ name, bonus, onEnter }: { name: string; bonus: boolean; onEnter: EntryFor }) {
+  return (
+    <div className="choices marks sb-bonus">
+      <button aria-pressed={bonus} aria-label={`Bonus point for ${name}`} onClick={() => onEnter((c) => ({ bonus: one(c, bonus ? null : true) }))}>+1</button>
+    </div>
+  );
+}
+
 /**
- * One contestant on a by-hand task: DQ by the name, then 1 to 5, and "…" for any other number (0 included). Tapping the
+ * One contestant on a by-hand task: DQ by the name, then 1 to 5, and +1 for a bonus point on top. Tapping the
  * pressed chip takes the points away. A DQ keeps the points they were given, struck through; a dashed chip
- * is what they had before someone else's DQ moved them up.
+ * is what they had before someone else's DQ moved them up. Points typed in before there was a bonus (0, 6, 2.5)
+ * show as one more pressed chip, until tapped away.
  */
-function PointsRow({ name, total, points, given, dq, before, onEnter }: {
-  name: string; total: number; points?: number; given?: number; dq: boolean; before?: number; onEnter: EntryFor;
+function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
+  name: string; total: number; points?: number; given?: number; dq: boolean; bonus: boolean; before?: number; onEnter: EntryFor;
 }) {
-  const [other, setOther] = useState<string>();
   // What a tap means: the points they end up with, so take off what the DQs moved them up by.
   const moved = !dq && points !== undefined && given !== undefined ? points - given : 0;
   const set = (n: number | null) => onEnter((c) => ({ given: one(c, n === null ? null : n - moved), ...(dq ? { dq: one(c, null) } : {}) }));
   const shown = dq ? undefined : points;
-  const isOther = shown !== undefined && !CHIPS.includes(shown);
-  const saveOther = () => {
-    if (other === undefined) return;
-    const n = parseFloat(other.replace(",", "."));
-    if (other.trim() === "") { if (isOther) set(null); }
-    else if (Number.isFinite(n)) set(n);
-    setOther(undefined);
-  };
+  const odd = dq ? (given !== undefined && !CHIPS.includes(given) ? given : undefined) : shown !== undefined && !CHIPS.includes(shown) ? shown : undefined;
   const cls = (n: number) => dq && given === n ? "was" : before === n ? "before" : undefined;
   return (
     <li>
@@ -302,30 +305,29 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
         {CHIPS.map((n) => (
           <button key={n} className={cls(n)} aria-pressed={shown === n} aria-label={`${n} for ${name}`} onClick={() => set(shown === n ? null : n)}>{n}</button>
         ))}
-        {other !== undefined
-          ? <input className="sb-other" type="text" inputMode="decimal" autoFocus value={other} aria-label={`Other points for ${name}`}
-              onChange={(e) => setOther(e.target.value)} onBlur={saveOther} onKeyDown={(e) => { if (e.key === "Enter") saveOther(); if (e.key === "Escape") setOther(undefined); }} />
-          : <button aria-pressed={isOther} aria-label={`Other points for ${name}`} onClick={() => setOther(isOther ? String(shown) : "")}>{isOther ? shown : "…"}</button>}
+        {odd !== undefined && (
+          <button className={dq ? "was" : undefined} aria-pressed={!dq} aria-label={dq ? `${odd} for ${name}` : `${odd} for ${name}. Take it away`} onClick={() => set(dq ? odd : null)}>{odd}</button>
+        )}
       </div>
+      <BonusChip name={name} bonus={bonus} onEnter={onEnter} />
     </li>
   );
 }
 
 /**
  * One contestant on a measured task: DQ by the name, their number (a time, for Noisemaster), and their points
- * with the place under them. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
- * On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the line they went over, and
- * `lo` offers LO, under the box while it's being typed in.
+ * with the place under them, then +1 for a bonus point. Tapping the points opens the chips, to set them by hand;
+ * a point set by hand sticks. On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the
+ * line they went over, and `lo` offers LO, under the box while it's being typed in.
  */
-function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, points, auto, place, before, onEnter }: {
+function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter }: {
   name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
-  result?: number; restarts?: number; dq: boolean; given?: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
+  result?: number; restarts?: number; dq: boolean; given?: number; bonus: boolean; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
 }) {
   const format = (n: number) => timed ? formatTime(n) : n === LO ? "LO" : String(n);
   const [typing, setTyping] = useState<string>();
   const [focused, setFocused] = useState(false);
   const [open, setOpen] = useState(false);
-  const [other, setOther] = useState<string>();
   const enterResult = (n: number | undefined) => onEnter((c) => ({ results: one(c, n ?? null), ...line?.(n) }));
   const type = (text: string) => {
     setTyping(text);
@@ -333,13 +335,7 @@ function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, 
     if (text.trim() === "") enterResult(undefined);
     else if (n !== undefined && Number.isFinite(n)) enterResult(n);
   };
-  const give = (n: number | null) => { onEnter((c) => ({ given: one(c, n) })); setOther(undefined); };
-  const saveOther = () => {
-    if (other === undefined) return;
-    const n = parseFloat(other.replace(",", "."));
-    if (Number.isFinite(n)) give(n);
-    setOther(undefined);
-  };
+  const give = (n: number | null) => onEnter((c) => ({ given: one(c, n) }));
   const overridden = given !== undefined && !dq;
   const autoLine = auto !== undefined && place !== undefined ? `${auto} for ${ordinal(place)}` : undefined;
   return (
@@ -362,6 +358,7 @@ function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, 
               <span className="small">{dq ? (over !== undefined ? `over ${over}` : "DQ") : place !== undefined ? ordinal(place) : ""}</span>
             </button>
           : <span />}
+        <BonusChip name={name} bonus={bonus} onEnter={onEnter} />
       </div>
       {lo && focused && (
         <div className="sb-override sb-lo">
@@ -376,11 +373,6 @@ function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, 
         <div className="sb-override">
           <div className="choices marks sb-chips">
             {CHIPS.map((n) => <button key={n} aria-pressed={points === n} aria-label={`${n} for ${name}`} onClick={() => give(n)}>{n}</button>)}
-            {other !== undefined
-              ? <input className="sb-other" type="text" inputMode="decimal" autoFocus value={other} aria-label={`Other points for ${name}`}
-                  onChange={(e) => setOther(e.target.value)} onBlur={saveOther} onKeyDown={(e) => { if (e.key === "Enter") saveOther(); if (e.key === "Escape") setOther(undefined); }} />
-              : <button aria-pressed={points !== undefined && !CHIPS.includes(points)} aria-label={`Other points for ${name}`}
-                  onClick={() => setOther(points !== undefined && !CHIPS.includes(points) ? String(points) : "")}>{points !== undefined && !CHIPS.includes(points) ? points : "…"}</button>}
           </div>
           {overridden
             ? autoLine && <button className="link small" onClick={() => give(null)}>Back to {autoLine}</button>

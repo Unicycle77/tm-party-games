@@ -1085,11 +1085,10 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-note { white-space: pre-wrap; }
 .sb-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 /* names are short, so a narrow name column keeps each contestant on one line, with "now N" under the name; DQ sits by the name */
-.sb-rows li { display: grid; grid-template-columns: 4.5rem 3rem 1fr; align-items: center; gap: 0.6rem; }
+.sb-rows li { display: grid; grid-template-columns: 4.5rem 3rem 1fr 3rem; align-items: center; gap: 0.6rem; }
 .sb-name { display: grid; line-height: 1.2; font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
 .sb-chips { flex-wrap: nowrap; }
-.sb-chips button, .sb-chips .sb-other { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
-.sb-chips .sb-other { width: 3.4rem; flex: none; padding: 0.4rem; }
+.sb-chips button { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
 .sb-now { white-space: nowrap; font-family: var(--typewriter); }
 .sb-next { justify-self: end; }
 /* DQ in the chips: what a DQ'd contestant was given, struck through; a dashed chip is what someone had before a DQ moved them up */
@@ -1101,11 +1100,12 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-dq-line .link { padding: 0; }
 /* a measured task: one line per contestant, DQ, the number box, the unit (or Noisemaster's restarts), the points over the place */
 /* one grid for every row (subgrid), so the columns line up whatever each row's unit or restarts say */
-.sb-rows.sb-measured { grid-template-columns: 4.5rem 3rem minmax(0, 1fr) auto 3.2rem; column-gap: 0.5rem; }
-.sb-rows.sb-measured li { grid-column: 1 / -1; grid-template-columns: subgrid; row-gap: 0.35rem; column-gap: 0.5rem; }
+/* six columns on a phone, so the gaps are tight enough for a Noisemaster time to fit its box */
+.sb-rows.sb-measured { grid-template-columns: 4.2rem 3rem minmax(0, 1fr) auto 3.2rem 3rem; column-gap: 0.35rem; }
+.sb-rows.sb-measured li { grid-column: 1 / -1; grid-template-columns: subgrid; row-gap: 0.35rem; column-gap: 0.35rem; }
 .sb-measure { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; }
 .sb-override { grid-column: 1 / -1; }
-.sb-result { min-width: 0; padding: 0.5rem 0.6rem; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.sb-result { min-width: 0; padding: 0.5rem 0.4rem; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .sb-measured li.dq .sb-result { opacity: 0.45; text-decoration: line-through; }
 /* the light: where it came in the order, in place of the number box (it's marked on 💡) */
 .sb-got { min-width: 0; padding: 0.5rem 0; font-size: 1.05rem; }
@@ -1120,6 +1120,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 /* DQ: the same small chip on every points row, by the name */
 .sb-dq { flex-wrap: nowrap; }
 .sb-dq button { width: 100%; padding: 0.55rem 0; font-size: 0.95rem; }
+/* the bonus point: the DQ chip's size, at the far end of the row since it goes on top of the score */
+.sb-bonus { flex-wrap: nowrap; }
+.sb-bonus button { width: 100%; padding: 0.55rem 0; font-size: 0.95rem; }
 .sb-override { display: grid; gap: 0.3rem; }
 .sb-override > :last-child { justify-self: end; }
 /* LO, under a dB box while it's typed in: one small chip, since it's rarely needed */
@@ -1131,7 +1134,7 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-scoring .choices button { flex: 1 1 5rem; white-space: nowrap; }
 /* iPad in landscape: the name column fits the longest name and the box keeps its width, so DQ and the points stay by the name */
 @media (min-width: 900px) {
-  .sb-rows.sb-measured { grid-template-columns: fit-content(14rem) 3rem 16rem auto 3.4rem; justify-content: start; column-gap: 1rem; }
+  .sb-rows.sb-measured { grid-template-columns: fit-content(14rem) 3rem 16rem auto 3.4rem 3rem; justify-content: start; column-gap: 1rem; }
   .sb-rows.sb-measured li { column-gap: 1rem; }
   .sb-measured .sb-name { grid-auto-flow: column; justify-content: start; align-items: baseline; column-gap: 0.6rem; }
   .sb-override { max-width: 36rem; }
