@@ -267,7 +267,7 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
 const CHIPS = [1, 2, 3, 4, 5];
 
 /**
- * One contestant on a by-hand task: DQ, 1 to 5, and "…" for any other number (0 included). Tapping the
+ * One contestant on a by-hand task: DQ by the name, then 1 to 5, and "…" for any other number (0 included). Tapping the
  * pressed chip takes the points away. A DQ keeps the points they were given, struck through; a dashed chip
  * is what they had before someone else's DQ moved them up.
  */
@@ -291,8 +291,10 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
   return (
     <li>
       <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
-      <div className="choices marks sb-chips">
+      <div className="choices marks sb-dq">
         <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => onEnter((c) => ({ dq: one(c, dq ? null : true) }))}>DQ</button>
+      </div>
+      <div className="choices marks sb-chips">
         {CHIPS.map((n) => (
           <button key={n} className={cls(n)} aria-pressed={shown === n} aria-label={`${n} for ${name}`} onClick={() => set(shown === n ? null : n)}>{n}</button>
         ))}
@@ -306,8 +308,8 @@ function PointsRow({ name, total, points, given, dq, before, onEnter }: {
 }
 
 /**
- * One contestant on a measured task: their number (a time, for Noisemaster), their points with the place
- * under them, and DQ. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
+ * One contestant on a measured task: DQ by the name, their number (a time, for Noisemaster), and their points
+ * with the place under them. Tapping the points opens the chips, to set them by hand; a point set by hand sticks.
  */
 function MeasuredRow({ name, total, timed, light, unit, result, restarts, dq, given, points, auto, place, before, onEnter }: {
   name: string; total: number; timed: boolean; light: boolean; unit?: string; result?: number; restarts?: number; dq: boolean; given?: number;
@@ -336,6 +338,9 @@ function MeasuredRow({ name, total, timed, light, unit, result, restarts, dq, gi
     <li className={dq ? "dq" : undefined}>
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
+        <div className="choices marks sb-dq">
+          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true) })); }}>DQ</button>
+        </div>
         {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result === undefined ? "not yet" : `got it ${ordinal(result)}`}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
             placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
@@ -349,9 +354,6 @@ function MeasuredRow({ name, total, timed, light, unit, result, restarts, dq, gi
               <span className="small">{dq ? "DQ" : place !== undefined ? ordinal(place) : ""}</span>
             </button>
           : <span />}
-        <div className="choices marks sb-dq">
-          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true) })); }}>DQ</button>
-        </div>
       </div>
       {open && !dq && (
         <div className="sb-override">

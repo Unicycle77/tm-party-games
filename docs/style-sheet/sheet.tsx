@@ -92,9 +92,13 @@ function Sheet() {
             </div>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
-            <Item cap={<>Points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
-              <div className="choices marks sb-chips"><button aria-pressed>DQ</button><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div>
-              <div className="choices marks sb-chips"><button>DQ</button><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div>
+            <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them</>}>
+              <ul className="sb-rows">
+                <li><span className="sb-name">Sam<span className="muted small sb-now">now 5</span></span><div className="choices marks sb-dq"><button aria-pressed>DQ</button></div>
+                  <div className="choices marks sb-chips"><button>1</button><button>2</button><button className="was">3</button><button>4</button><button>5</button><button>…</button></div></li>
+                <li><span className="sb-name">Mei<span className="muted small sb-now">now 6</span></span><div className="choices marks sb-dq"><button>DQ</button></div>
+                  <div className="choices marks sb-chips"><button>1</button><button className="before">2</button><button aria-pressed>3</button><button>4</button><button>5</button><button>…</button></div></li>
+              </ul>
             </Item>
             <div className="pair">
               <Item cap={<><code>.link</code>: quiet exits</>}><div><button className="link">Lower the curtain</button> <button className="link">Party settings</button></div></Item>
