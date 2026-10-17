@@ -348,6 +348,7 @@ The "…" chip ("any other number") became a +1 bonus point on top of the points
 | Moment | Decision | Rejected, and why |
 | --- | --- | --- |
 | The chip | A "+1" chip that toggles, the DQ chip's size, at the far end of every points row (by hand: after 1 to 5; measured: after the points and place). It sits apart from the 1–5 chips so it doesn't read as a sixth score, and it goes at the end because it goes on top of the score, where DQ sits by the name because it's about the person. | Typing in any number with "…": Jeffrey wanted a bonus, not free text. Putting +1 inside a measured row's points chips: it would be hidden. |
+| Two bonus points | Tapping the chip again makes it "+2", and once more takes the bonus away, on every task (a task Jeffrey had already sent out awards two). Saved +1s stay +1. | A task setting "Up to 2 bonus points": setup for a rare case. A separate +2 chip: the phone's measured rows had just been squeezed to fit the +1. |
 | At a glance | The pressed chips read "3 +1"; "now N" includes the bonus; the status line adds "· 2 bonus points". The big screen shows totals only, so it's unchanged. | |
 | A DQ | A DQ keeps the bonus: the task's points go to 0 and the +1 still counts. | DQ wiping the bonus: on the show a DQ'd attempt can still earn a point. |
 | Old typed-in points | Points typed through "…" before the bonus (a 0, a 6, a 2.5) still count, shown as one more pressed chip until tapped away. A plain 0 can't be given any more: no points, or a DQ, gives nothing. The measured override chips are 1 to 5 only. | |

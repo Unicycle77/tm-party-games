@@ -126,7 +126,7 @@ export interface TaskEntry {
   dq?: Record<string, true | null>;
   overDq?: Record<string, true | null>;
   dqStays?: true | null;
-  bonus?: Record<string, true | null>;
+  bonus?: Record<string, number | null>;
 }
 
 
@@ -154,7 +154,7 @@ export function enterPoints(code: string, board: Scoreboard | undefined, onScree
   if (entry.dq) next.dq = merged<true>(next.dq, entry.dq);
   if (entry.overDq) next.overDq = merged<true>(next.overDq, entry.overDq);
   if (entry.dqStays !== undefined) next.dqStays = entry.dqStays ?? undefined;
-  if (entry.bonus) next.bonus = merged<true>(next.bonus, entry.bonus);
+  if (entry.bonus) next.bonus = merged<true | number>(next.bonus, entry.bonus);
   const points = withBonus(next, workOut(next).points);
   const patch: Record<string, unknown> = { [`tasks/${id}/scores`]: Object.keys(points).length ? points : null };
   for (const k of ENTERED) if (next[k] !== task[k]) patch[`tasks/${id}/${k}`] = next[k] ?? null;

@@ -85,10 +85,16 @@ export function workOut(t: ScoreboardTask): Worked {
   return { points, before, place, auto, moved, held };
 }
 
-/** The points that count on the scoreboard: the task's points, and one more for each bonus. */
+/** A contestant's bonus points on a task: 0, 1 or 2. */
+export const bonusOf = (t: ScoreboardTask, c: string) => {
+  const b = t.bonus?.[c];
+  return b === true ? 1 : b ?? 0;
+};
+
+/** The points that count on the scoreboard: the task's points, and the bonus points on top. */
 export function withBonus(t: ScoreboardTask, points: Points): Points {
   const out = { ...points };
-  for (const c of Object.keys(t.bonus ?? {})) out[c] = (out[c] ?? 0) + 1;
+  for (const c of Object.keys(t.bonus ?? {})) out[c] = (out[c] ?? 0) + bonusOf(t, c);
   return out;
 }
 

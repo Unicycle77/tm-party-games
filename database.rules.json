@@ -340,7 +340,7 @@
               "given": { "$cid": { ".validate": "newData.isNumber()" } },
               "dq": { "$cid": { ".validate": "newData.val() === true" } },
               "dqStays": { ".validate": "newData.val() === true" },
-              "bonus": { "$cid": { ".validate": "newData.val() === true" } },
+              "bonus": { "$cid": { ".validate": "newData.val() === true || newData.val() === 1 || newData.val() === 2" } },
               "dqOver": { ".validate": "newData.isNumber()" },
               "overDq": { "$cid": { ".validate": "newData.val() === true" } },
               "restarts": { "$cid": { ".validate": "newData.isNumber()" } },
