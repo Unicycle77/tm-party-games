@@ -1,7 +1,8 @@
 /**
- * The useless units: about 50 for each kind of measurement, smallest first. Each is a real figure: a rule, a
- * standard or an official number where one exists, else the generally accepted average, marked `about`, which
- * the converter never calls "exactly". Sources are in the project's unit list (useless-conversions/units.md).
+ * The useless units: about 100 each for height and length and 50 each for weight and time, sorted smallest
+ * first. Each is a real figure: a rule, a standard or an official number where one exists, else the generally
+ * accepted average, marked `about`, which the converter never calls "exactly". Sources are in the project's
+ * unit list (useless-conversions/units.md).
  */
 
 export type Kind = "height" | "length" | "weight" | "time";
@@ -30,9 +31,11 @@ export interface UselessUnit {
 
 type Row = [many: string, one: string, measured: string, value: number, unit: string, flags?: { about?: boolean; the?: UselessUnit["the"] }];
 const rows = (list: Row[]): UselessUnit[] =>
-  list.map(([many, one, measured, value, unit, f]) => ({ many, one, measured, size: value * ANCHOR[unit]!, ...f }));
+  list.map(([many, one, measured, value, unit, f]) => ({ many, one, measured, size: value * ANCHOR[unit]!, ...f })).sort((a, b) => a.size - b.size);
 const about = { about: true } as const;
 const the = { the: "the" } as const;
+/** A famous person: their usually quoted height, and no article ("1/2 the height of Tom Holland"). */
+const person = { about: true, the: "" } as const;
 
 export const UNITS: Record<Kind, UselessUnit[]> = {
   height: rows([
@@ -86,6 +89,69 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["Burj Khalifas", "Burj Khalifa", "the world's tallest building", 828, "m", the],
     ["Mount Everests", "Mount Everest", "above sea level", 8848.86, "m", { the: "" }],
     ["International Space Station orbits", "International Space Station orbit", "how high it flies", 400, "km", { about: true, the: "the" }],
+    // More of them under 4 ft, so everyday measurements land on whole numbers; plus famous people, roughly.
+    ["Funko Pops", "Funko Pop", "a standard figure, in its box", 9.5, "cm", about],
+    ["Barbie dolls", "Barbie doll", "standing up", 29.2, "cm"],
+    ["Ken dolls", "Ken doll", "standing up", 30.5, "cm"],
+    ["Labubus", "Labubu", "the big vinyl-faced plush", 17, "cm", about],
+    ["Stanley Quenchers", "Stanley Quencher", "the 40 oz tumbler, with its straw", 31, "cm", about],
+    ["Pringles cans", "Pringles can", "a full-size can", 23.5, "cm", about],
+    ["red Solo cups", "red Solo cup", "the 16 oz party cup", 12, "cm", about],
+    ["2-liter soda bottles", "2-liter soda bottle", "with the cap on", 31.5, "cm", about],
+    ["Red Bull cans", "Red Bull can", "the 8.4 oz can", 13.4, "cm", about],
+    ["iPhone 16s", "iPhone 16", "standing on end", 147.6, "mm"],
+    ["original Game Boys", "original Game Boy", "standing on end", 148, "mm"],
+    ["VHS tapes", "VHS tape", "stacked", 25, "mm"],
+    ["DVD cases", "DVD case", "stacked", 14, "mm"],
+    ["hockey pucks", "hockey puck", "stacked", 25.4, "mm"],
+    ["Jenga blocks", "Jenga block", "stacked flat", 15, "mm", about],
+    ["Jenga towers", "Jenga tower", "a fresh tower of 18 levels", 27, "cm", about],
+    ["LEGO minifigures", "LEGO minifigure", "with a hairpiece", 4, "cm", about],
+    ["Minecraft blocks", "Minecraft block", "one block, by the game's own scale", 1, "m"],
+    ["Minecraft Steves", "Minecraft Steve", "by the game's own scale", 1.8, "m", { the: "" }],
+    ["R2-D2s", "R2-D2", "the droid, dome and all", 1.09, "m", { the: "" }],
+    ["Yodas", "Yoda", "the Jedi Master", 66, "cm", { the: "" }],
+    ["Stanley Cups", "Stanley Cup", "the NHL trophy", 89.5, "cm", the],
+    ["Lombardi Trophies", "Lombardi Trophy", "the Super Bowl trophy", 56, "cm", the],
+    ["FIFA World Cup trophies", "FIFA World Cup trophy", "the one they lift", 36.8, "cm", the],
+    ["Emmy statuettes", "Emmy statuette", "the winged figure", 39, "cm", about],
+    ["two-year-olds", "two-year-old", "the average height", 87, "cm", about],
+    ["Shiba Inus", "Shiba Inu", "the Doge breed, at the shoulder", 38, "cm", about],
+    ["capybaras", "capybara", "an adult, at the shoulder", 55, "cm", about],
+    ["pygmy hippos", "pygmy hippo", "Moo Deng's kind, fully grown, at the shoulder", 85, "cm", about],
+    ["chihuahuas", "chihuahua", "at the shoulder", 18, "cm", about],
+    ["dachshunds", "dachshund", "a standard, at the shoulder", 22, "cm", about],
+    ["French bulldogs", "French bulldog", "at the shoulder", 30, "cm", about],
+    ["Pikachus", "Pikachu", "its Pokédex height", 0.4, "m"],
+    ["Eevees", "Eevee", "its Pokédex height", 0.3, "m"],
+    ["Jigglypuffs", "Jigglypuff", "its Pokédex height", 0.5, "m"],
+    ["Bulbasaurs", "Bulbasaur", "its Pokédex height", 0.7, "m"],
+    ["Psyducks", "Psyduck", "its Pokédex height", 0.8, "m"],
+    ["Charizards", "Charizard", "its Pokédex height", 1.7, "m"],
+    ["Snorlaxes", "Snorlax", "its Pokédex height", 2.1, "m"],
+    ["Jacob Elordis", "Jacob Elordi", "the actor", 196, "cm", person],
+    ["Tom Hollands", "Tom Holland", "the actor", 173, "cm", person],
+    ["Zendayas", "Zendaya", "the actor", 178, "cm", person],
+    ["Timothée Chalamets", "Timothée Chalamet", "the actor", 178, "cm", person],
+    ["Taylor Swifts", "Taylor Swift", "the singer", 180, "cm", person],
+    ["Dwayne Johnsons", "Dwayne Johnson", "the Rock himself", 196, "cm", person],
+    ["Kevin Harts", "Kevin Hart", "the comedian", 157, "cm", person],
+    ["Pedro Pascals", "Pedro Pascal", "the actor", 180, "cm", person],
+    ["Ariana Grandes", "Ariana Grande", "the singer", 153, "cm", person],
+    ["Sabrina Carpenters", "Sabrina Carpenter", "the singer", 152, "cm", person],
+    ["Gwendoline Christies", "Gwendoline Christie", "the actor", 191, "cm", person],
+    ["Peter Dinklages", "Peter Dinklage", "the actor", 135, "cm", person],
+    ["Lady Gagas", "Lady Gaga", "the singer, without heels", 155, "cm", person],
+    ["Tom Cruises", "Tom Cruise", "the actor", 170, "cm", person],
+    ["Keanu Reeveses", "Keanu Reeves", "the actor", 186, "cm", person],
+    ["Ryan Reynoldses", "Ryan Reynolds", "the actor", 188, "cm", person],
+    ["Margot Robbies", "Margot Robbie", "the actor", 168, "cm", person],
+    ["Victor Wembanyamas", "Victor Wembanyama", "the basketball player", 224, "cm", person],
+    ["Simone Bileses", "Simone Biles", "the gymnast", 142, "cm", person],
+    ["Lionel Messis", "Lionel Messi", "the footballer", 170, "cm", person],
+    ["Billie Eilishes", "Billie Eilish", "the singer", 161, "cm", person],
+    ["Harry Styleses", "Harry Styles", "the singer", 183, "cm", person],
+    ["Snoop Doggs", "Snoop Dogg", "the rapper", 193, "cm", person],
   ]),
   length: rows([
     ["grains of rice", "grain of rice", "long-grain", 7, "mm", about],
@@ -138,6 +204,58 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["marathons", "marathon", "start to finish", 42.195, "km"],
     ["trips around the Earth", "trip around the Earth", "at the equator", 40075, "km"],
     ["trips to the Moon", "trip to the Moon", "the average distance", 384400, "km"],
+    // More of them under 4 ft, so everyday measurements land on whole numbers.
+    ["LEGO bricks", "LEGO brick", "a 2×4 brick, the long side", 31.8, "mm"],
+    ["quarters", "quarter", "side by side", 24.26, "mm"],
+    ["pennies", "penny", "side by side", 19.05, "mm"],
+    ["nickels", "nickel", "side by side", 21.21, "mm"],
+    ["dimes", "dime", "side by side", 17.91, "mm"],
+    ["iPhone 16s", "iPhone 16", "end to end", 147.6, "mm"],
+    ["Nintendo Switch OLEDs", "Nintendo Switch OLED", "with both Joy-Cons on", 242, "mm"],
+    ["PS5 controllers", "PS5 controller", "a DualSense, side to side", 160, "mm"],
+    ["Hot Wheels cars", "Hot Wheels car", "a 1:64 car", 7.5, "cm", about],
+    ["computer keyboards", "computer keyboard", "a full-size keyboard", 44, "cm", about],
+    ["skateboards", "skateboard", "a standard deck", 80, "cm", about],
+    ["yoga mats", "yoga mat", "rolled out", 173, "cm", about],
+    ["strands of spaghetti", "strand of spaghetti", "dry, out of the box", 25, "cm", about],
+    ["toothbrushes", "toothbrush", "a manual toothbrush", 19, "cm", about],
+    ["garden hoses", "garden hose", "a 50 ft hose", 15.24, "m"],
+    ["pool noodles", "pool noodle", "a standard noodle", 152, "cm", about],
+    ["toothpicks", "toothpick", "a round toothpick", 6.5, "cm", about],
+    ["popsicle sticks", "popsicle stick", "a standard stick", 11.4, "cm", about],
+    ["cotton swabs", "cotton swab", "a Q-tip", 7.6, "cm", about],
+    ["chopsticks", "chopstick", "a disposable pair", 23, "cm", about],
+    ["drinking straws", "drinking straw", "a standard straw", 19.7, "cm", about],
+    ["Swiss Army knives", "Swiss Army knife", "a standard Victorinox, closed", 91, "mm"],
+    ["capybaras", "capybara", "an adult, nose to rump", 1.2, "m", about],
+    ["trash pandas", "trash panda", "a raccoon, nose to the tip of the tail", 85, "cm", about],
+    ["corn snakes", "corn snake", "an adult, stretched out", 1.2, "m", about],
+    ["guinea pigs", "guinea pig", "an adult, nose to rump", 25, "cm", about],
+    ["hamsters", "hamster", "a Syrian hamster", 15, "cm", about],
+    ["newborn babies", "newborn baby", "the average length at birth", 50, "cm", about],
+    ["tennis rackets", "tennis racket", "a standard adult racket", 68.6, "cm"],
+    ["golf drivers", "golf driver", "a men's driver", 115, "cm", about],
+    ["cricket bats", "cricket bat", "the longest the Laws allow", 96.5, "cm"],
+    ["violins", "violin", "a full-size violin", 59, "cm", about],
+    ["soprano ukuleles", "soprano ukulele", "end to end", 53, "cm", about],
+    ["Stratocasters", "Stratocaster", "a Fender Strat, end to end", 99, "cm", about],
+    ["business cards", "business card", "a US card, the long side", 8.89, "cm"],
+    ["Post-it notes", "Post-it note", "the classic 3×3 note", 7.62, "cm"],
+    ["index cards", "index card", "a 3×5 card, the long side", 12.7, "cm"],
+    ["business envelopes", "business envelope", "a #10 envelope, the long side", 24.13, "cm"],
+    ["Jenga blocks", "Jenga block", "end to end", 7.5, "cm", about],
+    ["dominoes", "domino", "end to end", 5, "cm", about],
+    ["playing cards", "playing card", "the long side", 8.89, "cm"],
+    ["Monopoly boards", "Monopoly board", "side to side, unfolded", 50.8, "cm", about],
+    ["Minecraft blocks", "Minecraft block", "one block, by the game's own scale", 1, "m"],
+    ["yardsticks", "yardstick", "end to end", 91.44, "cm"],
+    ["meter sticks", "meter stick", "end to end", 1, "m"],
+    ["Barbie dolls", "Barbie doll", "lying down, head to toe", 29.2, "cm"],
+    ["LEGO minifigures", "LEGO minifigure", "lying down", 4, "cm", about],
+    ["Funko Pops", "Funko Pop", "lying down", 9.5, "cm", about],
+    ["Rubik's Cubes", "Rubik's Cube", "side by side", 57, "mm"],
+    ["tennis balls", "tennis ball", "side by side", 6.7, "cm"],
+    ["ping-pong balls", "ping-pong ball", "side by side", 40, "mm"],
   ]),
   weight: rows([
     ["grains of rice", "grain of rice", "uncooked", 0.025, "g", about],
