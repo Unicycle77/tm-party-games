@@ -8,7 +8,7 @@ import {
   addContestant, addKeptGame, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
   declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot, type TaskEntry,
 } from "./data";
-import { isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
+import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
 import { formatTime } from "../games/noisemaster/data";
 import { currentTotals, pendingTasks } from "./scoring";
 import { SongField, SongStrip } from "../SongStrip";
@@ -198,7 +198,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       loud && task.dqOver !== undefined ? ` · over ${task.dqOver} dB is a DQ` : ""} · ${
       contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
     : `${contestants.filter(([c]) => worked.points[c] !== undefined).length} of ${contestants.length} scored`;
-  const bonuses = contestants.filter(([c]) => task.bonus?.[c]).length;
+  const bonuses = contestants.reduce((n, [c]) => n + bonusOf(task, c), 0);
 
   return (
     <section className="sb-points">
@@ -221,10 +221,10 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
           ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
-              result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={!!task.bonus?.[c]}
+              result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={bonusOf(task, c)}
               points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />
           : <PointsRow key={c} name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
-              dq={!!task.dq?.[c]} bonus={!!task.bonus?.[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
+              dq={!!task.dq?.[c]} bonus={bonusOf(task, c)} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
       </ul>
       {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
       {light && <p className="muted small">Change the order on <button className="link" onClick={onLight}>{LIGHT}</button>.</p>}
@@ -271,23 +271,28 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
 
 const CHIPS = [1, 2, 3, 4, 5];
 
-/** The +1 at the end of a points row: a bonus point on top of whatever they scored. A DQ keeps it. */
-function BonusChip({ name, bonus, onEnter }: { name: string; bonus: boolean; onEnter: EntryFor }) {
+/**
+ * The +1 at the end of a points row: bonus points on top of whatever they scored. Each tap goes +1, +2, then
+ * none, so a task with two bonus points needs no other chip. A DQ keeps them.
+ */
+function BonusChip({ name, bonus, onEnter }: { name: string; bonus: number; onEnter: EntryFor }) {
+  const next = bonus >= 2 ? null : bonus + 1;
   return (
     <div className="choices marks sb-bonus">
-      <button aria-pressed={bonus} aria-label={`Bonus point for ${name}`} onClick={() => onEnter((c) => ({ bonus: one(c, bonus ? null : true) }))}>+1</button>
+      <button aria-pressed={bonus > 0} aria-label={`Bonus points for ${name}: ${bonus}. Tap for ${next ?? "none"}`}
+        onClick={() => onEnter((c) => ({ bonus: one(c, next) }))}>+{bonus || 1}</button>
     </div>
   );
 }
 
 /**
- * One contestant on a by-hand task: DQ by the name, then 1 to 5, and +1 for a bonus point on top. Tapping the
+ * One contestant on a by-hand task: DQ by the name, then 1 to 5, and +1 (or +2) for bonus points on top. Tapping the
  * pressed chip takes the points away. A DQ keeps the points they were given, struck through; a dashed chip
  * is what they had before someone else's DQ moved them up. Points typed in before there was a bonus (0, 6, 2.5)
  * show as one more pressed chip, until tapped away.
  */
 function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
-  name: string; total: number; points?: number; given?: number; dq: boolean; bonus: boolean; before?: number; onEnter: EntryFor;
+  name: string; total: number; points?: number; given?: number; dq: boolean; bonus: number; before?: number; onEnter: EntryFor;
 }) {
   // What a tap means: the points they end up with, so take off what the DQs moved them up by.
   const moved = !dq && points !== undefined && given !== undefined ? points - given : 0;
@@ -316,13 +321,13 @@ function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
 
 /**
  * One contestant on a measured task: DQ by the name, their number (a time, for Noisemaster), and their points
- * with the place under them, then +1 for a bonus point. Tapping the points opens the chips, to set them by hand;
+ * with the place under them, then +1 (or +2) for bonus points. Tapping the points opens the chips, to set them by hand;
  * a point set by hand sticks. On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the
  * line they went over, and `lo` offers LO, under the box while it's being typed in.
  */
 function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter }: {
   name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
-  result?: number; restarts?: number; dq: boolean; given?: number; bonus: boolean; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
+  result?: number; restarts?: number; dq: boolean; given?: number; bonus: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
 }) {
   const format = (n: number) => timed ? formatTime(n) : n === LO ? "LO" : String(n);
   const [typing, setTyping] = useState<string>();

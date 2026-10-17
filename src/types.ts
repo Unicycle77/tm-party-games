@@ -246,8 +246,8 @@ export interface ScoreboardTask {
   results?: Record<string, number>;
   /** Points the host tapped: every point on a by-hand task, an override on a measured one. */
   given?: Record<string, number>;
-  /** Contestants given a bonus point on top of their points for this task. A DQ keeps it. */
-  bonus?: Record<string, true>;
+  /** Bonus points on top of a contestant's points for this task: 1 or 2 (`true`, from before there could be 2, is 1). A DQ keeps them. */
+  bonus?: Record<string, true | number>;
   /** Disqualified contestants: 0 points, whatever they were given or measured (a bonus still counts). */
   dq?: Record<string, true>;
   /** A dB-meter task: a reading over this many dB is a DQ as soon as it's typed (exactly this many is safe). */
