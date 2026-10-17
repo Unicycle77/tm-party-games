@@ -236,9 +236,9 @@ export interface TaskUnit {
   name: string;
   /** How big one is, in `unit`. */
   amount: number;
-  /** One of the converter's common units (mm, cm, m, in, ft, g, kg, oz, lb, sec, min, hr). */
+  /** One of the converter's common units (mm, cm, m, in, ft, g, kg, oz, lb, sec, min, hr, ml, L, tsp, tbsp, fl oz, cup, pt, qt, gal). */
   unit: string;
-  kind: "height" | "length" | "weight" | "time";
+  kind: "height" | "length" | "weight" | "time" | "volume";
 }
 
 /** A useless conversion on the big screen: the three lines the host reads out. */

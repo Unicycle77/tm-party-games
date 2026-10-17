@@ -1,17 +1,19 @@
 /**
- * The useless units: about 100 each for height and length and 50 each for weight and time, sorted smallest
+ * The useless units: about 100 each for height and length and 50 each for weight, time and volume, sorted smallest
  * first. Each is a real figure: a rule, a standard or an official number where one exists, else the generally
  * accepted average, marked `about`, which the converter never calls "exactly". Sources are in the project's
  * unit list (useless-conversions/units.md).
  */
 
-export type Kind = "height" | "length" | "weight" | "time";
+export type Kind = "height" | "length" | "weight" | "time" | "volume";
 
-/** Everything is converted through one anchor per kind: millimetres, grams or seconds. */
+/** Everything is converted through one anchor per kind: millimetres, grams, seconds or millilitres. Volume is US customary. */
 export const ANCHOR: Record<string, number> = {
   mm: 1, cm: 10, m: 1000, km: 1e6, in: 25.4, ft: 304.8,
   g: 1, kg: 1000, oz: 28.349523125, lb: 453.59237,
   sec: 1, min: 60, hr: 3600, d: 86400, mo: 2629800, yr: 31557600,
+  ml: 1, L: 1000, "m³": 1e6, "km³": 1e15,
+  tsp: 4.92892159375, tbsp: 14.78676478125, "fl oz": 29.5735295625, cup: 236.5882365, pt: 473.176473, qt: 946.352946, gal: 3785.411784,
 };
 
 export interface UselessUnit {
@@ -23,7 +25,7 @@ export interface UselessUnit {
   the?: "the" | "a" | "an" | "";
   /** What exactly was measured, the line under the number: "a regulation ten-pin". */
   measured: string;
-  /** In the kind's anchor (mm, g or s). */
+  /** In the kind's anchor (mm, g, s or ml). */
   size: number;
   /** A generally accepted average rather than a rule or an official figure. */
   about?: boolean;
@@ -260,6 +262,9 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["ping-pong balls", "ping-pong ball", "side by side", 40, "mm"],
   ]),
   weight: rows([
+    // The old riddle: gold is weighed in troy pounds, so a pound of feathers really is heavier.
+    ["pounds of feathers", "pound of feathers", "an ordinary pound", 1, "lb"],
+    ["pounds of gold", "pound of gold", "a troy pound, the way gold is weighed", 373.2417216, "g"],
     ["grains of rice", "grain of rice", "uncooked", 0.025, "g", about],
     ["honeybees", "honeybee", "a worker bee", 0.1, "g", about],
     ["Tic Tacs", "Tic Tac", "one mint", 0.49, "g", about],
@@ -364,5 +369,72 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["years on Neptune", "year on Neptune", "one trip around the Sun", 164.8, "yr"],
     ["Western Roman Empires", "Western Roman Empire", "27 BC to AD 476", 503, "yr", { about: true, the: "the" }],
     ["Great Pyramid lifetimes", "Great Pyramid lifetime", "how long it's stood", 4500, "yr", { about: true, the: "the" }],
+  ]),
+  volume: rows([
+    ["raindrops", "raindrop", "a 2 mm drop", 0.0042, "ml", about],
+    ["drops of water", "drop of water", "from a medicine dropper", 0.05, "ml", about],
+    ["LEGO bricks", "LEGO brick", "a 2×4 brick, the space it fills", 4.82, "ml"],
+    ["ketchup packets", "ketchup packet", "a fast-food packet", 8, "ml", about],
+    ["coffee creamer cups", "coffee creamer cup", "a single-serve cup", 11, "ml", about],
+    ["bottles of nail polish", "bottle of nail polish", "a standard bottle", 15, "ml", about],
+    ["ping-pong balls", "ping-pong ball", "the space inside", 33.5, "ml"],
+    ["golf balls", "golf ball", "a regulation ball", 40.7, "ml"],
+    ["shots", "shot", "a US 1.5 fl oz shot", 44.36, "ml"],
+    ["eggs", "egg", "a large egg, out of its shell", 50, "ml", about],
+    ["airplane bottles", "airplane bottle", "a mini liquor bottle", 50, "ml"],
+    ["5-hour Energy shots", "5-hour Energy shot", "the 1.93 fl oz bottle", 1.93, "fl oz"],
+    ["heartbeats", "heartbeat", "the blood one beat pumps, at rest", 70, "ml", about],
+    ["TSA liquid limits", "TSA liquid limit", "the most per bottle in a carry-on", 100, "ml", the],
+    ["tennis balls", "tennis ball", "the space it fills", 157.5, "ml"],
+    ["Capri Suns", "Capri Sun", "a 6 fl oz pouch", 6, "fl oz"],
+    ["Rubik's Cubes", "Rubik's Cube", "the space it fills", 185.2, "ml"],
+    ["juice boxes", "juice box", "a 6.75 fl oz box", 6.75, "fl oz"],
+    ["school milk cartons", "school milk carton", "a half-pint carton", 8, "fl oz"],
+    ["Red Bull cans", "Red Bull can", "the 8.4 oz can", 250, "ml"],
+    ["coffee mugs", "coffee mug", "a standard 11 oz mug, to the brim", 11, "fl oz", about],
+    ["soda cans", "soda can", "a 12 oz US can", 12, "fl oz"],
+    ["Starbucks Grandes", "Starbucks Grande", "16 fl oz", 16, "fl oz"],
+    ["Ben & Jerry's pints", "Ben & Jerry's pint", "a pint tub", 16, "fl oz"],
+    ["bottles of water", "bottle of water", "a 16.9 fl oz bottle", 500, "ml"],
+    ["full bladders", "full bladder", "an adult's", 500, "ml", about],
+    ["British pints", "British pint", "a pub pint", 568.26, "ml"],
+    ["Starbucks Ventis", "Starbucks Venti", "a hot Venti, 20 fl oz", 20, "fl oz"],
+    ["wine bottles", "wine bottle", "a standard bottle", 750, "ml"],
+    ["Gatorade bottles", "Gatorade bottle", "the 28 fl oz bottle", 28, "fl oz"],
+    ["Big Gulps", "Big Gulp", "7-Eleven's 30 fl oz cup", 30, "fl oz"],
+    ["Stanley Quenchers", "Stanley Quencher", "the 40 oz tumbler", 40, "fl oz"],
+    ["champagne magnums", "champagne magnum", "two bottles in one", 1.5, "L"],
+    ["2-liter soda bottles", "2-liter soda bottle", "the big one", 2, "L"],
+    ["bodies' worth of blood", "body's worth of blood", "an adult's", 5, "L", about],
+    ["bowling balls", "bowling ball", "a regulation ball", 5.28, "L"],
+    ["soccer balls", "soccer ball", "a size 5 ball", 5.5, "L", about],
+    ["pairs of lungs", "pair of lungs", "an adult's, breathed all the way in", 6, "L", about],
+    ["toilet flushes", "toilet flush", "the US limit of 1.6 gallons", 1.6, "gal"],
+    ["basketballs", "basketball", "an NBA ball", 7.1, "L"],
+    ["minutes of shower", "minute of shower", "the US limit of 2.5 gallons a minute", 2.5, "gal"],
+    ["Nebuchadnezzars", "Nebuchadnezzar", "the 20-bottle champagne bottle", 15, "L"],
+    ["5-gallon buckets", "5-gallon bucket", "a hardware-store bucket", 5, "gal"],
+    ["days of a dairy cow's milk", "day of a dairy cow's milk", "the US average", 30, "L", { about: true, the: "" }],
+    ["10-gallon fish tanks", "10-gallon fish tank", "filled to the top", 10, "gal"],
+    ["kegs", "keg", "a full-size US keg", 15.5, "gal"],
+    ["bathtubs", "bathtub", "a standard tub, filled", 150, "L", about],
+    ["barrels of oil", "barrel of oil", "the 42-gallon barrel", 42, "gal"],
+    ["elephant drinks", "elephant drink", "an African elephant's water for a day", 200, "L", about],
+    ["refrigerators", "refrigerator", "a 20 cu ft fridge, inside", 566, "L", about],
+    ["hot tubs", "hot tub", "a six-seater, filled", 1500, "L", about],
+    ["cement mixers", "cement mixer", "a full 10-cubic-yard drum", 7.65, "m³", about],
+    ["20-foot shipping containers", "20-foot shipping container", "inside", 33.2, "m³"],
+    ["40-foot shipping containers", "40-foot shipping container", "inside", 67.7, "m³"],
+    ["backyard pools", "backyard pool", "an in-ground pool, filled", 75, "m³", about],
+    ["Olympic swimming pools", "Olympic swimming pool", "50 × 25 × 2 m, the minimum", 2500, "m³"],
+    ["hot air balloons", "hot air balloon", "a standard balloon, inflated", 2800, "m³", about],
+    ["Goodyear Blimps", "Goodyear Blimp", "Wingfoot One", 8425, "m³", the],
+    ["Hindenburgs", "Hindenburg", "the airship's gas cells", 200000, "m³", the],
+    ["Empire State Buildings", "Empire State Building", "the whole building", 1047723, "m³", the],
+    ["Great Pyramids of Giza", "Great Pyramid of Giza", "as it stands today", 2500000, "m³", { about: true, the: "the" }],
+    ["Loch Nesses", "Loch Ness", "all of it", 7.4, "km³", { about: true, the: "" }],
+    ["Grand Canyons", "Grand Canyon", "the space it carves out", 4170, "km³", { about: true, the: "the" }],
+    ["Earth's oceans", "all the Earth's oceans", "every drop", 1.335e9, "km³", { about: true, the: "" }],
+    ["Moons", "Moon", "the whole thing", 2.1958e10, "km³", the],
   ]),
 };

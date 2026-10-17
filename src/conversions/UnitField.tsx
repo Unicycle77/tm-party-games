@@ -1,10 +1,10 @@
 import type { TaskUnit } from "../types";
 import { COMMON, DICE } from "./convert";
 
-/** The unit picker on a task: lengths, weights, then times, a row each, so the kind reads at a glance. */
-const ROWS = [COMMON.height, COMMON.weight, COMMON.time];
+/** The unit picker on a task: lengths, weights, times, then volumes, a row each, so the kind reads at a glance. */
+const ROWS = [COMMON.height, COMMON.weight, COMMON.time, COMMON.volume];
 const kindOf = (unit: string, was: TaskUnit["kind"]): TaskUnit["kind"] =>
-  COMMON.weight.includes(unit) ? "weight" : COMMON.time.includes(unit) ? "time" : was === "length" ? "length" : "height";
+  COMMON.weight.includes(unit) ? "weight" : COMMON.time.includes(unit) ? "time" : COMMON.volume.includes(unit) ? "volume" : was === "length" ? "length" : "height";
 
 /** A draft of the task's unit while it's being edited; `amount` stays as typed. */
 export interface UnitDraft { name: string; amount: string; unit: string; kind: TaskUnit["kind"] }

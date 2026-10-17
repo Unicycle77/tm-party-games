@@ -7,9 +7,10 @@ export const COMMON: Record<Kind, string[]> = {
   length: ["mm", "cm", "m", "in", "ft"],
   weight: ["g", "kg", "oz", "lb"],
   time: ["sec", "min", "hr"],
+  volume: ["ml", "L", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"],
 };
-export const KINDS: Kind[] = ["height", "length", "weight", "time"];
-export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time" };
+export const KINDS: Kind[] = ["height", "length", "weight", "time", "volume"];
+export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time", volume: "Volume" };
 
 /** The one built-in prop: a standard six-sided die is 16 mm along each edge. */
 export const DICE: TaskUnit = { name: "dice", amount: 16, unit: "mm", kind: "height" };
@@ -39,12 +40,15 @@ export function matchFor(unit: UselessUnit, anchor: number): Match | undefined {
   return { unit, count, whole, fraction: true, off: Math.abs(flipped - whole) };
 }
 
+/** Past a billion (1/94,002,983,111,123,540 of the Grand Canyon) a number can't be read out, and every one looks "exact". */
+const MOST = 1e9;
+
 /**
  * Every unit of a kind, closest to a round number first (and of two as close, the smaller number, which is easier
- * to picture), with the closest few shuffled so a repeat isn't a rerun.
+ * to picture), with the closest few shuffled so a repeat isn't a rerun. "Use a different unit" still offers the rest.
  */
 export function rank(kind: Kind, anchor: number, shuffleTop = 5, random = Math.random): Match[] {
-  const all = UNITS[kind].map((u) => matchFor(u, anchor)).filter((m): m is Match => !!m).sort((a, b) => a.off - b.off || a.whole - b.whole);
+  const all = UNITS[kind].map((u) => matchFor(u, anchor)).filter((m): m is Match => !!m && m.whole <= MOST).sort((a, b) => a.off - b.off || a.whole - b.whole);
   const top = all.slice(0, shuffleTop);
   for (let i = top.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -53,14 +57,14 @@ export function rank(kind: Kind, anchor: number, shuffleTop = 5, random = Math.r
   return [...top, ...all.slice(shuffleTop)];
 }
 
-/** A measurement in its kind's anchor (mm, g or s). */
+/** A measurement in its kind's anchor (mm, g, s or ml). */
 export const toAnchor = (amount: number, unit: string) => amount * (ANCHOR[unit] ?? NaN);
 
 const num = (n: number, digits = 2) => n.toLocaleString("en-US", { maximumFractionDigits: digits });
 const article = (u: UselessUnit) => u.the ?? (/^[aeiou]/i.test(u.one) ? "an" : "a");
 const withArticle = (u: UselessUnit) => [article(u), u.one].filter(Boolean).join(" ");
-const DIMENSION: Record<Kind, string> = { height: "height", length: "length", weight: "weight", time: "length" };
-const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weight: "", time: "" };
+const DIMENSION: Record<Kind, string> = { height: "height", length: "length", weight: "weight", time: "length", volume: "volume" };
+const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weight: "", time: "", volume: "" };
 
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
 export function say(kind: Kind, amount: number, inUnit: string, m: Match): ShownConversion {
@@ -94,6 +98,7 @@ export function working(kind: Kind, anchor: number, inLabel: string, m: Match): 
       const yr = ANCHOR.yr!, d = ANCHOR.d!;
       return a >= yr ? `${num(a / yr)} years` : a >= d ? `${num(a / d)} days` : a >= 3600 ? `${num(a / 3600)} hr` : a >= 60 ? `${num(a / 60)} min` : `${num(a, 3)} sec`;
     }
+    if (kind === "volume") return a >= 1e15 ? `${num(a / 1e15)} km³` : a >= 1e6 ? `${num(a / 1e6)} m³` : a >= 1000 ? `${num(a / 1000)} L` : `${num(a, 3)} ml`;
     return a >= 1e6 ? `${num(a / 1e6)} km` : a >= 1000 ? `${num(a / 1000)} m` : a >= 10 ? `${num(a / 10)} cm` : `${num(a, 3)} mm`;
   };
   return `${inLabel} = ${show(anchor)} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;

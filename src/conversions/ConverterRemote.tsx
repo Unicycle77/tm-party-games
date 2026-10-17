@@ -36,7 +36,8 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   // A task whose unit was removed falls back to the common units.
   const common = "unit" in source ? source : lastCommon();
   const kind: Kind = taskUnit?.kind ?? common.kind;
-  const label = taskUnit?.name ?? common.unit;
+  // Abbreviations read the same for any number ("2 kg"); "cup" is the one word among them.
+  const label = taskUnit?.name ?? (common.unit === "cup" && amount !== 1 ? "cups" : common.unit);
   const anchor = taskUnit ? toAnchor(amount * taskUnit.amount, taskUnit.unit) : toAnchor(amount, common.unit);
   const ready = typed.trim() !== "" && amount > 0 && isFinite(anchor);
 
