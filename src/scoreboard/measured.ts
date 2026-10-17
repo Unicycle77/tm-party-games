@@ -2,9 +2,9 @@ import type { ScoreboardTask } from "../types";
 
 type Points = Record<string, number>;
 
-/** How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time). */
+/** How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time, the light by who got it first). */
 export const scoringOf = (t: ScoreboardTask): "hand" | "highest" | "lowest" =>
-  t.game === "noisemaster" ? "lowest" : t.scoring ?? "hand";
+  t.game === "noisemaster" || t.game === "light" ? "lowest" : t.scoring ?? "hand";
 
 export const isMeasured = (t: ScoreboardTask) => scoringOf(t) !== "hand";
 

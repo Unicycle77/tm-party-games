@@ -2,6 +2,7 @@ import { get, ref, set, update } from "firebase/database";
 import { useEffect, useRef, useState } from "react";
 import { PUBLIC_URL, db } from "../firebase";
 import { JoinError, ensureSignedIn } from "../session";
+import { enterPoints, lightPlaces, taskFor } from "../scoreboard/data";
 import type { LightState, Session } from "../types";
 import { type Mode, type Trigger, findMode, findTrigger } from "./triggers";
 
@@ -51,17 +52,35 @@ export const lightAllNow = (code: string, mode: Mode) =>
 /** Who has worked out the secret, first to last. */
 export const gotOrder = (light: LightState) =>
   Object.entries(light.got ?? {}).sort(([, a], [, b]) => a - b).map(([c]) => c);
+/**
+ * Saves a new order, and while the light is on the task list, the places on its task too (1 for whoever
+ * got it first), so the scoreboard works out the points.
+ */
+function saveGot(code: string, session: Session, got: Record<string, number>) {
+  const board = session.scoreboard;
+  const id = taskFor(board, "light");
+  const saving = set(path(code, "got"), Object.keys(got).length ? got : null);
+  if (!id) return saving;
+  const places = lightPlaces(got, board);
+  const results = Object.fromEntries(Object.keys({ ...board?.tasks?.[id]?.results, ...places }).map((c) => [c, places[c] ?? null]));
+  return Promise.all([saving, enterPoints(code, board, session.display?.step === "scoreboard", id, { results })]);
+}
 /** Marks a contestant as the next to work it out. */
-export const markGot = (code: string, light: LightState, contestant: string) =>
-  set(ref(db(), `sessions/${code}/light/got/${contestant}`), Math.max(0, ...Object.values(light.got ?? {})) + 1);
+export function markGot(code: string, session: Session, contestant: string) {
+  const got = lightOf(session).got ?? {};
+  return saveGot(code, session, { ...got, [contestant]: Math.max(0, ...Object.values(got)) + 1 });
+}
 /** Moves a contestant to a place (1st is 1); the others shift to make room. */
-export function moveGot(code: string, light: LightState, contestant: string, place: number) {
-  const order = gotOrder(light).filter((c) => c !== contestant);
+export function moveGot(code: string, session: Session, contestant: string, place: number) {
+  const order = gotOrder(lightOf(session)).filter((c) => c !== contestant);
   order.splice(place - 1, 0, contestant);
-  return set(path(code, "got"), Object.fromEntries(order.map((c, i) => [c, i + 1])));
+  return saveGot(code, session, Object.fromEntries(order.map((c, i) => [c, i + 1])));
 }
 /** Takes a contestant off the list, as if they'd never been marked. */
-export const unmarkGot = (code: string, contestant: string) => set(ref(db(), `sessions/${code}/light/got/${contestant}`), null);
+export function unmarkGot(code: string, session: Session, contestant: string) {
+  const { [contestant]: _, ...got } = lightOf(session).got ?? {};
+  return saveGot(code, session, got);
+}
 
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 

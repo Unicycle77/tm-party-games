@@ -753,6 +753,9 @@ body.idle-cursor .stage { cursor: none; }
 .light-got-fix { display: grid; gap: 0.4rem; padding: 0 0.2rem 0.6rem; }
 .light-got-fix .link { justify-self: start; }
 .light-got .choices button.got { opacity: 0.55; }
+/* a DQ from the scoreboard: the place kept, the name struck through */
+.light-got li.dq .light-got-name { text-decoration: line-through; opacity: 0.6; }
+.light-got li.dq .light-got-pts { color: var(--muted); }
 .light-key .swatch { flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--bulb); border: 2px solid var(--gold-dark); }
 
 /* the light: setting up a real Hue lamp, on the /light page */
@@ -1104,6 +1107,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-override { grid-column: 1 / -1; }
 .sb-result { min-width: 0; padding: 0.5rem 0.6rem; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .sb-measured li.dq .sb-result { opacity: 0.45; text-decoration: line-through; }
+/* the light: where it came in the order, in place of the number box (it's marked on 💡) */
+.sb-got { min-width: 0; padding: 0.5rem 0; font-size: 1.05rem; }
+.sb-measured li.dq .sb-got { opacity: 0.45; text-decoration: line-through; }
 .sb-unit { font-family: var(--typewriter); white-space: nowrap; }
 .sb-pts { display: grid; justify-items: center; padding: 0.15rem 0; line-height: 1.1; background: none; border: 0; border-radius: 6px; box-shadow: none; color: var(--fg); }
 .sb-pts b { font-size: 1.5rem; font-weight: normal; white-space: nowrap; }

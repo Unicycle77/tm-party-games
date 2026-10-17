@@ -140,8 +140,8 @@ function Sheet() {
             </div>
             <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
-              <GotIt code="HVQB" light={{ got: { sam: 1, priya: 2 } }}
-                contestants={{ sam: { name: "Sam" }, priya: { name: "Priya" }, mei: { name: "Mei" }, alex: { name: "Alex" }, jo: { name: "Jo" } }} />
+              <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
+                ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
             </div>
             <Cap>The light's "Got it" list (<code>.light-got</code>): a row per guesser (place, name, points); everyone keeps a chip in place, dimmed with ✓ once on the list</Cap>
           </Sec>

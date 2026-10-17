@@ -1,6 +1,8 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
 export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize"] as const;
 export type GameId = (typeof GAME_IDS)[number];
+/** What can be on the task list as an app game: a game, or the light (which runs all evening, so it's never started). */
+export type TaskGame = GameId | "light";
 
 /**
  * What the main screen is showing. Only host / first-player may write this.
@@ -97,6 +99,9 @@ export interface NoisemasterRound {
    */
   last?: { key: string; i: number; ok: boolean; say?: { word: string; inPhrase: boolean } };
 }
+
+/** A Noisemaster go kept for the scoreboard: the time in ms and the restarts, or a DQ. */
+export interface KeptGo { ms?: number; restarts?: number; dq?: true }
 
 /** Kept outside the session (at noisemasterSecrets/{code}) so only the host and the main screen can read it. */
 export interface NoisemasterSecret {
@@ -224,8 +229,8 @@ export interface ScoreboardTask {
   order: number;
   /** A live task's name. */
   name?: string;
-  /** An app game in the list, which can be started from its row. */
-  game?: GameId;
+  /** An app game in the list, which can be started from its row (except the light, which runs all evening). */
+  game?: TaskGame;
   /** The host's note about the task. Only ever shown on the host remote. */
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
@@ -322,7 +327,11 @@ export interface Session {
      * id → uid; the main screen turns each into a dealt task) and the reveal.
      */
     secretTasks?: { pile?: Record<string, PileSpot>; picks?: Record<string, string>; reveal?: SecretReveal };
-    noisemaster?: { sounds?: string[]; round?: NoisemasterRound; played?: Record<string, boolean> };
+    /**
+     * `kept`: finished goes while Noisemaster isn't on the task list, by scoreboard contestant (a DQ has no
+     * time), brought across when it's added.
+     */
+    noisemaster?: { sounds?: string[]; round?: NoisemasterRound; played?: Record<string, boolean>; kept?: Record<string, KeptGo> };
   };
   display?: Display;
   /** Set once the host has started a first game: from then on, "no game" means between games, not the welcome. */
