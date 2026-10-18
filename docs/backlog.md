@@ -90,8 +90,17 @@ Status: nothing here is fixed yet. Notes under each item are initial diagnosis o
 - **Open questions:** where it's entered (Party settings, or the converter itself); whether it stays on the host's phone only (the safer default for a birthdate) or goes in the session so the big screen can show it; whether "the Taskmaster" is the host's name or always the title.
 - **Related:** the unit list draft in the project's shared files (`useless-conversions/units.md`).
 
-### E8. Export and import whole party configurations (idea, not designed yet)
-- Add the ability to export and import whole party configurations.
+### E8. Export and import whole party configurations (planned 2026-10-18, not built)
+Settled with Jeffrey in a pair-design thread; the working notes (scenarios, rejected ideas) are in the project's `export-import/framing.md`.
+
+- **First version: a JSON file.** Reliable and standard. Turning a paper doc (like the Halloween task doc) into that JSON, by hand or by Claude, is the stopgap. A "paste from a doc" box on Plan the party was designed and parked.
+- **In the file:** the party name, the tasks in order (id, name, game, type, text, note, song title, scoring, unit, dB limit, "DQs stay"), the tiebreaker without its winner, the secret task pool, the light's trigger and mode (left switched off). `format` and `version` markers.
+- **Not in the file:** guest list, headshots, the portrait, the host pin, and everything the night produces (players, points, results, DQs, bonuses, dealt secret tasks, submissions). The song files stay on the main-screen PC.
+- **Export:** a "Setup file" row at the bottom of Plan the party, with **Import** and **Export** links and the hint "Tasks, tiebreaker, secret tasks and the light. Not guests or points." Export opens the share sheet with `<party name>.taskmaster.json` (a plain download where there's no share sheet).
+- **Import:** replace or update. The file's task list becomes the party's, in the file's order; a task already in the party is updated in place and keeps its points. Matching: same id, then same app game, then same name (ignoring case). A party task not in the file is removed unless it has points (then it stays at the end). The tiebreaker, secret pool and light are replaced; dealt secret tasks stay dealt.
+- **The check before anything is saved** (opens in place under the row): "Import "Halloween party"?", "Nothing changes until you tap Import.", the task list marked new / updated / kept, "Removed", one line each for the tiebreaker, secret tasks and the light, songs missing from this party's music folder, a gold "Import N tasks" and Cancel. A wrong file shows one line instead ("That file isn't a party setup." / "That setup was made by a newer version of the app.").
+- Sketch: `export-import/import-check-sketch.jpg` in the project files.
+- Only the party's host phone can write tasks, so import runs on the host remote of the party it fills.
 
 ## Suggested order
 B3 (needs the autoplay decision, and E1/E2 touch the same `Stage` code) → E2 → E1 → B2 → B1 (B1 first if it turns out to be a real bug rather than an http test).
