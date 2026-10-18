@@ -9,9 +9,9 @@ const TYPES = ["Individual", "Team"];
 const GAME_TYPES: Partial<Record<TaskGame, string>> = { headshots: "Headshot", prize: "Prize", secretTasks: "Secret" };
 export const TIEBREAKER_TYPE = "Tiebreaker";
 
-/** "Individual" → "Individual task", as it heads the card (in capitals there). "Arrival task" isn't doubled. */
+/** "Individual" → "Individual task", as it heads the card (in capitals there). "Arrival task" and "Secret Tasks" aren't doubled. */
 export const headingOf = (type: string | undefined) => {
-  const t = type?.trim().replace(/\s+task$/i, "");
+  const t = type?.trim().replace(/\s+tasks?$/i, "");
   return t ? `${t} task` : "";
 };
 
