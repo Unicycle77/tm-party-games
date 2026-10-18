@@ -29,7 +29,8 @@ Host phone (`/host`, 390px wide):
 | `host-now-playing.jpg` | A task page with a song playing: the pressed-in "⏸ Eye of the Tiger · 1:55 left" strip under the status line, and the task's own song strip pressed in too (2026-10-18) |
 | `host-read-it-out.jpg` | "📏 Read it out" open under a measured task's points: contestant chips with Jordan picked (the last number typed), the conversion card, "Surprise me again", paper "Show on the big screen" (2026-10-18) |
 | `host-read-it-out-up.jpg` | The same with it on the big screen: the status line says "a useless conversion", the button is pressed in ("On the big screen · Jordan"), and 📏 is lit in the header (2026-10-18) |
-| `host-party-settings.jpg` | Party settings, at the bottom of Run of show: only the night-of switches, the download button and "Disconnect this phone" (the name, portrait and pin moved to Plan the party) (2026-10-18) |
+| `host-party-settings.jpg` | Party settings, at the bottom of Run of show: only the night-of switches, the download button and "Disconnect this phone" (the name, portrait and pin moved to Plan the party) (2026-10-18). "Reset scores…" now sits under the download switch: see `host-reset-scores.jpg` |
+| `host-reset-scores.jpg` | Party settings with "Reset scores…" opened in place: what it clears and keeps, "Also remove guests (8 joined)" switched on with what goes, and the paper "Reset and remove guests" button with Cancel (2026-10-18) |
 
 Main screen (`/`, 1600×900):
 
