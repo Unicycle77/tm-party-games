@@ -3,16 +3,20 @@ import { scored, sorted, titleOf } from "../scoreboard/tasks";
 import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
-import { COMMON, feetAndInches, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, toAnchor, working, type Match } from "./convert";
+import { COMMON, commonFor, feetAndInches, firstUnit, ofSystem, type System, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, toAnchor, working, type Match } from "./convert";
 import { UNITS, type Kind } from "./units";
 
 const UNIT_KEY = "ba.convertUnit";
 type Source = { task: string } | { kind: Kind; unit: string };
 
-/** The last common unit this phone measured in ("height:cm"), so a run of the same task is one tap each. */
-function lastCommon(): { kind: Kind; unit: string } {
+/**
+ * The last common unit this phone measured in ("height:cm"), so a run of the same task is one tap each. A unit from
+ * the other system (cm, remembered from a metric party, at an imperial one) gives way to the party's own (ft).
+ */
+function lastCommon(system?: System): { kind: Kind; unit: string } {
   const [kind, unit] = store.get(UNIT_KEY).split(":") as [Kind, string];
-  return KINDS.includes(kind) && COMMON[kind].includes(unit) ? { kind, unit } : { kind: "height", unit: "cm" };
+  if (!KINDS.includes(kind)) return { kind: "height", unit: firstUnit("height", system) };
+  return { kind, unit: COMMON[kind].includes(unit) && ofSystem(unit, system) ? unit : firstUnit(kind, system) };
 }
 
 /**
@@ -23,7 +27,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const withUnits = sorted(session.scoreboard?.tasks).map(([id, t], i) => ({ id, task: t, place: i + 1 })).filter((t) => t.task.unit);
   const [source, setSourceState] = useState<Source>(() => {
     const next = withUnits.find((t) => !scored(t.task)) ?? withUnits.at(-1);
-    return next ? { task: next.id } : lastCommon();
+    return next ? { task: next.id } : lastCommon(session.units);
   });
   const setSource = (s: Source) => {
     setSourceState(s);
@@ -34,7 +38,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
 
   const taskUnit = "task" in source ? session.scoreboard?.tasks?.[source.task]?.unit : undefined;
   // A task whose unit was removed falls back to the common units.
-  const common = "unit" in source ? source : lastCommon();
+  const common = "unit" in source ? source : lastCommon(session.units);
   // At an imperial party, feet come with an inches box (5 ft 11 in, the way a height is said: a phone's number pad has
   // no ' or "), and pounds with an ounces box (1 lb 8 oz).
   const split = session.units !== "imperial" || taskUnit ? undefined
@@ -86,12 +90,12 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
         {KINDS.map((k) => {
           const on = !taskUnit && common.kind === k;
           return <button key={k} className={on ? "active" : ""} aria-pressed={on}
-            onClick={() => setSource({ kind: k, unit: k === common.kind ? common.unit : COMMON[k][1]! })}>{KIND_LABEL[k]}</button>;
+            onClick={() => setSource({ kind: k, unit: k === common.kind ? common.unit : firstUnit(k, session.units) })}>{KIND_LABEL[k]}</button>;
         })}
       </div>
       {/* While a task's unit is in use, the common units stay where they are, dimmed, until one is tapped. */}
       <div className={`choices units${taskUnit ? " idle" : ""}`}>
-        {COMMON[kind].map((u) => {
+        {commonFor(kind, session.units).map((u) => {
           const on = !taskUnit && common.unit === u;
           return <button key={u} className={on ? "active" : ""} aria-pressed={on} onClick={() => setSource({ kind, unit: u })}>{u}</button>;
         })}

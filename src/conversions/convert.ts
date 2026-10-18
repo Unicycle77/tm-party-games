@@ -10,6 +10,17 @@ export const COMMON: Record<Kind, string[]> = {
   volume: ["ml", "L", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"],
   loudness: ["dB"],
 };
+/** The US customary units among them. */
+const IMPERIAL = new Set(["in", "ft", "oz", "lb", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"]);
+/** A kind's common units for a party: at an imperial party its US units come first, in the same smallest-first order. */
+export const commonFor = (kind: Kind, system: System = "metric"): string[] =>
+  system === "imperial" ? [...COMMON[kind].filter((u) => IMPERIAL.has(u)), ...COMMON[kind].filter((u) => !IMPERIAL.has(u))] : COMMON[kind];
+/** The unit a kind opens on: the everyday one, cm, kg, min and L, or at an imperial party ft, lb, min and cups. */
+export const firstUnit = (kind: Kind, system: System = "metric"): string =>
+  system === "imperial" ? ({ height: "ft", length: "ft", weight: "lb", volume: "cup" } as Partial<Record<Kind, string>>)[kind] ?? COMMON[kind][1] ?? COMMON[kind][0]! : COMMON[kind][1] ?? COMMON[kind][0]!;
+/** Whether a unit belongs to the party's own system (minutes and dB belong to both). */
+const METRIC = new Set(["mm", "cm", "m", "g", "kg", "ml", "L"]);
+export const ofSystem = (unit: string, system: System = "metric") => !(system === "imperial" ? METRIC : IMPERIAL).has(unit);
 export const KINDS: Kind[] = ["height", "length", "weight", "time", "volume", "loudness"];
 export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time", volume: "Volume", loudness: "Loudness" };
 
