@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
 import { switchPhotosTask } from "../games/photos/data";
@@ -41,30 +41,43 @@ function ShowTask({ code, session, task, gold, onShown }: { code: string; sessio
 }
 
 /**
- * A multi-part task's cards, each under its own "Show part N". None is gold, since putting a part up is the host's
- * choice (and so is putting none up). Pressed in while that part is on the big screen; another part swaps it, and the
- * pressed one lowers the curtain. "Part N" is for the host: the cards, the big screen and the phones never say it.
+ * A multi-part task: two rows of radio buttons, one for the big screen and one for the phones, each choosing nothing or
+ * one part (each can be set apart from the other), then the cards to read from. Chosen is pressed in, never gold, since
+ * putting a part up (or none) is the host's choice. "Part N" is for the host: the cards, the big screen and the phones never say it.
  */
 function PartCards({ code, session, task, parts, phones }: { code: string; session: Session; task: string; parts: { type: string; text: string }[]; phones: boolean }) {
   const d = session.display;
-  const up = d?.step === "tasktext" && d.task === task ? d.part ?? 0 : undefined;
+  const stage = d?.step === "tasktext" && d.task === task ? d.part ?? 0 : undefined;
+  const phone = session.phoneText?.task === task ? session.phoneText.part ?? 0 : undefined;
   return (
     <>
-      {parts.map((p, i) => (
-        <Fragment key={i}>
-          <button className={up === i ? "pressed-in" : undefined} aria-pressed={up === i}
-            onClick={() => void (up === i ? lowerCurtain(code) : showTaskText(code, task, i))}>Show part {i + 1}</button>
-          <TaskTextCard type={p.type} text={p.text} />
-          {phones && <PhonesLink code={code} session={session} task={task} part={i} />}
-        </Fragment>
-      ))}
+      <PartPick label="Big screen" up={stage} count={parts.length}
+        onPick={(i) => { if (i !== undefined) void showTaskText(code, task, i); else if (stage !== undefined) void lowerCurtain(code); }} />
+      {phones && <PartPick label="Phones" up={phone} count={parts.length}
+        onPick={(i) => void (i === undefined ? takeDownPhones(code) : showOnPhones(code, task, i))} />}
+      {parts.map((p, i) => <TaskTextCard key={i} type={p.type} text={p.text} />)}
     </>
   );
 }
 
+/** One row of radio buttons on one line: Nothing, Part 1, Part 2… The chosen one is pressed in (`.choices.marks`). */
+function PartPick({ label, up, count, onPick }: { label: string; up: number | undefined; count: number; onPick: (part: number | undefined) => void }) {
+  const options: [string, number | undefined][] = [["Nothing", undefined], ...Array.from({ length: count }, (_, i): [string, number] => [`Part ${i + 1}`, i])];
+  return (
+    <div className="part-pick" role="radiogroup" aria-label={label}>
+      <span className="part-pick-label">{label}</span>
+      <div className="choices marks">
+        {options.map(([name, part]) => (
+          <button type="button" key={name} role="radio" aria-checked={up === part} onClick={() => onPick(part)}>{name}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /**
- * "Show on phones" under a card of a live task (or the tiebreaker): a quiet link, since it's rare, and apart from the
- * big screen's button. One part at a time is on the phones; while this one is, it says so and takes it down.
+ * "Show on phones" under the card of a one-part live task (or the tiebreaker): a quiet link, since it's rare, and apart
+ * from the big screen's button. While it's up it says so and takes it down. (A task with parts has a row of radio buttons instead.)
  */
 function PhonesLink({ code, session, task, part }: { code: string; session: Session; task: string; part: number }) {
   const up = session.phoneText?.task === task && (session.phoneText.part ?? 0) === part;

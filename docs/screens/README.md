@@ -128,11 +128,11 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-scores-updated.jpg` | After the update: gold "Lower the curtain" alone in the top slot, the pending note gone (2026-10-18) |
 | `task-page-host-live.jpg` | A live task's page: "← Run of show", the task as the title, "Task 4 of 8 · live task", gold "Show the task", the song strip, the note, the task card, then Points with a number box (2026-10-18) |
 | `task-page-host-live-up.jpg` | The same with its words on the big screen: "On the big screen: the task", "Show the task" pressed in (2026-10-18) |
-| `task-parts-host.jpg` | A task with two parts: "Dice tower" with a paper "Show part 1" over its Individual card and "Show part 2" over its Team card, none gold, nothing up yet (2026-10-18) |
-| `task-parts-host-up.jpg` | The same with part 2 on the big screen: "On the big screen: the task, part 2", "Show part 2" pressed in (2026-10-18) |
+| `task-parts-host.jpg` | A task with two parts: "Dice tower" with two rows of radio buttons, BIG SCREEN and PHONES, each Nothing · Part 1 · Part 2 with Nothing pressed in, then the Individual and Team cards to read from (2026-10-18) |
+| `task-parts-host-up.jpg` | The same with part 2 on the big screen: "On the big screen: the task, part 2", BIG SCREEN set to Part 2 and PHONES still Nothing (2026-10-18) |
 | `task-parts-main.jpg` | The big screen with part 2 up: only the TEAM TASK card, no word "part" (2026-10-18) |
-| `task-parts-host-phones.jpg` | The same task with part 1 on the big screen and part 2 on the phones, separately: "Show part 1" pressed in, and the quiet link under part 2 reading "Showing on phones · Take down" (2026-10-18) |
-| `guest-task-parts-phone.jpg` | A guest's phone with part 2 up: "Here's the task. Read it, then put your phone away.", the "To do now" card "Task 6 of 8 · Team task", Dice tower, the words in quotes; no "part" anywhere (2026-10-18) |
+| `task-parts-host-phones.jpg` | The same task with part 1 on the big screen and part 2 on the phones, each row set apart from the other (2026-10-18) |
+| `guest-task-parts-phone.jpg` | A guest's phone with part 2 up: "Here's the task. Read it, then put your phone away.", then the same paper task card as the host's, TEAM TASK centred, no task name, no "part" (2026-10-18) |
 | `task-parts-edit.jpg` | The ✎ page with "Task text" open on a two-part task: PART 1 and PART 2 each with their type and text, "✕ Remove this part", "+ Add a part" (2026-10-18) |
 | `task-page-host-app-game.jpg` | An app game's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app game", gold "First up: Sam →", Points at the bottom (2026-10-18) |
 | `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |

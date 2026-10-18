@@ -4,7 +4,8 @@ import { presentedOf, prizePhotos, prizePlanned } from "./games/prize/data";
 import { PrizeArea } from "./games/prize/PlayerView";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
-import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, QuoteLines, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
+import { TaskTextCard } from "./scoreboard/TaskText";
+import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
 import { JoinError, SameNameError, TakenError, askToMove, cancelMove, extractCode, joinAsContestant, joinSession, sameName, store, useSession, useUid } from "./session";
@@ -161,9 +162,8 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
           </>
         ) : <GuestHead title={name} line={partyLine} />}
         {status}
-        {phoneWords && !checkingIn && (
-          <GuestCard key="phone-words" label={phoneWords.label} title={phoneWords.title}><QuoteLines lines={phoneWords.lines} /></GuestCard>
-        )}
+        {/* The same paper task card as on the host's phone: its own heading, the words as written, no name. */}
+        {phoneWords && !checkingIn && <TaskTextCard key="phone-words" type={phoneWords.type} text={phoneWords.text} />}
         {checkingIn && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
         {/* Kept mounted while a row is open, so a photo on its way up isn't dropped. */}
         {game && !watching && (
