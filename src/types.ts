@@ -365,6 +365,8 @@ export interface Session {
   showQr?: boolean;
   /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
+  /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */
+  units?: "metric" | "imperial";
   jukebox?: Jukebox;
   scoreboard?: Scoreboard;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */

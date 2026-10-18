@@ -99,7 +99,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           <p className="lead">{said.lead}</p>
           <p className="main">{said.main}</p>
           <p className="lead">{said.how}</p>
-          <p className="small">{working(kind, anchor, `${typed.trim()} ${label}`, match)}</p>
+          <p className="small">{working(kind, anchor, `${typed.trim()} ${label}`, match, session.units)}</p>
           <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
           {choosing && (
             <ul className="tracklist">

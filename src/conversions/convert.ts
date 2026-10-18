@@ -108,10 +108,42 @@ export function say(kind: Kind, amount: number, inUnit: string, m: Match): Shown
   return { lead, main, how: u.measured };
 }
 
-/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm". */
-export function working(kind: Kind, anchor: number, inLabel: string, m: Match): string {
+/** Which units the party explains things in. */
+export type System = "metric" | "imperial";
+
+const QUARTER = ["", "¼", "½", "¾"];
+/**
+ * A length in mm the way it's said aloud in feet and inches, to the nearest quarter inch: "6 ¼ in", "2 ft ½ in", "3 ft".
+ * Under an inch it stays a decimal (a sheet of paper is 0.004 in, not 0); past a mile it's miles.
+ */
+export function feetAndInches(mm: number): string {
+  const inches = mm / 25.4;
+  if (inches >= 63360) return `${num(inches / 63360)} mi`;
+  if (inches < 1) return `${num(inches, 3)} in`;
+  const quarters = Math.round(inches * 4);
+  const ft = Math.floor(quarters / 48);
+  const whole = Math.floor((quarters % 48) / 4);
+  const inch = [whole || "", QUARTER[quarters % 4]].filter(Boolean).join(" ");
+  if (!ft) return `${inch} in`;
+  return inch ? `${num(ft, 0)} ft ${inch} in` : `${num(ft, 0)} ft`;
+}
+
+/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
+export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
   if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is about ${num(10 * Math.log10(m.unit.size), 1)} dB`;
+  const imperial = (a: number) => {
+    if (kind === "weight") {
+      const oz = a / ANCHOR.oz!, lb = a / ANCHOR.lb!;
+      return lb >= 2000 ? `${num(lb / 2000)} tons` : lb >= 1 ? `${num(lb)} lb` : `${num(oz, 3)} oz`;
+    }
+    if (kind === "volume") {
+      const gal = a / ANCHOR.gal!, cups = a / ANCHOR.cup!;
+      return gal >= 1e9 ? `${num(a / 4.168181825e15)} cubic miles` : gal >= 1 ? `${num(gal)} gal` : cups >= 1 ? `${num(cups)} ${cups === 1 ? "cup" : "cups"}` : `${num(a / ANCHOR["fl oz"]!, 3)} fl oz`;
+    }
+    return feetAndInches(a);
+  };
   const show = (a: number) => {
+    if (system === "imperial" && kind !== "time") return imperial(a);
     if (kind === "weight") return a >= 1e6 ? `${num(a / 1e6)} t` : a >= 1000 ? `${num(a / 1000)} kg` : `${num(a, 3)} g`;
     if (kind === "time") {
       const yr = ANCHOR.yr!, d = ANCHOR.d!;
