@@ -1,9 +1,12 @@
 import { GAMES } from "../games";
-import type { Scoreboard, ScoreboardTask, Session, TaskGame } from "../types";
+import type { Scoreboard, ScoreboardTask, Session, TaskGame, TaskPart } from "../types";
 import { currentPoints } from "./scoring";
 
 export const sorted = <T extends { order: number }>(items: Record<string, T> | undefined) =>
   Object.entries(items ?? {}).sort(([, a], [, b]) => a.order - b.order);
+
+/** A task's parts after the first. The database hands them back as an object when it keeps them as one (a list is only kept as one while it has no gaps). */
+export const asParts = (v: unknown): TaskPart[] => (Array.isArray(v) ? v : Object.values((v ?? {}) as Record<string, TaskPart>)) as TaskPart[];
 
 /** An app game's name on the task list. */
 export const LIGHT = "💡 The light";

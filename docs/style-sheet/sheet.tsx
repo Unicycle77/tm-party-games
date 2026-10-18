@@ -92,6 +92,8 @@ function Sheet() {
               <Item cap={<><code>.steps.two</code>: what the stage shows</>}><div className="steps two"><button className="active">Before</button><button>After</button></div></Item>
               <Item cap="Disabled: 0.45, kept in place"><button disabled>Lower the curtain</button></Item>
             </div>
+            <Item cap={<><code>.pressed-in</code> on a paper button: a part of a task on the big screen now (<code>Show part 2</code>), never gold</>}><div className="steps"><button>Show part 1</button><button className="pressed-in" aria-pressed>Show part 2</button></div></Item>
+            <Item cap={<><code>.part-label</code>: host-only "part" label above a part of a task's text</>}><p className="part-label">Part 2</p></Item>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
             <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them; then the bonus chip (<code>.sb-bonus</code>): +1, tapped again +2, kept through a DQ</>}>

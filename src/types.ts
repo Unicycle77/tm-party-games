@@ -21,6 +21,8 @@ export interface Display {
   index?: number;
   /** The task text step: whose text is up, a task's id or "tiebreaker". */
   task?: string;
+  /** The task text step: which part of a multi-part task is up (0 is the first, and what's up when absent). */
+  part?: number;
   step: Step;
   /** Video step only: the host remote's play/pause. Treated as playing when absent. */
   playing?: boolean;
@@ -234,6 +236,9 @@ export interface ScoreboardContestant {
   uid?: string;
 }
 
+/** One more part of a task's words after the first: its own type (so its own heading) and the text the host reads out. */
+export interface TaskPart { type?: string; text: string }
+
 /** A task on the party's scoreboard: a live task the host names, or an app game. Never tied to a game's own data. */
 export interface ScoreboardTask {
   order: number;
@@ -249,6 +254,8 @@ export interface ScoreboardTask {
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
   text?: string;
+  /** Parts 2, 3… of the words, each with its own type. `type` and `text` above are part 1. Only the host remote ever says "part". */
+  parts?: TaskPart[];
   /**
    * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `workOut`, plus any `bonus`, and
    * saved with them. A contestant with none gets nothing for this task.
@@ -309,7 +316,7 @@ export interface Scoreboard {
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
    */
-  tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; winner?: string };
+  tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; parts?: TaskPart[]; winner?: string };
 }
 
 export interface Session {

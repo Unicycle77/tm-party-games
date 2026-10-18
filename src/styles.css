@@ -1237,6 +1237,10 @@ button.help-q:active { transform: none; box-shadow: none; }
 .task-text-stage .task-card { width: min(100%, 130vh); box-sizing: border-box; padding: 5vh 7vh 13vh; font-size: var(--text-size, 3vh); }
 .task-text-stage .task-card p { margin: 0 0 0.55em; }
 .task-text-stage .task-card .task-label { margin-bottom: 1em; }
+/* a part of a task's words in its ✎ (host remote only: the word "part" never reaches the big screen, a phone or the PDF) */
+.sb-part { display: grid; gap: 0.6rem; }
+.sb-part > .link, .extra-open > .link { justify-self: start; }
+.part-label { margin: 0; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .sb-type { display: grid; gap: 0.5rem; }
 .sb-type .choices button { flex: 1 1 5rem; }
 .sb-type p { margin: 0; }

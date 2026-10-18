@@ -38,6 +38,11 @@ const SHOTS = {
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],
   "haul-host-up": ["host-haul"],
+  // a task with two parts (Individual, then Team)
+  "task-parts-host": ["host-parts"],
+  "task-parts-host-up": ["host-parts-up"],
+  "task-parts-main": ["tv-parts"],
+  "task-parts-edit": ["host-parts-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
 };
@@ -48,7 +53,7 @@ for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
   const tv = shot.startsWith("tv-");
   const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
-  await page.waitForSelector("main, .scoreboard-stage");
+  await page.waitForSelector("main, .scoreboard-stage, .task-text-stage");
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(300);
   if (before) { await before(page); await page.waitForTimeout(300); }
