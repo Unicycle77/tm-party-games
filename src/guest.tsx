@@ -1,5 +1,6 @@
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { GAMES } from "./games";
+import { headingOf, partsOf, tiebreakerWords } from "./scoreboard/TaskText";
 import { activeTaskId, sorted } from "./scoreboard/tasks";
 import type { Session } from "./types";
 
@@ -42,6 +43,27 @@ export function taskOn(session: Session): GuestFrame["task"] {
   };
 }
 
+/**
+ * The words the host put on every phone, during a live task or the tiebreaker: one part, with its own heading, the
+ * task's name and its lines as written. The phone never says "part": the heading is the part's own type.
+ */
+export function phoneWordsOf(session: Session) {
+  const up = session.phoneText;
+  if (!up) return undefined;
+  const board = session.scoreboard;
+  const tiebreaker = up.task === "tiebreaker";
+  const part = partsOf(tiebreaker ? board?.tiebreaker && tiebreakerWords(board.tiebreaker) : board?.tasks?.[up.task])[up.part ?? 0];
+  if (!part) return undefined;
+  const tasks = sorted(board?.tasks);
+  const i = tasks.findIndex(([id]) => id === up.task);
+  const name = (tiebreaker ? board?.tiebreaker?.name?.trim() || "Tiebreaker task" : board?.tasks?.[up.task]?.name?.trim()) || undefined;
+  return {
+    label: `${tiebreaker ? "Tiebreaker" : i >= 0 ? `Task ${i + 1} of ${tasks.length}` : "Task"} · ${headingOf(part.type) || "live task"}`,
+    title: name && name[0]!.toUpperCase() + name.slice(1),
+    lines: part.text.split("\n").map((l) => l.trim()).filter(Boolean),
+  };
+}
+
 /** The top of every guest screen: a title and the party line under it. */
 export function GuestHead({ title, line }: { title: ReactNode; line?: ReactNode }) {
   return (
@@ -69,6 +91,10 @@ export function GuestCard({ label, title, children }: { label: string; title?: R
 
 /** A task's words on a card, exactly as written, in quotes. */
 export const Quote = ({ text }: { text: string }) => <p className="quote">“{text}”</p>;
+
+/** A longer text in quotes, a paragraph a line: the quote opens on the first and closes on the last. */
+export const QuoteLines = ({ lines }: { lines: string[] }) =>
+  <>{lines.map((l, i) => <p className="quote" key={i}>{i === 0 && "“"}{l}{i === lines.length - 1 && "”"}</p>)}</>;
 
 /**
  * A "HELLO my name is" name tag: on the pile a guest finds their name in at check-in, and (`mine`)

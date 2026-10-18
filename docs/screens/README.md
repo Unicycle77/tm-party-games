@@ -131,6 +131,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-parts-host.jpg` | A task with two parts: "Dice tower" with a paper "Show part 1" over its Individual card and "Show part 2" over its Team card, none gold, nothing up yet (2026-10-18) |
 | `task-parts-host-up.jpg` | The same with part 2 on the big screen: "On the big screen: the task, part 2", "Show part 2" pressed in (2026-10-18) |
 | `task-parts-main.jpg` | The big screen with part 2 up: only the TEAM TASK card, no word "part" (2026-10-18) |
+| `task-parts-host-phones.jpg` | The same task with part 1 on the big screen and part 2 on the phones, separately: "Show part 1" pressed in, and the quiet link under part 2 reading "Showing on phones · Take down" (2026-10-18) |
+| `guest-task-parts-phone.jpg` | A guest's phone with part 2 up: "Here's the task. Read it, then put your phone away.", the "To do now" card "Task 6 of 8 · Team task", Dice tower, the words in quotes; no "part" anywhere (2026-10-18) |
 | `task-parts-edit.jpg` | The ✎ page with "Task text" open on a two-part task: PART 1 and PART 2 each with their type and text, "✕ Remove this part", "+ Add a part" (2026-10-18) |
 | `task-page-host-app-game.jpg` | An app game's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app game", gold "First up: Sam →", Points at the bottom (2026-10-18) |
 | `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |

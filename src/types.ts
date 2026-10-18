@@ -370,6 +370,8 @@ export interface Session {
   showDownload?: boolean;
   /** The host remote's "Show QR code" is open: the big screen puts the join QR above its corner code too. */
   showQr?: boolean;
+  /** A live task's words (a task's id, or "tiebreaker", and which part) the host put on every guest's phone, until the host takes them down. Apart from the big screen's `display`. */
+  phoneText?: { task: string; part?: number };
   /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */

@@ -42,6 +42,8 @@ const SHOTS = {
   "task-parts-host": ["host-parts"],
   "task-parts-host-up": ["host-parts-up"],
   "task-parts-main": ["tv-parts"],
+  "task-parts-host-phones": ["host-parts-phones"],
+  "guest-task-parts-phone": ["task-parts-phone"],
   "task-parts-edit": ["host-parts-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],

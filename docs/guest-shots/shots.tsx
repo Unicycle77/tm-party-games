@@ -118,6 +118,9 @@ function build() {
     // A task with two parts: on the host's phone with nothing up, with the second part up, and with it on the big screen; and its ✎ page.
     case "host-parts-up": case "tv-parts": set("display", { step: "tasktext", task: "t6", part: 1 }); set("begun", true); break;
     case "host-parts": case "host-parts-edit": set("begun", true); break;
+    // The host put part 2 on every phone while part 1 is still on the big screen: the two are separate.
+    case "host-parts-phones": set("display", { step: "tasktext", task: "t6" }); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
+    case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }

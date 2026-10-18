@@ -6,7 +6,7 @@ import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
 import type { GameId, Session } from "../types";
-import { lowerCurtain, setTiebreakerWinner, showTaskText, startTask } from "./data";
+import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startTask, takeDownPhones } from "./data";
 import { Points } from "./Points";
 import { activeTaskId, list, scored, titleOf } from "./tasks";
 import { partsOf, TaskTextCard, TIEBREAKER_TYPE, tiebreakerWords, typeOf } from "./TaskText";
@@ -45,7 +45,7 @@ function ShowTask({ code, session, task, gold, onShown }: { code: string; sessio
  * choice (and so is putting none up). Pressed in while that part is on the big screen; another part swaps it, and the
  * pressed one lowers the curtain. "Part N" is for the host: the cards, the big screen and the phones never say it.
  */
-function PartCards({ code, session, task, parts }: { code: string; session: Session; task: string; parts: { type: string; text: string }[] }) {
+function PartCards({ code, session, task, parts, phones }: { code: string; session: Session; task: string; parts: { type: string; text: string }[]; phones: boolean }) {
   const d = session.display;
   const up = d?.step === "tasktext" && d.task === task ? d.part ?? 0 : undefined;
   return (
@@ -55,9 +55,22 @@ function PartCards({ code, session, task, parts }: { code: string; session: Sess
           <button className={up === i ? "pressed-in" : undefined} aria-pressed={up === i}
             onClick={() => void (up === i ? lowerCurtain(code) : showTaskText(code, task, i))}>Show part {i + 1}</button>
           <TaskTextCard type={p.type} text={p.text} />
+          {phones && <PhonesLink code={code} session={session} task={task} part={i} />}
         </Fragment>
       ))}
     </>
+  );
+}
+
+/**
+ * "Show on phones" under a card of a live task (or the tiebreaker): a quiet link, since it's rare, and apart from the
+ * big screen's button. One part at a time is on the phones; while this one is, it says so and takes it down.
+ */
+function PhonesLink({ code, session, task, part }: { code: string; session: Session; task: string; part: number }) {
+  const up = session.phoneText?.task === task && (session.phoneText.part ?? 0) === part;
+  return (
+    <button type="button" className="link phones-link" aria-pressed={up}
+      onClick={() => void (up ? takeDownPhones(code) : showOnPhones(code, task, part))}>{up ? "Showing on phones · Take down" : "Show on phones"}</button>
   );
 }
 
@@ -112,7 +125,8 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !multi && <TaskTextCard type={typeOf(task)} text={task.text} />}
-      {multi && <PartCards code={code} session={session} task={id} parts={parts} />}
+      {task.text && !multi && !task.game && <PhonesLink code={code} session={session} task={id} part={0} />}
+      {multi && <PartCards code={code} session={session} task={id} parts={parts} phones={!task.game} />}
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
@@ -197,7 +211,8 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
       {tb?.song && <SongStrip code={code} session={session} song={tb.song} />}
       {tb?.description && <p className="muted small sb-note">{tb.description}</p>}
       {tb?.text && !tbMulti && <TaskTextCard type={tb.type || TIEBREAKER_TYPE} text={tb.text} />}
-      {tbMulti && <PartCards code={code} session={session} task="tiebreaker" parts={tbParts} />}
+      {tb?.text && !tbMulti && <PhonesLink code={code} session={session} task="tiebreaker" part={0} />}
+      {tbMulti && <PartCards code={code} session={session} task="tiebreaker" parts={tbParts} phones />}
       {/* Fixed to the bottom, so whoever says it first is one tap away however far the story has scrolled. */}
       <div className="sb-won-bar">
         <p className="muted small">Tap who won.</p>

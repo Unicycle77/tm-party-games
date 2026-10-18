@@ -4,7 +4,7 @@ import { presentedOf, prizePhotos, prizePlanned } from "./games/prize/data";
 import { PrizeArea } from "./games/prize/PlayerView";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
-import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, taskOn, type TodoRow } from "./guest";
+import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, QuoteLines, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
 import { JoinError, SameNameError, TakenError, askToMove, cancelMove, extractCode, joinAsContestant, joinSession, sameName, store, useSession, useUid } from "./session";
@@ -118,10 +118,12 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const step = needsHeadshot ? Number(!!checkin?.confirmed) + 1 : steps;
   const now = (line: string) => justIn ? `You're in! ${line}` : line;
 
+  const phoneWords = phoneWordsOf(session);
   let status: React.ReactNode = null;
   if (checkingIn) status = <Status>Checking in · step {step} of {steps}</Status>;
   else if (watching) status = <Status>You're watching tonight. Enjoy the show.</Status>;
   else if (showGame) status = null; // the game says where the guest stands
+  else if (phoneWords) status = <Status>Here's the task. Read it, then put your phone away.</Status>;
   else if (showPrize && open === "prize" && saved.length && !presented && !prizeBusy) status = <Status>{afterwards("Prize photos sent.", left)}</Status>;
   else if (left || showPrize || showEnvelope) status = <Status>{now(left ? leftToDo(left) : PUT_AWAY)}</Status>;
   else if (!id) status = <Status>Waiting for the host to add you to the scoreboard.</Status>;
@@ -159,6 +161,9 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
           </>
         ) : <GuestHead title={name} line={partyLine} />}
         {status}
+        {phoneWords && !checkingIn && (
+          <GuestCard key="phone-words" label={phoneWords.label} title={phoneWords.title}><QuoteLines lines={phoneWords.lines} /></GuestCard>
+        )}
         {checkingIn && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
         {/* Kept mounted while a row is open, so a photo on its way up isn't dropped. */}
         {game && !watching && (

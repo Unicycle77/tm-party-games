@@ -264,6 +264,13 @@
           "how": { ".validate": "newData.isString() && newData.val().length <= 200" },
           "$other": { ".validate": false }
         },
+        "phoneText": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['task'])",
+          "task": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "part": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 9" },
+          "$other": { ".validate": false }
+        },
         "units": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.val() === 'metric' || newData.val() === 'imperial'"

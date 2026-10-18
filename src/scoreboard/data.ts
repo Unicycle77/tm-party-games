@@ -258,5 +258,12 @@ export const setTiebreakerWinner = (code: string, contestant: string | null) =>
 export const editTiebreaker = (code: string, name: string, description: string, song: string, words: TaskWords) =>
   update(at(code, "tiebreaker"), { name: name.trim() || null, description: description.trim() || null, song: song || null, ...wordsOf(words) });
 
+/** Puts a live task's words (a task's id, or "tiebreaker"; part `part`, the first unless said) on every guest's phone, apart from the big screen. */
+export const showOnPhones = (code: string, task: string, part = 0) =>
+  update(ref(db(), `sessions/${code}`), { phoneText: { task, ...(part && { part }) } });
+
+/** Takes the words off the guests' phones. */
+export const takeDownPhones = (code: string) => update(ref(db(), `sessions/${code}`), { phoneText: null });
+
 /** Puts a task's text (a task's id, or "tiebreaker") on the big screen, on the paper task card: part `part` of it, the first unless said. */
 export const showTaskText = (code: string, task: string, part = 0) => setDisplay(code, { step: "tasktext", task, ...(part && { part }) });
