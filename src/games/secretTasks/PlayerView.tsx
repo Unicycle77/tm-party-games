@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Session } from "../../types";
+import { Status } from "../../guest";
 import { TaskCard } from "../../TaskCard";
 import { RULES, markSeen, pickEnvelope, useMyTask, useSeen } from "./data";
 
@@ -54,27 +55,19 @@ export function Letter({ task, big = false, instant = false }: { task: string; b
   );
 }
 
-/** The guest is in: the stamp, a welcome, and the rules card, above the pile they pick from. */
-function Arrival({ name }: { name: string }) {
-  return (
-    <>
-      <span className="stamp">✓ You're in</span>
-      <h2>Welcome, {name}!</h2>
-      <TaskCard lines={RULES} small />
-    </>
-  );
-}
-
 /**
  * The pile of sealed envelopes, scattered where they fell, that a player picks one from. Nothing on the
  * pile says what's inside: the choice is theirs alone, and the first player to take an envelope has it.
  * Envelopes can be dragged around first (on this phone only), so none stays hidden under another;
  * a tap picks one.
- * Guests pick at the door, before they can see the big screen, so the phone carries the moment: they're in,
- * the rules, then the pile.
+ * Guests pick at the door, before they can see the big screen, so the phone carries the moment in two
+ * steps: first the whole rules card (the Taskmaster task, never paraphrased) with "Got it", then the pile
+ * on the curtain. The circled ? by "Pick an envelope" lays the same card over the pile, so nothing below moves.
  */
 function Pile({ code, uid, session, onPicked }: { code: string; uid: string; session: Session; onPicked: () => void }) {
   const pile = Object.entries(session.games?.secretTasks?.pile ?? {});
+  const [gotIt, setGotIt] = useState(false);
+  const [rules, setRules] = useState(false);
   const [picked, setPicked] = useState<string>();
   const [error, setError] = useState<string>();
   // Where this player has dragged envelopes to, and which they touched last (it lies on top).
@@ -82,7 +75,6 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
   const [top, setTop] = useState<string[]>([]);
   const area = useRef<HTMLDivElement>(null);
   const gone = !!picked && !session.games?.secretTasks?.pile?.[picked];
-  const name = session.players?.[uid]?.name ?? "";
 
   // Taken by someone else first (the envelope vanished and no task came): back to choosing.
   useEffect(() => {
@@ -94,26 +86,32 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
   async function pick(id: string) {
     setPicked(id);
     setError(undefined);
+    setRules(false);
     onPicked();
     try { await pickEnvelope(code, id, uid); }
     catch { setPicked(undefined); setError("Couldn't pick that one. Try another."); }
   }
 
-  if (pile.length === 0) {
-    // Rare (the host keeps extras), and the host's ✉ is already flagging it.
+  if (!gotIt) {
     return (
-      <section className="slot envelope-slot arrival">
-        <Arrival name={name} />
-        <h2>No envelopes left yet.</h2>
-        <p className="slot-hint">The host knows. More will appear here.</p>
-      </section>
+      <>
+        <TaskCard lines={RULES} small />
+        <button className="big" onClick={() => setGotIt(true)}>Got it: pick an envelope →</button>
+      </>
     );
   }
   return (
-    <section className="slot envelope-slot arrival">
-      <Arrival name={name} />
-      <h2>Pick an envelope</h2>
-      <p className="slot-hint">{picked ? "Opening it…" : "Move them around if you like, then tap one."}</p>
+    <>
+      <div className="pick-head">
+        <h2 className="with-help">
+          Pick an envelope
+          <button className="help-q" aria-label={rules ? "Hide the rules" : "Read the rules again"} aria-expanded={rules}
+            onClick={() => setRules(!rules)}>?</button>
+        </h2>
+        {/* Rare (the host keeps extras), and the host's ✉ is already flagging it. */}
+        <p className="muted small">{!pile.length ? "No envelopes left yet. The host knows, and more will appear here."
+          : picked ? "Opening it…" : "Move them around if you like, then tap one."}</p>
+      </div>
       <div className="env-pile" ref={area}>
         {pile.map(([id, spot]) => (
           <PileEnvelope key={id} spot={{ ...spot, ...moved[id] }} z={top.indexOf(id) + 1} picked={id === picked} disabled={!!picked} area={area}
@@ -121,14 +119,15 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
             onMove={(x, y) => setMoved((m) => ({ ...m, [id]: { x, y } }))}
             onPick={() => void pick(id)} />
         ))}
+        {rules && <div className="pile-rules"><TaskCard lines={RULES} small /></div>}
       </div>
       {error && <p className="error">{error}</p>}
-    </section>
+    </>
   );
 }
 
 /**
- * A player's secret task. Until they have one: the pile of envelopes to pick from. After: their own
+ * A player's secret task. Until they have one: the rules, then the pile of envelopes to pick from. After: their own
  * envelope, sealed. Tap the seal to open it and "Seal it again" to close it, every time (holding it open was
  * too awkward mid-game); it also seals itself when the phone locks or the page is left. While it's sealed,
  * the circled ? beside the heading unfolds the rules card (the Taskmaster task) right under it, and folds it away.
@@ -156,7 +155,7 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
     before.current = task;
   }, [task]);
 
-  if (task === undefined || seen === undefined) return <section className="slot waiting"><p className="slot-hint">Loading…</p></section>;
+  if (task === undefined || seen === undefined) return <p className="muted">Loading…</p>;
   if (task === null) return <Pile code={code} uid={uid} session={session} onPicked={onPicked} />;
 
   return (
@@ -220,27 +219,10 @@ function PileEnvelope({ spot, z, picked, disabled, area, onTouch, onMove, onPick
 
 /** The player's phone for this game: their envelope, or the pile to pick one from. */
 export function PlayerView({ code, uid, session }: { code: string; uid: string; session: Session }) {
-  return <SecretEnvelope code={code} uid={uid} session={session} />;
-}
-
-/**
- * Wraps a player's phone in any other game. While they have no task, the pile comes first (a player picks on
- * checking in) and a button leads back to the game; afterwards the button swaps the game for their envelope and back.
- */
-export function SecretTaskArea({ code, uid, session, children }: { code: string; uid: string; session: Session; children: React.ReactNode }) {
-  const task = useMyTask(code, uid);
-  const [shown, setShown] = useState<boolean>();
-  // Anyone without a task arrives at the pile (or, rarely, the empty-pile note) before anything else.
-  const showing = shown ?? task === null;
-  const available = task !== undefined;
   return (
     <>
-      {available && (
-        <button className="secret-tab" aria-pressed={showing} onClick={() => setShown(!showing)}>
-          {showing ? "← Back" : task ? "✉ My secret task" : "✉ Pick your secret envelope"}
-        </button>
-      )}
-      {showing && available ? <SecretEnvelope code={code} uid={uid} session={session} onPicked={() => setShown(true)} /> : children}
+      <Status>It's task time.</Status>
+      <SecretEnvelope code={code} uid={uid} session={session} />
     </>
   );
 }

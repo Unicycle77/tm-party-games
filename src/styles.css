@@ -1197,9 +1197,6 @@ button.help-q:active { transform: none; box-shadow: none; }
 }
 .recent-name { font-family: var(--typewriter); }
 /* Checking in from the guest list */
-.tap-name { margin: 0.5rem 0 0; }
-.guest-list button { font-size: 1.1rem; padding: 0.8rem 0.5rem; }
-.slot img.guest-photo { width: 60%; max-height: 30vh; object-fit: cover; }
 
 /* ---- Useless conversions (📏): a measurement in, the useless unit closest to a round number out ---- */
 .converter .choices.tasks button { flex-basis: 100%; text-align: left; }
@@ -1319,3 +1316,53 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .arrivals-list .face { flex: none; width: 2rem; height: 2rem; border-radius: 4px; background: #0004; border: 1px solid var(--gold-dark); overflow: hidden; }
 .arrivals-list .face img { width: 100%; height: 100%; object-fit: cover; }
 .arrivals-list .name { flex: 1; font-family: var(--typewriter); }
+
+/* ---- the guest phone: the host remote's layout (title, status line, one "To do now" card, quiet rows, quiet links) ---- */
+.guest-head h1 { margin: 0; font-size: 1.9rem; text-align: left; }
+.guest-head p { margin: 0.2rem 0 0; }
+.phone.guest .notice { text-align: left; }
+.on-screen.big { font-size: 1.35rem; line-height: 1.3; }
+.party-line { text-align: center; margin: 0; }
+.list-label { margin: 0.4rem 0 0; font-family: var(--typewriter); color: var(--gold); font-size: 1.1rem; }
+.run-list .row-line { display: grid; grid-template-columns: 1.6rem 1fr auto; gap: 0.6rem; align-items: baseline; padding: 0.65rem 0.2rem; font-family: var(--typewriter); color: var(--fg); }
+.run-list li.done .row-line { color: var(--muted); }
+.run-list li.next .row-line { color: var(--gold-bright); }
+.game-slot { display: grid; gap: 1rem; }
+.game-slot[hidden] { display: none; }
+.phone.guest > .link.back { justify-self: start; }
+/* the "To do now" card: a task's controls go in it unchanged */
+.slot.guest-card { gap: 0.4rem; border-radius: 6px; padding: 0.9rem 1rem 1rem; box-shadow: 0 4px 10px #0008; }
+.guest-card p { margin: 0; }
+.guest-card .card-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6a55; }
+.guest-card h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--ink); font-size: 1.3rem; }
+.guest-card .quote { color: #6b5a44; font-size: 0.95rem; }
+.guest-card button { margin-top: 0.4rem; }
+.guest-card .stamp { justify-self: start; font-size: 1.1rem; margin: 0.2rem 0; }
+.guest-card .caption { text-align: center; color: #6b5a44; font-size: 0.9rem; }
+/* a headshot in its gold frame: the host's photo on "You're Sam?", the empty one when adding */
+.guest-card .headshot, .slot.guest-card img.headshot { justify-self: center; width: 62%; max-height: none; aspect-ratio: 4 / 5; object-fit: cover; margin: 0.4rem 0; }
+.guest-card div.ph { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; background: #000; color: var(--muted); font-family: var(--typewriter); border: 3px dashed var(--gold); border-radius: 2px; }
+.guest-card div.ph.headshot { width: 62%; justify-self: center; aspect-ratio: 4 / 5; margin: 0.4rem 0; }
+/* "HELLO my name is": on the pile at check-in, and bigger at the top of a waiting phone */
+.name-tag { all: unset; box-sizing: border-box; position: absolute; width: 46%; transform: rotate(var(--r, 0deg)); background: var(--paper); border-radius: 8px; overflow: hidden; box-shadow: 0 6px 12px #000a, 0 1px 0 #fff6 inset; display: grid; text-align: center; }
+button.name-tag { cursor: pointer; }
+button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
+.name-tag .band { background: var(--burgundy); color: var(--paper); padding: 0.35rem 0 0.3rem; display: grid; line-height: 1; }
+.name-tag .band b { font-family: var(--typewriter); font-size: 1.25rem; letter-spacing: 0.12em; font-weight: normal; }
+.name-tag .band small { font-size: 0.62rem; letter-spacing: 0.06em; margin-top: 0.15rem; }
+.name-tag .nm { font-family: var(--typewriter); color: var(--ink); font-size: 1.6rem; padding: 0.55rem 0.3rem 0.75rem; white-space: nowrap; }
+.name-tag.here { opacity: 0.55; }
+.name-tag .tick { position: absolute; right: 0.4rem; bottom: 0.25rem; font-size: 0.7rem; color: var(--ink); font-family: var(--typewriter); }
+.name-tag.mine { position: relative; justify-self: center; width: 64%; --r: -3deg; border-radius: 10px; box-shadow: 0 8px 16px #000a; margin: 0.4rem 0 0.2rem; }
+.name-tag.mine .band { padding: 0.45rem 0 0.35rem; }
+.name-tag.mine .band b { font-size: 1.6rem; }
+.name-tag.mine .band small { font-size: 0.7rem; margin-top: 0.2rem; }
+.name-tag.mine .nm { padding: 0.6rem 0.3rem 0.8rem; }
+.tag-pile { position: relative; }
+/* the secret envelope pick: the pile sits on the curtain, and the ? lays the rules card over it */
+.pick-head { display: grid; gap: 0.2rem; }
+.pick-head h2 { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--gold); }
+.pick-head .help-q { color: var(--gold); }
+.pick-head p { margin: 0; }
+.phone.guest .env-pile { background: none; aspect-ratio: 1 / 1; overflow: visible; }
+.pile-rules { position: absolute; inset: 0 0 auto 0; z-index: 100; }
