@@ -108,6 +108,11 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |
 | `converter-host-common.jpg` | Measuring in a common unit: Weight, kg, 70 |
 | `converter-host-volume.jpg` | Volume (2026-10-17): the five kinds three and two, the volume units (ml L tsp tbsp fl oz cup pt qt gal), 2 cups as a fraction of a minute of shower |
+| `converter-host-imperial-first.jpg` | At an imperial party (2026-10-18): the units above "How much?", "in ft mm cm m", opening on ft with its two boxes, ft and in, even on a phone that last used cm |
+| `converter-host-feet-inches.jpg` | 5 ft 11 in typed in the two boxes: "5 ft 11 in tall is / about 1.23 Danny DeVitos" and "5 ft 11 in · Danny DeVito is about 4 ft 9 ¾ in" (2026-10-18) |
+| `converter-host-pounds-ounces.jpg` | 1 lb 8 oz: "1 lb 8 oz is / 1.82 pounds of gold" and the label-style "24 oz (1 lb 8 oz) · a pound of gold is 13 ¼ oz" (2026-10-18) |
+| `converter-host-dice-imperial.jpg` | A task's unit at an imperial party: "39 dice tall is / 5.11 soda cans" and "39 dice = 2 ft ½ in · a soda can is 4 ¾ in" (2026-10-18) |
+| `host-party-units.jpg` | Plan the party's summary line open: "… · pin set · imperial", and "📏 Conversions in" with Metric and Imperial (2026-10-18) |
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |
 | `task-unit-edit.jpg` | A task with a unit: "📏 Measured in · cm · one is 1 cm" as one summary line with Change, the song and the task text the same (2026-10-18) |
 | `task-unit-empty.jpg` | The "+ 📏 Unit" section just opened: the name field and "🎲 Dice (16 mm)" (2026-10-18) |
