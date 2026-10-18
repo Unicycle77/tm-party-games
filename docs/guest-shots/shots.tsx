@@ -80,7 +80,7 @@ function build() {
     case "prize-check": picked(); q.set("pick", "1"); break;
     case "noisemaster-up": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: who, phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1 } }; break;
     case "noisemaster-watch": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: "alex", phrase: ["I", "am"], startedAt: 1 } }; break;
-    case "tv-noisemaster": case "host-noisemaster":
+    case "tv-noisemaster": case "host-noisemaster": case "host-run":
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
       break;
     // Secret Tasks: Sam's secret is up on the big screen; on the host's phone, everyone has theirs and Tom hasn't looked yet.
@@ -93,10 +93,11 @@ function build() {
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).filter((id) => id !== "tom").map((id) => [id, true]));
       break;
     // The prize task: Sam's prize, photo 1, is on the big screen; on the host's phone he's presenting and the others have photos in (Mei and Tom not yet).
-    case "tv-prize": case "host-prize":
+    case "tv-prize": case "host-prize": case "host-points":
       picked(); task("prize"); set("display", { step: "photo", contestant: "sam", index: 0 }); set("begun", true);
       // No words on the task here, so the host's page is the prizes: who has photos in, and Sam's on the big screen.
-      if (shot === "host-prize") delete (tasks.t3 as { text?: string }).text;
+      if (shot === "host-prize" || shot === "host-points") delete (tasks.t3 as { text?: string }).text;
+      if (shot === "host-points") (tasks.t3 as { scores?: Record<string, number> }).scores = { alex: 3, greg: 4, priya: 5, sam: 5 };
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
     case "checkin-rules": case "checkin-pile": break;
@@ -108,7 +109,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot === "host-noisemaster" || shot === "host-prize") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -120,7 +121,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-secret" ? { view: "tasks" } : shot === "host-prize" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

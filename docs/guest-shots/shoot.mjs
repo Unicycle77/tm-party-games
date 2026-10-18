@@ -33,6 +33,8 @@ const SHOTS = {
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page
   "noisemaster-host-round": ["host-noisemaster"],
+  "run-of-show-host": ["host-run"],
+  "points-host-given": ["host-points"],
 };
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
