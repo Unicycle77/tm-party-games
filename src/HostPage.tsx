@@ -17,6 +17,7 @@ import { PinStep } from "./HostPin";
 import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
 import { Toggle } from "./Toggle";
+import { resetScores } from "./reset";
 import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
@@ -204,8 +205,57 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
           Reset the light computer
         </button>
       )}
+      <ResetScores code={code} session={session} />
       <button className="link" onClick={onDisconnect}>Disconnect this phone</button>
     </section>
+  );
+}
+
+/**
+ * "Reset scores…": clears what the night produced and keeps the setup, e.g. after a rehearsal. Opens in place,
+ * saying what it clears and keeps; "Also remove guests" (off to start) clears the players and their headshots too.
+ */
+function ResetScores({ code, session }: { code: string; session: Session }) {
+  const [open, setOpen] = useState(false);
+  const [guests, setGuests] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  if (!open) return <button className="link" onClick={() => setOpen(true)}>Reset scores…</button>;
+  const tasks = Object.keys(session.scoreboard?.tasks ?? {}).length;
+  const joined = Object.keys(session.players ?? {}).length;
+  const on = tasks === 1 ? "the 1 task" : tasks ? `all ${tasks} tasks` : "the tasks";
+  const people = `${joined} ${joined === 1 ? "guest" : "guests"}`;
+  const reset = async () => {
+    if (!confirm(guests
+      ? `Reset all scores and remove ${people}? Points, DQs, bonuses and the winner are cleared, and their headshots and photos go too. Contestants and tasks stay.`
+      : `Reset all scores? Points, DQs, bonuses and the winner are cleared on ${on}. Contestants and tasks stay.`)) return;
+    setBusy(true);
+    setError(undefined);
+    try {
+      await resetScores(code, session, guests);
+      setOpen(false);
+      setGuests(false);
+    } catch {
+      setError("The reset didn't go through. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="extra-open reset-scores">
+      <h3>Reset scores</h3>
+      <p><b>Clears</b> the points, DQs and bonuses on {on}, the winner, the app games' rounds, and the dealt secret tasks (back on the pile).</p>
+      <p className="muted"><b>Keeps</b> the contestants, the tasks and how they're set up, and the envelopes.</p>
+      <div className="toggles">
+        <Toggle label={`Also remove guests (${joined} joined)`} on={guests} onChange={setGuests} disabled={!joined} />
+      </div>
+      {guests && <p className="muted small">Their phones, headshots and photos go too. They join fresh with the QR code.</p>}
+      {error && <p className="error">{error}</p>}
+      <div className="row">
+        <button disabled={busy} onClick={() => void reset()}>{busy ? "Resetting…" : guests ? "Reset and remove guests" : "Reset scores"}</button>
+        <button className="link" onClick={() => { setOpen(false); setGuests(false); }}>Cancel</button>
+      </div>
+    </div>
   );
 }
 
