@@ -90,5 +90,8 @@ Status: nothing here is fixed yet. Notes under each item are initial diagnosis o
 - **Open questions:** where it's entered (Party settings, or the converter itself); whether it stays on the host's phone only (the safer default for a birthdate) or goes in the session so the big screen can show it; whether "the Taskmaster" is the host's name or always the title.
 - **Related:** the unit list draft in the project's shared files (`useless-conversions/units.md`).
 
+### E8. Export and import whole party configurations (idea, not designed yet)
+- Add the ability to export and import whole party configurations.
+
 ## Suggested order
 B3 (needs the autoplay decision, and E1/E2 touch the same `Stage` code) → E2 → E1 → B2 → B1 (B1 first if it turns out to be a real bug rather than an http test).
