@@ -22,7 +22,6 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with the prize "optional" |
 | `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
-| `guest-task-photos-parts.jpg` | A Photos task with three parts: the phone shows the first and the second (the host switched it on for phones), and never the third (2026-10-18) |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |

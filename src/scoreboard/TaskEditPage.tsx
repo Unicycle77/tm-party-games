@@ -6,7 +6,7 @@ import type { ScoreboardTask, Session } from "../types";
 import { editTask, editTiebreaker, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
 import { isMeasured, overLine } from "./measured";
 import { Toggle } from "../Toggle";
-import { ALWAYS_ON_PHONES, ONE_PART, asParts, gameName, scored, titleOf } from "./tasks";
+import { ONE_PART, asParts, gameName, scored, titleOf } from "./tasks";
 import { TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
 
 /** A task's words are at most this many parts (what the database rules allow). */
@@ -167,7 +167,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
             {parts.length > 0 && <p className="part-label">Part 1</p>}
             <TaskTypeField type={type} fallback={(tiebreaker ? TIEBREAKER_TYPE : typeOf({ game: task.game })) || undefined} onChange={setType} />
             <TaskTextField text={text} onChange={setText} />
-            {phoneSwitch && !(task.game && ALWAYS_ON_PHONES.includes(task.game)) && <PhonesToggle on={guests} onChange={setGuests} />}
+            {phoneSwitch && !(task.game && ONE_PART.includes(task.game)) && <PhonesToggle on={guests} onChange={setGuests} />}
           </div>
           {parts.map((p, i) => (
             <div className="sb-part" key={p.k}>

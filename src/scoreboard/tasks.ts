@@ -9,19 +9,18 @@ export const sorted = <T extends { order: number }>(items: Record<string, T> | u
 export const asParts = (v: unknown): TaskPart[] => (Array.isArray(v) ? v : Object.values((v ?? {}) as Record<string, TaskPart>)) as TaskPart[];
 
 /**
- * What a guest's phone may show of a task's words, a quote each. Photos, Headshot and Prize always show part 1 (Headshot
- * and Prize never have more; Photos' later parts only once switched on). Any other task shows only the parts the host switched on.
+ * What a guest's phone may show of a task's words, a quote each. Photos, Headshot and Prize always show theirs (they
+ * never have more than one part). Any other task shows only the parts the host switched on.
  */
 export function guestWords(t: ScoreboardTask | undefined): string[] {
   if (!t) return [];
-  const always = !!t.game && ALWAYS_ON_PHONES.includes(t.game);
+  const always = !!t.game && ONE_PART.includes(t.game);
   return [{ text: t.text, on: always || !!t.guests }, ...asParts(t.parts).map((p) => ({ text: p.text, on: !!p.guests }))]
     .flatMap((p) => (p.on && p.text?.trim() ? [p.text.trim()] : []));
 }
 
-/** App games whose words a phone always shows, so there's no phones switch on part 1. Headshot and Prize never have a second part. */
-export const ALWAYS_ON_PHONES: readonly TaskGame[] = ["photos", "headshots", "prize"];
-export const ONE_PART: readonly TaskGame[] = ["headshots", "prize"];
+/** App games with exactly one part of words, which a phone always shows: a second part would mean a second photo, so a second photo task is added instead. */
+export const ONE_PART: readonly TaskGame[] = ["photos", "headshots", "prize"];
 
 /** An app game's name on the task list. */
 export const LIGHT = "💡 The light";

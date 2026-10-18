@@ -21,7 +21,6 @@ const SHOTS = {
   "guest-home-waiting": ["home-waiting"],
   "guest-task-photos": ["task-photos"],
   "guest-task-photos-sent": ["task-photos-sent"],
-  "guest-task-photos-parts": ["task-photos-parts"],
   "guest-noisemaster-up": ["noisemaster-up"],
   "guest-noisemaster-watch": ["noisemaster-watch"],
   // the big screen, 1600x900: same party as the check-in shots
