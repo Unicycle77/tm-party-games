@@ -66,17 +66,6 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   return (
     <section className="remote converter">
       <h2>📏 Useless conversions</h2>
-      {feetAndIn ? (
-        <div className="feet-in">
-          <span>How much?</span>
-          <label><input inputMode="decimal" value={typed} placeholder="5" aria-label="Feet" onChange={(e) => setTyped(e.target.value)} /> ft</label>
-          <label><input inputMode="decimal" value={typedIn} placeholder="11" aria-label="Inches" onChange={(e) => setTypedIn(e.target.value)} /> in</label>
-        </div>
-      ) : (
-        <label>How much?
-          <input inputMode="decimal" value={typed} placeholder="20" onChange={(e) => setTyped(e.target.value)} />
-        </label>
-      )}
       {withUnits.length > 0 && (
         <>
           <span className="muted">A task's unit</span>
@@ -105,6 +94,17 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           return <button key={u} className={on ? "active" : ""} aria-pressed={on} onClick={() => setSource({ kind, unit: u })}>{u}</button>;
         })}
       </div>
+      {feetAndIn ? (
+        <div className="feet-in">
+          <span>How much?</span>
+          <label><input inputMode="decimal" value={typed} placeholder="5" aria-label="Feet" onChange={(e) => setTyped(e.target.value)} /> ft</label>
+          <label><input inputMode="decimal" value={typedIn} placeholder="11" aria-label="Inches" onChange={(e) => setTypedIn(e.target.value)} /> in</label>
+        </div>
+      ) : (
+        <label>How much?
+          <input inputMode="decimal" value={typed} placeholder="20" onChange={(e) => setTyped(e.target.value)} />
+        </label>
+      )}
       <button className="big" disabled={!ready} onClick={surprise}>{match ? "Surprise me again" : "Surprise me"}</button>
       {said && match && (
         <div className="slot conversion">
