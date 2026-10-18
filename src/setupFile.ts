@@ -17,8 +17,6 @@ export interface SetupTask {
   text?: string;
   /** Parts 2, 3… of the words; `type` and `text` are part 1. */
   parts?: TaskPart[];
-  /** Part 1 is switched on for guests' phones. */
-  guests?: true;
   note?: string;
   song?: string;
   scoring?: "highest" | "lowest";
@@ -46,7 +44,6 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(t.type && { type: t.type }),
   ...(t.text && { text: t.text }),
   ...(asParts(t.parts).length > 0 && { parts: asParts(t.parts) }),
-  ...(t.guests && { guests: true as const }),
   ...(t.description && { note: t.description }),
   ...(t.song && { song: t.song }),
   ...(t.scoring && { scoring: t.scoring }),

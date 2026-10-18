@@ -237,7 +237,7 @@ export interface ScoreboardContestant {
 }
 
 /** One more part of a task's words after the first: its own type (so its own heading) and the text the host reads out. */
-export interface TaskPart { type?: string; text: string; guests?: true }
+export interface TaskPart { type?: string; text: string }
 
 /** A task on the party's scoreboard: a live task the host names, or an app game. Never tied to a game's own data. */
 export interface ScoreboardTask {
@@ -254,10 +254,8 @@ export interface ScoreboardTask {
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
   text?: string;
-  /** Parts 2, 3… of the words, each with its own type. `type` and `text` above are part 1. Only the host remote ever says "part". */
+  /** Parts 2, 3… of the words, each with its own type. `type` and `text` above are part 1. Only live tasks and the tiebreaker have them; only the host remote ever says "part". */
   parts?: TaskPart[];
-  /** Part 1 of the words is switched on for guests' phones (a task's parts are off there until the host switches them on). */
-  guests?: true;
   /**
    * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `workOut`, plus any `bonus`, and
    * saved with them. A contestant with none gets nothing for this task.

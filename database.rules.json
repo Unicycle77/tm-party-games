@@ -335,14 +335,12 @@
               "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
               "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
-              "guests": { ".validate": "newData.val() === true" },
               "parts": {
                 "$i": {
                   ".validate": "$i.matches(/^[0-9]$/)",
                   "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
                   "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
-                  "guests": { ".validate": "newData.val() === true" },
-                  "$other": { ".validate": false }
+                      "$other": { ".validate": false }
                 }
               },
               "unit": {

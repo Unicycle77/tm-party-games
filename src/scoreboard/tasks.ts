@@ -8,20 +8,6 @@ export const sorted = <T extends { order: number }>(items: Record<string, T> | u
 /** A task's parts after the first. The database hands them back as an object when it keeps them as one (a list is only kept as one while it has no gaps). */
 export const asParts = (v: unknown): TaskPart[] => (Array.isArray(v) ? v : Object.values((v ?? {}) as Record<string, TaskPart>)) as TaskPart[];
 
-/**
- * What a guest's phone may show of a task's words, a quote each. Photos, Headshot and Prize always show theirs (they
- * never have more than one part). Any other task shows only the parts the host switched on.
- */
-export function guestWords(t: ScoreboardTask | undefined): string[] {
-  if (!t) return [];
-  const always = !!t.game && ONE_PART.includes(t.game);
-  return [{ text: t.text, on: always || !!t.guests }, ...asParts(t.parts).map((p) => ({ text: p.text, on: !!p.guests }))]
-    .flatMap((p) => (p.on && p.text?.trim() ? [p.text.trim()] : []));
-}
-
-/** App games with exactly one part of words, which a phone always shows: a second part would mean a second photo, so a second photo task is added instead. */
-export const ONE_PART: readonly TaskGame[] = ["photos", "headshots", "prize"];
-
 /** An app game's name on the task list. */
 export const LIGHT = "💡 The light";
 export const gameName = (g: TaskGame) => g === "light" ? LIGHT : GAMES[g]?.name ?? g;
