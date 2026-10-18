@@ -23,12 +23,15 @@ const SHOTS = {
   "guest-task-photos-sent": ["task-photos-sent"],
   "guest-noisemaster-up": ["noisemaster-up"],
   "guest-noisemaster-watch": ["noisemaster-watch"],
+  // the big screen, 1600x900: same party as the check-in shots
+  "main-welcome": ["tv-welcome"],
 };
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
 for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
   if (only.length && !only.includes(name)) continue;
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: "reduce" });
+  const tv = shot.startsWith("tv-");
+  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
   await page.waitForSelector("main");
   await page.evaluate(() => document.fonts.ready);

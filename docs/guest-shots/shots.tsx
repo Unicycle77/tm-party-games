@@ -1,14 +1,18 @@
-// Draws the guest phone's screens from the real components over an in-memory party (see fake-database.ts).
+// Draws the guest phone's screens (and the TV's welcome beside them) from the real components over an in-memory party (see fake-database.ts).
 // Usage: npx vite --config docs/guest-shots/vite.config.ts, then node docs/guest-shots/shoot.mjs
 import { createRoot } from "react-dom/client";
 import "../../src/styles.css";
 import { Play } from "../../src/Play";
+import { Screen } from "../../src/Screen";
+import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
 
-const CODE = "HVQB";
+const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
 const shot = q.get("shot") ?? "home-waiting";
 const who = q.get("who") ?? "sam";
+// The check-in shots and the TV's welcome are one moment of one party: Priya and Tom are already in, Sam is on his way.
+const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 
 const people: Record<string, string> = { alex: "Alex", jordan: "Jordan", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
@@ -20,13 +24,13 @@ const env = (n: number) => Object.fromEntries(Array.from({ length: n }, (_, i) =
 
 function build() {
   const ids = Object.keys(people);
-  const checkedIn = new Set(shot.startsWith("checkin") ? ["priya", "tom"] : ids);
+  const checkedIn = new Set(arriving ? ["priya", "tom"] : ids);
   const contestants = Object.fromEntries(ids.map((id, i) => [id, {
     name: people[id], order: i,
     ...(!(shot === "checkin-headshot" && id === who) && id !== "tom" ? { photo: face("#6b5a44") } : {}),
-    ...(checkedIn.has(id) && !shot.startsWith("checkin") ? { uid: id } : {}),
+    ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
-  if (shot.startsWith("checkin")) { contestants.priya!.uid = "priya"; contestants.tom!.uid = "tom"; }
+  if (arriving) { contestants.priya!.uid = "priya"; contestants.tom!.uid = "tom"; }
   const tasks: Record<string, unknown> = {
     t1: { order: 1, game: "headshots", text: HEAD },
     t2: { order: 2, game: "photos", name: "best costume", text: "Take a photo of the best costume in the room that isn't yours." },
@@ -78,4 +82,4 @@ if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem(
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
-createRoot(document.getElementById("root")!).render(<Play />);
+createRoot(document.getElementById("root")!).render(shot === "tv-welcome" ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : <Play />);

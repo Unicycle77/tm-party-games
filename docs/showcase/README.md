@@ -12,3 +12,5 @@ A one-page tour of the app to send to friends: [Taskmaster Party](https://claude
 The story runs in party order: the opening (the TV mid-reveal), 1 · Walk in (the welcome TV, then name tags and envelopes on a phone), 2 · The tasks (Noisemaster, Secret Tasks, Prize task), 3 · Run the show (the host's phone), 4 · The scoreboard, 5 · The Prize Haul, and "Your time starts now."
 
 To update it, edit `index.html` (it follows [the style guide](../style-guide.md)), republish it to the same artifact link with its `img/` files, and re-run the export. The screenshots use made-up sessions, so the scoreboard's headshots are camera stand-ins.
+
+One party: every picture on the page shows the same one (code ABCD, Priya and Tom already in, Sam checking in), so a TV, a guest's phone and the host's phone agree. Re-shoot a screen from that party instead of reusing an older one.
