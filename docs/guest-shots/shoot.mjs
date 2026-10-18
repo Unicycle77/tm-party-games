@@ -1,0 +1,42 @@
+// Renders the guest screens to docs/screens. Needs Playwright with Chromium and the shots server running:
+//   npx vite --config docs/guest-shots/vite.config.ts   (then, in another shell)   node docs/guest-shots/shoot.mjs [name ...]
+import { chromium } from "playwright";
+
+const base = "http://localhost:5174/docs/guest-shots/index.html";
+// file name → [shot, extra query, what to do before the shot]
+const SHOTS = {
+  "guest-checkin-list": ["checkin-list"],
+  "guest-checkin-confirm": ["checkin-confirm", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).click(); }],
+  "guest-checkin-headshot": ["checkin-headshot"],
+  "guest-checkin-rules": ["checkin-rules"],
+  "guest-checkin-envelopes": ["checkin-pile", "", async (p) => { await p.getByRole("button", { name: /Got it/ }).click(); }],
+  "guest-home-todo": ["home-todo-envelope"],
+  "guest-home-prize-ask": ["home-prize-ask"],
+  "guest-prize-photos": ["prize-check", "", async (p) => {
+    const pngs = ["#6b4a2a", "#3d4a5a", "#7a5a3a"].map((c) => ({ name: `${c}.svg`, mimeType: "image/svg+xml", buffer: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${c}"/></svg>`) }));
+    const chooser = p.waitForEvent("filechooser");
+    await p.getByRole("button", { name: /Yes, add photos/ }).click();
+    await (await chooser).setFiles(pngs);
+  }],
+  "guest-home-waiting": ["home-waiting"],
+  "guest-task-photos": ["task-photos"],
+  "guest-task-photos-sent": ["task-photos-sent"],
+  "guest-noisemaster-up": ["noisemaster-up"],
+  "guest-noisemaster-watch": ["noisemaster-watch"],
+};
+const only = process.argv.slice(2);
+const browser = await chromium.launch();
+for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
+  if (only.length && !only.includes(name)) continue;
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: "reduce" });
+  await page.goto(`${base}?shot=${shot}${extra}`);
+  await page.waitForSelector("main");
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  if (before) { await before(page); await page.waitForTimeout(300); }
+  const out = new URL(`../screens/${name}.jpg`, import.meta.url).pathname;
+  await page.screenshot({ path: out, type: "jpeg", quality: 88 });
+  console.log(`wrote ${out}`);
+  await page.close();
+}
+await browser.close();

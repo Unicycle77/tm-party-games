@@ -8,6 +8,24 @@ Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `
 |---|---|
 | `style-sheet.jpg` | Every piece of [the style guide](../style-guide.md) on one page: the six materials, the colour tokens, type, buttons, toggles and inputs, the host header's icon states, row states, cards, aged paper, framed media, QR codes, help and the icons |
 
+Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's layout (rendered from the real components over an in-memory party with `docs/guest-shots`: `npx vite --config docs/guest-shots/vite.config.ts`, then `node docs/guest-shots/shoot.mjs`). These replace the older `checkin-phone-*`, `player-*`, `secret-tasks-player-*`, `prize-player-*` and `before-after-player-*` screenshots below wherever they show the same screen:
+
+| File | What it shows |
+|---|---|
+| `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, Priya and Tom faded with "✓ here", status line "Find your name tag and tap it" |
+| `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 2" |
+| `guest-checkin-headshot.jpg` | No headshot on file: "To do now · Add your headshot", the same frame, the Headshot task's words, two paper buttons |
+| `guest-checkin-rules.jpg` | Secret Tasks at check-in, moment one: the whole rules card and gold "Got it: pick an envelope →" |
+| `guest-checkin-envelopes.jpg` | Moment two: "Pick an envelope ?" over the pile on the curtain |
+| `guest-home-todo.jpg` | Home with something to do: "1 thing left to do", the "To do now" card for the secret envelope, "Your to-do list" below |
+| `guest-home-prize-ask.jpg` | The prize question: the prize task's words in quotes, gold "Yes, add photos →", paper "Not now" |
+| `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with the prize "optional" |
+| `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
+| `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
+| `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
+| `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
+| `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
+
 Host phone (`/host`, 390px wide):
 
 | File | What it shows |

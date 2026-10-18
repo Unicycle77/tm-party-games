@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { GuestCard, Status, afterwards, useGuest } from "../../guest";
 import { useKeepAwake } from "../../keepAwake";
 import { submitMedia } from "../../media";
 import { setUnlocked } from "../../session";
@@ -10,7 +11,7 @@ import { FrameError, extractFrames } from "./frames";
 
 /**
  * One card that changes state while the main button stays in the same spot: choose a video, check it,
- * submit it, then a locked receipt. Guests film their video before the party, so choosing a file is the
+ * submit it, then a locked receipt that stays on until the next task. Guests film their video before the party, so choosing a file is the
  * gold action and recording on the spot is a quiet link. The phone never shows the task text.
  *
  * The video's first and last frames become the Before and After (grabbed on the phone the moment a
@@ -34,6 +35,9 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   const pickedRef = useRef<Picked>();
   pickedRef.current = picked;
   const uploading = progress !== undefined;
+  const { task, left } = useGuest();
+  const label = task?.label ?? "Before & After";
+  const title = task?.title ?? "Your video";
 
   // A phone that locks mid-upload can stall it.
   useKeepAwake(uploading);
@@ -135,58 +139,62 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   // Submitted and locked: a still receipt, no gold button.
   if (locked && !uploading) {
     return (
-      <section className="slot task">
-        <span className="stamp">✓ Submitted</span>
-        {frames}
-        <p className="slot-hint">🔒 Your video is locked in. If you need to change it, ask the host.</p>
-        <p className="slot-hint">Your name on the big screen has its stamp too.</p>
-      </section>
+      <>
+        <Status>{afterwards("Video sent.", left)}</Status>
+        <GuestCard label={label} title={title}>
+          <span className="stamp">✓ Submitted</span>
+          {frames}
+          <p className="slot-hint">🔒 Your video is locked in. If you need to change it, ask the host.</p>
+        </GuestCard>
+      </>
     );
   }
 
   return (
-    <section className="slot task">
-      <h2>Submit your video</h2>
-      {unlocked && !picked && <p className="slot-hint">🔓 The host has let you submit again.</p>}
-      {frames}
+    <>
+      <Status>It's task time. Send your video.</Status>
+      <GuestCard label={label} title={title}>
+        {unlocked && !picked && <p className="slot-hint">🔓 The host has let you submit again.</p>}
+        {frames}
 
-      {picked ? (
-        <>
-          {!uploading && <button className="link" onClick={watch}>▶ Watch your video</button>}
-          <video ref={player} className="offscreen" src={picked.videoUrl} playsInline preload="metadata" />
-          {uploading ? (
-            <>
-              <div className="sending">
-                <progress value={progress} max={1} />
-                <span>Submitting… {Math.round((progress ?? 0) * 100)}%</span>
-              </div>
-              <p className="slot-hint">Keep this screen open until it's done. Big videos can take a minute.</p>
-              <button className="link" onClick={() => upload.current?.abort()}>Cancel</button>
-            </>
-          ) : (
-            <>
-              {failed
-                ? <p className="error">Your video didn't finish sending. Nothing was submitted. Check your Wi-Fi and try again.</p>
-                : <p className="slot-hint">Not submitted yet. Is this the right one?</p>}
-              <button className="big" onClick={() => void submit()}>{failed ? "Try again" : "Submit"}</button>
-              <button className="link" onClick={() => pick(library)}>Choose a different video</button>
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <p className="slot-hint">Pick the video you made for the task ({videoLimitText}). We'll take your Before and After from its first and last frame.</p>
-          {checking && <p className="slot-hint">Checking your video…</p>}
-          <button className="big" disabled={busy} onClick={() => pick(library)}>Choose your video</button>
-          <button className="link" disabled={busy} onClick={() => pick(camera)}>Didn't make one? Record it now</button>
-        </>
-      )}
+        {picked ? (
+          <>
+            {!uploading && <button className="link" onClick={watch}>▶ Watch your video</button>}
+            <video ref={player} className="offscreen" src={picked.videoUrl} playsInline preload="metadata" />
+            {uploading ? (
+              <>
+                <div className="sending">
+                  <progress value={progress} max={1} />
+                  <span>Submitting… {Math.round((progress ?? 0) * 100)}%</span>
+                </div>
+                <p className="slot-hint">Keep this screen open until it's done. Big videos can take a minute.</p>
+                <button className="link" onClick={() => upload.current?.abort()}>Cancel</button>
+              </>
+            ) : (
+              <>
+                {failed
+                  ? <p className="error">Your video didn't finish sending. Nothing was submitted. Check your Wi-Fi and try again.</p>
+                  : <p className="slot-hint">Not submitted yet. Is this the right one?</p>}
+                <button className="big" onClick={() => void submit()}>{failed ? "Try again" : "Submit"}</button>
+                <button className="link" onClick={() => pick(library)}>Choose a different video</button>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="slot-hint">Pick the video you made for the task ({videoLimitText}). We'll take your Before and After from its first and last frame.</p>
+            {checking && <p className="slot-hint">Checking your video…</p>}
+            <button className="big" disabled={busy} onClick={() => pick(library)}>Choose your video</button>
+            <button className="link" disabled={busy} onClick={() => pick(camera)}>Didn't make one? Record it now</button>
+          </>
+        )}
 
-      <input ref={camera} type="file" accept="video/*" capture="environment" hidden onChange={(e) => { void choose(e.target.files?.[0]); e.target.value = ""; }} />
-      <input ref={library} type="file" accept="video/*" hidden onChange={(e) => { void choose(e.target.files?.[0]); e.target.value = ""; }} />
-      {error && <p className="error">{error}</p>}
-      {detail && <p className="muted small tech-detail">Technical details (send to the host): {detail}</p>}
-    </section>
+        <input ref={camera} type="file" accept="video/*" capture="environment" hidden onChange={(e) => { void choose(e.target.files?.[0]); e.target.value = ""; }} />
+        <input ref={library} type="file" accept="video/*" hidden onChange={(e) => { void choose(e.target.files?.[0]); e.target.value = ""; }} />
+        {error && <p className="error">{error}</p>}
+        {detail && <p className="muted small tech-detail">Technical details (send to the host): {detail}</p>}
+      </GuestCard>
+    </>
   );
 }
 
