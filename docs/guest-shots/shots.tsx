@@ -64,6 +64,11 @@ function build() {
     text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins.",
     parts: [{ type: "Team", text: "Now join forces.\n\nBuild one tower together from every die you have. You have 2 minutes." }],
   };
+  // A live task with one part.
+  if (shot.includes("onepart")) tasks.t7 = {
+    order: 7, name: "Sock puppet show", type: "Team",
+    text: "Make a puppet from one sock and put on a show.\n\nYou have 5 minutes. Best show wins.",
+  };
   const session: Record<string, unknown> = {
     hostUid: "host", name: "Halloween party",
     players: Object.fromEntries(ids.filter((id) => checkedIn.has(id)).map((id, i) => [id, { name: people[id], joinedAt: i, contestant: id }])),
@@ -121,6 +126,9 @@ function build() {
     // The host put part 2 on every phone while part 1 is still on the big screen: the two are separate.
     case "host-parts-phones": set("display", { step: "tasktext", task: "t6" }); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
+    // A live task with one part: the same two rows, "The task" in place of Part 1.
+    case "host-onepart": set("begun", true); break;
+    case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
@@ -130,7 +138,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -142,7 +150,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

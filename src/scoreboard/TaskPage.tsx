@@ -9,7 +9,7 @@ import type { GameId, Session } from "../types";
 import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startTask, takeDownPhones } from "./data";
 import { Points } from "./Points";
 import { activeTaskId, list, scored, titleOf } from "./tasks";
-import { partsOf, TaskTextCard, TIEBREAKER_TYPE, tiebreakerWords, typeOf } from "./TaskText";
+import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
 
 /**
  * Starts a task from Run of show or its page: the scores come down if they're up, the task before it is caught
@@ -41,7 +41,7 @@ function ShowTask({ code, session, task, gold, onShown }: { code: string; sessio
 }
 
 /**
- * A multi-part task: two rows of radio buttons, one for the big screen and one for the phones, each choosing nothing or
+ * A live task (or the tiebreaker): two rows of radio buttons, one for the big screen and one for the phones, each choosing nothing or
  * one part (each can be set apart from the other), then the cards to read from. Chosen is pressed in, never gold, since
  * putting a part up (or none) is the host's choice. "Part N" is for the host: the cards, the big screen and the phones never say it.
  */
@@ -60,9 +60,9 @@ function PartCards({ code, session, task, parts, phones }: { code: string; sessi
   );
 }
 
-/** One row of radio buttons on one line: Nothing, Part 1, Part 2… The chosen one is pressed in (`.choices.marks`). */
+/** One row of radio buttons on one line: Nothing, Part 1, Part 2… (or Nothing, The task when there's one part) The chosen one is pressed in (`.choices.marks`). */
 function PartPick({ label, up, count, onPick }: { label: string; up: number | undefined; count: number; onPick: (part: number | undefined) => void }) {
-  const options: [string, number | undefined][] = [["Nothing", undefined], ...Array.from({ length: count }, (_, i): [string, number] => [`Part ${i + 1}`, i])];
+  const options: [string, number | undefined][] = [["Nothing", undefined], ...Array.from({ length: count }, (_, i): [string, number] => [count === 1 ? "The task" : `Part ${i + 1}`, i])];
   return (
     <div className="part-pick" role="radiogroup" aria-label={label}>
       <span className="part-pick-label">{label}</span>
@@ -75,18 +75,6 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
   );
 }
 
-/**
- * "Show on phones" under the card of a one-part live task (or the tiebreaker): a quiet link, since it's rare, and apart
- * from the big screen's button. While it's up it says so and takes it down. (A task with parts has a row of radio buttons instead.)
- */
-function PhonesLink({ code, session, task, part }: { code: string; session: Session; task: string; part: number }) {
-  const up = session.phoneText?.task === task && (session.phoneText.part ?? 0) === part;
-  return (
-    <button type="button" className="link phones-link" aria-pressed={up}
-      onClick={() => void (up ? takeDownPhones(code) : showOnPhones(code, task, part))}>{up ? "Showing on phones · Take down" : "Show on phones"}</button>
-  );
-}
-
 /** The scores or the haul up while a task's page is open: the way back to the curtain. */
 function LowerIfUp({ code, session }: { code: string; session: Session }) {
   const step = session.display?.step;
@@ -96,7 +84,7 @@ function LowerIfUp({ code, session }: { code: string; session: Session }) {
 
 /**
  * One page for every task, live or app game (reached from Run of show): the task as the title, what's on the big
- * screen, gold "Show the task" when it has words, its song and note and the card to read from; then an app game's
+ * screen, "Show the task" (gold for an app game; a live task has radio rows) when it has words, its song and note and the card to read from; then an app game's
  * own controls; then the points, always open, ending in gold "Done" once everyone has them.
  */
 export function TaskPage({ code, session, id, onBack, onLight }: {
@@ -121,9 +109,9 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   const playing = activeTaskId(session) === id;
   const game = playing ? activeGame(session) : undefined;
   const parts = partsOf(task);
-  const multi = parts.length > 1;
-  // With parts there's no gold "Show the task": showing any of them is up to the host, so the game's own next step keeps the gold.
-  const textFirst = !!task.text && !multi && !textSeen && !textOn;
+  // A live task puts its words up by radio rows, never gold (it's the host's choice); only an app game has the gold "Show the task".
+  const rows = !task.game && parts.length > 0;
+  const textFirst = !!task.text && !rows && !textSeen && !textOn;
   const startable = task.game && task.game !== "light" && !playing;
   const top = (
     <>
@@ -134,12 +122,11 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       </div>
       <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
-      {task.text && !multi && <ShowTask code={code} session={session} task={id} gold={!task.game || textFirst} onShown={() => setTextSeen(true)} />}
+      {task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
       {task.description && <p className="muted small sb-note">{task.description}</p>}
-      {task.text && !multi && <TaskTextCard type={typeOf(task)} text={task.text} />}
-      {task.text && !multi && !task.game && <PhonesLink code={code} session={session} task={id} part={0} />}
-      {multi && <PartCards code={code} session={session} task={id} parts={parts} phones={!task.game} />}
+      {task.text && !rows && <TaskTextCard type={typeOf(task)} text={task.text} />}
+      {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
@@ -203,7 +190,6 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
   const now = standing(session);
   const winner = now && "winner" in now ? now.winner : undefined;
   const tbParts = partsOf(tb && tiebreakerWords(tb));
-  const tbMulti = tbParts.length > 1;
   const won = (id: string) => {
     void setTiebreakerWinner(code, tb?.winner === id ? null : id);
     // Back up to the haul, which is what's next.
@@ -220,12 +206,9 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
       <LowerIfUp code={code} session={session} />
       {/* Once someone has won, their haul is the one next thing. */}
       {winner && <button className="big" onClick={() => { void showHaul(code); onBack(); }}>🎁 Show the prize haul · {nameOf(winner)}</button>}
-      {tb?.text && !tbMulti && <ShowTask code={code} session={session} task="tiebreaker" gold={!winner} onShown={() => {}} />}
       {tb?.song && <SongStrip code={code} session={session} song={tb.song} />}
       {tb?.description && <p className="muted small sb-note">{tb.description}</p>}
-      {tb?.text && !tbMulti && <TaskTextCard type={tb.type || TIEBREAKER_TYPE} text={tb.text} />}
-      {tb?.text && !tbMulti && <PhonesLink code={code} session={session} task="tiebreaker" part={0} />}
-      {tbMulti && <PartCards code={code} session={session} task="tiebreaker" parts={tbParts} phones />}
+      {tbParts.length > 0 && <PartCards code={code} session={session} task="tiebreaker" parts={tbParts} phones />}
       {/* Fixed to the bottom, so whoever says it first is one tap away however far the story has scrolled. */}
       <div className="sb-won-bar">
         <p className="muted small">Tap who won.</p>

@@ -39,6 +39,8 @@ const SHOTS = {
   "haul-main-winner": ["tv-haul"],
   "haul-host-up": ["host-haul"],
   // a task with two parts (Individual, then Team)
+  "task-page-host-live": ["host-onepart"],
+  "task-page-host-live-up": ["host-onepart-up"],
   "task-parts-host": ["host-parts"],
   "task-parts-host-up": ["host-parts-up"],
   "task-parts-main": ["tv-parts"],

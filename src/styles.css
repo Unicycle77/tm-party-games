@@ -1240,7 +1240,6 @@ button.help-q:active { transform: none; box-shadow: none; }
 /* a part of a task's words in its ✎ (host remote only: the word "part" never reaches the big screen, a phone or the PDF) */
 .sb-part { display: grid; gap: 0.6rem; }
 .sb-part > .link, .extra-open > .link { justify-self: start; }
-.phones-link { justify-self: start; }
 .part-pick { display: grid; gap: 0.3rem; }
 .part-pick-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .part-pick .choices button { flex: 1 1 4rem; }
