@@ -802,6 +802,10 @@ span.lock { padding: 0; }
 .party-settings .host-pin { display: grid; gap: 0.3rem; justify-items: start; }
 .party-settings .host-pin label { justify-self: stretch; }
 .party-settings .host-pin p { margin: 0; }
+/* "Reset scores…" opened in place: what it clears and keeps, the guests switch, then its button */
+.reset-scores { justify-self: stretch; }
+.reset-scores h3, .reset-scores p { margin: 0; }
+.reset-scores .row { align-items: center; gap: 1rem; }
 /* host phone, a contestant on the big screen */
 h2.contestant { font-size: 1.8rem; margin: 0.2rem 0 0; }
 h2.contestant .muted { font-size: 0.6em; }
