@@ -64,7 +64,8 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   return (
     <div className="box-setup scoreboard-remote run-of-show">
       <h2>Run of show</h2>
-      <OnScreen session={session} />
+      <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
+      <OnScreen code={code} session={session} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
       {!haulUp && unscored.length > 0 && (final ? (

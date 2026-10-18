@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { JoinQr } from "./HostRemote";
+import { JoinQr, OnScreen } from "./HostRemote";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { ConverterRemote } from "./conversions/ConverterRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
@@ -83,7 +83,6 @@ export function HostPage() {
 
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
-  const scoresUp = session.display?.step === "scoreboard";
   // An older phone's "the game": the game in progress's task page.
   const task = place.task === "game" ? activeTaskId(session) ?? "adhoc" : place.task;
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
@@ -96,8 +95,6 @@ export function HostPage() {
   return (
     <main className="phone host">
       <header className="host-head">
-        <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
-        {icon("show", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
@@ -112,7 +109,8 @@ export function HostPage() {
         : place.view === "edit" && place.task ? <TaskEditPage code={code} session={session} id={place.task} onBack={() => go({ view: "plan" })} />
         : SIDE.includes(place.view) ? (
           <>
-            <button className="link back" onClick={() => go(back)}>← Back to {back.view === "task" ? "the task" : back.view === "plan" ? "Plan the party" : back.view === "edit" ? "the task" : "the run of show"}</button>
+            <button className="link back" onClick={() => go(back)}>← Back</button>
+            <OnScreen code={code} session={session} />
             {place.view === "music" ? <JukeboxRemote code={code} session={session} />
               : place.view === "tasks" ? <TaskPile code={code} session={session} />
               : place.view === "convert" ? <ConverterRemote code={code} session={session} />

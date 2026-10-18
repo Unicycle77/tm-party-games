@@ -123,9 +123,8 @@ function Sheet() {
           </Sec>
           <Sec title="Host header" note="idle · lit (running) · open · alert (needs you)">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
-              <header className="host-head"><span><strong>🎮 Host</strong><span className="muted"> · Halloween party · HVQB</span></span>
-                <button className="head-icon open lit" aria-label="Run of show">🏆</button>
-                <button className="head-icon lit" aria-label="Music">🎵▶</button>
+              <header className="host-head">
+                <button className="head-icon open lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
                 <button className="head-icon" aria-label="Useless conversions">📏</button>
@@ -163,7 +162,11 @@ function Sheet() {
               <SongStrip code="HVQB" session={jukebox(true)} song="Hall of the Mountain King" />
               <SongStrip code="HVQB" session={jukebox(false, false)} song="Hall of the Mountain King" />
             </div>
-            <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
+            <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, pressed in with ⏸ (never gold) · can't play, disabled with the reason in words</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <button className="sb-song now-playing-strip"><span className="title">⏸ Eye of the Tiger</span><span className="dur">1:55 left</span></button>
+            </div>
+            <Cap>The now-playing strip (<code>.now-playing-strip</code>): under "On the big screen" on every page while a song plays; one tap pauses</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
               <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
                 ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />

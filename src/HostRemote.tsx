@@ -1,9 +1,10 @@
 import { QRCodeSVG } from "qrcode.react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { asList, asNums, fmt } from "./JukeboxRemote";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
-import { noBigScreen, setDisplay, setShowQr, setUnlocked, showContestant } from "./session";
+import { noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -46,8 +47,42 @@ export function onScreenLine(session: Session): string {
   return "everyone's entries";
 }
 
-/** The status line itself, opening every page. */
-export const OnScreen = ({ session }: { session: Session }) => <p className="on-screen">On the big screen: {onScreenLine(session)}</p>;
+/**
+ * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
+ * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
+ */
+export function OnScreen({ code, session }: { code: string; session: Session }) {
+  return (
+    <>
+      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      <NowPlaying code={code} session={session} />
+    </>
+  );
+}
+
+function NowPlaying({ code, session }: { code: string; session: Session }) {
+  const jukebox = session.jukebox;
+  const state = jukebox?.state ?? {};
+  const title = state.current === undefined ? undefined : asList(jukebox?.tracks)[state.current];
+  const playing = state.playing === true && !!title;
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!playing) return;
+    const t = window.setInterval(() => tick((n) => n + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [playing]);
+  if (!playing) return null;
+  const length = asNums(jukebox?.durations)[state.current!];
+  const clock = jukebox?.clock;
+  const elapsed = clock && clock.pos + (clock.running ? Math.max(0, (Date.now() - clock.at) / 1000) : 0);
+  const left = length && elapsed !== undefined ? Math.max(1, Math.round(length - elapsed)) : undefined;
+  return (
+    <button className="sb-song now-playing-strip" aria-label={`Pause ${title}`} onClick={() => void setJukeboxState(code, { playing: false })}>
+      <span className="title">⏸ {title}</span>
+      <span className="dur">{left ? `${fmt(left)} left` : fmt(length)}</span>
+    </button>
+  );
+}
 
 /**
  * For anyone who arrives late: the join code, on the host's phone to hold up. While it's open the big screen

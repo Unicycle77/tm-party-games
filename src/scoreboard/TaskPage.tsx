@@ -82,7 +82,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
         <h1>{titleOf(task)}</h1>
         <p className="muted">Task {place} of {of} · {task.game ? "app game" : "live task"}</p>
       </div>
-      <OnScreen session={session} />
+      <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
       {task.text && <ShowTask code={code} session={session} task={id} gold={!task.game || textFirst} onShown={() => setTextSeen(true)} />}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
@@ -98,7 +98,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   return (
     <section className="remote task-page">
       {game ? <GameControls code={code} session={session} quiet={textFirst} head={top} /> : top}
-      <Points code={code} board={board} onScreen={session.display?.step === "scoreboard"} id={id} onDone={onBack} onLight={onLight} />
+      <Points code={code} session={session} board={board} onScreen={session.display?.step === "scoreboard"} id={id} onDone={onBack} onLight={onLight} />
     </section>
   );
 }
@@ -117,7 +117,7 @@ export function AdHocPage({ code, session, onBack }: { code: string; session: Se
         <h1>{game && !listed ? game.name : "Play a game"}</h1>
         <p className="muted">Not on the run of show, so it isn't scored</p>
       </div>
-      <OnScreen session={session} />
+      <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
     </>
   );
@@ -162,7 +162,7 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
         <h1>{tb?.name || "Tiebreaker task"}</h1>
         <p className="muted">Tiebreaker · {list(tied.map(nameOf))}</p>
       </div>
-      <OnScreen session={session} />
+      <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
       {/* Once someone has won, their haul is the one next thing. */}
       {winner && <button className="big" onClick={() => { void showHaul(code); onBack(); }}>🎁 Show the prize haul · {nameOf(winner)}</button>}

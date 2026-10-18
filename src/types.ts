@@ -212,6 +212,11 @@ export interface Jukebox {
   tracksAt?: number;
   /** The main screen has its music folder open right now, so songs can play. Gone when it disconnects. */
   open?: boolean;
+  /**
+   * Where the song is, written by the main screen whenever its audio plays, pauses or seeks: `pos` seconds in
+   * at `at` (the main screen's clock), moving on while `running`. The host remote counts what's left from it.
+   */
+  clock?: { pos: number; at: number; running: boolean };
   /** Playback state, written by the host remote (and by the main screen when a song ends). */
   state?: { current?: number; playing?: boolean; volume?: number; repeat?: boolean };
 }

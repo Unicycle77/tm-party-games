@@ -108,7 +108,7 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | The chosen one | A small gold `★` disc in the corner; `☆` on the others moves it | Prize photos (the one the haul shows) |
 | Already used | Disabled, with a small uppercase "on the list" label inside | "+ App game" choices |
 | Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder") | A task's song strip |
-| Playing | Gold (`button.active`), ▶ becomes ⏸ | A task's song strip, the jukebox's current song |
+| Playing | Pressed in (`.pressed-in`: down 2px, inset shadow, paper `#e6d6b0`, bold), ▶ becomes ⏸. Never gold: gold stays on the next thing to do | A task's song strip, the jukebox's current song |
 | Disqualified | DQ chip pressed in; what they'd have had struck through and faded (`.was`), never removed | The points page |
 | Over a dB task's line | The same DQ, with "over 60" under the 0 instead of "DQ" | The points page |
 | Before a DQ moved them | A dashed outline (`.before`, `.sb-before`), with a key under the list | The points page |
@@ -181,7 +181,9 @@ See: [checkin-phone-list.jpg](screens/checkin-phone-list.jpg), [checkin-phone-co
 
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
-- **Header** (`HostPage.tsx`): `🎮 Host · Party name · CODE`, then five icon buttons, in this order: 🏆 the run of show (glows while the scoreboard is on the big screen), 🎵 the jukebox (shows ▶ and glows while a song plays), ✉ Secret Tasks, 💡 the light (glows while it's on), 📏 Useless conversions (glows while a conversion is on the big screen). The open one has a `--gold-bright` outline. Idle icons are faded and greyed (`.head-icon`); `.lit` is the gold glow, meaning "running"; `.alert` is a small burgundy dot, meaning "needs the host". Never use the glow for "needs you". 🎵 ✉ 💡 📏 open in place of the show with "← Back to the game" (or "← Back to the run of show"). A new all-evening feature gets a header icon, not another section on a page.
+- **Header** (`HostPage.tsx`): four icon buttons, right-aligned, in this order: 🎵 the jukebox (shows ▶ and glows while a song plays), ✉ Secret Tasks, 💡 the light (glows while it's on), 📏 Useless conversions (glows while a conversion is on the big screen). The open one has a `--gold-bright` outline. Idle icons are faded and greyed (`.head-icon`); `.lit` is the gold glow, meaning "running"; `.alert` is a small burgundy dot, meaning "needs the host". Never use the glow for "needs you". There is no 🏆 and no "Host" label: Run of show is home, and its title carries the party name and code in small muted type. 🎵 ✉ 💡 📏 open in place of the page with one "← Back" to where the host was, then the "On the big screen" line. A new all-evening feature gets a header icon, not another section on a page.
+- **Now-playing strip** (`.sb-song.now-playing-strip`, in `OnScreen`): while a song plays, under the "On the big screen" line of every page: "⏸ Title" and "1:55 left", pressed in. One tap pauses it. It never goes gold.
+- **Read it out** (`ReadOut.tsx`): a quiet "📏 Read it out" under a measured task's points. It opens contestant chips (whoever's number was typed last is picked), the useless-conversion card with "Surprise me again", and a paper "Show on the big screen" that is pressed in ("On the big screen · Jordan") while it's up. Picking another contestant while it's up swaps the big screen to theirs.
 - **Home is the run of show** (🏆, `RunOfShow.tsx`). Every party opens on it, and it's for running the night, not building it. Top to bottom:
   1. `Run of show` heading, then one `.on-screen` line saying what the big screen shows ("On the big screen: the curtain", "…: the scores, before Photos: best costume", "…: not connected yet"), with at most one `.muted.small` line under it.
   2. **The top slot: the one next thing in gold.** While the scores are up it's the scoreboard's next step: "Update the scores" (the status line names what it adds, so the button stays one line), then "Lower the curtain"; "🎁 Show the prize haul · Priya"; "Play the tiebreaker task · Sam and Priya". The quiet way out sits under it as a `.link`.
@@ -231,7 +233,6 @@ See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-sco
 | Symbol | Meaning |
 |---|---|
 | 🎮 | Host remote |
-| 🏆 | The run of show and the scoreboard (host header) |
 | 🎁 | The Prize task, prizes in, the prize haul |
 | ★ / ☆ | The chosen prize photo, the one the haul shows / move the ★ here |
 | ≡ | Drag to reorder (tasks, prize photos) |

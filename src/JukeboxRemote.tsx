@@ -51,7 +51,7 @@ export function JukeboxRemote({ code, session }: { code: string; session: Sessio
       <h2>Jukebox</h2>
       <p className="now-playing">{current !== undefined && tracks[current] ? `${playing ? "♪" : "⏸"} ${tracks[current]}` : "Pick a song"}</p>
       <div className="steps">
-        <button className={playing ? "step active" : "step"} onClick={toggle}>{playing ? "⏸ Pause" : "▶ Play"}</button>
+        <button className={playing ? "step pressed-in" : "step"} onClick={toggle}>{playing ? "⏸ Pause" : "▶ Play"}</button>
       </div>
       <div className="toggles">
         <Toggle label="🔁 Repeat" on={repeat} onChange={(on) => void setJukeboxState(code, { repeat: on })} />
@@ -62,7 +62,7 @@ export function JukeboxRemote({ code, session }: { code: string; session: Sessio
       <ul className="tracklist">
         {tracks.map((t, i) => (
           <li key={i}>
-            <button className={i === current ? "active" : ""} onClick={() => play(i)}>
+            <button className={i === current ? "pressed-in" : ""} onClick={() => play(i)}>
               <span className="title">{i === current ? "♪ " : ""}{t}</span>
               <span className="dur">{fmt(durations[i])}</span>
             </button>

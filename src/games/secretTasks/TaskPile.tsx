@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { OnScreen } from "../../HostRemote";
 import { useUid } from "../../session";
 import type { Session } from "../../types";
 import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, returnTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
@@ -19,7 +18,6 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
 
   return (
     <div className="box-setup">
-      <OnScreen session={session} />
       <h2>✉ Secret tasks</h2>
       <p className="muted small">
         {tasks === undefined ? "Loading…"

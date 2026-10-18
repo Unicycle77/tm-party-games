@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { formatTime } from "../games/noisemaster/data";
-import type { Scoreboard } from "../types";
+import { ReadOut } from "../conversions/ReadOut";
+import type { Scoreboard, Session } from "../types";
 import { enterPoints, type TaskEntry } from "./data";
 import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
 import { currentTotals } from "./scoring";
@@ -12,8 +13,8 @@ import { allScored, LIGHT, list, plural } from "./tasks";
  * big screen. Once everyone has points, gold "Done" goes back to Run of show, where the next task and the
  * choice to show the scores are waiting.
  */
-export function Points({ code, board, onScreen, id, onDone, onLight }: {
-  code: string; board: Scoreboard | undefined; onScreen: boolean; id: string; onDone: () => void;
+export function Points({ code, session, board, onScreen, id, onDone, onLight }: {
+  code: string; session: Session; board: Scoreboard | undefined; onScreen: boolean; id: string; onDone: () => void;
   /** Opens 💡 the light, where its order is marked. */
   onLight: () => void;
 }) {
@@ -26,7 +27,13 @@ export function Points({ code, board, onScreen, id, onDone, onLight }: {
   const loud = task.unit?.kind === "loudness";
   // The light's order comes from 💡, where it's marked: here it's only shown.
   const light = task.game === "light";
-  const enter = (entry: TaskEntry) => void enterPoints(code, board, onScreen, id, entry);
+  // Whose number was typed last, for "Read it out".
+  const [last, setLast] = useState<string>();
+  const enter = (entry: TaskEntry) => {
+    const typed = Object.entries(entry.results ?? {}).find(([, n]) => n !== null)?.[0];
+    if (typed) setLast(typed);
+    void enterPoints(code, board, onScreen, id, entry);
+  };
   const nameOf = (c: string) => board?.contestants?.[c]?.name ?? "";
   // The DQs that change anyone else's points: those with points or a number of their own.
   const outs = contestants.map(([c]) => c).filter((c) => task.dq?.[c] && (measured ? task.results?.[c] : (task.given ?? task.scores)?.[c]) !== undefined);
@@ -66,6 +73,7 @@ export function Points({ code, board, onScreen, id, onDone, onLight }: {
       </ul>
       {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
       {light && <p className="muted small">Change the order on <button className="link" onClick={onLight}>{LIGHT}</button>.</p>}
+      {measured && task.unit && !light && <ReadOut code={code} session={session} board={board} id={id} last={last} />}
       {allScored(board, task) && <button className="big" onClick={onDone}>Done: back to Run of show →</button>}
     </section>
   );

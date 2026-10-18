@@ -778,7 +778,8 @@ body.idle-cursor .stage { cursor: none; }
 
 /* host phone: header with the music and light one tap away */
 .host-head { display: flex; align-items: center; gap: 0.5rem; }
-.host-head > span:first-child { flex: 1; }
+.host-head { justify-content: flex-end; }
+.party-line { margin: -0.4rem 0 0; }
 .head-icon { padding: 0.35rem 0.6rem; font-size: 1.2rem; line-height: 1; filter: grayscale(0.7); opacity: 0.75; }
 .head-icon.lit { filter: none; opacity: 1; box-shadow: 0 3px 0 var(--gold-dark), 0 0 12px var(--gold-bright); }
 .head-icon.open { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
@@ -1292,3 +1293,10 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .end-night { justify-self: center; }
 .pile-setup { display: grid; gap: 0.6rem; padding-bottom: 0.6rem; }
 .pile-setup .task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+
+/* Pressed in: a thing that is on right now (a song playing) and pauses with one tap. Never gold. */
+.pressed-in { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }
+.now-playing-strip { margin: 0.2rem 0; }
+.read-out { display: grid; gap: 0.5rem; }
+.read-out h3 { margin: 0; }
+.read-out .conversion { text-align: center; }

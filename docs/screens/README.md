@@ -17,7 +17,7 @@ Host phone (`/host`, 390px wide):
 | `host-contestant-on-screen.jpg` | A contestant on the big screen, a step inside the task page: "Alex, 3 of 4", their controls, "Lower the curtain", Points still at the bottom (2026-10-18) |
 | `host-running-order.jpg` | Curtain down between contestants: gold "Next: Alex →", the running order (shown ones dimmed), Points below (2026-10-18) |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
-| `host-light.jpg` | 💡 The light, "All at once" mode |
+| `host-light.jpg` | 💡 The light as a side page: "← Back", the status line, then the light's switch, its secret and the "Got it" list (2026-10-18) |
 | `host-light-got-it.jpg` | 💡 The light's "Got it" list: Sam 1st, Priya just tapped in 2nd ("✓ Priya got it 2nd · 4 points."), their chips dimmed with ✓ (2026-10-17) |
 | `host-light-got-it-fix.jpg` | Fixing a mark: Tom's row open with the place chips (3rd pressed in) and "Take Tom off the list" (2026-10-17) |
 | `host-light-got-it-listed.jpg` | The light on the task list: "✓ Mei got it 4th · 2 points on the scoreboard.", no nudge (2026-10-17) |
@@ -25,7 +25,10 @@ Host phone (`/host`, 390px wide):
 | `run-of-show-host-light.jpg` | "7 💡 The light · 3 of 5 got it" on Run of show: tapping the row opens its page, and there is no ▶ Start (2026-10-18) |
 | `scoreboard-host-points-light.jpg` | The light's points page: "got it 2nd" or "not yet" for each contestant, "Fastest wins · order from the light · 4 of 6 got it · 1 bonus point", Sam DQ'd and the others moved up, "Change the order on 💡 The light", Mei's +1 bonus (2026-10-17) |
 | `noisemaster-host-kept.jpg` | A Noisemaster go while it isn't on the task list: "Kept. Not on the task list yet, so this time isn't on the scoreboard. Add it" (2026-10-17) |
-| `host-jukebox.jpg` | 🎵 The jukebox |
+| `host-jukebox.jpg` | 🎵 The jukebox while a song plays: "← Back", the status line, the pressed-in now-playing strip, the jukebox below, and the four header icons with 🎵▶ open (2026-10-18) |
+| `host-now-playing.jpg` | A task page with a song playing: the pressed-in "⏸ Eye of the Tiger · 1:55 left" strip under the status line, and the task's own song strip pressed in too (2026-10-18) |
+| `host-read-it-out.jpg` | "📏 Read it out" open under a measured task's points: contestant chips with Jordan picked (the last number typed), the conversion card, "Surprise me again", paper "Show on the big screen" (2026-10-18) |
+| `host-read-it-out-up.jpg` | The same with it on the big screen: the status line says "a useless conversion", the button is pressed in ("On the big screen · Jordan"), and 📏 is lit in the header (2026-10-18) |
 | `host-party-settings.jpg` | Party settings, at the bottom of Run of show: only the night-of switches, the download button and "Disconnect this phone" (the name, portrait and pin moved to Plan the party) (2026-10-18) |
 
 Main screen (`/`, 1600×900):
@@ -90,7 +93,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Plan the party with the party line opened by "Change": renaming the party, with the portrait and the host pin under it (2026-10-18) |
-| `run-of-show-host.jpg` | The remote's home between tasks: "On the big screen: the curtain", the "Up next" card with gold "Start task 4 →", paper "Show the scoreboard" with "Opens on the scores before …", the read-only task list with one state each, and "Plan the party", "Show QR code", "Party settings" at the bottom (2026-10-18) |
+| `run-of-show-host.jpg` | The remote's home between tasks: "On the big screen: the curtain", the "Up next" card with gold "Start task 4 →", paper "Show the scoreboard" with "Opens on the scores before …", the read-only task list with one state each, and "Plan the party", "Show QR code", "Party settings" at the bottom. The header is four icons, with the party name and code under the title (2026-10-18) |
 | `run-of-show-host-scores-up.jpg` | The scores up: the scoreboard's controls take the top slot, gold "Update the scores" with "On the big screen: the scores, before Hum a theme tune", "Lower the curtain" as a link, and the "Up next" card's button paper (2026-10-18) |
 | `run-of-show-host-scores-updated.jpg` | After the update: gold "Lower the curtain" alone in the top slot, the pending note gone (2026-10-18) |
 | `task-page-host-live.jpg` | A live task's page: "← Run of show", the task as the title, "Task 4 of 8 · live task", gold "Show the task", the song strip, the note, the task card, then Points with a number box (2026-10-18) |
@@ -99,7 +102,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |
 | `task-song-edit.jpg` | "Change" on the song summary line: "Song (optional)" opened with its picker and ✕, Done and "✕ Remove song", the other summary lines kept above and below (2026-10-18) |
 | `task-song-edit-missing.jpg` | A task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." (2026-10-18) |
-| `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time · Volume and the common units, dimmed while a task's unit is in use |
+| `converter-host-empty.jpg` | 📏 Useless conversions (2026-10-15; now with "← Back" and the status line on top): "How much?", the tasks' units first (the next to score chosen), then Height · Length · Weight · Time · Volume and the common units, dimmed while a task's unit is in use |
 | `converter-host-result.jpg` | After "Surprise me": three lines to read aloud, the working in small print, "Use a different unit ▾", "Show on the big screen" |
 | `converter-host-loudness.jpg` | The converter on a dB task's reading: Loudness among the kinds, "94.2 dB is / about 4.2 blenders at once / on high, at the counter" and "a blender is about 88 dB" (2026-10-17) |
 | `converter-host-other-unit.jpg` | "Use a different unit ▴" open: every unit of the kind, the one shown in gold |

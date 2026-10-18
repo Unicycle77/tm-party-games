@@ -5,8 +5,8 @@ import type { Session } from "./types";
 
 /**
  * A task's song, on its run-of-show row and its page: a small remote for the jukebox. One tap plays it on
- * the big screen (once: Repeat goes off), another pauses it. It goes gold while it plays, whoever started
- * it. Disabled, with the reason, while the main screen's music folder isn't open or the song isn't in it.
+ * the big screen (once: Repeat goes off), another pauses it. It is pressed in while it plays (never gold: gold stays on
+ * the next thing to do), whoever started it. Disabled, with the reason, while the main screen's music folder isn't open or the song isn't in it.
  */
 export function SongStrip({ code, session, song }: { code: string; session: Session; song: string }) {
   const jukebox = session.jukebox;
@@ -17,7 +17,7 @@ export function SongStrip({ code, session, song }: { code: string; session: Sess
   const problem = !jukebox?.open ? "music folder not open" : i < 0 ? "not in the music folder" : undefined;
   const toggle = () => void setJukeboxState(code, playing ? { playing: false } : { current: i, playing: true, repeat: false });
   return (
-    <button className={`sb-song${playing ? " active" : ""}`} disabled={!!problem} onClick={toggle}
+    <button className={`sb-song${playing ? " pressed-in" : ""}`} disabled={!!problem} onClick={toggle}
       aria-label={playing ? `Pause ${song}` : `Play ${song}`}>
       <span className="title">{playing ? "⏸" : "♪"} {song}</span>
       <span className="dur">{problem ?? `${playing ? "" : "▶ "}${fmt(asNums(jukebox?.durations)[i])}`}</span>
