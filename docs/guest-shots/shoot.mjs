@@ -25,6 +25,9 @@ const SHOTS = {
   "guest-noisemaster-watch": ["noisemaster-watch"],
   // the big screen, 1600x900: same party as the check-in shots
   "main-welcome": ["tv-welcome"],
+  "main-noisemaster": ["tv-noisemaster"],
+  // the host phone, whole page
+  "noisemaster-host-round": ["host-noisemaster"],
 };
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
@@ -38,7 +41,7 @@ for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
   await page.waitForTimeout(300);
   if (before) { await before(page); await page.waitForTimeout(300); }
   const out = new URL(`../screens/${name}.jpg`, import.meta.url).pathname;
-  await page.screenshot({ path: out, type: "jpeg", quality: 88 });
+  await page.screenshot({ path: out, type: "jpeg", quality: 88, fullPage: shot.startsWith("host-") });
   console.log(`wrote ${out}`);
   await page.close();
 }

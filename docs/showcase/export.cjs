@@ -9,9 +9,9 @@ const path = require("path");
 const SHOTS = [
   ["1-opening", "section.hero", "section.hero"],
   ["2-walk-in", "#check-in", "#check-in"],
-  ["3-tasks-noisemaster", "#tasks", ".task:nth-child(1)"],
-  ["4-tasks-secret-tasks", ".task:nth-child(2)", ".task:nth-child(2)"],
-  ["5-tasks-prize", ".task:nth-child(3)", "#tasks"],
+  ["3-tasks-noisemaster", "#tasks", "#nm"],
+  ["4-tasks-secret-tasks", ".task:nth-child(1)", ".task:nth-child(1)"],
+  ["5-tasks-prize", ".task:nth-child(2)", "#tasks"],
   ["6-run-the-show", "#host", "#host"],
   ["7-scoreboard", "#scoreboard", "#scoreboard"],
   ["8-prize-haul", "#haul", "section.signoff"],

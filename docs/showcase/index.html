@@ -110,7 +110,12 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 
 /* tasks: each one an index card under its screen, scattered a little like the game picker */
 .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.2rem; grid-template-columns: 1fr; }
-@media (min-width: 760px) { .tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; } }
+@media (min-width: 760px) { .tasks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; } }
+/* a task shown whole: its TV, then the guest's phone and the host's */
+.task-set { display: grid; gap: 1rem; }
+.task-set h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold-bright); font-size: 1.6rem; text-shadow: 0 2px 0 #000a; }
+.task-set > p { margin: 0; max-width: 36rem; }
+.task-set .phones { align-items: start; }
 .task { display: grid; gap: 0; min-width: 0; transform: rotate(var(--tilt)); }
 .task:nth-child(1) { --tilt: -0.8deg; }
 .task:nth-child(2) { --tilt: 0.7deg; }
@@ -160,12 +165,12 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
       <p>Every guest joins from their own phone, with nothing to download. Scan the QR on the TV, tap your name tag, and pick a sealed envelope from the pile.</p>
     </header>
     <figure class="tv">
-      <div class="frame"><img src="img/tv-welcome.jpg" width="1200" height="675" alt="The TV as guests arrive: Taskmaster, a join QR with Scan to join and the code ABCD, and Contestants (2): Priya and Tom, already in."></div>
+      <div class="frame"><img src="img/tv-welcome.jpg" width="1200" height="675" alt="The TV as guests arrive: Taskmaster, a join QR with Scan to join and the code ABCD, and Contestants (5): Alex, Greg, Mei, Priya and Tom, already in."></div>
       <figcaption class="caption">On the TV: scan to join</figcaption>
     </figure>
     <div class="phones">
       <figure>
-        <div class="phone"><img src="img/p-nametags.jpg" width="520" height="747" alt="A guest's phone: Find your name tag and tap it, over six HELLO my name is stickers, two of them faded and marked here."></div>
+        <div class="phone"><img src="img/p-nametags.jpg" width="520" height="747" alt="A guest's phone: Find your name tag and tap it, over six HELLO my name is stickers, five of them faded and marked here."></div>
         <figcaption class="caption">Tap your name tag</figcaption>
       </figure>
       <figure>
@@ -180,16 +185,27 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
     <header>
       <span class="step">2 · The tasks</span>
       <h2>Tasks straight out of the show.</h2>
-      <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three.</p>
+      <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three, starting with Noisemaster.</p>
     </header>
+    <article id="nm" class="task-set">
+      <h3>Noisemaster</h3>
+      <p>Sixteen blank buttons on your phone, each one a sound on the TV. Press them in the right order to make it say the phrase.</p>
+      <figure class="tv">
+        <div class="frame"><img src="img/tv-noisemaster.jpg" width="1200" height="675" alt="Noisemaster on the TV: the words I and am said so far, a red soundboard with one button lit green, and Sam's clock at 0:23.7, 2 of 4 words, 1 restart."></div>
+        <figcaption class="caption">On the TV: the words so far, and the clock</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-noise-guest.jpg" width="520" height="1080" alt="Sam's phone: You're up! Make the big screen say your phrase, the phrase I am the Noisemaster, and sixteen blank buttons."></div>
+          <figcaption class="caption">Your phone: blank buttons</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-noise-host.jpg" width="520" height="1133" alt="The host's phone: Sam at the soundboard, the clock, and the same board with the word on every button."></div>
+          <figcaption class="caption">The host sees the words</figcaption>
+        </figure>
+      </div>
+    </article>
     <ul class="tasks">
-      <li class="task">
-        <img src="img/t-noise.jpg" width="720" height="540" alt="Noisemaster on a phone: a red board of sixteen glowing buttons, next to the host's board showing the word behind each button.">
-        <div class="card">
-          <h3>Noisemaster</h3>
-          <p>Sixteen blank buttons on your phone, each one a sound on the TV. Press them in the right order to make it say the phrase.</p>
-        </div>
-      </li>
       <li class="task">
         <img src="img/t-secret.jpg" width="720" height="540" alt="A guest's secret task: a sealed envelope with a red TM seal, and the same envelope open on Get three people to high-five.">
         <div class="card">

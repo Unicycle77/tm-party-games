@@ -12,7 +12,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 
 | File | What it shows |
 |---|---|
-| `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, Priya and Tom faded with "✓ here", status line "Find your name tag and tap it" |
+| `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, everyone but Sam faded with "✓ here", status line "Find your name tag and tap it" |
 | `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 2" |
 | `guest-checkin-headshot.jpg` | No headshot on file: "To do now · Add your headshot", the same frame, the Headshot task's words, two paper buttons |
 | `guest-checkin-rules.jpg` | Secret Tasks at check-in, moment one: the whole rules card and gold "Got it: pick an envelope →" |
@@ -24,6 +24,8 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
+| `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
+| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
 | `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
 
 Host phone (`/host`, 390px wide):
@@ -54,7 +56,7 @@ Main screen (`/`, 1600×900):
 
 | File | What it shows |
 |---|---|
-| `main-welcome.jpg` | The welcome: join QR, code ABCD, contestants (Priya and Tom checked in), the same party as the check-in phones below (2026-10-18) |
+| `main-welcome.jpg` | The welcome: join QR, code ABCD, contestants (the five who are in, Sam still to come), the same party as the check-in phones below (2026-10-18) |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
 | `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
