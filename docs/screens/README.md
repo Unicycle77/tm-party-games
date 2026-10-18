@@ -54,7 +54,7 @@ Main screen (`/`, 1600×900):
 
 | File | What it shows |
 |---|---|
-| `main-welcome.jpg` | The welcome: join QR, code, contestants |
+| `main-welcome.jpg` | The welcome: join QR, code ABCD, contestants (Priya and Tom checked in), the same party as the check-in phones below (2026-10-18) |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
 | `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
