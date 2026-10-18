@@ -64,6 +64,11 @@ function build() {
     text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins.",
     parts: [{ type: "Team", text: "Now join forces.\n\nBuild one tower together from every die you have. You have 2 minutes." }],
   };
+  // A Photos task with three parts: the phone shows the first, and the second because the host switched it on, never the third.
+  if (shot === "task-photos-parts") tasks.t2 = {
+    ...(tasks.t2 as object),
+    parts: [{ text: "Bonus: do it again, but with a friend in the shot.", guests: true }, { text: "Third part, for the host to read out only." }],
+  };
   const session: Record<string, unknown> = {
     hostUid: "host", name: "Halloween party",
     players: Object.fromEntries(ids.filter((id) => checkedIn.has(id)).map((id, i) => [id, { name: people[id], joinedAt: i, contestant: id }])),
@@ -82,6 +87,7 @@ function build() {
     case "home-prize-ask": picked(); break;
     case "home-waiting": picked(); q.set("later", "1"); break;
     case "task-photos": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; break;
+    case "task-photos-parts": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; break;
     case "task-photos-sent": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; (g.photos!.media as Record<string, unknown>)[who] = { photo: pic("👑", "#3a2a1c") }; break;
     case "prize-check": picked(); q.set("pick", "1"); break;
     case "noisemaster-up": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: who, phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1 } }; break;

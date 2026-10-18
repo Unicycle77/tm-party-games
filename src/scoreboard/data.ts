@@ -108,15 +108,15 @@ export async function addKeptGame(code: string, session: Session, game: "light" 
   await enterPoints(code, { ...board, tasks: { ...board?.tasks, [id]: added } }, session.display?.step === "scoreboard", id, entry);
 }
 
-/** What a task's ✎ saves as its words: its type and the text the host reads out, then the parts after the first. Empty removes them. */
-export interface TaskWords { type: string; text: string; parts?: { type: string; text: string }[] }
-function wordsOf({ type, text, parts = [] }: TaskWords) {
+/** What a task's ✎ saves as its words: its type and the text the host reads out, whether phones show it, then the parts after the first. Empty removes them. */
+export interface TaskWords { type: string; text: string; guests?: boolean; parts?: { type: string; text: string; guests?: boolean }[] }
+function wordsOf({ type, text, guests, parts = [] }: TaskWords) {
   // A part with no text is no part; if the first has none, the next one is the first.
-  const all = [{ type, text }, ...parts].map((p) => ({ type: p.type.trim(), text: p.text.trim() })).filter((p) => p.text);
+  const all = [{ type, text, guests }, ...parts].map((p) => ({ type: p.type.trim(), text: p.text.trim(), guests: !!p.guests })).filter((p) => p.text);
   const [first, ...rest] = all;
   return {
-    type: first?.type || null, text: first?.text || null,
-    parts: rest.length ? rest.map((p) => ({ ...(p.type && { type: p.type }), text: p.text })) : null,
+    type: first?.type || null, text: first?.text || null, guests: first?.guests ? true : null,
+    parts: rest.length ? rest.map((p) => ({ ...(p.type && { type: p.type }), text: p.text, ...(p.guests && { guests: true }) })) : null,
   };
 }
 

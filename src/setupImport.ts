@@ -22,7 +22,7 @@ const str = (v: unknown, max: number) => typeof v === "string" && v.trim() ? v.t
 /** The parts after a task's first: each with text, and its type if it has one, at most as many as the database rules allow. */
 const MAX_PARTS = 9;
 const partsOf = (v: unknown): TaskPart[] => Array.isArray(v)
-  ? v.filter(obj).flatMap((p) => str(p.text, 5000) ? [{ ...(str(p.type, 30) && { type: str(p.type, 30) }), text: str(p.text, 5000)! }] : []).slice(0, MAX_PARTS)
+  ? v.filter(obj).flatMap((p) => str(p.text, 5000) ? [{ ...(str(p.type, 30) && { type: str(p.type, 30) }), text: str(p.text, 5000)!, ...(p.guests === true && { guests: true as const }) }] : []).slice(0, MAX_PARTS)
   : [];
 
 /** The words a task or the tiebreaker carries, kept to the lengths the database rules allow. */
@@ -32,6 +32,7 @@ function wordsOf(raw: Record<string, unknown>) {
     ...(str(raw.type, 30) && { type: str(raw.type, 30) }),
     ...(str(raw.text, 5000) && { text: str(raw.text, 5000) }),
     ...(partsOf(raw.parts).length > 0 && { parts: partsOf(raw.parts) }),
+    ...(raw.guests === true && { guests: true as const }),
     ...(str(raw.note, 600) && { note: str(raw.note, 600) }),
     ...(str(raw.song, 300) && { song: str(raw.song, 300) }),
   };
@@ -104,9 +105,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "scoring", "unit", "dqOver", "dqStays"] as const;
+const FIELDS = ["name", "game", "type", "text", "parts", "guests", "description", "song", "scoring", "unit", "dqOver", "dqStays"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays,
+  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, guests: t.guests, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
@@ -179,7 +180,7 @@ export function importWrites(setup: Setup, session: Session, secret: SecretTasks
     board["tiebreaker/song"] = tb.song ?? null;
     board["tiebreaker/type"] = tb.type ?? null;
     board["tiebreaker/text"] = tb.text ?? null;
-    board["tiebreaker/parts"] = tb.parts ?? null;
+    board["tiebreaker/parts"] = tb.parts?.map(({ guests: _, ...p }) => p) ?? null; // no phone ever shows the tiebreaker
   }
   const light = setup.light && { trigger: setup.light.trigger ?? null, mode: setup.light.mode ?? null };
   let secretPatch: Record<string, unknown> | undefined;

@@ -1,6 +1,6 @@
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { GAMES } from "./games";
-import { activeTaskId, sorted } from "./scoreboard/tasks";
+import { activeTaskId, guestWords, sorted } from "./scoreboard/tasks";
 import type { Session } from "./types";
 
 /**
@@ -12,8 +12,8 @@ import type { Session } from "./types";
 
 /** What a game's card needs from the page around it. */
 export interface GuestFrame {
-  /** The task that's on, as its card is headed: "Task 2 of 8 · Photos", its name, and its words where they belong on a phone. */
-  task?: { label: string; title?: string; text?: string };
+  /** The task that's on, as its card is headed: "Task 2 of 8 · Photos", its name, and its words (a quote each) where they belong on a phone. */
+  task?: { label: string; title?: string; words: string[] };
   /** How many things are left on the guest's to-do list. */
   left: number;
 }
@@ -38,7 +38,7 @@ export function taskOn(session: Session): GuestFrame["task"] {
   return {
     label: i >= 0 ? `Task ${i + 1} of ${tasks.length} · ${game.name}` : game.name,
     title: name ? name[0]!.toUpperCase() + name.slice(1) : undefined,
-    text: t?.text?.trim() || undefined,
+    words: guestWords(t),
   };
 }
 

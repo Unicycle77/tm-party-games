@@ -30,7 +30,7 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   const { task, left } = useGuest();
   const label = task?.label ?? "Photos";
   const title = task?.title ?? "Your photo";
-  const words = task?.text && <Quote text={task.text} />;
+  const words = task?.words.map((w, i) => <Quote key={i} text={w} />);
 
   // A phone that locks mid-upload can stall it.
   useKeepAwake(uploading);
