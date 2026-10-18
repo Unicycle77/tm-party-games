@@ -13,7 +13,7 @@ const SHOTS = {
   "guest-home-todo": ["home-todo-envelope"],
   "guest-home-prize-ask": ["home-prize-ask"],
   "guest-prize-photos": ["prize-check", "", async (p) => {
-    const pngs = [new URL("./prizes/goat.jpg", import.meta.url).pathname];
+    const pngs = [new URL("./prizes/sock-puppet.jpg", import.meta.url).pathname];
     const chooser = p.waitForEvent("filechooser");
     await p.getByRole("button", { name: /Yes, add photos/ }).click();
     await (await chooser).setFiles(pngs);

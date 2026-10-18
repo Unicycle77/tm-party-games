@@ -23,13 +23,13 @@ const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
-// Prize photos from earlier parties (docs/guest-shots/prizes), one prize each: Sam's goat in sunglasses is on the big screen.
+// Prize photos from earlier parties (docs/guest-shots/prizes), one prize each: Sam's sock puppet is on the big screen.
 const prize = (name: string) => `/docs/guest-shots/prizes/${name}.jpg`;
 const PRIZE_PHOTOS: Record<string, string[]> = {
-  sam: [prize("goat")],
+  sam: [prize("sock-puppet")],
   priya: [prize("voltron")],
   alex: [prize("jerky-flowers")],
-  greg: [prize("sock-puppet")],
+  greg: [prize("goat")],
 };
 const PRIZE = "The most unusual thing to bring on a first date";
 const HEAD = "The most unjustifiably-confident headshot";
