@@ -82,8 +82,12 @@ const rough = (n: number) => num(Number(n.toPrecision(2)), 2);
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
 export function say(kind: Kind, amount: number, inUnit: string, m: Match, system: System = "metric"): ShownConversion {
   // At an imperial party, 5.5 ft or 66 in is read the way it's said: "5 ft 6 in tall is". Under a foot it stays as typed.
-  const spoken = system === "imperial" && (inUnit === "ft" || inUnit === "in") && amount * ANCHOR[inUnit]! >= ANCHOR.ft!;
-  const lead = `${spoken ? feetAndInches(amount * ANCHOR[inUnit]!) : `${num(amount)} ${inUnit}`}${ADJECTIVE[kind]} is`;
+  // Weights in lb or oz read like a label, without its total ounces: "10 ½ oz is", "1 lb 8 oz is", "5.25 lb is".
+  const imperial = system === "imperial" && ANCHOR[inUnit] !== undefined;
+  const length = imperial && (inUnit === "ft" || inUnit === "in") && amount * ANCHOR[inUnit]! >= ANCHOR.ft!;
+  const weight = imperial && (inUnit === "lb" || inUnit === "oz");
+  const typed = length ? feetAndInches(amount * ANCHOR[inUnit]!) : weight ? poundsAndOunces(amount * ANCHOR[inUnit]!, false) : `${num(amount)} ${inUnit}`;
+  const lead = `${typed}${ADJECTIVE[kind]} is`;
   const u = m.unit;
   // Sounds are always "about" (see `sounds`): so many of them going at once, or a fraction of one.
   if (kind === "loudness") {
@@ -130,14 +134,31 @@ export function feetAndInches(mm: number): string {
   return inch ? `${num(ft, 0)} ft ${inch} in` : `${num(ft, 0)} ft`;
 }
 
+/**
+ * A weight in grams the way a US label puts it (NIST Handbook 130): ounces to the nearest quarter, "10 ½ oz"; from 1 lb
+ * to under 4 lb, total ounces and then pounds and ounces, "24 oz (1 lb 8 oz)", or just "1 lb 8 oz" when `dual` is off;
+ * from 4 lb, decimal pounds, "5.25 lb"; from a ton (2,000 lb), tons. Under a quarter ounce it stays a decimal.
+ */
+export function poundsAndOunces(g: number, dual = true): string {
+  const oz = g / ANCHOR.oz!;
+  const lb = oz / 16;
+  if (lb >= 2000) return `${num(lb / 2000)} tons`;
+  if (lb >= 4) return `${num(lb)} lb`;
+  if (oz < 0.25) return `${num(oz, 3)} oz`;
+  const quarters = Math.round(oz * 4);
+  if (quarters >= 256) return "4 lb";
+  const ounces = (q: number) => [Math.floor(q / 4) || "", QUARTER[q % 4]].filter(Boolean).join(" ");
+  if (quarters < 64) return `${ounces(quarters)} oz`;
+  const rest = quarters % 64;
+  const split = `${Math.floor(quarters / 64)} lb${rest ? ` ${ounces(rest)} oz` : ""}`;
+  return dual ? `${ounces(quarters)} oz (${split})` : split;
+}
+
 /** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
 export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
   if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is about ${num(10 * Math.log10(m.unit.size), 1)} dB`;
   const imperial = (a: number) => {
-    if (kind === "weight") {
-      const oz = a / ANCHOR.oz!, lb = a / ANCHOR.lb!;
-      return lb >= 2000 ? `${num(lb / 2000)} tons` : lb >= 1 ? `${num(lb)} lb` : `${num(oz, 3)} oz`;
-    }
+    if (kind === "weight") return poundsAndOunces(a);
     if (kind === "volume") {
       const gal = a / ANCHOR.gal!, cups = a / ANCHOR.cup!;
       return gal >= 1e9 ? `${num(a / 4.168181825e15)} cubic miles` : gal >= 1 ? `${num(gal)} gal` : cups >= 1 ? `${num(cups)} ${cups === 1 ? "cup" : "cups"}` : `${num(a / ANCHOR["fl oz"]!, 3)} fl oz`;

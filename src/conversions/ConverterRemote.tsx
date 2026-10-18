@@ -3,7 +3,7 @@ import { scored, sorted, titleOf } from "../scoreboard/tasks";
 import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
-import { COMMON, feetAndInches, KIND_LABEL, KINDS, matchFor, rank, say, toAnchor, working, type Match } from "./convert";
+import { COMMON, feetAndInches, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, toAnchor, working, type Match } from "./convert";
 import { UNITS, type Kind } from "./units";
 
 const UNIT_KEY = "ba.convertUnit";
@@ -35,14 +35,16 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const taskUnit = "task" in source ? session.scoreboard?.tasks?.[source.task]?.unit : undefined;
   // A task whose unit was removed falls back to the common units.
   const common = "unit" in source ? source : lastCommon();
-  // At an imperial party, feet come with an inches box: 5 ft 11 in, the way a height is said (a phone's number pad has no ' or ").
-  const feetAndIn = session.units === "imperial" && !taskUnit && common.unit === "ft";
-  const amount = Number(typed.replace(",", ".")) + (feetAndIn ? Number(typedIn.replace(",", ".")) / 12 : 0);
+  // At an imperial party, feet come with an inches box (5 ft 11 in, the way a height is said: a phone's number pad has
+  // no ' or "), and pounds with an ounces box (1 lb 8 oz).
+  const split = session.units !== "imperial" || taskUnit ? undefined
+    : common.unit === "ft" ? { small: "in", per: 12, hint: ["5", "11"] } : common.unit === "lb" ? { small: "oz", per: 16, hint: ["1", "8"] } : undefined;
+  const amount = Number(typed.replace(",", ".")) + (split ? Number(typedIn.replace(",", ".")) / split.per : 0);
   const kind: Kind = taskUnit?.kind ?? common.kind;
   // Abbreviations read the same for any number ("2 kg"); "cup" is the one word among them.
   const label = taskUnit?.name ?? (common.unit === "cup" && amount !== 1 ? "cups" : common.unit);
   const anchor = taskUnit ? toAnchor(amount * taskUnit.amount, taskUnit.unit) : toAnchor(amount, common.unit);
-  const ready = (typed.trim() !== "" || (feetAndIn && typedIn.trim() !== "")) && amount > 0 && isFinite(anchor);
+  const ready = (typed.trim() !== "" || (!!split && typedIn.trim() !== "")) && amount > 0 && isFinite(anchor);
 
   // Each "Surprise me" steps down the ranking; a new measurement starts it again.
   const key = `${kind}:${anchor}`;
@@ -52,8 +54,8 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const [choosing, setChoosing] = useState(false);
   useEffect(() => { setAt(-1); setPicked(undefined); setChoosing(false); }, [key]);
   const match = picked ?? ranked[at];
-  // Feet and inches are read out in inches, so 0 ft 8 in is "8 in", and 5 ft 11 in stays "5 ft 11 in".
-  const said = match && (feetAndIn ? say(kind, amount * 12, "in", match, session.units) : say(kind, amount, label, match, session.units));
+  // Read out in the smaller unit, so 0 ft 8 in is "8 in", and 5 ft 11 in stays "5 ft 11 in".
+  const said = match && (split ? say(kind, amount * split.per, split.small, match, session.units) : say(kind, amount, label, match, session.units));
 
   // While it's on the big screen, the big screen follows the host's result.
   const onScreen = !!session.conversion;
@@ -94,11 +96,11 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           return <button key={u} className={on ? "active" : ""} aria-pressed={on} onClick={() => setSource({ kind, unit: u })}>{u}</button>;
         })}
       </div>
-      {feetAndIn ? (
+      {split ? (
         <div className="feet-in">
           <span>How much?</span>
-          <label><input inputMode="decimal" value={typed} placeholder="5" aria-label="Feet" onChange={(e) => setTyped(e.target.value)} /> ft</label>
-          <label><input inputMode="decimal" value={typedIn} placeholder="11" aria-label="Inches" onChange={(e) => setTypedIn(e.target.value)} /> in</label>
+          <label><input inputMode="decimal" value={typed} placeholder={split.hint[0]} aria-label={common.unit} onChange={(e) => setTyped(e.target.value)} /> {common.unit}</label>
+          <label><input inputMode="decimal" value={typedIn} placeholder={split.hint[1]} aria-label={split.small} onChange={(e) => setTypedIn(e.target.value)} /> {split.small}</label>
         </div>
       ) : (
         <label>How much?
@@ -111,7 +113,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           <p className="lead">{said.lead}</p>
           <p className="main">{said.main}</p>
           <p className="lead">{said.how}</p>
-          <p className="small">{working(kind, anchor, feetAndIn ? feetAndInches(anchor) : `${typed.trim()} ${label}`, match, session.units)}</p>
+          <p className="small">{working(kind, anchor, split ? (kind === "weight" ? poundsAndOunces(anchor) : feetAndInches(anchor)) : `${typed.trim()} ${label}`, match, session.units)}</p>
           <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
           {choosing && (
             <ul className="tracklist">
