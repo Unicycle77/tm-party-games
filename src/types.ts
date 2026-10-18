@@ -8,9 +8,10 @@ export type TaskGame = GameId | "light";
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the curtain between contestants (with the portrait, if any). The other steps belong to the active game; a step without a uid shows everyone
  * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks).
- * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on.
+ * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on. Nor does "tasktext":
+ * a task's text on the paper task card (`task` says which).
  */
-export type Step = "list" | "curtain" | "scoreboard" | "haul" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
+export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
 
 export interface Display {
   uid?: string;
@@ -18,6 +19,8 @@ export interface Display {
   contestant?: string;
   /** The prize task: which of that contestant's prize photos is up (0 is the first). */
   index?: number;
+  /** The task text step: whose text is up, a task's id or "tiebreaker". */
+  task?: string;
   step: Step;
   /** Video step only: the host remote's play/pause. Treated as playing when absent. */
   playing?: boolean;
@@ -235,6 +238,10 @@ export interface ScoreboardTask {
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
+  /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
+  type?: string;
+  /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
+  text?: string;
   /**
    * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `workOut`, plus any `bonus`, and
    * saved with them. A contestant with none gets nothing for this task.
@@ -295,7 +302,7 @@ export interface Scoreboard {
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
    */
-  tiebreaker?: { name?: string; description?: string; song?: string; winner?: string };
+  tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; winner?: string };
 }
 
 export interface Session {

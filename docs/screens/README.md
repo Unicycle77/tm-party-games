@@ -145,6 +145,20 @@ Tiebreaker task (taken on 2026-10-13, from the real components with a made-up pa
 | `tiebreaker-host-playing.jpg` | The tiebreaker task's page, with the curtain down: "Tiebreaker task: Sam and Priya", the note to read out, "Tap who won.", nobody tapped |
 | `tiebreaker-host-won.jpg` | The same page with Sam tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Sam" from the curtain |
 
+Task text (taken on 2026-10-18, from the real components with a made-up party; the monster lines are stand-ins):
+
+| File | What it shows |
+|---|---|
+| `run-of-show-host-task-text-edit.jpg` | ✎ on a live task: "Task type (optional)" with Individual picked ("Heads the task text: INDIVIDUAL TASK."), then "Task text (optional)" grown to fit the monster story, above Scoring |
+| `run-of-show-host-tiebreaker-text-edit.jpg` | ✎ on the tiebreaker: no type picked, so "Heads the task text: TIEBREAKER TASK.", and the horseradish story in the task text |
+| `tiebreaker-host-text.jpg` | The tiebreaker's page with its text: paper "Show the task text" under "Show the scoreboard", the note, the story on the task card (TIEBREAKER TASK centred), and "Tap who won." fixed to the bottom with Sam and Priya side by side |
+| `tiebreaker-host-text-mid.jpg` | The same page scrolled mid-story: the bar stays at the bottom |
+| `tiebreaker-host-text-won.jpg` | Priya tapped as "won the tiebreaker", the page back at the top: gold "🎁 Show the prize haul · Priya" with "Show the task text" under it |
+| `tiebreaker-host-text-up.jpg` | The story on the big screen: "On the big screen: the task text", the button pressed in (tap it again to lower the curtain) |
+| `scoreboard-host-points-text.jpg` | A live task's points page with its text: INDIVIDUAL TASK on the card under the note, "Show the task text" under "Show the scoreboard" |
+| `scoreboard-host-points-text-up.jpg` | The same with its text on the big screen |
+| `main-task-text.jpg` | The big screen: the tiebreaker's story on the task card, centred on the curtain, TIEBREAKER TASK centred at the top, the type shrunk to fit |
+
 Host pin (taken on 2026-10-13, from the real components with a made-up party):
 
 | File | What it shows |

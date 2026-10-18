@@ -94,9 +94,13 @@ export async function addKeptGame(code: string, session: Session, game: "light" 
   await enterPoints(code, { ...board, tasks: { ...board?.tasks, [id]: added } }, session.display?.step === "scoreboard", id, entry);
 }
 
-/** Changes a task's name, note, song, unit and DQ line in place. An empty note or song removes it. */
-export const editTask = (code: string, id: string, name: string, description: string, song: string, unit: TaskUnit | null, dqOver: number | null) =>
-  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null, unit, dqOver });
+/** What a task's ✎ saves as its words: its type and the text the host reads out. Empty removes them. */
+export interface TaskWords { type: string; text: string }
+const wordsOf = ({ type, text }: TaskWords) => ({ type: type.trim() || null, text: text.trim() || null });
+
+/** Changes a task's name, note, song, words, unit and DQ line in place. An empty note or song removes it. */
+export const editTask = (code: string, id: string, name: string, description: string, song: string, words: TaskWords, unit: TaskUnit | null, dqOver: number | null) =>
+  update(at(code, `tasks/${id}`), { name: name.trim() || null, description: description.trim() || null, song: song || null, ...wordsOf(words), unit, dqOver });
 
 /** Takes a task off the list, with its points. The big screen keeps showing them until the next update. */
 export const removeTask = (code: string, id: string) => remove(at(code, `tasks/${id}`));
@@ -228,6 +232,9 @@ export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain"
 export const setTiebreakerWinner = (code: string, contestant: string | null) =>
   set(at(code, "tiebreaker/winner"), contestant);
 
-/** Fixes the tiebreaker task's name or note. It can't be removed: every party has one. */
-export const editTiebreaker = (code: string, name: string, description: string, song: string) =>
-  update(at(code, "tiebreaker"), { name: name.trim() || null, description: description.trim() || null, song: song || null });
+/** Fixes the tiebreaker task's name, note, song or words. It can't be removed: every party has one. */
+export const editTiebreaker = (code: string, name: string, description: string, song: string, words: TaskWords) =>
+  update(at(code, "tiebreaker"), { name: name.trim() || null, description: description.trim() || null, song: song || null, ...wordsOf(words) });
+
+/** Puts a task's text (a task's id, or "tiebreaker") on the big screen, on the paper task card. */
+export const showTaskText = (code: string, task: string) => setDisplay(code, { step: "tasktext", task });

@@ -168,6 +168,18 @@ function Sheet() {
           </Sec>
           <Sec title="Aged paper" note="a task's words, never UI">
             <TaskCard small lines={["Task 2 · Build the tallest tower", "Build the tallest tower you can out of dry spaghetti and marshmallows.", "Fastest wins. You have ten minutes. Your time starts now."]} />
+            <Item cap={<><code>.task-card.centred.reading</code>: a task's text, its type centred, a step bigger for reading aloud</>}>
+              <TaskCard small centred className="reading" lines={["Individual task", "Deep in the forest lives a creature nobody has ever seen up close.", "It has the body of a teapot and far too many knees."]} />
+            </Item>
+            <Item cap={<><code>.sb-won-bar</code>: the tiebreaker's "Tap who won.", fixed to the bottom of the phone</>}>
+              <div className="sb-won-bar" style={{ position: "static" }}>
+                <p className="muted small">Tap who won.</p>
+                <ul className="picker running">
+                  <li><button><span>Sam</span><span className="muted small" /></button></li>
+                  <li className="up"><button aria-pressed><span>Priya</span><span className="muted small">won the tiebreaker</span></button></li>
+                </ul>
+              </div>
+            </Item>
           </Sec>
           <Sec title="Framed media" note="the stage">
             <div className="stage-box">

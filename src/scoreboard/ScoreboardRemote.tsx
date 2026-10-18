@@ -6,8 +6,9 @@ import { noBigScreen, removePlayer, setGame, useUid } from "../session";
 import type { GameId, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
 import {
   addContestant, addKeptGame, addPlayerToScoreboard, addTask, editTask, editTiebreaker, lowerCurtain, removeContestant, removeTask, renameContestant, reorderTasks,
-  declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, startTask, updateScores, uploadHeadshot, type TaskEntry,
+  declareWinner, enterPoints, setScoring, setTiebreakerWinner, showScoreboard, showTaskText, startTask, updateScores, uploadHeadshot, type TaskEntry,
 } from "./data";
+import { TaskTextCard, TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
 import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
 import { formatTime } from "../games/noisemaster/data";
 import { currentTotals, pendingTasks } from "./scoring";
@@ -72,7 +73,8 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
           <button onClick={onOpenGame}>Open →</button>
         </div>
       )}
-      <ShowControls code={code} session={session} onTiebreak={(tied) => { setTiebreak(tied); window.scrollTo(0, 0); }} />
+      <ShowControls code={code} session={session} onTiebreak={(tied) => { setTiebreak(tied); window.scrollTo(0, 0); }}
+        text={tiebreak ? (board?.tiebreaker?.text ? "tiebreaker" : undefined) : picked && board?.tasks?.[picked]?.text ? picked : undefined} />
       {tiebreak ? <Tiebreaker code={code} session={session} board={board} tied={tiebreak} onClose={() => setTiebreak(undefined)} />
       : picked && board?.tasks?.[picked] && contestants.length > 0
         ? <Points code={code} session={session} board={board} onScreen={session.display?.step === "scoreboard"} id={picked} tasks={tasks} contestants={contestants}
@@ -101,7 +103,11 @@ export function ScoreboardRemote({ code, session, onStartGame, onOpenGame, onAdH
 }
 
 /** What the big screen shows, and the one button that moves the scoreboard on it. */
-function ShowControls({ code, session, onTiebreak }: { code: string; session: Session; onTiebreak: (tied: string[]) => void }) {
+function ShowControls({ code, session, onTiebreak, text }: {
+  code: string; session: Session; onTiebreak: (tied: string[]) => void;
+  /** The open page's task, when it has text to put up ("tiebreaker" for the tiebreaker's). */
+  text?: string;
+}) {
   const board = session.scoreboard;
   const up = session.display?.step === "scoreboard";
   const { added, changed } = pendingTasks(board);
@@ -118,7 +124,9 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
   const final = !!board?.final;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const haulUp = session.display?.step === "haul";
+  const textShown = session.display?.step === "tasktext" && session.display.task === text;
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
+    : session.display?.step === "tasktext" ? "the task text"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
 
@@ -156,6 +164,11 @@ function ShowControls({ code, session, onTiebreak }: { code: string; session: Se
         </>
       ) : (
         <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button>
+      )}
+      {text && !haulUp && (
+        // The open task's text: paper, since it's optional and the gold stays on what's next. Pressed in while it's up.
+        <button className={textShown ? "pressed" : undefined} aria-pressed={textShown}
+          onClick={() => void (textShown ? lowerCurtain(code) : showTaskText(code, text))}>Show the task text</button>
       )}
       {!haulUp && unscored.length > 0 && (final ? (
         <p className="muted small">
@@ -208,6 +221,7 @@ function Points({ code, session, board, onScreen, id, tasks, contestants, onChan
       </div>
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
+      {task.text && <TaskTextCard type={typeOf(task)} text={task.text} />}
       <p className="muted small">{status}{bonuses > 0 && ` · ${plural(bonuses, "bonus point", "bonus points")}`}</p>
       {outs.length > 0 && worked.moved > 0 && (
         <p className="muted small sb-dq-line">
@@ -246,25 +260,34 @@ function Tiebreaker({ code, session, board, tied, onClose }: {
 }) {
   const tb = board?.tiebreaker;
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
+  const won = (id: string) => {
+    void setTiebreakerWinner(code, tb?.winner === id ? null : id);
+    // Back up to the haul (and the task text), which are what's next.
+    if (tb?.winner !== id) window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   return (
-    <section className="sb-points">
+    <section className="sb-points has-bar">
       <div className="remote-head">
         <h3>{tb?.name || "Tiebreaker task"}: {list(tied.map(nameOf))}</h3>
         <button className="link" onClick={onClose}>← All tasks</button>
       </div>
       {tb?.description && <p className="muted small sb-note">{tb.description}</p>}
       {tb?.song && <SongStrip code={code} session={session} song={tb.song} />}
-      <p className="muted small">Tap who won.</p>
-      <ul className="picker running">
-        {tied.map((id) => (
-          <li key={id} className={tb?.winner === id ? "up" : ""}>
-            <button aria-pressed={tb?.winner === id} onClick={() => void setTiebreakerWinner(code, tb?.winner === id ? null : id)}>
-              <span>{nameOf(id)}</span>
-              <span className="muted small">{tb?.winner === id ? "won the tiebreaker" : ""}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {tb?.text && <TaskTextCard type={tb.type || TIEBREAKER_TYPE} text={tb.text} />}
+      {/* Fixed to the bottom, so whoever says it first is one tap away however far the story has scrolled. */}
+      <div className="sb-won-bar">
+        <p className="muted small">Tap who won.</p>
+        <ul className="picker running">
+          {tied.map((id) => (
+            <li key={id} className={tb?.winner === id ? "up" : ""}>
+              <button aria-pressed={tb?.winner === id} onClick={() => won(id)}>
+                <span>{nameOf(id)}</span>
+                <span className="muted small">{tb?.winner === id ? "won the tiebreaker" : ""}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
@@ -534,6 +557,8 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
   const [name, setName] = useState(task.name ?? "");
   const [description, setDescription] = useState(task.description ?? "");
   const [song, setSong] = useState(task.song ?? "");
+  const [type, setType] = useState(task.type ?? "");
+  const [text, setText] = useState(task.text ?? "");
   const [unit, setUnit] = useState(() => draftOf(task.unit));
   const [scoring, setScoringDraft] = useState(task.scoring);
   const [dqOver, setDqOver] = useState(task.dqOver === undefined ? "" : String(task.dqOver));
@@ -545,7 +570,7 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
     const saved = unitOf(unit);
     const line = Number(dqOver.replace(",", "."));
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
-    void editTask(code, id, name, description, song, saved, over ?? null).then(() => {
+    void editTask(code, id, name, description, song, { type, text }, saved, over ?? null).then(() => {
       // A new line, or none, applies to the readings already in.
       if (over === task.dqOver) return;
       const now = { ...task, dqOver: over };
@@ -580,6 +605,8 @@ function TaskEdit({ code, session, id, task, onClose }: { code: string; session:
       <label>Note for you (optional)
         <textarea rows={2} value={description} maxLength={600} onChange={(e) => setDescription(e.target.value)} />
       </label>
+      <TaskTypeField type={type} fallback={typeOf({ game: task.game }) || undefined} onChange={setType} />
+      <TaskTextField text={text} onChange={setText} />
       {!task.game && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
       <SongField session={session} song={song} onChange={setSong} />
       {task.game !== "light" && <UnitField draft={unit} onChange={setUnit} />}
@@ -629,7 +656,9 @@ function TiebreakerEdit({ code, session, board, onClose }: { code: string; sessi
   const [name, setName] = useState(board?.tiebreaker?.name ?? "Tiebreaker task");
   const [description, setDescription] = useState(board?.tiebreaker?.description ?? "");
   const [song, setSong] = useState(board?.tiebreaker?.song ?? "");
-  const save = () => { void editTiebreaker(code, name, description, song); onClose(); };
+  const [type, setType] = useState(board?.tiebreaker?.type ?? "");
+  const [text, setText] = useState(board?.tiebreaker?.text ?? "");
+  const save = () => { void editTiebreaker(code, name, description, song, { type, text }); onClose(); };
   return (
     <div className="sb-add sb-edit">
       <label>Task name
@@ -639,6 +668,8 @@ function TiebreakerEdit({ code, session, board, onClose }: { code: string; sessi
         <textarea rows={2} value={description} maxLength={600} placeholder="How it's played, and how it's won: one winner."
           onChange={(e) => setDescription(e.target.value)} />
       </label>
+      <TaskTypeField type={type} fallback={TIEBREAKER_TYPE} onChange={setType} />
+      <TaskTextField text={text} onChange={setText} />
       <SongField session={session} song={song} onChange={setSong} />
       <div className="row">
         <button disabled={!name.trim()} onClick={save}>Save</button>
