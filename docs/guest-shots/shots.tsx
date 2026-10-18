@@ -26,7 +26,12 @@ const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURICompo
 const PRIZE = "The most surprising quite-big thing you can conceal on your person";
 const HEAD = "The most unjustifiably-confident headshot";
 
-const env = (n: number) => Object.fromEntries(Array.from({ length: n }, (_, i) => [`e${i}`, { x: 4 + (i % 3) * 30, y: 4 + Math.floor(i / 3) * 30, r: ((i * 37) % 21) - 10 }]));
+// Where the envelopes fall: the same spread as the real pile (secretTasks/data.ts), from a fixed seed so shots repeat.
+const env = (n: number) => {
+  let a = 20261018;
+  const rnd = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 2 ** 32; };
+  return Object.fromEntries(Array.from({ length: n }, (_, i) => [`e${i}`, { x: 6 + rnd() * 78, y: 4 + rnd() * 76, r: Math.round(rnd() * 70 - 35) }]));
+};
 
 function build() {
   const ids = Object.keys(people);
