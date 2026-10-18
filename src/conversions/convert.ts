@@ -154,5 +154,7 @@ export function working(kind: Kind, anchor: number, inLabel: string, m: Match, s
     if (kind === "volume") return a >= 1e15 ? `${num(a / 1e15)} km³` : a >= 1e6 ? `${num(a / 1e6)} m³` : a >= 1000 ? `${num(a / 1000)} L` : `${num(a, 3)} ml`;
     return a >= 1e6 ? `${num(a / 1e6)} km` : a >= 1000 ? `${num(a / 1000)} m` : a >= 10 ? `${num(a / 10)} cm` : `${num(a, 3)} mm`;
   };
-  return `${inLabel} = ${show(anchor)} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;
+  // Typed as it's shown ("5 ft 11 in"), there's nothing to convert.
+  const measured = inLabel === show(anchor) ? inLabel : `${inLabel} = ${show(anchor)}`;
+  return `${measured} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;
 }
