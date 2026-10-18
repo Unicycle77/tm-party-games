@@ -9,10 +9,10 @@ const TYPES = ["Individual", "Team"];
 const GAME_TYPES: Partial<Record<TaskGame, string>> = { headshots: "Headshot", prize: "Prize", secretTasks: "Secret" };
 export const TIEBREAKER_TYPE = "Tiebreaker";
 
-/** "Individual" → "Individual task", as it heads the card (in capitals there). "Arrival task" and "Secret Tasks" aren't doubled. */
+/** "Individual" → "Individual task", as it heads the card (in capitals there). A type that already ends in "task" or "tasks" ("Arrival task", "Secret Tasks") is left as it is. */
 export const headingOf = (type: string | undefined) => {
-  const t = type?.trim().replace(/\s+tasks?$/i, "");
-  return t ? `${t} task` : "";
+  const t = type?.trim();
+  return t ? (/\s+tasks?$/i.test(t) ? t : `${t} task`) : "";
 };
 
 /** A task's type: the host's, or the one its app game already has. */
