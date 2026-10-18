@@ -49,7 +49,7 @@ export function ReadOut({ code, session, board, id, last }: { code: string; sess
           <p className="lead">{said.lead}</p>
           <p className="main">{said.main}</p>
           <p className="lead">{said.how}</p>
-          <p className="small">{working(unit.kind, anchor, `${result} ${unit.name}`, match)}</p>
+          <p className="small">{working(unit.kind, anchor, `${result} ${unit.name}`, match, session.units)}</p>
           <button className="link" onClick={() => { setOther(undefined); setAt((a) => (a + 1) % ranked.length); }}>Surprise me again</button>
         </div>
       )}

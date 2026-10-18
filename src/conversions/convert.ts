@@ -10,6 +10,17 @@ export const COMMON: Record<Kind, string[]> = {
   volume: ["ml", "L", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"],
   loudness: ["dB"],
 };
+/** The US customary units among them. */
+const IMPERIAL = new Set(["in", "ft", "oz", "lb", "tsp", "tbsp", "fl oz", "cup", "pt", "qt", "gal"]);
+/** A kind's common units for a party: at an imperial party its US units come first, in the same smallest-first order. */
+export const commonFor = (kind: Kind, system: System = "metric"): string[] =>
+  system === "imperial" ? [...COMMON[kind].filter((u) => IMPERIAL.has(u)), ...COMMON[kind].filter((u) => !IMPERIAL.has(u))] : COMMON[kind];
+/** The unit a kind opens on: the everyday one, cm, kg, min and L, or at an imperial party ft, lb, min and cups. */
+export const firstUnit = (kind: Kind, system: System = "metric"): string =>
+  system === "imperial" ? ({ height: "ft", length: "ft", weight: "lb", volume: "cup" } as Partial<Record<Kind, string>>)[kind] ?? COMMON[kind][1] ?? COMMON[kind][0]! : COMMON[kind][1] ?? COMMON[kind][0]!;
+/** Whether a unit belongs to the party's own system (minutes and dB belong to both). */
+const METRIC = new Set(["mm", "cm", "m", "g", "kg", "ml", "L"]);
+export const ofSystem = (unit: string, system: System = "metric") => !(system === "imperial" ? METRIC : IMPERIAL).has(unit);
 export const KINDS: Kind[] = ["height", "length", "weight", "time", "volume", "loudness"];
 export const KIND_LABEL: Record<Kind, string> = { height: "Height", length: "Length", weight: "Weight", time: "Time", volume: "Volume", loudness: "Loudness" };
 
@@ -80,8 +91,14 @@ const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weig
 const rough = (n: number) => num(Number(n.toPrecision(2)), 2);
 
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
-export function say(kind: Kind, amount: number, inUnit: string, m: Match): ShownConversion {
-  const lead = `${num(amount)} ${inUnit}${ADJECTIVE[kind]} is`;
+export function say(kind: Kind, amount: number, inUnit: string, m: Match, system: System = "metric"): ShownConversion {
+  // At an imperial party, 5.5 ft or 66 in is read the way it's said: "5 ft 6 in tall is". Under a foot it stays as typed.
+  // Weights in lb or oz read like a label, without its total ounces: "10 ½ oz is", "1 lb 8 oz is", "5.25 lb is".
+  const imperial = system === "imperial" && ANCHOR[inUnit] !== undefined;
+  const length = imperial && (inUnit === "ft" || inUnit === "in") && amount * ANCHOR[inUnit]! >= ANCHOR.ft!;
+  const weight = imperial && (inUnit === "lb" || inUnit === "oz");
+  const typed = length ? feetAndInches(amount * ANCHOR[inUnit]!) : weight ? poundsAndOunces(amount * ANCHOR[inUnit]!, false) : `${num(amount)} ${inUnit}`;
+  const lead = `${typed}${ADJECTIVE[kind]} is`;
   const u = m.unit;
   // Sounds are always "about" (see `sounds`): so many of them going at once, or a fraction of one.
   if (kind === "loudness") {
@@ -108,10 +125,59 @@ export function say(kind: Kind, amount: number, inUnit: string, m: Match): Shown
   return { lead, main, how: u.measured };
 }
 
-/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm". */
-export function working(kind: Kind, anchor: number, inLabel: string, m: Match): string {
+/** Which units the party explains things in. */
+export type System = "metric" | "imperial";
+
+const QUARTER = ["", "¼", "½", "¾"];
+/**
+ * A length in mm the way it's said aloud in feet and inches, to the nearest quarter inch: "6 ¼ in", "2 ft ½ in", "3 ft".
+ * Under an inch it stays a decimal (a sheet of paper is 0.004 in, not 0); past a mile it's miles.
+ */
+export function feetAndInches(mm: number): string {
+  const inches = mm / 25.4;
+  if (inches >= 63360) return `${num(inches / 63360)} mi`;
+  if (inches < 1) return `${num(inches, 3)} in`;
+  const quarters = Math.round(inches * 4);
+  const ft = Math.floor(quarters / 48);
+  const whole = Math.floor((quarters % 48) / 4);
+  const inch = [whole || "", QUARTER[quarters % 4]].filter(Boolean).join(" ");
+  if (!ft) return `${inch} in`;
+  return inch ? `${num(ft, 0)} ft ${inch} in` : `${num(ft, 0)} ft`;
+}
+
+/**
+ * A weight in grams the way a US label puts it (NIST Handbook 130): ounces to the nearest quarter, "10 ½ oz"; from 1 lb
+ * to under 4 lb, total ounces and then pounds and ounces, "24 oz (1 lb 8 oz)", or just "1 lb 8 oz" when `dual` is off;
+ * from 4 lb, decimal pounds, "5.25 lb"; from a ton (2,000 lb), tons. Under a quarter ounce it stays a decimal.
+ */
+export function poundsAndOunces(g: number, dual = true): string {
+  const oz = g / ANCHOR.oz!;
+  const lb = oz / 16;
+  if (lb >= 2000) return `${num(lb / 2000)} tons`;
+  if (lb >= 4) return `${num(lb)} lb`;
+  if (oz < 0.25) return `${num(oz, 3)} oz`;
+  const quarters = Math.round(oz * 4);
+  if (quarters >= 256) return "4 lb";
+  const ounces = (q: number) => [Math.floor(q / 4) || "", QUARTER[q % 4]].filter(Boolean).join(" ");
+  if (quarters < 64) return `${ounces(quarters)} oz`;
+  const rest = quarters % 64;
+  const split = `${Math.floor(quarters / 64)} lb${rest ? ` ${ounces(rest)} oz` : ""}`;
+  return dual ? `${ounces(quarters)} oz (${split})` : split;
+}
+
+/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
+export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
   if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is about ${num(10 * Math.log10(m.unit.size), 1)} dB`;
+  const imperial = (a: number) => {
+    if (kind === "weight") return poundsAndOunces(a);
+    if (kind === "volume") {
+      const gal = a / ANCHOR.gal!, cups = a / ANCHOR.cup!;
+      return gal >= 1e9 ? `${num(a / 4.168181825e15)} cubic miles` : gal >= 1 ? `${num(gal)} gal` : cups >= 1 ? `${num(cups)} ${cups === 1 ? "cup" : "cups"}` : `${num(a / ANCHOR["fl oz"]!, 3)} fl oz`;
+    }
+    return feetAndInches(a);
+  };
   const show = (a: number) => {
+    if (system === "imperial" && kind !== "time") return imperial(a);
     if (kind === "weight") return a >= 1e6 ? `${num(a / 1e6)} t` : a >= 1000 ? `${num(a / 1000)} kg` : `${num(a, 3)} g`;
     if (kind === "time") {
       const yr = ANCHOR.yr!, d = ANCHOR.d!;
@@ -120,5 +186,7 @@ export function working(kind: Kind, anchor: number, inLabel: string, m: Match): 
     if (kind === "volume") return a >= 1e15 ? `${num(a / 1e15)} km³` : a >= 1e6 ? `${num(a / 1e6)} m³` : a >= 1000 ? `${num(a / 1000)} L` : `${num(a, 3)} ml`;
     return a >= 1e6 ? `${num(a / 1e6)} km` : a >= 1000 ? `${num(a / 1000)} m` : a >= 10 ? `${num(a / 10)} cm` : `${num(a, 3)} mm`;
   };
-  return `${inLabel} = ${show(anchor)} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;
+  // Typed as it's shown ("5 ft 11 in"), there's nothing to convert.
+  const measured = inLabel === show(anchor) ? inLabel : `${inLabel} = ${show(anchor)}`;
+  return `${measured} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;
 }

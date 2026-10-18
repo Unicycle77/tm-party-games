@@ -802,6 +802,7 @@ span.lock { padding: 0; }
 .party-settings .host-pin { display: grid; gap: 0.3rem; justify-items: start; }
 .party-settings .host-pin label { justify-self: stretch; }
 .party-settings .host-pin p { margin: 0; }
+.party-settings .units-setting { display: grid; gap: 0.3rem; justify-self: stretch; }
 /* "Reset scores…" opened in place: what it clears and keeps, the guests switch, then its button */
 .reset-scores { justify-self: stretch; }
 .reset-scores h3, .reset-scores p { margin: 0; }
@@ -1209,6 +1210,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 /* the five kinds sit three and two, never four and a lone one; a unit ("fl oz") never breaks over two lines */
 .converter .choices.kinds button { flex-basis: 5.5rem; }
 .converter .choices.units button { flex-basis: 3rem; white-space: nowrap; }
+.converter .feet-in { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 0.8rem; }
+.converter .feet-in > span { grid-column: 1 / -1; color: var(--muted); }
+.converter .feet-in label { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: center; }
 .slot.conversion p { margin: 0; color: #6b5a44; }
 .slot.conversion .lead { font-family: var(--typewriter); color: #1f1a14; font-size: 1.05rem; }
 .slot.conversion .main { font-family: var(--typewriter); color: var(--burgundy); font-size: 2rem; line-height: 1.1; }

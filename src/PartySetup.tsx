@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { HostPinSetting } from "./HostPin";
 import { uploadPortrait } from "./media";
-import { renameParty, useUid } from "./session";
+import { renameParty, setUnits, useUid } from "./session";
 import type { Session } from "./types";
 
 /** This party's Taskmaster portrait: shown framed on the big screen between games. */
@@ -62,6 +62,24 @@ export function PartyName({ code, session }: { code: string; session: Session })
 }
 
 
+/** Metric or imperial: how the 📏 converter explains a result ("39 dice = 62.4 cm" or "39 dice = 2 ft ½ in"). */
+export function UnitsSetting({ code, session }: { code: string; session: Session }) {
+  const units = session.units ?? "metric";
+  return (
+    <div className="units-setting">
+      <span>📏 Conversions in</span>
+      <div className="choices two">
+        {(["metric", "imperial"] as const).map((u) => (
+          <button key={u} className={units === u ? "active" : ""} aria-pressed={units === u} onClick={() => void setUnits(code, u)}>
+            {u === "metric" ? "Metric" : "Imperial"}
+          </button>
+        ))}
+      </div>
+      <span className="muted small">{units === "metric" ? "Results are explained in cm, kg and liters." : "Results are explained in feet and inches, pounds and cups."}</span>
+    </div>
+  );
+}
+
 /**
  * The party in one line on Plan the party ("Halloween party · portrait set · pin set"), with Change opening its
  * name, portrait and host pin in place. These are set once, days ahead, so they live there and not in Party settings.
@@ -71,7 +89,7 @@ export function PartySummary({ code, session }: { code: string; session: Session
   return (
     <section className="party-summary">
       <div className="summary-line">
-        <span>{session.name || "Unnamed party"}<span className="muted small"> · {session.portrait ? "portrait set" : "no portrait"} · {session.hostPin ? "pin set" : "no pin"}</span></span>
+        <span>{session.name || "Unnamed party"}<span className="muted small"> · {session.portrait ? "portrait set" : "no portrait"} · {session.hostPin ? "pin set" : "no pin"} · {session.units ?? "metric"}</span></span>
         <button className="link" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Close" : "Change"}</button>
       </div>
       {open && (
@@ -79,6 +97,7 @@ export function PartySummary({ code, session }: { code: string; session: Session
           <PartyName code={code} session={session} />
           <Portrait code={code} session={session} />
           <HostPinSetting code={code} />
+          <UnitsSetting code={code} session={session} />
         </div>
       )}
     </section>

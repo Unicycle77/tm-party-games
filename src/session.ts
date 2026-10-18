@@ -428,6 +428,10 @@ export const renameParty = (code: string, name: string) =>
 export const setShowDownload = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showDownload`), show);
 
+/** How the 📏 converter explains a result. Metric is the default, so it isn't stored. */
+export const setUnits = (code: string, units: "metric" | "imperial") =>
+  set(ref(db(), `sessions/${code}/units`), units === "imperial" ? units : null);
+
 /**
  * Host remote: puts a useless conversion on the big screen over whatever's there, or (null) takes it down.
  * Anything else the host puts up takes it down too (every display write clears it).

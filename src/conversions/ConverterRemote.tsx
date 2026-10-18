@@ -3,16 +3,20 @@ import { scored, sorted, titleOf } from "../scoreboard/tasks";
 import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
-import { COMMON, KIND_LABEL, KINDS, matchFor, rank, say, toAnchor, working, type Match } from "./convert";
+import { COMMON, commonFor, feetAndInches, firstUnit, ofSystem, type System, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, toAnchor, working, type Match } from "./convert";
 import { UNITS, type Kind } from "./units";
 
 const UNIT_KEY = "ba.convertUnit";
 type Source = { task: string } | { kind: Kind; unit: string };
 
-/** The last common unit this phone measured in ("height:cm"), so a run of the same task is one tap each. */
-function lastCommon(): { kind: Kind; unit: string } {
+/**
+ * The last common unit this phone measured in ("height:cm"), so a run of the same task is one tap each. A unit from
+ * the other system (cm, remembered from a metric party, at an imperial one) gives way to the party's own (ft).
+ */
+function lastCommon(system?: System): { kind: Kind; unit: string } {
   const [kind, unit] = store.get(UNIT_KEY).split(":") as [Kind, string];
-  return KINDS.includes(kind) && COMMON[kind].includes(unit) ? { kind, unit } : { kind: "height", unit: "cm" };
+  if (!KINDS.includes(kind)) return { kind: "height", unit: firstUnit("height", system) };
+  return { kind, unit: COMMON[kind].includes(unit) && ofSystem(unit, system) ? unit : firstUnit(kind, system) };
 }
 
 /**
@@ -23,23 +27,28 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const withUnits = sorted(session.scoreboard?.tasks).map(([id, t], i) => ({ id, task: t, place: i + 1 })).filter((t) => t.task.unit);
   const [source, setSourceState] = useState<Source>(() => {
     const next = withUnits.find((t) => !scored(t.task)) ?? withUnits.at(-1);
-    return next ? { task: next.id } : lastCommon();
+    return next ? { task: next.id } : lastCommon(session.units);
   });
   const setSource = (s: Source) => {
     setSourceState(s);
     if ("unit" in s) store.set(UNIT_KEY, `${s.kind}:${s.unit}`);
   };
   const [typed, setTyped] = useState("");
-  const amount = Number(typed.replace(",", "."));
+  const [typedIn, setTypedIn] = useState("");
 
   const taskUnit = "task" in source ? session.scoreboard?.tasks?.[source.task]?.unit : undefined;
   // A task whose unit was removed falls back to the common units.
-  const common = "unit" in source ? source : lastCommon();
+  const common = "unit" in source ? source : lastCommon(session.units);
+  // At an imperial party, feet come with an inches box (5 ft 11 in, the way a height is said: a phone's number pad has
+  // no ' or "), and pounds with an ounces box (1 lb 8 oz).
+  const split = session.units !== "imperial" || taskUnit ? undefined
+    : common.unit === "ft" ? { small: "in", per: 12, hint: ["5", "11"] } : common.unit === "lb" ? { small: "oz", per: 16, hint: ["1", "8"] } : undefined;
+  const amount = Number(typed.replace(",", ".")) + (split ? Number(typedIn.replace(",", ".")) / split.per : 0);
   const kind: Kind = taskUnit?.kind ?? common.kind;
   // Abbreviations read the same for any number ("2 kg"); "cup" is the one word among them.
   const label = taskUnit?.name ?? (common.unit === "cup" && amount !== 1 ? "cups" : common.unit);
   const anchor = taskUnit ? toAnchor(amount * taskUnit.amount, taskUnit.unit) : toAnchor(amount, common.unit);
-  const ready = typed.trim() !== "" && amount > 0 && isFinite(anchor);
+  const ready = (typed.trim() !== "" || (!!split && typedIn.trim() !== "")) && amount > 0 && isFinite(anchor);
 
   // Each "Surprise me" steps down the ranking; a new measurement starts it again.
   const key = `${kind}:${anchor}`;
@@ -49,7 +58,8 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const [choosing, setChoosing] = useState(false);
   useEffect(() => { setAt(-1); setPicked(undefined); setChoosing(false); }, [key]);
   const match = picked ?? ranked[at];
-  const said = match && say(kind, amount, label, match);
+  // Read out in the smaller unit, so 0 ft 8 in is "8 in", and 5 ft 11 in stays "5 ft 11 in".
+  const said = match && (split ? say(kind, amount * split.per, split.small, match, session.units) : say(kind, amount, label, match, session.units));
 
   // While it's on the big screen, the big screen follows the host's result.
   const onScreen = !!session.conversion;
@@ -62,9 +72,6 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   return (
     <section className="remote converter">
       <h2>📏 Useless conversions</h2>
-      <label>How much?
-        <input inputMode="decimal" value={typed} placeholder="20" onChange={(e) => setTyped(e.target.value)} />
-      </label>
       {withUnits.length > 0 && (
         <>
           <span className="muted">A task's unit</span>
@@ -83,23 +90,34 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
         {KINDS.map((k) => {
           const on = !taskUnit && common.kind === k;
           return <button key={k} className={on ? "active" : ""} aria-pressed={on}
-            onClick={() => setSource({ kind: k, unit: k === common.kind ? common.unit : COMMON[k][1]! })}>{KIND_LABEL[k]}</button>;
+            onClick={() => setSource({ kind: k, unit: k === common.kind ? common.unit : firstUnit(k, session.units) })}>{KIND_LABEL[k]}</button>;
         })}
       </div>
       {/* While a task's unit is in use, the common units stay where they are, dimmed, until one is tapped. */}
       <div className={`choices units${taskUnit ? " idle" : ""}`}>
-        {COMMON[kind].map((u) => {
+        {commonFor(kind, session.units).map((u) => {
           const on = !taskUnit && common.unit === u;
           return <button key={u} className={on ? "active" : ""} aria-pressed={on} onClick={() => setSource({ kind, unit: u })}>{u}</button>;
         })}
       </div>
+      {split ? (
+        <div className="feet-in">
+          <span>How much?</span>
+          <label><input inputMode="decimal" value={typed} placeholder={split.hint[0]} aria-label={common.unit} onChange={(e) => setTyped(e.target.value)} /> {common.unit}</label>
+          <label><input inputMode="decimal" value={typedIn} placeholder={split.hint[1]} aria-label={split.small} onChange={(e) => setTypedIn(e.target.value)} /> {split.small}</label>
+        </div>
+      ) : (
+        <label>How much?
+          <input inputMode="decimal" value={typed} placeholder="20" onChange={(e) => setTyped(e.target.value)} />
+        </label>
+      )}
       <button className="big" disabled={!ready} onClick={surprise}>{match ? "Surprise me again" : "Surprise me"}</button>
       {said && match && (
         <div className="slot conversion">
           <p className="lead">{said.lead}</p>
           <p className="main">{said.main}</p>
           <p className="lead">{said.how}</p>
-          <p className="small">{working(kind, anchor, `${typed.trim()} ${label}`, match)}</p>
+          <p className="small">{working(kind, anchor, split ? (kind === "weight" ? poundsAndOunces(anchor) : feetAndInches(anchor)) : `${typed.trim()} ${label}`, match, session.units)}</p>
           <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
           {choosing && (
             <ul className="tracklist">

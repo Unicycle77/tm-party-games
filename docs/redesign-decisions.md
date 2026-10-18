@@ -335,6 +335,20 @@ A 📏 tool on the host phone that turns a measurement ("39 dice tall") into a r
 | Too big to read | A result past a billion (1/94,002,983,111,123,540 of the Grand Canyon) is never picked: it can't be read out, and past that size every number looks exact. "Use a different unit" still offers it. | No cap at all: the huge volume units won every time. |
 | A pound of gold | Weighed in troy pounds (373 g), as gold is, so a pound of feathers really is heavier, as the riddle says. | An ordinary pound: the two would always tie. |
 
+## Metric or imperial
+
+The 📏 converter explains a result in metric or in US units, per party. Designed one moment at a time on 2026-10-18. Scenarios, in the agreed order: explaining a result out loud, choosing the preference, typing a measurement in feet, a metric prop at an imperial party, and which unit comes up first.
+
+| Moment | Decision | Rejected, and why |
+|---|---|---|
+| What changes | The working line, the lead when it's typed in ft, in, lb or oz, and the order of the unit chips. The useless unit and its "what was measured" line stay as they are. Metric typed at an imperial party stays as typed ("62 cm tall is"): it's what was measured. A task's own unit (dice) is never rewritten. | |
+| Lengths | Under an inch a decimal ("0.03 in": a quarter inch would round it to 0), then inches and feet to the nearest quarter inch with ¼ ½ ¾ ("4 ¾ in", "2 ft ½ in", "3 ft"), past a mile miles. The lead does the same from a foot up ("5 ft 6 in tall is"); under a foot it stays as typed. | Half inches: Jeffrey wanted quarters. "24.57 in": nobody says it. |
+| Weights | The NIST label rule: ounces to the nearest quarter with fractions ("10 ½ oz"); from 1 lb to under 4 lb total ounces then the breakdown ("24 oz (1 lb 8 oz)"); from 4 lb decimal pounds ("5.25 lb"); then tons. The lead drops the total ounces ("1 lb 8 oz is"): it's read aloud and on the TV. Volumes go fl oz, cups, gallons. | "10.5 oz": labels use fractions. |
+| Where it's set | Plan the party, in the party's summary line with name, portrait and pin: "📏 Conversions in" as two chips, Metric (the default, so old parties don't change) and Imperial. The summary line says which. | Party settings: that's for the night-of switches. Inside 📏: it would be seen every time and set once. A toggle: neither choice is "off". |
+| Typing 5'11" | ft (or lb) at an imperial party splits "How much?" into two boxes, ft and in (lb and oz). An empty second box is fine ("6 ft"), and 0 ft 8 in reads "8 in". The working line drops its "=" when what was typed is what it would show. At a metric party ft is one box. | One box taking 5'11": a phone's number pad has no ' or ". "5.11": it reads as 5.11 ft. |
+| The order | The units chips come before "How much?", so the box follows the unit (Jeffrey's call: it also makes lb and oz read right). | The box first: tapping ft changed the box above it. |
+| The first unit | At an imperial party each kind's US units come first, in the same smallest-first order ("in ft mm cm m"), and a kind opens on ft, lb or cups (minutes for time). The phone's remembered unit only counts if it's from the party's system. | Hiding metric: a prop measured in cm still needs it. Only changing the default: the chips would still start at mm. |
+
 ## Measured tasks
 
 Some live tasks are judged by a count or a measurement (the height of a dice tower, the flour left on a plate), so the points can follow from the numbers. Designed one moment at a time on 2026-10-17. Scenarios, in the agreed order: scoring a measured task live, disqualifying someone, planning it before the party, overriding a point, fixing a mismeasure, an app game's results feeding in (Noisemaster), and a DQ after the points are given.

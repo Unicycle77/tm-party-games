@@ -120,6 +120,7 @@ function Sheet() {
               <Item cap={<><code>&lt;PinField&gt;</code>: dots, 👁 shows them</>}><PinField value="4821" onChange={noop} /></Item>
               <Item cap="A game code, with 📷 scan"><div className="row resume" style={{ marginTop: 0, display: "flex" }}><input defaultValue="" placeholder="ABCD" maxLength={4} /><button aria-label="Scan">📷</button></div></Item>
             </div>
+            <Item cap={<><code>.feet-in</code>: two boxes for ft and in (or lb and oz) at an imperial party, the number pad kept</>}><div className="converter"><div className="feet-in"><span>How much?</span><label><input inputMode="decimal" defaultValue="5" /> ft</label><label><input inputMode="decimal" defaultValue="11" /> in</label></div></div></Item>
           </Sec>
           <Sec title="Host header" note="idle · lit (running) · open · alert (needs you)">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
@@ -191,6 +192,7 @@ function Sheet() {
               <Item cap={<><code>.slot</code>: the phone's paper panel</>}><div className="slot"><h2>🎁 Your prize</h2><p className="slot-hint">Add photos of what you brought.</p><button className="big" style={{ fontSize: "1rem", padding: ".7rem" }}>Add photos</button></div></Item>
             </div>
             <Item cap={<><code>.slot.conversion</code>: a result to read aloud (<code>.conversion-card</code> on the big screen)</>}><div className="slot conversion"><p className="lead">39 dice tall is</p><p className="main">65 LEGO bricks</p><p className="lead">a 2×4 brick, without its studs</p><p className="small">39 dice = 62.4 cm · a LEGO brick is 9.6 mm</p></div></Item>
+            <Item cap={<>The same at an imperial party: feet and inches to the quarter inch</>}><div className="slot conversion"><p className="lead">5 ft 11 in tall is</p><p className="main">about 1.23 Danny DeVitos</p><p className="lead">the actor</p><p className="small">5 ft 11 in · Danny DeVito is about 4 ft 9 ¾ in</p></div></Item>
             <Item cap={<><code>.up-next</code>: Run of show's next task, with the night's gold button (paper while the scores are up)</>}>
               <section className="up-next">
                 <p className="up-next-label">Up next · task 4 of 8 · live task</p>
