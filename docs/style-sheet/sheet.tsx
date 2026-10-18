@@ -85,7 +85,8 @@ function Sheet() {
               <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Show the scoreboard</button></Item>
               <Item cap={<><code>.active</code>: what's on screen now</>}><button className="active">Before</button></Item>
             </div>
-            <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores · 2 new tasks</button></Item>
+            <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
+            <Item cap={<><code>.big.pressed</code>: a gold button whose thing is on the big screen now; tap again to take it down</>}><button className="big pressed" aria-pressed>Show the task</button></Item>
             <div className="pair">
               <Item cap={<><code>.steps.two</code>: what the stage shows</>}><div className="steps two"><button className="active">Before</button><button>After</button></div></Item>
               <Item cap="Disabled: 0.45, kept in place"><button disabled>Lower the curtain</button></Item>
@@ -122,9 +123,8 @@ function Sheet() {
           </Sec>
           <Sec title="Host header" note="idle · lit (running) · open · alert (needs you)">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
-              <header className="host-head"><span><strong>🎮 Host</strong><span className="muted"> · Halloween party · HVQB</span></span>
-                <button className="head-icon open lit" aria-label="Run of show">🏆</button>
-                <button className="head-icon lit" aria-label="Music">🎵▶</button>
+              <header className="host-head">
+                <button className="head-icon open lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
                 <button className="head-icon" aria-label="Useless conversions">📏</button>
@@ -142,12 +142,39 @@ function Sheet() {
               <li><button disabled><span>Tiebreaker task <span className="muted small">· only if there's a tie</span></span></button><button className="x" aria-label="Fix">✎</button></li>
             </ul>
             <Cap>Shown: dimmed · On the big screen: pressed in · Next: gold outline · Done: the stamp · Not yet available: disabled, its ✎ still works</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <ul className="run-list">
+                <li className="done"><button><span className="n">3</span><span className="name">Hum a theme tune</span><span className="state">scored</span></button></li>
+                <li className="next"><button><span className="n">4</span><span className="name">Build the tallest tower</span><span className="state">next</span></button></li>
+                <li><button><span className="n">7</span><span className="name">💡 The light</span><span className="state">3 of 8 got it</span></button></li>
+              </ul>
+            </div>
+            <Cap>Run of show's task list (<code>.run-list</code>): read-only, one short state on the right; scored quiet, next <code>--gold-bright</code>; tap opens the task</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12, display: "grid", gap: 4 }}>
+              <div className="summary-line"><span>Halloween party<span className="muted small"> · portrait set · pin set</span></span><button className="link">Change</button></div>
+              <div className="summary-line"><span>♪ Song<span className="muted small"> · Eye of the Tiger · 4:05</span></span><button className="link">Change</button></div>
+              <div className="extras"><button className="chip-add">+ Task text</button><button className="chip-add">+ 📏 Unit</button></div>
+              <section className="extra-open"><span>Song (optional)</span><div className="row"><button>Done</button><button className="link">✕ Remove song</button></div></section>
+            </div>
+            <Cap>Summary lines (<code>.summary-line</code>): what's set, with "Change" to open just that part; what isn't is a "+" chip (<code>.chip-add</code>); one part open at a time (<code>.extra-open</code>)</Cap>
             <div className="mini-phone" style={{ width: "100%", display: "grid", gap: 8, marginTop: 12 }}>
               <SongStrip code="HVQB" session={jukebox(false)} song="Entry of the Gladiators" />
               <SongStrip code="HVQB" session={jukebox(true)} song="Hall of the Mountain King" />
               <SongStrip code="HVQB" session={jukebox(false, false)} song="Hall of the Mountain King" />
             </div>
-            <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, gold with ⏸ · can't play, disabled with the reason in words</Cap>
+            <Cap>A task's song strip (<code>.sb-song</code>): ready · playing, pressed in with ⏸ (never gold) · can't play, disabled with the reason in words</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <button className="sb-song now-playing-strip"><span className="title">⏸ Eye of the Tiger</span><span className="dur">1:55 left</span></button>
+            </div>
+            <Cap>The now-playing strip (<code>.now-playing-strip</code>): under "On the big screen" on every page while a song plays; one tap pauses</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="move-request new-guest"><p><strong>Riley</strong> joined, but isn't on the scoreboard. Add them if they're playing.</p><div className="row"><button>Add Riley</button><button>Not playing</button></div></section>
+            </div>
+            <Cap>A new guest's card (<code>.move-request.new-guest</code>): the move-request style, on any page</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="up-next the-finale"><p className="up-next-label">The finale</p><h3>All 8 tasks scored</h3><p className="up-next-note">One last update on the scoreboard, then the haul.</p><button className="big">🏆 Declare the winner</button></section>
+            </div>
+            <Cap>The finale (<code>.up-next.the-finale</code>): the Up next card once every task has points</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
               <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
                 ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
@@ -164,6 +191,14 @@ function Sheet() {
               <Item cap={<><code>.slot</code>: the phone's paper panel</>}><div className="slot"><h2>🎁 Your prize</h2><p className="slot-hint">Add photos of what you brought.</p><button className="big" style={{ fontSize: "1rem", padding: ".7rem" }}>Add photos</button></div></Item>
             </div>
             <Item cap={<><code>.slot.conversion</code>: a result to read aloud (<code>.conversion-card</code> on the big screen)</>}><div className="slot conversion"><p className="lead">39 dice tall is</p><p className="main">65 LEGO bricks</p><p className="lead">a 2×4 brick, without its studs</p><p className="small">39 dice = 62.4 cm · a LEGO brick is 9.6 mm</p></div></Item>
+            <Item cap={<><code>.up-next</code>: Run of show's next task, with the night's gold button (paper while the scores are up)</>}>
+              <section className="up-next">
+                <p className="up-next-label">Up next · task 4 of 8 · live task</p>
+                <h3>Build the tallest tower</h3>
+                <p className="up-next-note">"Tallest tower of dry spaghetti and marshmallows. Ten minutes."</p>
+                <button className="big">Start task 4 →</button>
+              </section>
+            </Item>
             <Item cap={<><code>.stamp</code>: the one look for "done", with ✓ and words</>}><div style={{ display: "flex", gap: 16 }}><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ Submitted</span><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ You're in</span></div></Item>
           </Sec>
           <Sec title="Aged paper" note="a task's words, never UI">

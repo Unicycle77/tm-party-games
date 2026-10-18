@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { HostRemote, JoinQr } from "./HostRemote";
-import { uploadPortrait } from "./media";
+import { JoinQr, OnScreen } from "./HostRemote";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { ConverterRemote } from "./conversions/ConverterRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
@@ -8,30 +7,56 @@ import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } fro
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
-import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
+import { PlanParty } from "./scoreboard/Planning";
+import { TaskEditPage } from "./scoreboard/TaskEditPage";
+import { RunOfShow } from "./scoreboard/RunOfShow";
+import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
+import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { HostPinSetting, PinStep } from "./HostPin";
-import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
+import { PinStep } from "./HostPin";
+import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "scoreboard" | "music" | "light" | "tasks" | "convert";
+const BACK_KEY = "ba.hostBack";
+/** Run of show (home), a task's page, Plan the party, a task's ✎ page, and the side jobs in the header. */
+type View = "show" | "task" | "plan" | "edit" | "music" | "light" | "tasks" | "convert";
+/** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
+interface Place { view: View; task?: string }
+const SIDE: View[] = ["music", "light", "tasks", "convert"];
+const VIEWS: View[] = ["show", "task", "plan", "edit", ...SIDE];
+const HOME: Place = { view: "show" };
+
+/** A place this phone remembered; older phones kept just a view's name ("scoreboard" was home, "show" the game). */
+function loadPlace(key: string): Place | undefined {
+  const saved = store.get(key);
+  try {
+    const p = JSON.parse(saved) as Place;
+    if (p && VIEWS.includes(p.view)) return p;
+  } catch { /* an older phone's view name */ }
+  if (saved === "show") return { view: "task", task: "game" };
+  if (SIDE.includes(saved as View)) return { view: saved as View };
+  return undefined;
+}
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
   const uid = useUid();
   const [code, setCode] = useState(() => store.get(KEY));
   const session = useSession(code || undefined);
-  // The show, with the music and the light one tap away in the header. This phone remembers which
-  // is open, so a refresh mid-game lands where the host was.
-  const [view, setViewState] = useState<View>(() => {
-    const saved = store.get(VIEW_KEY);
-    // Home is the run of show (🏆); a game in progress is the "show" view.
-    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" || saved === "convert" ? saved : "scoreboard";
-  });
-  const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
+  // This phone remembers where the host was, so a refresh mid-game lands there; and, on a side page, where "Back" goes.
+  const [place, setPlaceState] = useState<Place>(() => loadPlace(VIEW_KEY) ?? HOME);
+  const [back, setBackState] = useState<Place>(() => loadPlace(BACK_KEY) ?? HOME);
+  const go = (p: Place) => {
+    // Opening a side job from a page remembers the page; moving between side jobs keeps it.
+    if (SIDE.includes(p.view) && !SIDE.includes(place.view)) { setBackState(place); store.set(BACK_KEY, JSON.stringify(place)); }
+    setPlaceState(p);
+    store.set(VIEW_KEY, JSON.stringify(p));
+    window.scrollTo(0, 0);
+  };
 
   const disconnect = () => { store.set(KEY, ""); setCode(""); };
 
@@ -52,27 +77,25 @@ export function HostPage() {
       store.set(KEY, c);
       setCode(c);
       // Every party opens on the run of show.
-      if (created) setView("scoreboard");
+      if (created) go(HOME);
     }} />;
   }
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
 
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
-  const scoresUp = session.display?.step === "scoreboard";
-  // Closing the music, envelopes, light or converter goes back to the game in progress, or else the run of show.
-  const home: View = session.game ? "show" : "scoreboard";
+  // An older phone's "the game": the game in progress's task page.
+  const task = place.task === "game" ? activeTaskId(session) ?? "adhoc" : place.task;
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
-    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
-      onClick={() => setView(view === v && v !== "scoreboard" ? home : v)}>{glyph}</button>
+    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${place.view === v ? " open" : ""}`} aria-label={label} aria-pressed={place.view === v}
+      onClick={() => go(place.view === v && v !== "show" ? back : { view: v })}>{glyph}</button>
   );
   const settings = <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />;
+  const open = (id: string) => go(id === "tiebreaker" ? { view: "task", task: "tiebreaker" } : { view: "task", task: id });
 
   return (
     <main className="phone host">
       <header className="host-head">
-        <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
-        {icon("scoreboard", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
@@ -80,27 +103,27 @@ export function HostPage() {
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
-      {view === "scoreboard" ? (
-        <>
-          <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")} onLight={() => setView("light")}
-            onOpenGame={() => setView("show")} onAdHoc={() => setView("show")} />
-          <JoinQr code={code} session={session} />
-          {settings}
-        </>
-      ) : view === "show" ? (
-        <>
-          <HostRemote code={code} session={session} onRunOfShow={() => setView("scoreboard")} />
-          {settings}
-        </>
-      ) : (
-        <>
-          <button className="link back" onClick={() => setView(home)}>← Back to {session.game ? "the game" : "the run of show"}</button>
-          {view === "music" ? <JukeboxRemote code={code} session={session} />
-            : view === "tasks" ? <TaskPile code={code} session={session} />
-            : view === "convert" ? <ConverterRemote code={code} session={session} />
-            : <LightRemote code={code} session={session} />}
-        </>
-      )}
+      {place.view === "task" && task === "adhoc" ? <AdHocPage code={code} session={session} onBack={() => go(HOME)} />
+        : place.view === "task" && task === "tiebreaker" ? <TiebreakerPage code={code} session={session} onBack={() => go(HOME)} />
+        : place.view === "task" && task ? <TaskPage code={code} session={session} id={task} onBack={() => go(HOME)} onLight={() => go({ view: "light" })} />
+        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onEdit={(id) => go({ view: "edit", task: id })} />
+        : place.view === "edit" && place.task ? <TaskEditPage code={code} session={session} id={place.task} onBack={() => go({ view: "plan" })} />
+        : SIDE.includes(place.view) ? (
+          <>
+            <button className="link back" onClick={() => go(back)}>← Back</button>
+            <OnScreen code={code} session={session} />
+            {place.view === "music" ? <JukeboxRemote code={code} session={session} />
+              : place.view === "tasks" ? <TaskPile code={code} session={session} />
+              : place.view === "convert" ? <ConverterRemote code={code} session={session} />
+              : <LightRemote code={code} session={session} />}
+          </>
+        ) : (
+          <RunOfShow code={code} session={session} onOpen={open} onTiebreak={() => open("tiebreaker")}
+            footer={<>
+              <button className="link" onClick={() => go({ view: "plan" })}>Plan the party</button>
+              {settings}
+            </>} />
+        )}
     </main>
   );
 }
@@ -129,9 +152,24 @@ function Dealer({ code, session }: { code: string; session: Session }) {
  * sound: the guest will usually be standing next to the host asking anyway.
  */
 function MoveRequests({ code, session }: { code: string; session: Session }) {
+  const board = session.scoreboard;
+  const listed = new Set(Object.values(board?.contestants ?? {}).map((c) => c.uid).filter(Boolean));
+  // A guest who joined but isn't on the scoreboard comes to the host as a card, on whatever page they're on.
+  const newcomers = Object.entries(session.players ?? {})
+    .filter(([uid, p]) => !listed.has(uid) && !p.notPlaying)
+    .sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const asks = Object.entries(session.moves ?? {}).filter(([, m]) => m.status === "asked" && session.players?.[m.from]);
   return (
     <>
+      {newcomers.map(([uid, p]) => (
+        <section key={uid} className="move-request new-guest">
+          <p><strong>{p.name}</strong> joined, but isn't on the scoreboard. Add them if they're playing.</p>
+          <div className="row">
+            <button onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>Add {p.name}</button>
+            <button onClick={() => void setNotPlaying(code, uid)}>Not playing</button>
+          </div>
+        </section>
+      ))}
       {asks.map(([to, m]) => {
         const name = session.players![m.from]!.name;
         return (
@@ -148,63 +186,6 @@ function MoveRequests({ code, session }: { code: string; session: Session }) {
   );
 }
 
-/** This party's Taskmaster portrait: shown framed on the big screen between games. */
-function Portrait({ code, session }: { code: string; session: Session }) {
-  const uid = useUid();
-  const input = useRef<HTMLInputElement>(null);
-  const [progress, setProgress] = useState<number>();
-  const [failed, setFailed] = useState(false);
-
-  async function upload(file: File | undefined) {
-    if (!file || !uid) return;
-    setFailed(false);
-    setProgress(0);
-    try { await uploadPortrait(code, uid, file, setProgress); }
-    catch { setFailed(true); }
-    finally { setProgress(undefined); }
-  }
-
-  return (
-    <div className="portrait-setting">
-      {session.portrait ? <img src={session.portrait} alt="The Taskmaster's portrait" /> : <div className="ph">No portrait</div>}
-      <div className="portrait-text">
-        <span>Taskmaster portrait</span>
-        <span className="muted small">Shown on the big screen between games.</span>
-        {progress !== undefined ? <span className="small">Uploading… {Math.round(progress * 100)}%</span>
-          : <button onClick={() => input.current?.click()}>{session.portrait ? "Change portrait" : "Upload portrait"}</button>}
-        {failed && <span className="error small">That didn't upload. Try again.</span>}
-      </div>
-      <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
-    </div>
-  );
-}
-
-/** The party's name, as typed when it was started (or none, for a party started on the big screen). */
-function PartyName({ code, session }: { code: string; session: Session }) {
-  const [name, setName] = useState(session.name ?? "");
-  // Someone else renaming it (another remote) shows up here, unless it's being edited.
-  const [editing, setEditing] = useState(false);
-  useEffect(() => { if (!editing) setName(session.name ?? ""); }, [session.name, editing]);
-  const changed = name.trim() !== (session.name ?? "") && !!name.trim();
-  const save = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!changed) return;
-    void renameParty(code, name);
-    setEditing(false);
-  };
-  return (
-    <form className="party-name" onSubmit={save}>
-      <label>Party name
-        <div className="row">
-          <input value={name} maxLength={40} placeholder="Halloween party"
-            onChange={(e) => { setName(e.target.value); setEditing(true); }} />
-          <button type="submit" disabled={!changed}>Save</button>
-        </div>
-      </label>
-    </form>
-  );
-}
-
 /** Set-once things, behind a quiet link at the bottom of the show. */
 function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
   const [open, setOpen] = useState(false);
@@ -215,9 +196,6 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
-      <PartyName code={code} session={session} />
-      <HostPinSetting code={code} />
-      <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>

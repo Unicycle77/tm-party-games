@@ -3,7 +3,7 @@ import {
   type DirHandle, type Track, folderPickerSupported, hasAccess, pickFolder, recallFolder,
   readDurations, rememberFolder, requestAccess, scanFolder,
 } from "./musicFolder";
-import { publishDurations, publishTracks, setJukeboxState } from "./session";
+import { publishDurations, publishTracks, setJukeboxClock, setJukeboxState } from "./session";
 import { loadSounds } from "./games/noisemaster/sounds";
 import { MUSIC_READY } from "./StageGate";
 import type { Jukebox as JukeboxData } from "./types";
@@ -111,6 +111,12 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
     void setJukeboxState(code, { playing: false });
   }
 
+  // Tell the host remote where the song is, so its "now playing" strip can say how long is left.
+  function clock() {
+    const audio = audioRef.current;
+    if (audio) void setJukeboxClock(code, { pos: Math.round(audio.currentTime), at: Date.now(), running: !audio.paused && !audio.ended }).catch(() => {});
+  }
+
   async function choose() {
     const dir = await pickFolder();
     if (dir) await load(dir);
@@ -125,7 +131,7 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
 
   return (
     <>
-      <audio ref={audioRef} onEnded={stop} onError={() => { if (audioRef.current?.getAttribute("src")) stop(); }} />
+      <audio ref={audioRef} onPlay={clock} onPause={clock} onSeeked={clock} onLoadedMetadata={clock} onEnded={() => { clock(); stop(); }} onError={() => { if (audioRef.current?.getAttribute("src")) stop(); }} />
       {showUi && folderPickerSupported() && (
         <div className="jukebox-chip">
           {library.length === 0 ? (

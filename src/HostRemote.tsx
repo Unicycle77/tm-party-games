@@ -1,9 +1,10 @@
 import { QRCodeSVG } from "qrcode.react";
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { asList, asNums, fmt } from "./JukeboxRemote";
 import { joinUrlFor } from "./firebase";
-import { PICKER_GAMES, activeGame } from "./games";
-import { noBigScreen, removePlayer, setDisplay, setGame, setShowQr, setUnlocked, showContestant } from "./session";
-import { SongStrip } from "./SongStrip";
+import { activeGame } from "./games";
+import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
+import { noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -12,18 +13,74 @@ const SHOWING: Partial<Record<Display["step"], string>> = {
 };
 
 /**
- * The host's phone during the show: one line saying what the big screen shows, then the one next
- * action in gold, then the contestants in join order. While entries come in, the list carries their
- * stamps and the 🔒/🔓 resubmit column; once the curtain is down between contestants it becomes the
- * running order (shown ones dimmed, the next one outlined). Removing people sits behind
- * "Manage contestants", so it can't be hit mid-show.
+ * What follows "On the big screen:" on every page of the host's phone: the one line that says what the room is
+ * looking at. While the scores are up it names the tasks the next update adds ("the scores, before Photos").
  */
-export function HostRemote({ code, session, onRunOfShow }: { code: string; session: Session; onRunOfShow: () => void }) {
+export function onScreenLine(session: Session): string {
+  const display = session.display ?? { step: "list" as const };
+  const board = session.scoreboard;
+  const game = activeGame(session);
+  if (noBigScreen(session)) return "not connected yet";
+  if (session.conversion) return "a useless conversion";
+  if (display.step === "scoreboard") {
+    const pending = pendingIds(board).map((id) => board?.tasks?.[id]).filter((t) => !!t).map(titleOf);
+    return pending.length ? `the scores, before ${list(pending)}` : "the scores";
+  }
+  if (display.step === "haul") return "the prize haul";
+  if (display.step === "tasktext") return "the task";
+  if (!game) return display.step === "curtain" || session.begun ? "the curtain" : "the welcome";
+  const players = Object.keys(session.players ?? {});
+  const current = display.uid ? session.players?.[display.uid] : undefined;
+  if (display.uid && current && SHOWING[display.step]) {
+    return `${current.name}'s ${SHOWING[display.step]}${display.step === "video" && display.playing === false ? " (paused)" : ""}`;
+  }
+  // Games the host runs (Box): no entries to collect.
+  if (!game.status) {
+    return game.onScreen?.(session, display) ?? (display.step === "boxes" ? "the boxes" : display.step === "soundboard" ? "the soundboard"
+      : display.step === "envelopes" ? "the envelopes" : "the curtain");
+  }
+  const ready = players.filter((uid) => game.status!(session, uid) === "submitted");
+  const data = session.games?.[game.id];
+  const shown = (data && "shown" in data && data.shown) || {};
+  if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
+  if (display.step === "curtain") return `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
+  return "everyone's entries";
+}
+
+/**
+ * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
+ * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
+ */
+export function OnScreen({ code, session }: { code: string; session: Session }) {
   return (
     <>
-      <RemoteBody code={code} session={session} onRunOfShow={onRunOfShow} />
-      <JoinQr code={code} session={session} />
+      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      <NowPlaying code={code} session={session} />
     </>
+  );
+}
+
+function NowPlaying({ code, session }: { code: string; session: Session }) {
+  const jukebox = session.jukebox;
+  const state = jukebox?.state ?? {};
+  const title = state.current === undefined ? undefined : asList(jukebox?.tracks)[state.current];
+  const playing = state.playing === true && !!title;
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!playing) return;
+    const t = window.setInterval(() => tick((n) => n + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [playing]);
+  if (!playing) return null;
+  const length = asNums(jukebox?.durations)[state.current!];
+  const clock = jukebox?.clock;
+  const elapsed = clock && clock.pos + (clock.running ? Math.max(0, (Date.now() - clock.at) / 1000) : 0);
+  const left = length && elapsed !== undefined ? Math.max(1, Math.round(length - elapsed)) : undefined;
+  return (
+    <button className="sb-song now-playing-strip" aria-label={`Pause ${title}`} onClick={() => void setJukeboxState(code, { playing: false })}>
+      <span className="title">⏸ {title}</span>
+      <span className="dur">{left ? `${fmt(left)} left` : fmt(length)}</span>
+    </button>
   );
 }
 
@@ -31,11 +88,11 @@ export function HostRemote({ code, session, onRunOfShow }: { code: string; sessi
  * For anyone who arrives late: the join code, on the host's phone to hold up. While it's open the big screen
  * shows it too, above its corner code (on the curtain and while entries come in), and closing it hides both.
  */
-export function JoinQr({ code, session }: { code: string; session: Session }) {
+export function JoinQr({ code, session, button }: { code: string; session: Session; button?: boolean }) {
   const close = () => void setShowQr(code, false);
   return (
     <>
-      <button className="link" onClick={() => void setShowQr(code, true)}>Show QR code</button>
+      <button className={button ? undefined : "link"} onClick={() => void setShowQr(code, true)}>Show QR code</button>
       {session.showQr && (
         <div className="qr-overlay" onClick={close}>
           <figure className="join-qr">
@@ -50,73 +107,20 @@ export function JoinQr({ code, session }: { code: string; session: Session }) {
   );
 }
 
-function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Session; onRunOfShow: () => void }) {
+/**
+ * The game in progress, in the middle of its task page: the one next action in gold, then the contestants in
+ * join order. While entries come in, the list carries their stamps and the 🔒/🔓 resubmit column; once the curtain
+ * is down between contestants it becomes the running order (shown ones dimmed, the next one outlined). A contestant
+ * on the big screen gets their own controls, a step inside, and lowering the curtain comes back to the list.
+ * `quiet`: the next action is paper, while the task's words are still to go up (gold is on "Show the task").
+ * `head`: the page's top, for games that lay it out themselves (Noisemaster's columns).
+ */
+export function GameControls({ code, session, quiet, head }: { code: string; session: Session; quiet?: boolean; head?: ReactNode }) {
   const game = activeGame(session);
-  const [managing, setManaging] = useState(false);
+  if (!game) return null;
   const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const display = session.display ?? { step: "list" as const };
   const current = display.uid ? session.players?.[display.uid] : undefined;
-
-  const remove = (uid: string, name: string) => {
-    if (confirm(`Remove ${name} and everything they submitted? They can then rejoin fresh.`)) void removePlayer(code, uid);
-  };
-  const removeButton = (uid: string, name: string) =>
-    managing && <button className="x" aria-label={`Remove ${name}`} onClick={() => remove(uid, name)}>×</button>;
-  const manageLink = players.length > 0 && (
-    <button className="link" onClick={() => setManaging(!managing)}>{managing ? "Done" : "Manage contestants"}</button>
-  );
-  const plainList = (
-    <>
-      {players.length === 0 && <p className="muted">No contestants yet.</p>}
-      <ul className="picker">
-        {players.map(([uid, p]) => (
-          <li key={uid}>
-            <button disabled><span>{p.name}</span></button>
-            {removeButton(uid, p.name)}
-          </li>
-        ))}
-      </ul>
-    </>
-  );
-
-  // The scoreboard (and the prize haul) belong to no game; they're run from 🏆, and lowering goes back to the curtain.
-  if (display.step === "scoreboard" || display.step === "haul") {
-    return (
-      <section className="remote">
-        <p className="on-screen">On the big screen: {display.step === "haul" ? "the prize haul" : "the scoreboard"}</p>
-        <p className="muted small">Update the scores from 🏆.</p>
-        <button className="big" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
-      </section>
-    );
-  }
-
-  // A game that's not on the run of show, played ad hoc: picked here, reached from the run of show's link.
-  if (!game) {
-    return (
-      <section className="remote">
-        <div className="remote-head">
-          <h2>Play a game</h2>
-          <button className="link" onClick={onRunOfShow}>← Run of show</button>
-        </div>
-        <p className="muted small">For a game that's not on the run of show. It won't be scored unless you add it to the list.</p>
-        <div className="steps">
-          {PICKER_GAMES.map((g) => <button key={g.id} onClick={() => void setGame(code, g.id)}>{g.name}</button>)}
-        </div>
-      </section>
-    );
-  }
-
-  const gameLine = (
-    <div className="remote-head">
-      {/* Several photo tasks a night: say whose photos these are. */}
-      <h2>{game.name}{game.id === "photos" && taskName(session) && `: ${taskName(session)}`}</h2>
-      {/* Ends the game (the big screen goes back to the curtain); 🏆 visits the run of show without ending it. */}
-      <button className="link" onClick={() => { void setGame(code, null); onRunOfShow(); }}>← Run of show</button>
-    </div>
-  );
-  const song = gameTask(session)?.song;
-  const gameHead = <>{gameLine}{song && <SongStrip code={code} session={session} song={song} />}</>;
-
   const status = game.status;
   const data = session.games?.[game.id];
   const shown = (data && "shown" in data && data.shown) || {};
@@ -128,54 +132,37 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
   if (display.uid && current && SHOWING[display.step]) {
     const place = ready.findIndex(([uid]) => uid === display.uid) + 1;
     return (
-      <section className="remote">
-        {gameHead}
-        <p className="on-screen">
-          On the big screen: {current.name}'s {SHOWING[display.step]}{display.step === "video" && display.playing === false && " (paused)"}
-        </p>
+      <>
+        {head}
         <h2 className="contestant">{current.name}{place > 0 && <span className="muted">, {place} of {ready.length}</span>}</h2>
         <game.HostPlayer code={code} session={session} display={display} uid={display.uid} />
         {/* Back to the empty curtain, never straight to the next contestant: the running order picks who's next. */}
         <button className="lower" onClick={() => void setDisplay(code, { step: "curtain" })}>Lower the curtain</button>
-      </section>
+      </>
     );
   }
 
-  // Games the host runs (Box): no entries to collect.
+  // Games the host runs (Box): no entries to collect, and the game lays out its own setup.
   if (!status) {
-    const head = (
-      <>
-        {gameHead}
-        <p className="on-screen">On the big screen: {game.onScreen?.(session, display) ?? (display.step === "boxes" ? "the boxes" : display.step === "soundboard" ? "the soundboard" : display.step === "envelopes" ? "the envelopes" : "the curtain")}</p>
-      </>
-    );
-    return (
-      <section className="remote">
-        {!game.headInLobby && head}
-        <game.HostLobby code={code} session={session} display={display} head={game.headInLobby ? head : undefined} />
-        {/* The setup already lists everyone; the plain list is only for removing people. */}
-        {managing && plainList}
-        {manageLink}
-      </section>
-    );
+    return game.headInLobby ? <game.HostLobby code={code} session={session} display={display} head={head} />
+      : <>{head}<game.HostLobby code={code} session={session} display={display} /></>;
   }
 
   const collecting = display.step === "list";
   const shownCount = ready.filter(([uid]) => shown[uid]).length;
   const next = ready.find(([uid]) => !shown[uid]);
-  const line = collecting ? `On the big screen: the task, ${ready.length} of ${players.length} submitted`
-    : display.step === "curtain" ? `The curtain is down. ${shownCount} of ${ready.length} shown.`
-    : "On the big screen: everyone's entries";
+  const everyone = !collecting && ready.length > 0 && !next;
 
   return (
-    <section className="remote">
-      {gameHead}
-      <p className="on-screen">{line}</p>
-      {/* Always rendered, so the gold button never moves: disabled with a reason when there's no one to show. */}
-      <button className="big" disabled={!next} onClick={() => next && show(next[0])}>
-        {next ? `${shownCount === 0 ? "First up" : "Next"}: ${next[1].name} →`
-          : ready.length === 0 ? "Waiting for entries" : "Everyone has been shown"}
-      </button>
+    <>
+      {head}
+      {/* Once everyone has been shown the game is one line, and the gold moves to the points. Until then it's
+          always rendered, so the gold button never moves: disabled with a reason when there's no one to show. */}
+      {everyone ? <p className="muted">All {ready.length} shown.</p> : (
+        <button className={quiet ? undefined : "big"} disabled={!next} onClick={() => next && show(next[0])}>
+          {next ? `${shownCount === 0 ? "First up" : "Next"}: ${next[1].name} →` : "Waiting for entries"}
+        </button>
+      )}
       {players.length === 0 && <p className="muted">No contestants yet.</p>}
       <ul className={collecting ? "picker running intake" : "picker running"}>
         {players.map(([uid, p]) => {
@@ -197,30 +184,17 @@ function RemoteBody({ code, session, onRunOfShow }: { code: string; session: Ses
                 ? <button className="lock" aria-label={unlocked ? `Lock ${p.name}'s entry` : `Let ${p.name} resubmit`}
                     onClick={() => void setUnlocked(code, game.id, uid, !unlocked)}>{unlocked ? "🔓" : "🔒"}</button>
                 : <span className="lock" aria-hidden />)}
-              {removeButton(uid, p.name)}
             </li>
           );
         })}
       </ul>
       <game.HostLobby code={code} session={session} display={display} />
-      {manageLink}
-    </section>
+    </>
   );
 }
 
-/**
- * The run-of-show task the game in progress belongs to: the photo task whose photos are on, or else the
- * list's entry for that game (each game is on the list once).
- */
-const gameTask = (session: Session) => {
-  const tasks = session.scoreboard?.tasks ?? {};
-  const photos = session.games?.photos?.task;
-  if (session.game === "photos" && photos) return tasks[photos];
-  return Object.values(tasks).find((t) => t.game === session.game);
-};
-
-/** The name the host gave the scoreboard task whose photos are on, if any. */
-const taskName = (session: Session) => {
-  const task = session.games?.photos?.task;
-  return task ? session.scoreboard?.tasks?.[task]?.name : undefined;
+/** The run-of-show tasks in order, for anything that needs a task's number ("Task 3 of 8"). */
+export const placeOf = (session: Session, id: string) => {
+  const tasks = sorted(session.scoreboard?.tasks);
+  return { place: tasks.findIndex(([t]) => t === id) + 1, of: tasks.length };
 };

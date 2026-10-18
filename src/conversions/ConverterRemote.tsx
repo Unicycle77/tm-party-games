@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { scored, sorted, titleOf } from "../scoreboard/ScoreboardRemote";
+import { scored, sorted, titleOf } from "../scoreboard/tasks";
 import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";

@@ -449,6 +449,10 @@ export async function publishTracks(code: string, titles: string[]) {
 export const publishDurations = (code: string, seconds: number[] | null) =>
   set(ref(db(), `sessions/${code}/jukebox/durations`), seconds);
 
+/** Main screen: where the song is now, for the host remote's "now playing" strip. */
+export const setJukeboxClock = (code: string, clock: { pos: number; at: number; running: boolean }) =>
+  set(ref(db(), `sessions/${code}/jukebox/clock`), clock);
+
 /** Changes part of the jukebox playback state (current song, playing, volume). */
 export const setJukeboxState = (code: string, patch: Partial<NonNullable<Jukebox["state"]>>) =>
   update(ref(db(), `sessions/${code}/jukebox/state`), patch);

@@ -778,7 +778,8 @@ body.idle-cursor .stage { cursor: none; }
 
 /* host phone: header with the music and light one tap away */
 .host-head { display: flex; align-items: center; gap: 0.5rem; }
-.host-head > span:first-child { flex: 1; }
+.host-head { justify-content: flex-end; }
+.party-line { margin: -0.4rem 0 0; }
 .head-icon { padding: 0.35rem 0.6rem; font-size: 1.2rem; line-height: 1; filter: grayscale(0.7); opacity: 0.75; }
 .head-icon.lit { filter: none; opacity: 1; box-shadow: 0 3px 0 var(--gold-dark), 0 0 12px var(--gold-bright); }
 .head-icon.open { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
@@ -1143,15 +1144,6 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-task-list li, .sb-contestant-list li { display: flex; gap: 0.5rem; align-items: stretch; }
 .sb-task-list li.dragging { opacity: 0.7; }
 /* a task's song: a slim strip under its row, in line with the task card (see SongStrip.tsx) */
-.sb-task-list li.has-song { display: grid; grid-template-columns: auto 1fr auto auto; }
-.sb-task-list li.has-song > .sb-task { grid-column: 2; }
-.sb-task-list li.has-song.live > .sb-task { grid-column: 2 / 4; }
-.sb-task-list li.has-song > .x { grid-column: 4; }
-.sb-task-list li.has-song > .sb-song { grid-column: 2 / -1; }
-.sb-task-list li.has-song.tiebreaker { grid-template-columns: 1fr auto; }
-.sb-task-list li.has-song.tiebreaker > .sb-task { grid-column: 1; }
-.sb-task-list li.has-song.tiebreaker > .x { grid-column: 2; }
-.sb-task-list li.has-song.tiebreaker > .sb-song { grid-column: 1 / -1; }
 .sb-song { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; width: 100%; text-align: left; padding: 0.45rem 0.8rem; font-size: 0.95rem; }
 .sb-song .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb-song .dur { flex: none; font-variant-numeric: tabular-nums; opacity: 0.75; }
@@ -1190,8 +1182,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-give { text-align: left; }
 .sb-rename button { flex: none; }
 @media (min-width: 1000px) {
-  .scoreboard-remote:has(.sb-tasks) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
-  .scoreboard-remote > h2, .scoreboard-remote > .sb-now-playing, .scoreboard-remote > .on-screen, .scoreboard-remote > button, .scoreboard-remote > p { grid-column: 1 / -1; }
+  /* Plan the party on a wide iPad: tasks on the left, contestants on the right, the rest across */
+  .scoreboard-remote.plan:not(.task-edit-page) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
+  .scoreboard-remote.plan > h2, .scoreboard-remote.plan > button, .scoreboard-remote.plan > .party-summary, .scoreboard-remote.plan > .envelopes { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
   .sb-chips { gap: 0.3rem; }
@@ -1251,5 +1244,69 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-won-bar p { margin: 0; }
 .sb-won-bar .picker { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
 .sb-points.has-bar { padding-bottom: 9rem; }
-/* "Show the task" while its text is up: pressed in, like a marked chip, never gold */
-.scoreboard-remote > button.pressed { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }
+.task-page.has-bar { padding-bottom: 9rem; }
+/* "Show the task" while its text is up: gold, pressed in like a marked chip */
+button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #0008; filter: brightness(0.85); }
+
+/* Run of show: the next task on a paper card, with the night's gold button */
+.up-next { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 6px; padding: 0.9rem 1rem 1rem; display: grid; gap: 0.4rem; box-shadow: 0 4px 10px #0008; }
+.up-next p { margin: 0; }
+.up-next .up-next-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6a55; }
+.up-next h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--ink); font-size: 1.3rem; }
+.up-next .up-next-note { color: #6b5a44; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.up-next button { margin-top: 0.4rem; }
+/* the read-only task list: a number, the name, one short state; scored ones quiet, the next one gold */
+.run-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ffffff22; }
+.run-list li { border-bottom: 1px solid #ffffff22; }
+.run-list button { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 1.6rem 1fr auto; gap: 0.6rem; align-items: baseline; padding: 0.65rem 0.2rem; font-family: var(--typewriter); color: var(--fg); }
+.run-list button:focus-visible { outline: 2px solid var(--gold); }
+.run-list .n { color: var(--muted); }
+.run-list .state { font-size: 0.8rem; color: var(--muted); text-align: right; }
+.run-list li.done button { color: var(--muted); }
+.run-list li.next button, .run-list li.next .state { color: var(--gold-bright); }
+.run-links { display: grid; justify-items: center; gap: 0.2rem; margin-top: 1rem; }
+.run-links .party-settings { justify-self: stretch; }
+/* a task's page: the task as the title, its number and kind under it */
+.task-head h1 { margin: 0; font-size: 1.9rem; line-height: 1.15; }
+.task-head p { margin: 0.2rem 0 0; }
+.task-page .sb-points { display: grid; gap: 0.5rem; margin-top: 1rem; }
+.task-page .sb-points h2 { margin: 0; }
+.task-page .sb-points p { margin: 0; }
+.task-page > p { margin: 0; }
+
+/* ---- Plan the party, and a task's ✎ page ---- */
+/* a summary line: what's set, with "Change" to open just that part in place */
+.summary-line { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; padding: 0.6rem 0; border-top: 1px solid #ffffff22; font-family: var(--typewriter); }
+.summary-line > span { min-width: 0; overflow-wrap: anywhere; }
+.summary-line .link { flex: none; }
+.summary-line .x { flex: none; }
+.party-summary .party-settings { padding: 0.5rem 0 0.8rem; }
+.plan .sb-task-list li .sb-task { opacity: 1; cursor: default; }
+.chip-add { justify-self: start; }
+.extras { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.extras > .summary-line, .extras > .extra-open { flex-basis: 100%; }
+.task-edit-page.sb-add { gap: 0.8rem; }
+.extra-open { display: grid; gap: 0.6rem; padding: 0.7rem 0.8rem; border: 2px dashed var(--gold-dark); border-radius: 6px; }
+.extra-open .row { align-items: center; }
+.save-row { display: grid; gap: 0.4rem; justify-items: center; }
+.save-row .big { justify-self: stretch; }
+.end-night { justify-self: center; }
+.pile-setup { display: grid; gap: 0.6rem; padding-bottom: 0.6rem; }
+.pile-setup .task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+
+/* Pressed in: a thing that is on right now (a song playing) and pauses with one tap. Never gold. */
+.pressed-in { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }
+.now-playing-strip { margin: 0.2rem 0; }
+.read-out { display: grid; gap: 0.5rem; }
+.read-out h3 { margin: 0; }
+.read-out .conversion { text-align: center; }
+
+/* Run of show before the first task: who's here */
+.arrivals { display: grid; gap: 0.5rem; }
+.arrivals h3 { margin: 0; }
+.arrivals-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.arrivals-list li { display: flex; align-items: center; gap: 0.6rem; }
+.arrivals-list li.away { opacity: 0.55; }
+.arrivals-list .face { flex: none; width: 2rem; height: 2rem; border-radius: 4px; background: #0004; border: 1px solid var(--gold-dark); overflow: hidden; }
+.arrivals-list .face img { width: 100%; height: 100%; object-fit: cover; }
+.arrivals-list .name { flex: 1; font-family: var(--typewriter); }

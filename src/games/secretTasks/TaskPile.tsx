@@ -4,53 +4,17 @@ import type { Session } from "../../types";
 import { addTasks, clearLeftovers, dealRest, editTask, needsOf, removeTask, returnTask, undealtOf, useLeftovers, useSecretTasks } from "./data";
 
 /**
- * The host's phone, behind ✉ in the header whichever game is on: load the pile of secret tasks (any number,
- * one per line), take in envelopes left over from earlier parties, and correct a task in place. Each task is
- * an envelope on the pile that players pick from when they check in. What needs the host (someone who hasn't
- * looked, or is waiting for an envelope) comes first, and "Who has what" shows one task at a time, while held.
- * The pile itself comes last, folded.
+ * The host's phone, behind ✉ in the header whichever game is on: what needs the host mid-show (someone who
+ * hasn't looked, or is waiting for an envelope) first, then "Who has what", one task at a time. Loading the
+ * pile is planning, so it's on Plan the party (see PileSetup).
  */
-const PILE_KEY = "ba.pileOpen";
-
 export function TaskPile({ code, session }: { code: string; session: Session }) {
-  const uid = useUid();
   const tasks = useSecretTasks(code);
-  const leftovers = useLeftovers(code, uid, tasks);
-  const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [pileOpen, setPileOpen] = useState(() => { try { return localStorage.getItem(PILE_KEY) === "open"; } catch { return false; } });
-  const togglePile = () => setPileOpen((o) => { try { localStorage.setItem(PILE_KEY, o ? "closed" : "open"); } catch { /* fine */ } return !o; });
-  const [note, setNote] = useState<string>();
-  const [error, setError] = useState<string>();
-
-  // The receipt for an add fades after a few seconds; it's only for the host, not a stamp.
-  useEffect(() => {
-    if (!note) return;
-    const t = window.setTimeout(() => setNote(undefined), 4000);
-    return () => window.clearTimeout(t);
-  }, [note]);
-
   const players = Object.entries(session.players ?? {}).sort(([, x], [, y]) => (x.joinedAt ?? 0) - (y.joinedAt ?? 0));
   const undealt = undealtOf(tasks);
   const needing = players.filter(([id]) => !tasks?.assigned?.[id]).length;
   const needs = needsOf(session, tasks);
   const nameOf = (id: string) => session.players?.[id]?.name ?? "?";
-
-  async function add(lines: string[], after?: () => Promise<void>) {
-    setBusy(true);
-    setError(undefined);
-    setNote(undefined);
-    try {
-      const added = await addTasks(code, lines);
-      const given = lines.filter((l) => l.trim()).length;
-      await after?.();
-      setNote(added === given ? `Added ${added}.` : `Added ${added}. ${given - added} ${given - added === 1 ? "was" : "were"} already in the pile.`);
-      return true;
-    } catch {
-      setError("Couldn't add them. Try again.");
-      return false;
-    } finally { setBusy(false); }
-  }
 
   return (
     <div className="box-setup">
@@ -69,30 +33,9 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
       {needs.waiting.length > 0 && (
         <section className="move-request">
           <p><strong>Waiting for an envelope:</strong> {needs.waiting.map(nameOf).join(", ")}</p>
-          <p className="muted small">The pile is empty. Add {needs.waiting.length} more.</p>
+          <p className="muted small">The pile is empty. Add {needs.waiting.length} more on Plan the party.</p>
         </section>
       )}
-      {note && <p className="muted small fade-note">{note}</p>}
-      {error && <p className="error">{error}</p>}
-
-      {uid && leftovers && leftovers.length > 0 && (
-        <section className="leftovers">
-          <h3>Left over from your last party ({leftovers.length})</h3>
-          <ul className="task-list">{leftovers.map((t) => <li key={t}><span>{t}</span></li>)}</ul>
-          <button disabled={busy} onClick={() => void add(leftovers, () => clearLeftovers(code, uid))}>
-            Add {leftovers.length === 1 ? "it" : `all ${leftovers.length}`} to the pile
-          </button>
-          <button className="link" onClick={() => void clearLeftovers(code, uid)}>Forget these</button>
-        </section>
-      )}
-
-      <label>New tasks, one per line
-        <textarea rows={4} value={text} maxLength={3000} onChange={(e) => setText(e.target.value)}
-          placeholder={"Make someone say \"banana\"\nGet three people to high-five"} />
-      </label>
-      <button className="big" disabled={busy || !text.trim()} onClick={() => void add(text.split("\n")).then((ok) => ok && setText(""))}>
-        {busy ? "Adding…" : "Add to the pile"}
-      </button>
       {/* Quiet: telling someone to pick is better, and a dealt guest still hasn't looked. */}
       {needing > 0 && undealt.length > 0 && (
         <button className="link" onClick={() => void dealRest(code, session, tasks)}>Deal at random to anyone who hasn't picked</button>
@@ -107,21 +50,81 @@ export function TaskPile({ code, session }: { code: string; session: Session }) 
           return <WhoRow key={id} code={code} uid={id} name={p.name} task={task} state={state} />;
         })}
       </ul>
-
-      {/* below the guests, folded away unless the host opens it (remembered on this device) */}
-      <h3 className="fold-head">
-        <button aria-expanded={pileOpen} onClick={() => togglePile()}>{pileOpen ? "▾" : "▸"} The pile ({undealt.length})</button>
-      </h3>
-      {pileOpen && (
-        <>
-          {undealt.length > 0 && <p className="muted small">Tap a task to fix it.</p>}
-          <ul className="task-list">
-            {undealt.map(([id, t]) => <PileTask key={id} code={code} text={t} onRemove={() => void removeTask(code, id)} />)}
-          </ul>
-        </>
-      )}
     </div>
   );
+}
+
+/**
+ * Loading the pile of secret tasks, on Plan the party: any number, one per line, envelopes left over from
+ * earlier parties, and the pile itself, where a task is corrected in place or taken out. Each task is an
+ * envelope players pick from when they check in.
+ */
+export function PileSetup({ code }: { code: string }) {
+  const uid = useUid();
+  const tasks = useSecretTasks(code);
+  const leftovers = useLeftovers(code, uid, tasks);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string>();
+  const [error, setError] = useState<string>();
+  const undealt = undealtOf(tasks);
+
+  // The receipt for an add fades after a few seconds; it's only for the host, not a stamp.
+  useEffect(() => {
+    if (!note) return;
+    const t = window.setTimeout(() => setNote(undefined), 4000);
+    return () => window.clearTimeout(t);
+  }, [note]);
+
+  async function add(lines: string[], after?: () => Promise<void>) {
+    setBusy(true);
+    setError(undefined);
+    setNote(undefined);
+    try {
+      const added = await addTasks(code, lines);
+      const given = lines.filter((l) => l.trim()).length;
+      await after?.();
+      setNote(added === given ? `Added ${added}.` : `Added ${added}. ${given - added} ${given - added === 1 ? "was" : "were"} already in the pile.`);
+      return true;
+    } catch {
+      setError("Couldn't add them. Try again.");
+      return false;
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <div className="pile-setup sb-add">
+      {note && <p className="muted small fade-note">{note}</p>}
+      {error && <p className="error">{error}</p>}
+      {uid && leftovers && leftovers.length > 0 && (
+        <section className="leftovers">
+          <h3>Left over from your last party ({leftovers.length})</h3>
+          <ul className="task-list">{leftovers.map((t) => <li key={t}><span>{t}</span></li>)}</ul>
+          <button disabled={busy} onClick={() => void add(leftovers, () => clearLeftovers(code, uid))}>
+            Add {leftovers.length === 1 ? "it" : `all ${leftovers.length}`} to the pile
+          </button>
+          <button className="link" onClick={() => void clearLeftovers(code, uid)}>Forget these</button>
+        </section>
+      )}
+      <label>New tasks, one per line
+        <textarea rows={4} value={text} maxLength={3000} onChange={(e) => setText(e.target.value)}
+          placeholder={"Make someone say \"banana\"\nGet three people to high-five"} />
+      </label>
+      <button disabled={busy || !text.trim()} onClick={() => void add(text.split("\n")).then((ok) => ok && setText(""))}>
+        {busy ? "Adding…" : "Add to the pile"}
+      </button>
+      {undealt.length > 0 && <p className="muted small">Tap a task to fix it.</p>}
+      <ul className="task-list">
+        {undealt.map(([id, t]) => <PileTask key={id} code={code} text={t} onRemove={() => void removeTask(code, id)} />)}
+      </ul>
+    </div>
+  );
+}
+
+/** "✉ Secret envelopes · 12 in the pile" for Plan the party's summary line. */
+export function usePileCount(code: string): number | undefined {
+  const tasks = useSecretTasks(code);
+  return tasks === undefined ? undefined : undealtOf(tasks).length;
 }
 
 /**
