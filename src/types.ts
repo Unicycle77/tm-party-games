@@ -363,7 +363,7 @@ export interface Session {
   showDownload?: boolean;
   /** The host remote's "Show QR code" is open: the big screen puts the join QR above its corner code too. */
   showQr?: boolean;
-  /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down. */
+  /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
   jukebox?: Jukebox;
   scoreboard?: Scoreboard;
