@@ -84,9 +84,9 @@ function build() {
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
       break;
     // Secret Tasks: Sam's secret is up on the big screen; on the host's phone, everyone has theirs and Tom hasn't looked yet.
-    case "tv-secret":
+    case "tv-secret": case "tv-secret-sealed":
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
-      g.secretTasks!.reveal = { order: ["sam", "alex", "greg", "mei", "priya", "tom"], index: 0, task: "Hum a tune only you know.", startedAt: 1 };
+      g.secretTasks!.reveal = { order: ["sam", "alex", "greg", "mei", "priya", "tom"], index: 0, ...(shot === "tv-secret" ? { task: "Hum a tune only you know." } : {}), startedAt: 1 };
       break;
     case "host-secret":
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);

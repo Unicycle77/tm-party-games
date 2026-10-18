@@ -33,6 +33,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `haul-main-winner.jpg` | Main screen: the Prize Haul with Alex in the centre as "Alex is the winner!" and the four prize photos hung around him with "from" placards (taken 2026-10-18 from the ABCD party, silhouette headshot) |
 | `haul-host-up.jpg` | Host phone with the haul on the big screen: "On the big screen: the prize haul", gold "Lower the curtain", "Back to the scoreboard" as a link (taken 2026-10-18 from the ABCD party) |
 | `main-secret-tasks.jpg` | Secret Tasks on the big screen: "What was Sam's secret?" over the opened envelope, the task on its paper (2026-10-18) |
+| `main-secret-sealed.jpg` | Main screen during the Secret Tasks reveal before the envelope opens: "What was Sam's secret?" over the sealed envelope with the red TM wax seal (taken 2026-10-18 from the ABCD party) |
 | `guest-secret-open.jpg` | Sam's opened envelope on the guest phone: the task on its paper, "Seal it again", the to-do list with the secret envelope "picked" (2026-10-18) |
 | `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
 
