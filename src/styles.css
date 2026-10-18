@@ -1251,5 +1251,5 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-won-bar p { margin: 0; }
 .sb-won-bar .picker { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
 .sb-points.has-bar { padding-bottom: 9rem; }
-/* "Show the task text" while its text is up: pressed in, like a marked chip, never gold */
+/* "Show the task" while its text is up: pressed in, like a marked chip, never gold */
 .scoreboard-remote > button.pressed { transform: translateY(2px); box-shadow: inset 0 2px 3px #0005; background: #e6d6b0; font-weight: bold; }

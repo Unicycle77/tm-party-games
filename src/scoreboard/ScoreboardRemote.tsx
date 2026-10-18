@@ -126,7 +126,7 @@ function ShowControls({ code, session, onTiebreak, text }: {
   const haulUp = session.display?.step === "haul";
   const textShown = session.display?.step === "tasktext" && session.display.task === text;
   const line = noBigScreen(session) ? "not connected yet" : up ? "the scoreboard" : haulUp ? "the prize haul"
-    : session.display?.step === "tasktext" ? "the task text"
+    : session.display?.step === "tasktext" ? "the task"
     : session.display?.step === "curtain" || (!game && session.begun) ? "the curtain"
     : !game ? "the welcome" : game.name;
 
@@ -168,7 +168,7 @@ function ShowControls({ code, session, onTiebreak, text }: {
       {text && !haulUp && (
         // The open task's text: paper, since it's optional and the gold stays on what's next. Pressed in while it's up.
         <button className={textShown ? "pressed" : undefined} aria-pressed={textShown}
-          onClick={() => void (textShown ? lowerCurtain(code) : showTaskText(code, text))}>Show the task text</button>
+          onClick={() => void (textShown ? lowerCurtain(code) : showTaskText(code, text))}>Show the task</button>
       )}
       {!haulUp && unscored.length > 0 && (final ? (
         <p className="muted small">
