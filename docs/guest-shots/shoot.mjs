@@ -13,7 +13,7 @@ const SHOTS = {
   "guest-home-todo": ["home-todo-envelope"],
   "guest-home-prize-ask": ["home-prize-ask"],
   "guest-prize-photos": ["prize-check", "", async (p) => {
-    const pngs = ["#6b4a2a", "#3d4a5a", "#7a5a3a"].map((c) => ({ name: `${c}.svg`, mimeType: "image/svg+xml", buffer: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${c}"/></svg>`) }));
+    const pngs = [["🍑", "#8a6a45"], ["🥕", "#a98660"], ["🐱", "#7d8f6f"]].map(([e, c]) => ({ name: `${e}.svg`, mimeType: "image/svg+xml", buffer: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${c}"/><rect x="20" y="20" width="80" height="80" rx="4" fill="#f3ead7"/><text x="60" y="84" font-size="56" text-anchor="middle">${e}</text></svg>`) }));
     const chooser = p.waitForEvent("filechooser");
     await p.getByRole("button", { name: /Yes, add photos/ }).click();
     await (await chooser).setFiles(pngs);
@@ -27,6 +27,8 @@ const SHOTS = {
   "main-welcome": ["tv-welcome"],
   "main-noisemaster": ["tv-noisemaster"],
   "main-secret-tasks": ["tv-secret"],
+  "prize-main-photo": ["tv-prize"],
+  "prize-host-up": ["host-prize"],
   "guest-secret-open": ["home-waiting", "", async (p) => { await p.getByRole("button", { name: /Secret envelope/ }).click(); await p.getByRole("button", { name: /Open your secret task/ }).click(); await p.waitForTimeout(1500); }],
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page

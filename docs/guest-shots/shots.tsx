@@ -23,6 +23,14 @@ const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
+// Prize photos as stand-in pictures: an emoji on a cream card, 4:3, so the frame on the big screen hangs them as photos.
+const prizePic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="${bg}"/><rect x="170" y="70" width="460" height="460" rx="8" fill="#f3ead7"/><text x="400" y="400" font-size="300" text-anchor="middle">${e}</text></svg>`)}`;
+const PRIZE_PHOTOS: Record<string, string[]> = {
+  sam: [prizePic("🍑", "#8a6a45"), prizePic("🥕", "#a98660"), prizePic("🐱", "#7d8f6f")],
+  priya: [prizePic("🎺", "#6b4a2a"), prizePic("🧦", "#3d4a5a")],
+  alex: [prizePic("🥒", "#5f7a4f")],
+  greg: [prizePic("🦆", "#8a6a45")],
+};
 const PRIZE = "The most surprising quite-big thing you can conceal on your person";
 const HEAD = "The most unjustifiably-confident headshot";
 
@@ -84,6 +92,13 @@ function build() {
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).filter((id) => id !== "tom").map((id) => [id, true]));
       break;
+    // The prize task: Sam's prize, photo 2, is on the big screen; on the host's phone he's presenting and the others have photos in (Mei and Tom not yet).
+    case "tv-prize": case "host-prize":
+      picked(); task("prize"); set("display", { step: "photo", contestant: "sam", index: 1 }); set("begun", true);
+      // No words on the task here, so the host's page is the prizes: who has photos in, and Sam's on the big screen.
+      if (shot === "host-prize") delete (tasks.t3 as { text?: string }).text;
+      g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
+      break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
@@ -93,7 +108,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot === "host-noisemaster") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot === "host-noisemaster" || shot === "host-prize") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -105,7 +120,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-secret" ? { view: "tasks" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-secret" ? { view: "tasks" } : shot === "host-prize" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

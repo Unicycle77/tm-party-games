@@ -11,7 +11,7 @@ const SHOTS = [
   ["2-walk-in", "#check-in", "#check-in"],
   ["3-tasks-noisemaster", "#tasks", "#nm"],
   ["4-tasks-secret-tasks", "#secret", "#secret"],
-  ["5-tasks-prize", ".task:nth-child(1)", "#tasks"],
+  ["5-tasks-prize", "#prize", "#prize"],
   ["6-run-the-show", "#host", "#host"],
   ["7-scoreboard", "#scoreboard", "#scoreboard"],
   ["8-prize-haul", "#haul", "section.signoff"],
@@ -33,8 +33,8 @@ const PAD = 24; // curtain around a task cut out of the middle of its section
   for (const [name, from, to] of SHOTS) {
     const a = await tab.locator(from).boundingBox();
     const b = await tab.locator(to).boundingBox();
-    const top = /^(\.task|#secret)/.test(from) ? a.y - PAD : a.y;
-    const bottom = /^(\.task|#secret)/.test(to) ? b.y + b.height + (to === "#secret" ? 8 : PAD) : b.y + b.height;
+    const top = /^(\.task|#secret|#prize)/.test(from) ? a.y - PAD : a.y;
+    const bottom = /^(\.task|#secret|#prize)/.test(to) ? b.y + b.height + (/^#(secret|prize)/.test(to) ? 8 : PAD) : b.y + b.height;
     await tab.screenshot({ path: path.join(out, `${name}.jpg`), type: "jpeg", quality: 85, fullPage: true,
       clip: { x: 0, y: top, width: 390, height: bottom - top } });
   }

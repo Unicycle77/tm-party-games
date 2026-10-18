@@ -111,6 +111,8 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 /* tasks: each one an index card under its screen, scattered a little like the game picker */
 .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.2rem; grid-template-columns: 1fr; }
 @media (min-width: 760px) { .tasks { grid-template-columns: minmax(0, 24rem); justify-content: center; } }
+/* the prize photo already hangs in its own gold frame, so the TV is shown plain, not framed twice */
+.tv-plain { width: 100%; max-width: 860px; height: auto; display: block; border: 3px solid var(--gold); border-radius: 4px; box-shadow: 0 14px 22px rgba(0, 0, 0, 0.7); }
 /* a task shown whole: its TV, then the guest's phone and the host's */
 .task-set { display: grid; gap: 1rem; }
 .task-set h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold-bright); font-size: 1.6rem; text-shadow: 0 2px 0 #000a; }
@@ -223,15 +225,24 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
         </figure>
       </div>
     </article>
-    <ul class="tasks">
-      <li class="task">
-        <img src="img/t-prize.jpg" width="720" height="540" alt="A prize photo hung in the gold frame on the TV, labelled Prize, Sam.">
-        <div class="card">
-          <h3>Prize task</h3>
-          <p>Everyone brings a prize. Each one is hung in the gold frame on the TV, and the winner takes the whole haul home.</p>
-        </div>
-      </li>
-    </ul>
+    <article id="prize" class="task-set">
+      <h3>Prize task</h3>
+      <p>Everyone brings a prize and sends photos of it. The host hangs each one in the gold frame on the TV, and the winner takes the whole haul home.</p>
+      <figure class="tv">
+        <img class="tv-plain" src="img/tv-prize-photo.jpg" width="1200" height="675" alt="A prize photo of a carrot hung in the gold frame on the TV, labelled Prize, Sam.">
+        <figcaption class="caption">On the TV: Sam's prize</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-prize-guest.jpg" width="520" height="977" alt="Sam's phone: Your prize photos, three thumbnails, and a gold Submit 3 photos button."></div>
+          <figcaption class="caption">Your phone: send photos</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-prize-host.jpg" width="520" height="1147" alt="The host's phone: the prize task with who has photos in, and Sam's three photos with the second on the big screen."></div>
+          <figcaption class="caption">The host picks which one goes up</figcaption>
+        </figure>
+      </div>
+    </article>
   </section>
 
   <section class="moment" id="host">
