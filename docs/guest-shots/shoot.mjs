@@ -35,6 +35,8 @@ const SHOTS = {
   "noisemaster-host-round": ["host-noisemaster"],
   "run-of-show-host": ["host-run"],
   "points-host-given": ["host-points"],
+  "haul-main-winner": ["tv-haul"],
+  "haul-host-up": ["host-haul"],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
 };

@@ -46,7 +46,7 @@ function build() {
   const checkedIn = new Set(arriving ? ids.filter((id) => id !== "sam") : ids);
   const contestants = Object.fromEntries(ids.map((id, i) => [id, {
     name: people[id], order: i,
-    ...(!(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.startsWith("tv-scores")) ? { photo: face("#6b5a44") } : {}),
+    ...(shot.endsWith("haul") ? { photo: "/docs/guest-shots/faces/silhouette.jpg" } : !(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.includes("scores") || shot.endsWith("haul")) ? { photo: face("#6b5a44") } : {}),
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
   if (arriving) for (const id of checkedIn) contestants[id]!.uid = id;
@@ -101,11 +101,12 @@ function build() {
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
-    case "tv-scores-before": case "tv-scores": {
-      picked(); set("display", { step: "scoreboard" }); set("begun", true);
+    case "tv-scores-before": case "tv-scores": case "tv-haul": case "host-haul": {
+      picked(); set("display", { step: shot.endsWith("haul") ? "haul" : "scoreboard" }); set("begun", true);
       const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 };
       Object.assign(tasks.t1 as object, { scores: t1 }); Object.assign(tasks.t2 as object, { scores: t2 }); Object.assign(tasks.t3 as object, { scores: t3 });
-      (session.scoreboard as { shown?: unknown }).shown = shot === "tv-scores" ? { t1, t2, t3 } : { t1, t2 };
+      (session.scoreboard as { shown?: unknown }).shown = shot === "tv-scores-before" ? { t1, t2 } : { t1, t2, t3 };
+      if (shot.endsWith("haul")) { (session.scoreboard as { final?: boolean }).final = true; g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true, alex: true, greg: true, priya: true } }; }
       break;
     }
     case "checkin-rules": case "checkin-pile": break;
@@ -117,7 +118,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -129,7 +130,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
