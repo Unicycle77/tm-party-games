@@ -72,7 +72,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
           Declaring the winner with {list(unscored)} unscored. <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button>
         </p>
       ) : up && !pending.length && (
-        <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or declare the winner on Plan the party.</p>
+        <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or end the night now, below the list.</p>
       ))}
       <UpNext code={code} session={session} quiet={!!scores} onOpen={onOpen} />
       {!up && !haulUp && !winner && (
@@ -84,6 +84,10 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         </>
       )}
       <TaskList session={session} onOpen={onOpen} />
+      {/* The night can end before every task is played: one last update, then the haul. */}
+      {!final && !haulUp && tasks.some(([, t]) => scored(t)) && (
+        <button className="link end-night" onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>End the night now: declare the winner</button>
+      )}
       <div className="run-links">
         {/* A game that's not on the list is played on the same page, with no number and no points. */}
         <button className="link" onClick={() => onOpen("adhoc")}>

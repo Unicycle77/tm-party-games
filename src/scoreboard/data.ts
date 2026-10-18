@@ -20,6 +20,16 @@ export async function addContestant(code: string, board: Scoreboard | undefined,
   await set(at(code, `contestants/${key}`), { name: name.trim(), order: nextOrder(board?.contestants) });
 }
 
+/** Several contestants at once, one per line of a pasted list: added in that order, after the ones already there. */
+export async function addContestants(code: string, board: Scoreboard | undefined, text: string) {
+  const names = text.split("\n").map((n) => n.trim()).filter(Boolean);
+  const first = nextOrder(board?.contestants);
+  const patch: Record<string, unknown> = {};
+  names.forEach((name, i) => { patch[`contestants/${push(at(code, "contestants")).key!}`] = { name: name.slice(0, 20), order: first + i }; });
+  if (names.length) await update(at(code), patch);
+  return names.length;
+}
+
 /** Someone who joined by typing a name while there was no guest list: onto the scoreboard, linked to their phone. */
 export async function addPlayerToScoreboard(code: string, board: Scoreboard | undefined, uid: string, name: string) {
   const key = push(at(code, "contestants")).key!;

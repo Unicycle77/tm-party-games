@@ -151,6 +151,13 @@ function Sheet() {
               </ul>
             </div>
             <Cap>Run of show's task list (<code>.run-list</code>): read-only, one short state on the right; scored quiet, next <code>--gold-bright</code>; tap opens the task</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12, display: "grid", gap: 4 }}>
+              <div className="summary-line"><span>Halloween party<span className="muted small"> · portrait set · pin set</span></span><button className="link">Change</button></div>
+              <div className="summary-line"><span>♪ Song<span className="muted small"> · Eye of the Tiger · 4:05</span></span><button className="link">Change</button></div>
+              <div className="extras"><button className="chip-add">+ Task text</button><button className="chip-add">+ 📏 Unit</button></div>
+              <section className="extra-open"><span>Song (optional)</span><div className="row"><button>Done</button><button className="link">✕ Remove song</button></div></section>
+            </div>
+            <Cap>Summary lines (<code>.summary-line</code>): what's set, with "Change" to open just that part; what isn't is a "+" chip (<code>.chip-add</code>); one part open at a time (<code>.extra-open</code>)</Cap>
             <div className="mini-phone" style={{ width: "100%", display: "grid", gap: 8, marginTop: 12 }}>
               <SongStrip code="HVQB" session={jukebox(false)} song="Entry of the Gladiators" />
               <SongStrip code="HVQB" session={jukebox(true)} song="Hall of the Mountain King" />

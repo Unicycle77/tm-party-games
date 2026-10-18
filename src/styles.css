@@ -1143,15 +1143,6 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-task-list li, .sb-contestant-list li { display: flex; gap: 0.5rem; align-items: stretch; }
 .sb-task-list li.dragging { opacity: 0.7; }
 /* a task's song: a slim strip under its row, in line with the task card (see SongStrip.tsx) */
-.sb-task-list li.has-song { display: grid; grid-template-columns: auto 1fr auto auto; }
-.sb-task-list li.has-song > .sb-task { grid-column: 2; }
-.sb-task-list li.has-song.live > .sb-task { grid-column: 2 / 4; }
-.sb-task-list li.has-song > .x { grid-column: 4; }
-.sb-task-list li.has-song > .sb-song { grid-column: 2 / -1; }
-.sb-task-list li.has-song.tiebreaker { grid-template-columns: 1fr auto; }
-.sb-task-list li.has-song.tiebreaker > .sb-task { grid-column: 1; }
-.sb-task-list li.has-song.tiebreaker > .x { grid-column: 2; }
-.sb-task-list li.has-song.tiebreaker > .sb-song { grid-column: 1 / -1; }
 .sb-song { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; width: 100%; text-align: left; padding: 0.45rem 0.8rem; font-size: 0.95rem; }
 .sb-song .title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb-song .dur { flex: none; font-variant-numeric: tabular-nums; opacity: 0.75; }
@@ -1190,8 +1181,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-give { text-align: left; }
 .sb-rename button { flex: none; }
 @media (min-width: 1000px) {
-  .scoreboard-remote:has(.sb-tasks) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
-  .scoreboard-remote > h2, .scoreboard-remote > .sb-now-playing, .scoreboard-remote > .on-screen, .scoreboard-remote > button, .scoreboard-remote > p { grid-column: 1 / -1; }
+  /* Plan the party on a wide iPad: tasks on the left, contestants on the right, the rest across */
+  .scoreboard-remote.plan:not(.task-edit-page) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
+  .scoreboard-remote.plan > h2, .scoreboard-remote.plan > button, .scoreboard-remote.plan > .party-summary, .scoreboard-remote.plan > .envelopes { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
   .sb-chips { gap: 0.3rem; }
@@ -1280,3 +1272,23 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .task-page .sb-points h2 { margin: 0; }
 .task-page .sb-points p { margin: 0; }
 .task-page > p { margin: 0; }
+
+/* ---- Plan the party, and a task's ✎ page ---- */
+/* a summary line: what's set, with "Change" to open just that part in place */
+.summary-line { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; padding: 0.6rem 0; border-top: 1px solid #ffffff22; font-family: var(--typewriter); }
+.summary-line > span { min-width: 0; overflow-wrap: anywhere; }
+.summary-line .link { flex: none; }
+.summary-line .x { flex: none; }
+.party-summary .party-settings { padding: 0.5rem 0 0.8rem; }
+.plan .sb-task-list li .sb-task { opacity: 1; cursor: default; }
+.chip-add { justify-self: start; }
+.extras { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.extras > .summary-line, .extras > .extra-open { flex-basis: 100%; }
+.task-edit-page.sb-add { gap: 0.8rem; }
+.extra-open { display: grid; gap: 0.6rem; padding: 0.7rem 0.8rem; border: 2px dashed var(--gold-dark); border-radius: 6px; }
+.extra-open .row { align-items: center; }
+.save-row { display: grid; gap: 0.4rem; justify-items: center; }
+.save-row .big { justify-self: stretch; }
+.end-night { justify-self: center; }
+.pile-setup { display: grid; gap: 0.6rem; padding-bottom: 0.6rem; }
+.pile-setup .task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }

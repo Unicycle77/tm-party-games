@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { JoinQr } from "./HostRemote";
-import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { ConverterRemote } from "./conversions/ConverterRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
@@ -9,24 +8,25 @@ import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { PlanParty } from "./scoreboard/Planning";
+import { TaskEditPage } from "./scoreboard/TaskEditPage";
 import { RunOfShow } from "./scoreboard/RunOfShow";
 import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
 import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
-import { HostPinSetting, PinStep } from "./HostPin";
-import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
+import { PinStep } from "./HostPin";
+import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
 const BACK_KEY = "ba.hostBack";
-/** Run of show (home), a task's page, Plan the party, and the side jobs in the header. */
-type View = "show" | "task" | "plan" | "music" | "light" | "tasks" | "convert";
+/** Run of show (home), a task's page, Plan the party, a task's ✎ page, and the side jobs in the header. */
+type View = "show" | "task" | "plan" | "edit" | "music" | "light" | "tasks" | "convert";
 /** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
 interface Place { view: View; task?: string }
 const SIDE: View[] = ["music", "light", "tasks", "convert"];
-const VIEWS: View[] = ["show", "task", "plan", ...SIDE];
+const VIEWS: View[] = ["show", "task", "plan", "edit", ...SIDE];
 const HOME: Place = { view: "show" };
 
 /** A place this phone remembered; older phones kept just a view's name ("scoreboard" was home, "show" the game). */
@@ -108,10 +108,11 @@ export function HostPage() {
       {place.view === "task" && task === "adhoc" ? <AdHocPage code={code} session={session} onBack={() => go(HOME)} />
         : place.view === "task" && task === "tiebreaker" ? <TiebreakerPage code={code} session={session} onBack={() => go(HOME)} />
         : place.view === "task" && task ? <TaskPage code={code} session={session} id={task} onBack={() => go(HOME)} onLight={() => go({ view: "light" })} />
-        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onOpen={open} />
+        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onEdit={(id) => go({ view: "edit", task: id })} />
+        : place.view === "edit" && place.task ? <TaskEditPage code={code} session={session} id={place.task} onBack={() => go({ view: "plan" })} />
         : SIDE.includes(place.view) ? (
           <>
-            <button className="link back" onClick={() => go(back)}>← Back to {back.view === "task" ? "the task" : back.view === "plan" ? "Plan the party" : "the run of show"}</button>
+            <button className="link back" onClick={() => go(back)}>← Back to {back.view === "task" ? "the task" : back.view === "plan" ? "Plan the party" : back.view === "edit" ? "the task" : "the run of show"}</button>
             {place.view === "music" ? <JukeboxRemote code={code} session={session} />
               : place.view === "tasks" ? <TaskPile code={code} session={session} />
               : place.view === "convert" ? <ConverterRemote code={code} session={session} />
@@ -172,63 +173,6 @@ function MoveRequests({ code, session }: { code: string; session: Session }) {
   );
 }
 
-/** This party's Taskmaster portrait: shown framed on the big screen between games. */
-function Portrait({ code, session }: { code: string; session: Session }) {
-  const uid = useUid();
-  const input = useRef<HTMLInputElement>(null);
-  const [progress, setProgress] = useState<number>();
-  const [failed, setFailed] = useState(false);
-
-  async function upload(file: File | undefined) {
-    if (!file || !uid) return;
-    setFailed(false);
-    setProgress(0);
-    try { await uploadPortrait(code, uid, file, setProgress); }
-    catch { setFailed(true); }
-    finally { setProgress(undefined); }
-  }
-
-  return (
-    <div className="portrait-setting">
-      {session.portrait ? <img src={session.portrait} alt="The Taskmaster's portrait" /> : <div className="ph">No portrait</div>}
-      <div className="portrait-text">
-        <span>Taskmaster portrait</span>
-        <span className="muted small">Shown on the big screen between games.</span>
-        {progress !== undefined ? <span className="small">Uploading… {Math.round(progress * 100)}%</span>
-          : <button onClick={() => input.current?.click()}>{session.portrait ? "Change portrait" : "Upload portrait"}</button>}
-        {failed && <span className="error small">That didn't upload. Try again.</span>}
-      </div>
-      <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
-    </div>
-  );
-}
-
-/** The party's name, as typed when it was started (or none, for a party started on the big screen). */
-function PartyName({ code, session }: { code: string; session: Session }) {
-  const [name, setName] = useState(session.name ?? "");
-  // Someone else renaming it (another remote) shows up here, unless it's being edited.
-  const [editing, setEditing] = useState(false);
-  useEffect(() => { if (!editing) setName(session.name ?? ""); }, [session.name, editing]);
-  const changed = name.trim() !== (session.name ?? "") && !!name.trim();
-  const save = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!changed) return;
-    void renameParty(code, name);
-    setEditing(false);
-  };
-  return (
-    <form className="party-name" onSubmit={save}>
-      <label>Party name
-        <div className="row">
-          <input value={name} maxLength={40} placeholder="Halloween party"
-            onChange={(e) => { setName(e.target.value); setEditing(true); }} />
-          <button type="submit" disabled={!changed}>Save</button>
-        </div>
-      </label>
-    </form>
-  );
-}
-
 /** Set-once things, behind a quiet link at the bottom of the show. */
 function PartySettings({ code, session, onDisconnect }: { code: string; session: Session; onDisconnect: () => void }) {
   const [open, setOpen] = useState(false);
@@ -239,9 +183,6 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
-      <PartyName code={code} session={session} />
-      <HostPinSetting code={code} />
-      <Portrait code={code} session={session} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>
