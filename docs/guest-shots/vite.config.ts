@@ -19,6 +19,7 @@ export default defineConfig({
     },
   },
   define: Object.fromEntries(["API_KEY", "AUTH_DOMAIN", "DATABASE_URL", "PROJECT_ID", "STORAGE_BUCKET", "MESSAGING_SENDER_ID", "APP_ID"]
-    .map((k) => [`import.meta.env.VITE_FIREBASE_${k}`, JSON.stringify("shots")])),
+    .map((k) => [`import.meta.env.VITE_FIREBASE_${k}`, JSON.stringify("shots")])
+    .concat([["import.meta.env.VITE_PUBLIC_URL", JSON.stringify("https://tm-party-games.web.app")]])),
   server: { port: 5174 },
 });

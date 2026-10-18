@@ -110,7 +110,14 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 
 /* tasks: each one an index card under its screen, scattered a little like the game picker */
 .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.2rem; grid-template-columns: 1fr; }
-@media (min-width: 760px) { .tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; } }
+@media (min-width: 760px) { .tasks { grid-template-columns: minmax(0, 24rem); justify-content: center; } }
+/* the prize photo already hangs in its own gold frame, so the TV is shown plain, not framed twice */
+.tv-plain { width: 100%; max-width: 860px; height: auto; display: block; border: 3px solid var(--gold); border-radius: 4px; box-shadow: 0 14px 22px rgba(0, 0, 0, 0.7); }
+/* a task shown whole: its TV, then the guest's phone and the host's */
+.task-set { display: grid; gap: 1rem; }
+.task-set h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold-bright); font-size: 1.6rem; text-shadow: 0 2px 0 #000a; }
+.task-set > p { margin: 0; max-width: 36rem; }
+.task-set .phones { align-items: start; }
 .task { display: grid; gap: 0; min-width: 0; transform: rotate(var(--tilt)); }
 .task:nth-child(1) { --tilt: -0.8deg; }
 .task:nth-child(2) { --tilt: 0.7deg; }
@@ -148,7 +155,7 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
     <h1>Your living room is the Taskmaster's house.</h1>
     <p>One TV for the stage. A phone for every contestant. A phone for the host.</p>
     <figure>
-      <div class="frame"><img src="img/tv-secret.jpg" width="1200" height="675" alt="The TV during Secret Tasks: a sealed envelope with a red TM wax seal under the words What was Priya's secret?"></div>
+      <div class="frame"><img src="img/tv-secret.jpg" width="1200" height="675" alt="The TV during Secret Tasks: a sealed envelope with a red TM wax seal under the words What was Sam's secret?"></div>
       <figcaption class="caption">The TV, mid-reveal</figcaption>
     </figure>
   </section>
@@ -156,21 +163,21 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
   <section class="moment" id="check-in">
     <header>
       <span class="step">1 · Walk in</span>
-      <h2>Scan the TV. Tap your name.</h2>
-      <p>Every guest joins from their own phone, with nothing to download. The QR on the TV opens the party, you tap your name, and the stamp says you're in.</p>
+      <h2>Scan the TV. Find your name tag.</h2>
+      <p>Every guest joins from their own phone, with nothing to download. Scan the QR on the TV, tap your name tag, and pick a sealed envelope from the pile.</p>
     </header>
+    <figure class="tv">
+      <div class="frame"><img src="img/tv-welcome.jpg" width="1200" height="675" alt="The TV as guests arrive: Taskmaster, a join QR with Scan to join and the code ABCD, and Contestants (5): Alex, Greg, Mei, Priya and Tom, already in."></div>
+      <figcaption class="caption">On the TV: scan to join</figcaption>
+    </figure>
     <div class="phones">
       <figure>
-        <div class="phone"><img src="img/p-list.jpg" width="520" height="747" alt="A guest's phone: Joining Halloween party, tap your name, with six name buttons."></div>
-        <figcaption class="caption">Tap your name</figcaption>
+        <div class="phone"><img src="img/p-nametags.jpg" width="520" height="747" alt="A guest's phone: Find your name tag and tap it, over six HELLO my name is stickers, five of them faded and marked here."></div>
+        <figcaption class="caption">Tap your name tag</figcaption>
       </figure>
       <figure>
-        <div class="phone"><img src="img/p-confirm.jpg" width="520" height="747" alt="You're Sam? with a gold That's me button."></div>
-        <figcaption class="caption">Make sure it's you</figcaption>
-      </figure>
-      <figure>
-        <div class="phone"><img src="img/p-in.jpg" width="520" height="747" alt="A red You're in stamp and Welcome, Alex!"></div>
-        <figcaption class="caption">You're in</figcaption>
+        <div class="phone"><img src="img/p-envelopes.jpg" width="520" height="747" alt="Sam's phone: Pick an envelope, over ten sealed envelopes with red TM wax seals."></div>
+        <figcaption class="caption">Pick an envelope</figcaption>
       </figure>
     </div>
     <p class="swipe">Swipe for more →</p>
@@ -182,29 +189,60 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
       <h2>Tasks straight out of the show.</h2>
       <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three.</p>
     </header>
-    <ul class="tasks">
-      <li class="task">
-        <img src="img/t-noise.jpg" width="720" height="540" alt="Noisemaster on a phone: a red board of sixteen glowing buttons, next to the host's board showing the word behind each button.">
-        <div class="card">
-          <h3>Noisemaster</h3>
-          <p>Sixteen blank buttons on your phone, each one a sound on the TV. Press them in the right order to make it say the phrase.</p>
-        </div>
-      </li>
-      <li class="task">
-        <img src="img/t-secret.jpg" width="720" height="540" alt="A guest's secret task: a sealed envelope with a red TM seal, and the same envelope open on Get three people to high-five.">
-        <div class="card">
-          <h3>Secret Tasks</h3>
-          <p>A sealed envelope on your phone. Do what it says without anyone catching you, until the Taskmaster asks who can keep a secret.</p>
-        </div>
-      </li>
-      <li class="task">
-        <img src="img/t-prize.jpg" width="720" height="540" alt="A prize photo hung in the gold frame on the TV, labelled Prize, Sam.">
-        <div class="card">
-          <h3>Prize task</h3>
-          <p>Everyone brings a prize. Each one is hung in the gold frame on the TV, and the winner takes the whole haul home.</p>
-        </div>
-      </li>
-    </ul>
+    <article id="nm" class="task-set">
+      <h3>Noisemaster</h3>
+      <p>Sixteen blank buttons on your phone, each one a sound on the TV. Press them in the right order to make it say the phrase.</p>
+      <figure class="tv">
+        <div class="frame"><img src="img/tv-noisemaster.jpg" width="1200" height="675" alt="Noisemaster on the TV: the words I and am said so far, a red soundboard with one button lit green, and Sam's clock at 0:23.7, 2 of 4 words, 1 restart."></div>
+        <figcaption class="caption">On the TV: the words so far, and the clock</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-noise-guest.jpg" width="520" height="1080" alt="Sam's phone: You're up! Make the big screen say your phrase, the phrase I am the Noisemaster, and sixteen blank buttons."></div>
+          <figcaption class="caption">Your phone: blank buttons</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-noise-host.jpg" width="520" height="1133" alt="The host's phone: Sam at the soundboard, the clock, and the same board with the word on every button."></div>
+          <figcaption class="caption">The host sees the words</figcaption>
+        </figure>
+      </div>
+    </article>
+    <article id="secret" class="task-set">
+      <h3>Secret Tasks</h3>
+      <p>A sealed envelope on your phone. Do what it says without anyone catching you, until the Taskmaster asks who can keep a secret.</p>
+      <figure class="tv">
+        <div class="frame"><img src="img/tv-secret-tasks.jpg" width="1200" height="675" alt="The TV: What was Sam's secret? over an open envelope with the task Hum a tune only you know."></div>
+        <figcaption class="caption">On the TV: the big reveal</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-secret-guest.jpg" width="520" height="733" alt="Sam's phone: his envelope opened on Hum a tune only you know."></div>
+          <figcaption class="caption">Your phone: tell no one</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-secret-host.jpg" width="520" height="1125" alt="The host's phone: Haven't looked yet: Tom, and Who has what, with Sam's task open."></div>
+          <figcaption class="caption">The host sees who has what</figcaption>
+        </figure>
+      </div>
+    </article>
+    <article id="prize" class="task-set">
+      <h3>Prize task</h3>
+      <p>Tonight's prize: “the most unusual thing to bring on a first date”. Everyone brings one and sends photos of it. The host hangs each one in the gold frame on the TV, and the winner takes the whole haul home.</p>
+      <figure class="tv">
+        <img class="tv-plain" src="img/tv-prize-photo.jpg" width="1200" height="675" alt="A prize photo of a colourful sock puppet with glasses hung in the gold frame on the TV, labelled Prize, Sam.">
+        <figcaption class="caption">On the TV: Sam's prize</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-prize-guest.jpg" width="520" height="977" alt="Sam's phone: Your prize photos, one photo thumbnail, and a gold Submit 1 photo button."></div>
+          <figcaption class="caption">Your phone: send photos</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-prize-host.jpg" width="520" height="1147" alt="The host's phone: the prize task with who has photos in, and Sam's photo on the big screen."></div>
+          <figcaption class="caption">The host picks which one goes up</figcaption>
+        </figure>
+      </div>
+    </article>
   </section>
 
   <section class="moment" id="host">
@@ -215,19 +253,14 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
     </header>
     <div class="phones">
       <figure>
-        <div class="phone"><img src="img/p-host-run.jpg" width="520" height="747" alt="The host's run of show: now playing Photos, best costume, and the list of tasks with Start buttons."></div>
+        <div class="phone"><img src="img/p-host-run.jpg" width="520" height="760" alt="The host's run of show: on the big screen the soundboard, a gold Start Headshot button for the next task, and the list of all eight tasks."></div>
         <figcaption class="caption">The run of show</figcaption>
       </figure>
       <figure>
-        <div class="phone"><img src="img/p-host-next.jpg" width="520" height="747" alt="The host's phone during the Headshot task: Sam on the big screen, and a gold Next: Mei button."></div>
-        <figcaption class="caption">Who's up next</figcaption>
-      </figure>
-      <figure>
-        <div class="phone"><img src="img/p-host-points.jpg" width="520" height="747" alt="Giving points for Build the tallest tower: a row of 0 to 5 for each contestant, with their running total."></div>
+        <div class="phone"><img src="img/p-host-points.jpg" width="520" height="760" alt="Giving points for the prize task: a row of DQ, 1 to 5 and +1 for each guest, with their running total, four already scored."></div>
         <figcaption class="caption">Give points</figcaption>
       </figure>
     </div>
-    <p class="swipe">Swipe for more →</p>
   </section>
 
   <section class="moment" id="scoreboard">
@@ -237,8 +270,12 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
       <p>When the host updates the scores, the wax seals tick up, everyone shuffles into order, and the leader's frame grows.</p>
     </header>
     <figure class="tv">
-      <div class="frame"><img src="img/tv-scores.jpg" width="1200" height="675" alt="The scoreboard on the TV: five gold-framed headshots over an old typewriter, each with a red wax seal showing their score, 7, 7, 8, 11 and 12."></div>
-      <figcaption class="caption">The scoreboard, leader on the right</figcaption>
+      <div class="frame"><img src="img/tv-scores-before.jpg" width="1200" height="675" alt="The scoreboard on the TV before the update: six gold-framed headshots over an old typewriter, each with a red wax seal, 4, 5, 5, 7, 7 and 9."></div>
+      <figcaption class="caption">Before the host updates</figcaption>
+    </figure>
+    <figure class="tv">
+      <div class="frame"><img src="img/tv-scores.jpg" width="1200" height="675" alt="The scoreboard after the update: the seals have ticked up to 5, 7, 9, 11, 12 and 14, and everyone has shuffled into order."></div>
+      <figcaption class="caption">After: seals ticked up, everyone re-sorted</figcaption>
     </figure>
   </section>
 
@@ -246,12 +283,18 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
     <header>
       <span class="step">5 · The Prize Haul</span>
       <h2>The winner takes the lot.</h2>
-      <p>At the end of the night the winner goes up in the middle, with every prize hung around them and a placard saying who brought it.</p>
+      <p>When the host calls the winner, they go up in the middle of the TV with every prize hung around them and a placard saying who brought it.</p>
     </header>
     <figure class="tv">
-      <div class="frame"><img src="img/tv-haul.jpg" width="1200" height="675" alt="Prize Haul on the TV: the winner in the large centre frame captioned Priya is the winner!, with prizes from Sam and Priya hung either side."></div>
-      <figcaption class="caption">Priya is the winner!</figcaption>
+      <div class="frame"><img src="img/tv-haul.jpg" width="1200" height="675" alt="Prize Haul on the TV: Alex in the large centre frame captioned Alex is the winner!, with the prizes from Alex, Greg, Priya and Sam hung either side: jerky flowers, a goat in pink sunglasses, a Voltron toy and a sock puppet."></div>
+      <figcaption class="caption">Alex is the winner!</figcaption>
     </figure>
+    <div class="phones" style="max-width:52%;margin-inline:auto">
+      <figure>
+        <div class="phone"><img src="img/p-haul-host.jpg" width="520" height="480" alt="The host's phone: on the big screen the prize haul, a gold Lower the curtain button and a link back to the scoreboard."></div>
+        <figcaption class="caption">The host shows the haul</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="signoff">

@@ -12,7 +12,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 
 | File | What it shows |
 |---|---|
-| `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, Priya and Tom faded with "✓ here", status line "Find your name tag and tap it" |
+| `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, everyone but Sam faded with "✓ here", status line "Find your name tag and tap it" |
 | `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 2" |
 | `guest-checkin-headshot.jpg` | No headshot on file: "To do now · Add your headshot", the same frame, the Headshot task's words, two paper buttons |
 | `guest-checkin-rules.jpg` | Secret Tasks at check-in, moment one: the whole rules card and gold "Got it: pick an envelope →" |
@@ -24,6 +24,17 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
+| `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
+| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
+| `run-of-show-host.jpg` | Host phone: the Run of show, "Up next" card with the gold Start button, "Show the scoreboard", and all eight tasks (taken 2026-10-18 from the ABCD party) |
+| `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
+| `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
+| `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
+| `haul-main-winner.jpg` | Main screen: the Prize Haul with Alex in the centre as "Alex is the winner!" and the four prize photos hung around him with "from" placards (taken 2026-10-18 from the ABCD party, silhouette headshot) |
+| `haul-host-up.jpg` | Host phone with the haul on the big screen: "On the big screen: the prize haul", gold "Lower the curtain", "Back to the scoreboard" as a link (taken 2026-10-18 from the ABCD party) |
+| `main-secret-tasks.jpg` | Secret Tasks on the big screen: "What was Sam's secret?" over the opened envelope, the task on its paper (2026-10-18) |
+| `main-secret-sealed.jpg` | Main screen during the Secret Tasks reveal before the envelope opens: "What was Sam's secret?" over the sealed envelope with the red TM wax seal (taken 2026-10-18 from the ABCD party) |
+| `guest-secret-open.jpg` | Sam's opened envelope on the guest phone: the task on its paper, "Seal it again", the to-do list with the secret envelope "picked" (2026-10-18) |
 | `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
 
 Host phone (`/host`, 390px wide):
@@ -54,7 +65,7 @@ Main screen (`/`, 1600×900):
 
 | File | What it shows |
 |---|---|
-| `main-welcome.jpg` | The welcome: join QR, code, contestants |
+| `main-welcome.jpg` | The welcome: join QR, code ABCD, contestants (the five who are in, Sam still to come), the same party as the check-in phones below (2026-10-18) |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
 | `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
@@ -141,7 +152,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-add-game.jpg` | "+ App game" on Plan the party: Noisemaster and Headshot greyed out as "on the list", Photos still offered (2026-10-18) |
 | `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
 | `host-setup-import-check.jpg` | The import check under that row, from the real `ImportCheck` component: "Import \"Halloween party\"?", "Nothing changes until you tap Import.", the tasks as they'll be (unchanged, new, kept: has points), Removed, Tiebreaker, Secret tasks with who picks again, The light, songs not in the music folder, gold "Import 5 tasks" and Cancel (2026-10-18) |
-| `secret-tasks-host-who-has-what.jpg` | Secret tasks on the host app (✉): "Who has what" with Sam's task tapped open ("Tap again to hide it."), the pile folded below |
+| `secret-tasks-host-who-has-what.jpg` | The host's ✉ page: "Haven't looked yet: Tom", then "Who has what" with Sam's task opened, Tom's row "hasn't looked" (re-shot 2026-10-18 from the ABCD party) |
 | `secret-tasks-host-pile-open.jpg` | "✉ Secret envelopes" opened with Change on Plan the party: "New tasks, one per line", Add to the pile, and the pile to fix or take out (2026-10-18) |
 | `secret-tasks-player-pile-drag.jpg` | A guest's phone picking an envelope: the pile, then an envelope being dragged off the others |
 | `secret-tasks-player-envelope.jpg` | A guest's envelope: sealed ("Tap the seal to open it."), and open with "Seal it again" |
@@ -151,8 +162,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (stand-in photos) |
 | `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (stand-in photos) |
 | `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Sam's prize, his photos as previews with ★, nothing on the big screen yet (stand-in photos) |
-| `prize-host-up.jpg` | Prize task on the iPad with Sam's second photo on the big screen: gold ring and "on the big screen", ✕ to remove a photo and ☆ to move the ★, Lower the curtain enabled (stand-in photos) |
-| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Sam" (stand-in photo) |
+| `prize-host-up.jpg` | The host phone's Prize task page: who has photos in (Sam presenting), then Sam's three photos with the second on the big screen, Add photos, Lower the curtain, Points (re-shot 2026-10-18; the task has no words here, so no paper card) |
+| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame like a headshot, with the small label "PRIZE · Sam" (re-shot 2026-10-18 from the ABCD party, Sam's sock puppet) |
 | `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards |
 | `run-of-show-host-haul-remote.jpg` | The run of show after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link (2026-10-18) |
