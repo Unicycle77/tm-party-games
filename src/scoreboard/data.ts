@@ -237,7 +237,7 @@ export const updateScores = (code: string, board: Scoreboard | undefined) => {
  */
 export const declareWinner = (code: string, on = true) =>
   update(ref(db(), `sessions/${code}`), on
-    ? { "scoreboard/final": true, display: { step: "scoreboard" } }
+    ? { "scoreboard/final": true, display: { step: "scoreboard" }, conversion: null }
     : { "scoreboard/final": null });
 
 export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain" });

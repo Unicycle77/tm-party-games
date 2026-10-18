@@ -48,7 +48,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     preloadImages(photoUrls.split("\n"));
   }, [photoUrls]);
 
-  // A useless conversion covers whatever is on, until the host takes it down.
+  // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // The scoreboard belongs to no game, so it can go up whatever is on.
   if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
