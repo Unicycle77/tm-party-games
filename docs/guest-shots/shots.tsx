@@ -46,7 +46,7 @@ function build() {
   const checkedIn = new Set(arriving ? ids.filter((id) => id !== "sam") : ids);
   const contestants = Object.fromEntries(ids.map((id, i) => [id, {
     name: people[id], order: i,
-    ...(!(shot === "checkin-headshot" && id === who) && id !== "tom" ? { photo: face("#6b5a44") } : {}),
+    ...(!(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.startsWith("tv-scores")) ? { photo: face("#6b5a44") } : {}),
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
   if (arriving) for (const id of checkedIn) contestants[id]!.uid = id;
@@ -100,6 +100,14 @@ function build() {
       if (shot === "host-points") (tasks.t3 as { scores?: Record<string, number> }).scores = { alex: 3, greg: 4, priya: 5, sam: 5 };
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
+    // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
+    case "tv-scores-before": case "tv-scores": {
+      picked(); set("display", { step: "scoreboard" }); set("begun", true);
+      const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 };
+      Object.assign(tasks.t1 as object, { scores: t1 }); Object.assign(tasks.t2 as object, { scores: t2 }); Object.assign(tasks.t3 as object, { scores: t3 });
+      (session.scoreboard as { shown?: unknown }).shown = shot === "tv-scores" ? { t1, t2, t3 } : { t1, t2 };
+      break;
+    }
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }

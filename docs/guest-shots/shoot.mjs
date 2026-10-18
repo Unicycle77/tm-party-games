@@ -35,6 +35,8 @@ const SHOTS = {
   "noisemaster-host-round": ["host-noisemaster"],
   "run-of-show-host": ["host-run"],
   "points-host-given": ["host-points"],
+  "scores-main-before": ["tv-scores-before"],
+  "scores-main-after": ["tv-scores"],
 };
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
@@ -43,7 +45,7 @@ for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
   const tv = shot.startsWith("tv-");
   const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
-  await page.waitForSelector("main");
+  await page.waitForSelector("main, .scoreboard-stage");
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(300);
   if (before) { await before(page); await page.waitForTimeout(300); }

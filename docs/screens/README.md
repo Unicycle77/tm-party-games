@@ -28,6 +28,8 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
 | `run-of-show-host.jpg` | Host phone: the Run of show, "Up next" card with the gold Start button, "Show the scoreboard", and all eight tasks (taken 2026-10-18 from the ABCD party) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
+| `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
+| `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
 | `main-secret-tasks.jpg` | Secret Tasks on the big screen: "What was Sam's secret?" over the opened envelope, the task on its paper (2026-10-18) |
 | `guest-secret-open.jpg` | Sam's opened envelope on the guest phone: the task on its paper, "Seal it again", the to-do list with the secret envelope "picked" (2026-10-18) |
 | `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
