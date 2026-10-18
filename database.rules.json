@@ -326,6 +326,8 @@
               "game": { ".validate": "newData.isString()" },
               "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
               "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+              "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
               "unit": {
                 ".validate": "newData.hasChildren(['name', 'amount', 'unit', 'kind'])",
                 "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30" },
@@ -353,6 +355,8 @@
             "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
             "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
             "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
+            "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+            "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
             "winner": { ".validate": "newData.isString() && root.child('sessions').child($code).child('scoreboard').child('contestants').child(newData.val()).exists()" },
             "$other": { ".validate": false }
           },

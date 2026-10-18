@@ -5,6 +5,7 @@ import { CornerCode, Curtain } from "./Curtain";
 import { TaskCard } from "./TaskCard";
 import { ScoreboardStage } from "./scoreboard/ScoreboardStage";
 import { HaulStage } from "./games/prize/Stage";
+import { TaskTextStage, textUp } from "./scoreboard/TaskText";
 import { activeGame } from "./games";
 import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
@@ -17,10 +18,12 @@ import type { Player, Session } from "./types";
 /** What a screen shows for a session: the active game's stage, or the lobby. */
 export function screenState(session: Session) {
   const game = activeGame(session);
-  const display = session.display ?? { step: "list" as const };
+  const shown = session.display ?? { step: "list" as const };
+  // A task's text taken away while it was up leaves the curtain.
+  const display = shown.step === "tasktext" && !textUp(session.scoreboard, shown.task) ? { step: "curtain" as const } : shown;
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
-  const onStage = display.step === "scoreboard" || display.step === "haul" || !!game && display.step !== "list" && display.step !== "curtain"
+  const onStage = display.step === "scoreboard" || display.step === "haul" || display.step === "tasktext" || !!game && display.step !== "list" && display.step !== "curtain"
     && (!display.uid || (!!session.players?.[display.uid] && game.status?.(session, display.uid) !== "waiting"));
   return { game, display, videoPlaying, onStage };
 }
@@ -51,6 +54,9 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
   // So is the winner's prize haul, at the end of the party.
   if (display.step === "haul") return <HaulStage code={code} session={session} />;
+  // And a task's text, when the host puts it up.
+  const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task) : undefined;
+  if (words) return <TaskTextStage {...words} />;
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");
