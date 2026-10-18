@@ -157,6 +157,10 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-play-a-game.jpg` | A game that's not on the list: the same page with no number and no points (2026-10-18) |
 | `run-of-show-host-add-game.jpg` | "+ App game" on Plan the party: Noisemaster and Headshot greyed out as "on the list", Photos still offered (2026-10-18) |
 | `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
+| `plan-host-task-cards.jpg` | Plan the party's bottom: the "Task cards" row with Download PDF, "Include secret tasks" switched on and the "8 to cut" / "4 to fold" radio row, above Setup file (2026-10-18) |
+| `task-cards-pdf-page.jpg` | The downloaded PDF's first page: a task's Individual part, heading centred in capitals, the paragraphs, the block centred down a white Letter page (2026-10-18) |
+| `task-cards-pdf-secret-cut.jpg` | A secret sheet, "8 to cut": a 2 × 4 grid of SECRET TASK cards with faint cut lines (2026-10-18) |
+| `task-cards-pdf-secret-fold.jpg` | A secret sheet, "4 to fold": a 2 × 2 grid, each card its own envelope-sized fold, no fold lines (2026-10-18) |
 | `host-setup-import-check.jpg` | The import check under that row, from the real `ImportCheck` component: "Import \"Halloween party\"?", "Nothing changes until you tap Import.", the tasks as they'll be (unchanged, new, kept: has points), Removed, Tiebreaker, Secret tasks with who picks again, The light, songs not in the music folder, gold "Import 5 tasks" and Cancel (2026-10-18) |
 | `secret-tasks-host-who-has-what.jpg` | The host's ✉ page: "Haven't looked yet: Tom", then "Who has what" with Sam's task opened, Tom's row "hasn't looked" (re-shot 2026-10-18 from the ABCD party) |
 | `secret-tasks-host-pile-open.jpg` | "✉ Secret envelopes" opened with Change on Plan the party: "New tasks, one per line", Add to the pile, and the pile to fix or take out (2026-10-18) |

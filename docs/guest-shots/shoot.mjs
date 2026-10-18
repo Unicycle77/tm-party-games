@@ -39,6 +39,7 @@ const SHOTS = {
   "haul-main-winner": ["tv-haul"],
   "haul-host-up": ["host-haul"],
   // a task with two parts (Individual, then Team)
+  "plan-host-task-cards": ["host-plan", "", async (p) => { await p.getByRole("switch", { name: /secret tasks/ }).check(); }],
   "task-page-host-live": ["host-onepart"],
   "task-page-host-live-up": ["host-onepart-up"],
   "task-parts-host": ["host-parts"],

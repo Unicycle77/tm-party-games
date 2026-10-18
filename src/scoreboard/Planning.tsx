@@ -7,6 +7,7 @@ import type { Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGam
 import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
+import { TaskCards } from "./TaskCards";
 import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 
 /**
@@ -29,6 +30,7 @@ export function PlanParty({ code, session, onBack, onEdit }: {
       <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} />
       <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} />
       <Envelopes code={code} />
+      <TaskCards code={code} session={session} />
       <SetupFile code={code} session={session} />
     </div>
   );
