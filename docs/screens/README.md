@@ -1,6 +1,6 @@
 # Screens
 
-Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes.
+Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes. The host remote's pages were redrawn on 2026-10-18 (see "The host remote, less crowded" in [redesign-decisions](../redesign-decisions.md)); the ones dated then are current, and an older host screenshot may still show the previous layout around a part that hasn't changed (the points rows, for instance).
 
 Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip` and `GotIt` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
@@ -12,10 +12,10 @@ Host phone (`/host`, 390px wide):
 
 | File | What it shows |
 |---|---|
-| `host-choose-game.jpg` | Between games: choose a game, the contestants |
-| `host-collecting-entries.jpg` | Before & After while entries come in: stamps, 🔒/🔓, "First up" |
-| `host-contestant-on-screen.jpg` | A contestant on the big screen: Before / After / Side by side / Video, Lower the curtain |
-| `host-running-order.jpg` | Curtain down between contestants: the running order |
+| `host-choose-game.jpg` | "Play a game" for a game that's not on the run of show: the picker under the task page's top, "Not on the run of show, so it isn't scored" (2026-10-18) |
+| `host-collecting-entries.jpg` | An app game's task page while entries come in (Photos: best costume): "Task 2 of 8 · app game", the status line, gold "First up: Sam →", stamps and 🔒, "◫ Show everyone", and Points open below (2026-10-18) |
+| `host-contestant-on-screen.jpg` | A contestant on the big screen, a step inside the task page: "Alex, 3 of 4", their controls, "Lower the curtain", Points still at the bottom (2026-10-18) |
+| `host-running-order.jpg` | Curtain down between contestants: gold "Next: Alex →", the running order (shown ones dimmed), Points below (2026-10-18) |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
 | `host-light.jpg` | 💡 The light, "All at once" mode |
 | `host-light-got-it.jpg` | 💡 The light's "Got it" list: Sam 1st, Priya just tapped in 2nd ("✓ Priya got it 2nd · 4 points."), their chips dimmed with ✓ (2026-10-17) |
@@ -62,17 +62,17 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
-| `scoreboard-host-points.jpg` | Giving points for one task scored by hand: each contestant on one line, the name with "now N" under it, a small DQ chip by the name, chips 1 to 5, then the bonus chip (Priya's tapped twice: 3 +2; Alex's once: 5 +1), "3 of 6 scored · 3 bonus points", "← All tasks", "Next task →" (2026-10-17) |
+| `scoreboard-host-points.jpg` | Points on a task scored by hand, at the bottom of its page under the title: each contestant on one line, the name with "now N" under it, a small DQ chip, chips 1 to 5, then the bonus chip (Priya's tapped twice, Alex's once), "3 of 5 scored · 3 bonus points" (2026-10-18) |
 | `scoreboard-host-points-iphone.jpg` | The points page at iPhone width: still one line per contestant, with the +1 at the end (2026-10-17) |
 | `scoreboard-host-points-dq.jpg` | A by-hand task with a DQ after the points: Sam's 4 struck through but his +1 bonus kept, the people below him moved up with dashed chips for what they had, "Sam's DQ moved 3 people up. Don't move them", and Tom DQ'd with no points (2026-10-17) |
-| `scoreboard-host-points-measured.jpg` | A measured task ("Highest wins · 5 of 6 measured · 2 bonus points"): DQ by the name, a box per contestant with "dice" after it, the points over the place, then "+1"; Priya's bonus on top of her 5; Alex DQ'd, his 19 struck through and his bonus kept, the others moved up; Tom not measured yet (2026-10-17) |
+| `scoreboard-host-points-measured.jpg` | A measured live task's page: gold "Show the task", the song, the task card, then Points with a number box per contestant and "cm" after it, the points over the place, then "+1" (2026-10-18) |
 | `scoreboard-host-points-override.jpg` | Overriding a measured point: Mei's points open the chips 1 to 5 (no "…"), "Automatic: 4 for 2nd"; Sam's 3 was set by hand (✎) (2026-10-17) |
 | `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 24", the box keeps its width, "+1" right after the points (2026-10-17) |
 | `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, still whole with the +1 column, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Jo's bonus, Tom "not played" (2026-10-17) |
 | `task-edit-scoring.jpg` | ✎ on a live task: "Scoring" with By hand, Highest wins and Lowest wins under the note (2026-10-17) |
 | `task-edit-db-meter.jpg` | ✎ on a task with no unit: 🔊 dB meter beside 🎲 Dice under "Measured in" (2026-10-17) |
 | `task-edit-db-meter-on.jpg` | 🔊 dB meter tapped: the name, "One is" and size chips gone, and "🔇 DQ if louder than" set to 60 dB (2026-10-17) |
-| `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 90: Priya's 94.2 and Mei's 101.3 struck through with "over 90" under their 0, the others moved up, "over 90 dB is a DQ" in the status line, Sam's +1 bonus (2026-10-17) |
+| `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 100: Priya's 101.2 struck through with "over 100" under her 0, the others moved up, "over 100 dB is a DQ" in the status line, gold "Done: back to Run of show →" (2026-10-18) |
 | `scoreboard-host-points-db-lo.jpg` | A quietest-wins dB task: the LO chip under Mei's box while it's typed in, and Jo's LO in 1st (2026-10-17) |
 | `scoreboard-host-tasks-contestants.jpg` | The run of show on a wide iPad: tasks and contestants side by side |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
@@ -90,7 +90,13 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Party settings: renaming the party |
-| `run-of-show-host.jpg` | The remote's home, the run of show: scoreboard buttons, "Give points", tasks ending with the tiebreaker task (disabled until there's a tie), contestants with "not yet", Jo here but not on the scoreboard yet |
+| `run-of-show-host.jpg` | The remote's home between tasks: "On the big screen: the curtain", the "Up next" card with gold "Start task 4 →", paper "Show the scoreboard" with "Opens on the scores before …", the read-only task list with one state each, and "Plan the party", "Show QR code", "Party settings" at the bottom (2026-10-18) |
+| `run-of-show-host-scores-up.jpg` | The scores up: the scoreboard's controls take the top slot, gold "Update the scores" with "On the big screen: the scores, before Hum a theme tune", "Lower the curtain" as a link, and the "Up next" card's button paper (2026-10-18) |
+| `run-of-show-host-scores-updated.jpg` | After the update: gold "Lower the curtain" alone in the top slot, the pending note gone (2026-10-18) |
+| `task-page-host-live.jpg` | A live task's page: "← Run of show", the task as the title, "Task 4 of 8 · live task", gold "Show the task", the song strip, the note, the task card, then Points with a number box (2026-10-18) |
+| `task-page-host-live-up.jpg` | The same with its words on the big screen: "On the big screen: the task", "Show the task" pressed in (2026-10-18) |
+| `task-page-host-app-game.jpg` | An app game's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app game", gold "First up: Sam →", Points at the bottom (2026-10-18) |
+| `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |
 | `run-of-show-host-task-songs.jpg` | Task songs on the run of show (2026-10-14): a slim strip under each task with a song, one playing in gold with ⏸, "Theme from Jaws · not in the music folder" disabled, the tiebreaker's song |
 | `run-of-show-host-task-songs-folder-closed.jpg` | The same with the main screen's music folder not open: every strip disabled, "music folder not open" |
 | `task-song-edit.jpg` | ✎ on a task: "Song (optional)" with the jukebox's song list open, the chosen song gold, "as it was on Oct 12" |
@@ -104,9 +110,9 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |
 | `task-unit-edit.jpg` | ✎ on a task: "📏 Measured in" filled in as dice, one is 16 mm, "Stacked up (height)", the line repeating it back |
 | `task-unit-empty.jpg` | ✎ on a task with no unit: the name field and "🎲 Dice (16 mm)" |
-| `host-game-task-song.jpg` | A game's page on the remote (Photos: best costume) with its task's song strip under the heading |
+| `host-game-task-song.jpg` | An app game's page with its task's song strip under the status line (2026-10-18) |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
-| `run-of-show-host-play-a-game.jpg` | "Play a game": the picker for a game that's not on the run of show |
+| `run-of-show-host-play-a-game.jpg` | A game that's not on the list: the same page with no number and no points (2026-10-18) |
 | `run-of-show-host-add-game.jpg` | "+ App game" on the run of show: Noisemaster and Headshot greyed out as "on the list", Photos still offered |
 | `secret-tasks-host-who-has-what.jpg` | Secret tasks on the host app (✉): "Who has what" with Sam's task tapped open ("Tap again to hide it."), the pile folded below |
 | `secret-tasks-host-pile-open.jpg` | The same page with "▾ The pile (5)" opened |
@@ -122,17 +128,17 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame, labelled "prize · Sam" (stand-in photo) |
 | `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards |
-| `run-of-show-host-haul-remote.jpg` | The run of show on the iPad after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link, the tiebreaker task's row disabled |
+| `run-of-show-host-haul-remote.jpg` | The run of show after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link (2026-10-18) |
 | `prize-host-adding.jpg` | Prize task on the iPad: the host adding photos to Jo's prize, one sent (★, since Jo had none) and one still sending (rendered from the component with stand-in photos) |
 | `run-of-show-host-prizes-in.jpg` | The run of show mid-party: the Prize task's row reads "🎁 2 of 3 prizes in · waiting on Mei" |
 | `prize-player-presented.jpg` | Prize task on a guest's phone once the host has started presenting their prize: the receipt with "🔒 Your prize has been presented." in place of "Change my photos" |
 | `prize-player-after.jpg` | The same guest later in the party: the prize card shrunk to one line, "🎁 🔒 Your prize has been presented." |
-| `run-of-show-host-haul-up.jpg` | The run of show with the haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link |
-| `run-of-show-host-haul-waiting.jpg` | The run of show with the scoreboard up and a task still without points: "The prize haul comes once every task has points. Still none for Prize task." over gold "Lower the curtain" |
+| `run-of-show-host-haul-up.jpg` | The haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link (2026-10-18) |
+| `run-of-show-host-haul-waiting.jpg` | The scoreboard up with a task still without points: "The prize haul comes once every task has points. Still none for Prize task." under gold "Lower the curtain", and the "Up next" card's button paper (2026-10-18) |
 | `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
 | `run-of-show-host-declare.jpg` | The run of show mid-party with a task still unscored: "🏆 Declare the winner" in the task list, under the Tiebreaker task |
-| `run-of-show-host-declare-update.jpg` | After "Declare the winner": the scoreboard is up, gold "Update the scores · 1 new task" for one last update, and "Declaring the winner with Prize task unscored. Not yet" |
-| `run-of-show-host-declare-haul.jpg` | After that last update: gold "🎁 Show the prize haul · Priya", the winner decided on the points so far |
+| `run-of-show-host-declare-update.jpg` | After "Declare the winner": the scoreboard is up, gold "Update the scores" for one last update (the status line names the task it adds), and "Declaring the winner with Prize task unscored. Not yet" (2026-10-18) |
+| `run-of-show-host-declare-haul.jpg` | After that last update: gold "🎁 Show the prize haul · Priya", the winner decided on the points so far (2026-10-18) |
 | `run-of-show-host-declared.jpg` | Back at the curtain after the haul: the declare row reads "Declared · tap to bring the scoreboard and the haul back up" |
 
 Tiebreaker task (taken on 2026-10-13, from the real components with a made-up party):
@@ -141,9 +147,9 @@ Tiebreaker task (taken on 2026-10-13, from the real components with a made-up pa
 |---|---|
 | `run-of-show-host-tiebreaker.jpg` | The run of show before the party: "Tiebreaker task · only if there's a tie" last in the task list, with its note, no number or ≡, disabled until there's a tie |
 | `run-of-show-host-tiebreaker-edit.jpg` | ✎ on the tiebreaker task: its name and note, Save and Cancel, no "Remove this task" |
-| `run-of-show-host-haul-remote-tie.jpg` | The run of show after the last update with Sam and Priya tied at the top: gold "Play the tiebreaker task · Sam and Priya", "Lower the curtain" as a link, the tiebreaker row enabled |
-| `tiebreaker-host-playing.jpg` | The tiebreaker task's page, with the curtain down: "Tiebreaker task: Sam and Priya", the note to read out, "Tap who won.", nobody tapped |
-| `tiebreaker-host-won.jpg` | The same page with Sam tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Sam" from the curtain |
+| `run-of-show-host-haul-remote-tie.jpg` | The run of show after the last update with Sam and Priya tied at the top: gold "Play the tiebreaker task · Sam and Priya", "Lower the curtain" as a link (2026-10-18) |
+| `tiebreaker-host-playing.jpg` | The tiebreaker's page, with the curtain down: "← Run of show", its name as the title, "Tiebreaker · Sam and Priya", the note to read out, "Tap who won.", nobody tapped (2026-10-18) |
+| `tiebreaker-host-won.jpg` | The same page with Sam tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Sam" under the status line (2026-10-18) |
 
 Task text (taken on 2026-10-18, from the real components with a made-up party; the monster lines are stand-ins):
 
@@ -151,10 +157,10 @@ Task text (taken on 2026-10-18, from the real components with a made-up party; t
 |---|---|
 | `run-of-show-host-task-text-edit.jpg` | ✎ on a live task: "Task type (optional)" with Individual picked ("Heads the task text: INDIVIDUAL TASK."), then "Task text (optional)" grown to fit the monster story, above Scoring |
 | `run-of-show-host-tiebreaker-text-edit.jpg` | ✎ on the tiebreaker: no type picked, so "Heads the task text: TIEBREAKER TASK.", and the horseradish story in the task text |
-| `tiebreaker-host-text.jpg` | The tiebreaker's page with its text: paper "Show the task" under "Show the scoreboard", the note, the story on the task card (TIEBREAKER TASK centred), and "Tap who won." fixed to the bottom with Sam and Priya side by side |
+| `tiebreaker-host-text.jpg` | The tiebreaker's page with its text: gold "Show the task", the song, the note, the story on the task card (TIEBREAKER TASK centred), and "Tap who won." fixed to the bottom with Sam and Priya side by side (2026-10-18) |
 | `tiebreaker-host-text-mid.jpg` | The same page scrolled mid-story: the bar stays at the bottom |
-| `tiebreaker-host-text-won.jpg` | Priya tapped as "won the tiebreaker", the page back at the top: gold "🎁 Show the prize haul · Priya" with "Show the task" under it |
-| `tiebreaker-host-text-up.jpg` | The story on the big screen: "On the big screen: the task", the button pressed in (tap it again to lower the curtain) |
+| `tiebreaker-host-text-won.jpg` | Priya tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Priya" with paper "Show the task" under it (2026-10-18) |
+| `tiebreaker-host-text-up.jpg` | The story on the big screen: "On the big screen: the task", the gold button pressed in (tap it again to lower the curtain) (2026-10-18) |
 | `scoreboard-host-points-text.jpg` | A live task's points page with its text: INDIVIDUAL TASK on the card under the note, "Show the task" under "Show the scoreboard" |
 | `scoreboard-host-points-text-up.jpg` | The same with its text on the big screen |
 | `main-task-text.jpg` | The big screen: the tiebreaker's story on the task card, centred on the curtain, TIEBREAKER TASK centred at the top, the type shrunk to fit |

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { HostRemote, JoinQr } from "./HostRemote";
+import { JoinQr } from "./HostRemote";
 import { uploadPortrait } from "./media";
 import { JukeboxRemote } from "./JukeboxRemote";
 import { ConverterRemote } from "./conversions/ConverterRemote";
@@ -8,7 +8,10 @@ import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } fro
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
-import { ScoreboardRemote } from "./scoreboard/ScoreboardRemote";
+import { PlanParty } from "./scoreboard/Planning";
+import { RunOfShow } from "./scoreboard/RunOfShow";
+import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
+import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { HostPinSetting, PinStep } from "./HostPin";
 import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, renameParty, setShowDownload, store, useSession, useUid } from "./session";
@@ -17,21 +20,42 @@ import type { Session } from "./types";
 
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
-type View = "show" | "scoreboard" | "music" | "light" | "tasks" | "convert";
+const BACK_KEY = "ba.hostBack";
+/** Run of show (home), a task's page, Plan the party, and the side jobs in the header. */
+type View = "show" | "task" | "plan" | "music" | "light" | "tasks" | "convert";
+/** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
+interface Place { view: View; task?: string }
+const SIDE: View[] = ["music", "light", "tasks", "convert"];
+const VIEWS: View[] = ["show", "task", "plan", ...SIDE];
+const HOME: Place = { view: "show" };
+
+/** A place this phone remembered; older phones kept just a view's name ("scoreboard" was home, "show" the game). */
+function loadPlace(key: string): Place | undefined {
+  const saved = store.get(key);
+  try {
+    const p = JSON.parse(saved) as Place;
+    if (p && VIEWS.includes(p.view)) return p;
+  } catch { /* an older phone's view name */ }
+  if (saved === "show") return { view: "task", task: "game" };
+  if (SIDE.includes(saved as View)) return { view: saved as View };
+  return undefined;
+}
 
 /** The host's phone (`/host`): same 4-letter code as players, but drives the main screen. */
 export function HostPage() {
   const uid = useUid();
   const [code, setCode] = useState(() => store.get(KEY));
   const session = useSession(code || undefined);
-  // The show, with the music and the light one tap away in the header. This phone remembers which
-  // is open, so a refresh mid-game lands where the host was.
-  const [view, setViewState] = useState<View>(() => {
-    const saved = store.get(VIEW_KEY);
-    // Home is the run of show (🏆); a game in progress is the "show" view.
-    return saved === "show" || saved === "music" || saved === "light" || saved === "tasks" || saved === "convert" ? saved : "scoreboard";
-  });
-  const setView = (v: View) => { setViewState(v); store.set(VIEW_KEY, v); };
+  // This phone remembers where the host was, so a refresh mid-game lands there; and, on a side page, where "Back" goes.
+  const [place, setPlaceState] = useState<Place>(() => loadPlace(VIEW_KEY) ?? HOME);
+  const [back, setBackState] = useState<Place>(() => loadPlace(BACK_KEY) ?? HOME);
+  const go = (p: Place) => {
+    // Opening a side job from a page remembers the page; moving between side jobs keeps it.
+    if (SIDE.includes(p.view) && !SIDE.includes(place.view)) { setBackState(place); store.set(BACK_KEY, JSON.stringify(place)); }
+    setPlaceState(p);
+    store.set(VIEW_KEY, JSON.stringify(p));
+    window.scrollTo(0, 0);
+  };
 
   const disconnect = () => { store.set(KEY, ""); setCode(""); };
 
@@ -52,7 +76,7 @@ export function HostPage() {
       store.set(KEY, c);
       setCode(c);
       // Every party opens on the run of show.
-      if (created) setView("scoreboard");
+      if (created) go(HOME);
     }} />;
   }
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
@@ -60,19 +84,20 @@ export function HostPage() {
   const playing = session.jukebox?.state?.playing === true;
   const lightOn = isArmed(lightOf(session));
   const scoresUp = session.display?.step === "scoreboard";
-  // Closing the music, envelopes, light or converter goes back to the game in progress, or else the run of show.
-  const home: View = session.game ? "show" : "scoreboard";
+  // An older phone's "the game": the game in progress's task page.
+  const task = place.task === "game" ? activeTaskId(session) ?? "adhoc" : place.task;
   const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
-    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${view === v ? " open" : ""}`} aria-label={label} aria-pressed={view === v}
-      onClick={() => setView(view === v && v !== "scoreboard" ? home : v)}>{glyph}</button>
+    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${place.view === v ? " open" : ""}`} aria-label={label} aria-pressed={place.view === v}
+      onClick={() => go(place.view === v && v !== "show" ? back : { view: v })}>{glyph}</button>
   );
   const settings = <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />;
+  const open = (id: string) => go(id === "tiebreaker" ? { view: "task", task: "tiebreaker" } : { view: "task", task: id });
 
   return (
     <main className="phone host">
       <header className="host-head">
         <span><strong>🎮 Host</strong><span className="muted"> · {session.name ? `${session.name} · ` : ""}{code}</span></span>
-        {icon("scoreboard", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
+        {icon("show", scoresUp ? "Run of show (scoreboard on the big screen)" : "Run of show", "🏆", scoresUp)}
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
@@ -80,27 +105,26 @@ export function HostPage() {
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
-      {view === "scoreboard" ? (
-        <>
-          <ScoreboardRemote code={code} session={session} onStartGame={() => setView("show")} onLight={() => setView("light")}
-            onOpenGame={() => setView("show")} onAdHoc={() => setView("show")} />
-          <JoinQr code={code} session={session} />
-          {settings}
-        </>
-      ) : view === "show" ? (
-        <>
-          <HostRemote code={code} session={session} onRunOfShow={() => setView("scoreboard")} />
-          {settings}
-        </>
-      ) : (
-        <>
-          <button className="link back" onClick={() => setView(home)}>← Back to {session.game ? "the game" : "the run of show"}</button>
-          {view === "music" ? <JukeboxRemote code={code} session={session} />
-            : view === "tasks" ? <TaskPile code={code} session={session} />
-            : view === "convert" ? <ConverterRemote code={code} session={session} />
-            : <LightRemote code={code} session={session} />}
-        </>
-      )}
+      {place.view === "task" && task === "adhoc" ? <AdHocPage code={code} session={session} onBack={() => go(HOME)} />
+        : place.view === "task" && task === "tiebreaker" ? <TiebreakerPage code={code} session={session} onBack={() => go(HOME)} />
+        : place.view === "task" && task ? <TaskPage code={code} session={session} id={task} onBack={() => go(HOME)} onLight={() => go({ view: "light" })} />
+        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onOpen={open} />
+        : SIDE.includes(place.view) ? (
+          <>
+            <button className="link back" onClick={() => go(back)}>← Back to {back.view === "task" ? "the task" : back.view === "plan" ? "Plan the party" : "the run of show"}</button>
+            {place.view === "music" ? <JukeboxRemote code={code} session={session} />
+              : place.view === "tasks" ? <TaskPile code={code} session={session} />
+              : place.view === "convert" ? <ConverterRemote code={code} session={session} />
+              : <LightRemote code={code} session={session} />}
+          </>
+        ) : (
+          <RunOfShow code={code} session={session} onOpen={open} onTiebreak={() => open("tiebreaker")}
+            footer={<>
+              <button className="link" onClick={() => go({ view: "plan" })}>Plan the party</button>
+              <JoinQr code={code} session={session} />
+              {settings}
+            </>} />
+        )}
     </main>
   );
 }

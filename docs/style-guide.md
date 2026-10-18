@@ -65,7 +65,7 @@ Contrast note: `--muted` is for the dark backdrop only. On paper, use `#7a6a55` 
 
 ### Buttons
 - **Default** is paper: typewriter font, 2px `--gold-dark` border, 6px radius, a `0 3px 0` hard shadow that "presses in" on `:active` (`translateY(2px)`). Already styled on the bare `button` element, so a plain `<button>` needs no class.
-- **Primary** (`.big`): the one main action on a screen (Start a session, Join, Submit). Full-width gold gradient, uppercase, bold. **One per screen.**
+- **Primary** (`.big`): the one main action on a screen (Start a session, Join, Submit). Full-width gold gradient, uppercase, bold. **One per screen.** A gold button that puts something on the big screen ("Show the task") stays pressed in while it's up (`button.big.pressed`), and tapping it again takes it down.
 - **Selected / active** (`button.active`): the same gold as the primary button, for what's currently on screen or playing (stage steps, tabs, the current track, the backup stage controls). One shared rule, `button.big, button.active`, supplies the gold; adding `active` to any button is all it takes.
 - **Choices** (`.choices`): picking one of several *settings* (the game, the light's mode and its secret, the Box round's players). A compact, wrapping row of paper chips, three to a row (`.choices.two` for long labels), the chosen one `.active` with `aria-pressed`. Smaller than `.steps`, which are for what the stage shows right now.
 - **Marks** (`.choices.marks`): marking several things true at once, like Secret Tasks' scoring ("Did Sam do it?", "Who guessed it?"). The same paper chips, but a marked one stays pressed in, with a ✓ and `aria-pressed`, and never turns gold, so gold stays on the screen's one next action.
@@ -102,7 +102,7 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | State | Look | Where |
 |---|---|---|
 | Already shown | Dimmed to `opacity: 0.55` | The running order |
-| Next up | 3px `--gold` outline, plus "← next" in the row's muted line | The running order, the task list |
+| Next up | 3px `--gold` outline in the running order; on Run of show's task list the row turns `--gold-bright`, with "next" on the right | The running order, Run of show's task list |
 | On the big screen now | **Pressed in**: down 2px, inset shadow, `#e6d6b0` fill, bold, plus "on the big screen" in words | Headshot task's list (`li.up`), the same as a marked chip (§ Marks) |
 | On the big screen now (a photo) | Gold ring: `--gold-edge` border and a `--gold-bright` glow | Prize task's previews |
 | The chosen one | A small gold `★` disc in the corner; `☆` on the others moves it | Prize photos (the one the haul shows) |
@@ -183,23 +183,26 @@ See: [checkin-phone-list.jpg](screens/checkin-phone-list.jpg), [checkin-phone-co
 ### Host remote (`/host`)
 - Same phone column, but it's a **control panel**: every control keeps its position on every view. Disable controls that don't apply; don't remove them (see the comment in `HostRemote.tsx`).
 - **Header** (`HostPage.tsx`): `🎮 Host · Party name · CODE`, then five icon buttons, in this order: 🏆 the run of show (glows while the scoreboard is on the big screen), 🎵 the jukebox (shows ▶ and glows while a song plays), ✉ Secret Tasks, 💡 the light (glows while it's on), 📏 Useless conversions (glows while a conversion is on the big screen). The open one has a `--gold-bright` outline. Idle icons are faded and greyed (`.head-icon`); `.lit` is the gold glow, meaning "running"; `.alert` is a small burgundy dot, meaning "needs the host". Never use the glow for "needs you". 🎵 ✉ 💡 📏 open in place of the show with "← Back to the game" (or "← Back to the run of show"). A new all-evening feature gets a header icon, not another section on a page.
-- **Home is the run of show** (🏆, `ScoreboardRemote.tsx`). Every party opens on it. Top to bottom:
-  1. `Run of show` heading, and while a game is on, "Now playing: Photos: best costume" with a paper "Open →".
-  2. One `.on-screen` line saying what the big screen shows ("On the big screen: the scoreboard", "…: not connected yet"), with at most one `.muted.small` line under it.
-  3. **The one next thing** in gold: "Update the scores · 2 new tasks", "🎁 Show the prize haul · Priya", "Play the tiebreaker task · Sam and Priya", or "Lower the curtain". The quiet way out sits under it as a `.link`. When nothing is next, it's a paper button ("Show the scoreboard").
-     On a task's page whose task has text, a paper "Show the task" follows, under the gold or under "Show the scoreboard": optional, so never gold. While the text is up it's pressed in (`.pressed`, `#e6d6b0`), the line reads "On the big screen: the task", and tapping it again lowers the curtain. It sits here, not under the card, because a long story would push it off-screen.
-  4. "Give points: 2  Build the tallest tower →": a paper shortcut to the next unscored task.
-  5. **Tasks (N)**: one row per task in running order: `≡` (drag to reorder), the task as a left-aligned paper button (number, name, "· app game", the note in quotes, then "← next" or "scored"), `▶ Start` for an app game, and `✎`. A task with a song has a slim **song strip** (`SongStrip.tsx`, `.sb-song`) under its row, in line with the task card: "♪ title ▶ 2:40", gold with ⏸ while it plays. It's a small remote for the jukebox, and the same strip sits under the heading on the task's own page (points page, game page, tiebreaker page). ✎ picks it from the jukebox's song list (`SongField`). The tiebreaker task is always last, outside the numbering, with no ≡ (see Row states, §3). Under the list, "+ Live task" and "+ App game" side by side.
-  6. **Contestants (N)**: `+` (give points) · name with "checked in" / "not yet" on the right · `×`. Guests who are here but not on the scoreboard come after them as plain text with "+ Add", then a "Name of the next contestant" field.
-  7. Quiet links at the bottom: "Play a game that's not on the list", "Show QR code", "Party settings".
-- **The tiebreaker's bar** (`.sb-won-bar`): on the tiebreaker's page only, "Tap who won." and the tied contestants side by side sit in a burgundy bar with a 3px `--gold` top border, fixed to the bottom of the screen, so the winner is one tap away however far the story has scrolled. Tapping who won scrolls back up to the gold. Other tasks are scored after the reading, so they have no bar. See: [tiebreaker-host-text.jpg](screens/tiebreaker-host-text.jpg), [tiebreaker-host-text-won.jpg](screens/tiebreaker-host-text-won.jpg).
+- **Home is the run of show** (🏆, `RunOfShow.tsx`). Every party opens on it, and it's for running the night, not building it. Top to bottom:
+  1. `Run of show` heading, then one `.on-screen` line saying what the big screen shows ("On the big screen: the curtain", "…: the scores, before Photos: best costume", "…: not connected yet"), with at most one `.muted.small` line under it.
+  2. **The top slot: the one next thing in gold.** While the scores are up it's the scoreboard's next step: "Update the scores" (the status line names what it adds, so the button stays one line), then "Lower the curtain"; "🎁 Show the prize haul · Priya"; "Play the tiebreaker task · Sam and Priya". The quiet way out sits under it as a `.link`.
+  3. **The "Up next" card** (`.up-next`): a paper card with "Up next · task 4 of 8 · live task" in small capitals, the task's name, the first lines of its note in quotes, and the night's gold button: "Start task 4 →", "▶ Start Photos: best costume" for an app game, or "Open task 4 →" for a task half-scored, already on, or the light. While the top slot has the gold, the card's button is paper; starting it then brings the scores down too.
+  4. "Show the scoreboard" (paper), with "Opens on the scores before Hum a theme tune." under it when there's something to update.
+  5. **All tasks** (`.run-list`): read-only rows, a number, the name and one short state on the right ("scored", "next", "playing", "3 of 8 got it", "1 of 8 prizes in"). Scored rows are quiet, the next one is `--gold-bright`. Tapping a row opens that task's page, for running one out of order. No ≡, ✎ or ▶ here.
+  6. Quiet links at the bottom (`.run-links`): "Play a game that's not on the list" (or "Back to [BLANK] in a Box" while one is on), "Plan the party", "Show QR code", "Party settings".
+- **One task page for every task** (`TaskPage.tsx`), live task or app game: "← Run of show", the task as the `h1` (`.task-head`) with "Task 4 of 8 · live task" under it, the `.on-screen` line, then:
+  - gold **"Show the task"** when it has text: putting the words up is usually what comes next. While they're up it's pressed in (`button.big.pressed`: down 2px, inset shadow, a little darker), and tapping it again lowers the curtain. On an app game the gold moves on to the game's next step once the words have been up;
+  - the song strip, the host's note, and the task card to read from;
+  - for an app game, its own controls, unchanged: gold "First up: Sam →", the running order, "◫ Show everyone". A contestant on the big screen gets their own controls a step inside, and lowering the curtain comes back here. Once everyone has been shown, the gold button gives way to a muted "All 5 shown." An app game that isn't on yet has "▶ Start Photos: best costume" (gold until it has points);
+  - **Points**, always open at the bottom (`Points.tsx`), and once everyone has points, gold "Done: back to Run of show →".
+  A game that's not on the list uses the same page with no number and no points ("Not on the run of show, so it isn't scored"), and the tiebreaker's page has the same top, with the tied contestants under its title.
+- **The tiebreaker's bar** (`.sb-won-bar`): on the tiebreaker's page only, "Tap who won." and the tied contestants side by side sit in a burgundy bar with a 3px `--gold` top border, fixed to the bottom of the screen, so the winner is one tap away however far the story has scrolled. Tapping who won scrolls back up to gold "🎁 Show the prize haul · Sam" under the status line. Other tasks are scored after the reading, so they have no bar. See: [tiebreaker-host-text.jpg](screens/tiebreaker-host-text.jpg), [tiebreaker-host-text-won.jpg](screens/tiebreaker-host-text-won.jpg).
 - **Task type and text in ✎** (`TaskText.tsx`): "Task type (optional)" as `.choices` (Individual, Team, Other… for the host's own word) with a muted line spelling out the heading, then "Task text (optional)", a plain box that grows with what's pasted. See: [run-of-show-host-task-text-edit.jpg](screens/run-of-show-host-task-text-edit.jpg).
-- **On a wide iPad** (≥1000px) the run of show splits into two columns, tasks on the left and contestants on the right, with the heading, the big-screen line and the gold action spanning both.
-- **Inside a game** the same shape holds: the game's name as an `h2` with "← Run of show" as a link beside it, the `.on-screen` line, the one next action in gold ("First up: Alex →", "Next: Priya →"), then the contestants as the running order.
+- **Plan the party** (`Planning.tsx`): everything set up before the night, behind the link at the bottom of Run of show. `Tasks (N)`: `≡` (drag to reorder), the task as a left-aligned paper button (number, name, "· app game", the note in quotes, "scored"), and `✎`. A task with a song has a slim **song strip** (`SongStrip.tsx`, `.sb-song`) under its row: "♪ title ▶ 2:40", a small remote for the jukebox, and the same strip sits on the task's own page. The tiebreaker task is always last, outside the numbering, with no ≡ (see Row states, §3). Under the list, "+ Live task" and "+ App game" side by side. Then `Contestants (N)`: the headshot · name with "checked in" / "not yet" on the right · `×`, guests here but not on the scoreboard with "+ Add", and a "Name of the next contestant" field. On a wide iPad (≥1000px) it splits into two columns, tasks on the left and contestants on the right.
 - **Size by use:** `.steps` (big) only for what the stage shows right now; `.choices` (compact) for settings; toggles for on/off. If a section needs a paragraph of explanation, keep it one `.muted.small` line.
 - `.steps` grids (`.two`, `.three`) for big side-by-side buttons; `.active` shows what the stage is currently showing.
 
-See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-playing.jpg](screens/run-of-show-host-playing.jpg), [scoreboard-host-tasks-contestants.jpg](screens/scoreboard-host-tasks-contestants.jpg) (wide iPad), [scoreboard-host-points.jpg](screens/scoreboard-host-points.jpg), [run-of-show-host-task-songs.jpg](screens/run-of-show-host-task-songs.jpg), [task-song-edit.jpg](screens/task-song-edit.jpg), [host-contestant-on-screen.jpg](screens/host-contestant-on-screen.jpg), [host-running-order.jpg](screens/host-running-order.jpg).
+See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-scores-up.jpg](screens/run-of-show-host-scores-up.jpg), [task-page-host-live.jpg](screens/task-page-host-live.jpg), [task-page-host-app-game.jpg](screens/task-page-host-app-game.jpg), [task-page-host-points-done.jpg](screens/task-page-host-points-done.jpg), [scoreboard-host-tasks-contestants.jpg](screens/scoreboard-host-tasks-contestants.jpg) (wide iPad), [scoreboard-host-points.jpg](screens/scoreboard-host-points.jpg), [run-of-show-host-task-songs.jpg](screens/run-of-show-host-task-songs.jpg), [task-song-edit.jpg](screens/task-song-edit.jpg), [host-contestant-on-screen.jpg](screens/host-contestant-on-screen.jpg), [host-running-order.jpg](screens/host-running-order.jpg).
 
 ## 6. Motion
 
@@ -225,12 +228,12 @@ See: [run-of-show-host.jpg](screens/run-of-show-host.jpg), [run-of-show-host-pla
 | ? (circled) | Read the rules (`.help-q`) |
 | ▾ / ▸ | A folded section, open / closed ("▾ The pile (5)") |
 | + | Add (a live task, an app game, a contestant, more photos) |
-| → | Go to the next thing ("Give points: … →", "Next task →", "Open →") |
+| → | Go to the next thing ("Start task 4 →", "Done: back to Run of show →", "First up: Sam →") |
 | ☰ | The main screen's hidden menu |
 | 📺 / 🎵 | Screen tab / Jukebox |
 | 📷 | Scan a QR code |
 | ◫ | Side by side, review everyone |
-| ▶ ⏸ ↺ | Play, pause, restart; `▶ Start` starts an app game from the run of show |
+| ▶ ⏸ ↺ | Play, pause, restart; "▶ Start Photos: …" starts an app game |
 | ← | Back |
 | ✕ / × | Close / remove |
 | ✉ | Secret Tasks: the envelope, the host's ✉ page |
