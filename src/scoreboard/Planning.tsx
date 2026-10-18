@@ -3,10 +3,10 @@ import { GAMES } from "../games";
 import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
-import { exportSetup } from "../setupFile";
 import type { Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
 import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
 import { currentTotals } from "./scoring";
+import { SetupFile } from "./SetupFile";
 import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 
 /**
@@ -31,21 +31,6 @@ export function PlanParty({ code, session, onBack, onEdit }: {
       <Envelopes code={code} />
       <SetupFile code={code} session={session} />
     </div>
-  );
-}
-
-/** "Setup file" with Export: the party's tasks, tiebreaker, secret tasks and light as a file to keep or send. Nothing the night produced goes in it. */
-export function SetupFile({ code, session }: { code: string; session: Session }) {
-  const [failed, setFailed] = useState(false);
-  const exportIt = () => { setFailed(false); exportSetup(code, session).catch(() => setFailed(true)); };
-  return (
-    <section className="setup-file">
-      <div className="summary-line">
-        <span>Setup file</span>
-        <button className="link" onClick={exportIt}>Export</button>
-      </div>
-      <p className="muted small">{failed ? "Couldn't make the file. Try again." : "Tasks, tiebreaker, secret tasks and the light. Not guests or points."}</p>
-    </section>
   );
 }
 
