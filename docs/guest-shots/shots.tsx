@@ -23,15 +23,15 @@ const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
-// Prize photos as stand-in pictures: an emoji on a cream card, 4:3, so the frame on the big screen hangs them as photos.
-const prizePic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="${bg}"/><rect x="170" y="70" width="460" height="460" rx="8" fill="#f3ead7"/><text x="400" y="400" font-size="300" text-anchor="middle">${e}</text></svg>`)}`;
+// Prize photos from earlier parties (docs/guest-shots/prizes), one prize each: Sam's goat in sunglasses is on the big screen.
+const prize = (name: string) => `/docs/guest-shots/prizes/${name}.jpg`;
 const PRIZE_PHOTOS: Record<string, string[]> = {
-  sam: [prizePic("🍑", "#8a6a45"), prizePic("🥕", "#a98660"), prizePic("🐱", "#7d8f6f")],
-  priya: [prizePic("🎺", "#6b4a2a"), prizePic("🧦", "#3d4a5a")],
-  alex: [prizePic("🥒", "#5f7a4f")],
-  greg: [prizePic("🦆", "#8a6a45")],
+  sam: [prize("goat")],
+  priya: [prize("voltron")],
+  alex: [prize("jerky-flowers")],
+  greg: [prize("sock-puppet")],
 };
-const PRIZE = "The most surprising quite-big thing you can conceal on your person";
+const PRIZE = "The most unusual thing to bring on a first date";
 const HEAD = "The most unjustifiably-confident headshot";
 
 // Where the envelopes fall: the same spread as the real pile (secretTasks/data.ts), from a fixed seed so shots repeat.
@@ -92,9 +92,9 @@ function build() {
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).filter((id) => id !== "tom").map((id) => [id, true]));
       break;
-    // The prize task: Sam's prize, photo 2, is on the big screen; on the host's phone he's presenting and the others have photos in (Mei and Tom not yet).
+    // The prize task: Sam's prize, photo 1, is on the big screen; on the host's phone he's presenting and the others have photos in (Mei and Tom not yet).
     case "tv-prize": case "host-prize":
-      picked(); task("prize"); set("display", { step: "photo", contestant: "sam", index: 1 }); set("begun", true);
+      picked(); task("prize"); set("display", { step: "photo", contestant: "sam", index: 0 }); set("begun", true);
       // No words on the task here, so the host's page is the prizes: who has photos in, and Sam's on the big screen.
       if (shot === "host-prize") delete (tasks.t3 as { text?: string }).text;
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };

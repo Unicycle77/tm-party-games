@@ -156,7 +156,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (stand-in photos) |
 | `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Sam's prize, his photos as previews with ★, nothing on the big screen yet (stand-in photos) |
 | `prize-host-up.jpg` | The host phone's Prize task page: who has photos in (Sam presenting), then Sam's three photos with the second on the big screen, Add photos, Lower the curtain, Points (re-shot 2026-10-18; the task has no words here, so no paper card) |
-| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame like a headshot, with the small label "PRIZE · Sam" (re-shot 2026-10-18 from the ABCD party, a stand-in photo) |
+| `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame like a headshot, with the small label "PRIZE · Sam" (re-shot 2026-10-18 from the ABCD party, Sam's real prize photo) |
 | `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
 | `main-prize-haul-hanging.jpg` | The same haul mid-way through hanging, the prizes going up one by one from the centre outwards |
 | `run-of-show-host-haul-remote.jpg` | The run of show after the last update: gold "🎁 Show the prize haul · Priya", "Lower the curtain" as a link (2026-10-18) |
