@@ -80,8 +80,10 @@ const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weig
 const rough = (n: number) => num(Number(n.toPrecision(2)), 2);
 
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
-export function say(kind: Kind, amount: number, inUnit: string, m: Match): ShownConversion {
-  const lead = `${num(amount)} ${inUnit}${ADJECTIVE[kind]} is`;
+export function say(kind: Kind, amount: number, inUnit: string, m: Match, system: System = "metric"): ShownConversion {
+  // At an imperial party, 5.5 ft or 66 in is read the way it's said: "5 ft 6 in tall is". Under a foot it stays as typed.
+  const spoken = system === "imperial" && (inUnit === "ft" || inUnit === "in") && amount * ANCHOR[inUnit]! >= ANCHOR.ft!;
+  const lead = `${spoken ? feetAndInches(amount * ANCHOR[inUnit]!) : `${num(amount)} ${inUnit}`}${ADJECTIVE[kind]} is`;
   const u = m.unit;
   // Sounds are always "about" (see `sounds`): so many of them going at once, or a fraction of one.
   if (kind === "loudness") {

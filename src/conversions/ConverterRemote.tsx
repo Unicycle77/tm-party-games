@@ -49,7 +49,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const [choosing, setChoosing] = useState(false);
   useEffect(() => { setAt(-1); setPicked(undefined); setChoosing(false); }, [key]);
   const match = picked ?? ranked[at];
-  const said = match && say(kind, amount, label, match);
+  const said = match && say(kind, amount, label, match, session.units);
 
   // While it's on the big screen, the big screen follows the host's result.
   const onScreen = !!session.conversion;
