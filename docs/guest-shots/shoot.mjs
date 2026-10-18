@@ -26,6 +26,9 @@ const SHOTS = {
   // the big screen, 1600x900: same party as the check-in shots
   "main-welcome": ["tv-welcome"],
   "main-noisemaster": ["tv-noisemaster"],
+  "main-secret-tasks": ["tv-secret"],
+  "guest-secret-open": ["home-waiting", "", async (p) => { await p.getByRole("button", { name: /Secret envelope/ }).click(); await p.getByRole("button", { name: /Open your secret task/ }).click(); await p.waitForTimeout(1500); }],
+  "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page
   "noisemaster-host-round": ["host-noisemaster"],
 };

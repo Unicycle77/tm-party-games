@@ -11,10 +11,11 @@ import { seed } from "./fake-database";
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
 const shot = q.get("shot") ?? "home-waiting";
-const who = shot === "host-noisemaster" ? "host" : q.get("who") ?? "sam";
+const who = shot.startsWith("host-") ? "host" : q.get("who") ?? "sam";
 // The check-in shots and the TV's welcome are one moment of one party: everyone but Sam is already in, and he's the last to check in.
 // Noisemaster mid-go: Sam has said "I am" of "I am the Noisemaster", on the board the host set up.
 const BOARD = ["cheese", "I", "banana", "Noisemaster", "wobble", "am", "Greg", "sausage", "the", "trumpet", "Alex", "moist", "duck", "hello", "spoon", "yes"];
+const SECRETS: Record<string, string> = { alex: "Get three people to high-five you without explaining why.", greg: "Say the word moist in every sentence for ten minutes.", mei: "Get a guest to hold your drink while you tie your shoe.", priya: "Convince someone you have met before.", sam: "Hum a tune only you know.", tom: "Leave mid-sentence and come back with a snack." };
 const midGo = () => ({ player: "sam", phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1, progress: 2, mistakes: 1, firstAt: Date.now() - 23400, last: { key: "k1", i: 5, ok: true } });
 const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 
@@ -68,7 +69,15 @@ function build() {
     case "noisemaster-watch": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: "alex", phrase: ["I", "am"], startedAt: 1 } }; break;
     case "tv-noisemaster": case "host-noisemaster":
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
-      if (shot === "host-noisemaster") { set("controllerUid", "host"); set("hostUid", "owner"); for (const id of Object.keys(people)) assigned[id] = "Hum a tune only you know."; g.secretTasks!.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+      break;
+    // Secret Tasks: Sam's secret is up on the big screen; on the host's phone, everyone has theirs and Tom hasn't looked yet.
+    case "tv-secret":
+      picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
+      g.secretTasks!.reveal = { order: ["sam", "alex", "greg", "mei", "priya", "tom"], index: 0, task: "Hum a tune only you know.", startedAt: 1 };
+      break;
+    case "host-secret":
+      picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
+      Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).filter((id) => id !== "tom").map((id) => [id, true]));
       break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
@@ -77,6 +86,9 @@ function build() {
 }
 
 const { session, secret } = build();
+if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
+// On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
+if (shot === "host-noisemaster") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -88,7 +100,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot === "host-noisemaster") { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify({ view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-secret" ? { view: "tasks" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

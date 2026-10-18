@@ -110,7 +110,7 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 
 /* tasks: each one an index card under its screen, scattered a little like the game picker */
 .tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 2.2rem; grid-template-columns: 1fr; }
-@media (min-width: 760px) { .tasks { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; } }
+@media (min-width: 760px) { .tasks { grid-template-columns: minmax(0, 24rem); justify-content: center; } }
 /* a task shown whole: its TV, then the guest's phone and the host's */
 .task-set { display: grid; gap: 1rem; }
 .task-set h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--gold-bright); font-size: 1.6rem; text-shadow: 0 2px 0 #000a; }
@@ -185,7 +185,7 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
     <header>
       <span class="step">2 · The tasks</span>
       <h2>Tasks straight out of the show.</h2>
-      <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three, starting with Noisemaster.</p>
+      <p>The host picks the next task from their phone, and everyone's phone changes to play it. Here are three.</p>
     </header>
     <article id="nm" class="task-set">
       <h3>Noisemaster</h3>
@@ -205,14 +205,25 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
         </figure>
       </div>
     </article>
+    <article id="secret" class="task-set">
+      <h3>Secret Tasks</h3>
+      <p>A sealed envelope on your phone. Do what it says without anyone catching you, until the Taskmaster asks who can keep a secret.</p>
+      <figure class="tv">
+        <div class="frame"><img src="img/tv-secret-tasks.jpg" width="1200" height="675" alt="The TV: What was Sam's secret? over an open envelope with the task Hum a tune only you know."></div>
+        <figcaption class="caption">On the TV: the big reveal</figcaption>
+      </figure>
+      <div class="phones">
+        <figure>
+          <div class="phone"><img src="img/p-secret-guest.jpg" width="520" height="733" alt="Sam's phone: his envelope opened on Hum a tune only you know."></div>
+          <figcaption class="caption">Your phone: tell no one</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="img/p-secret-host.jpg" width="520" height="1125" alt="The host's phone: Haven't looked yet: Tom, and Who has what, with Sam's task open."></div>
+          <figcaption class="caption">The host sees who has what</figcaption>
+        </figure>
+      </div>
+    </article>
     <ul class="tasks">
-      <li class="task">
-        <img src="img/t-secret.jpg" width="720" height="540" alt="A guest's secret task: a sealed envelope with a red TM seal, and the same envelope open on Get three people to high-five.">
-        <div class="card">
-          <h3>Secret Tasks</h3>
-          <p>A sealed envelope on your phone. Do what it says without anyone catching you, until the Taskmaster asks who can keep a secret.</p>
-        </div>
-      </li>
       <li class="task">
         <img src="img/t-prize.jpg" width="720" height="540" alt="A prize photo hung in the gold frame on the TV, labelled Prize, Sam.">
         <div class="card">
