@@ -1,5 +1,6 @@
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { GAMES } from "./games";
+import { partsOf, tiebreakerWords } from "./scoreboard/TaskText";
 import { activeTaskId, sorted } from "./scoreboard/tasks";
 import type { Session } from "./types";
 
@@ -40,6 +41,14 @@ export function taskOn(session: Session): GuestFrame["task"] {
     title: name ? name[0]!.toUpperCase() + name.slice(1) : undefined,
     text: t?.text?.trim() || undefined,
   };
+}
+
+/** The words the host put on every phone, during a live task or the tiebreaker: one part, its own type and text (shown as the host's task card is). */
+export function phoneWordsOf(session: Session) {
+  const up = session.phoneText;
+  if (!up) return undefined;
+  const board = session.scoreboard;
+  return partsOf(up.task === "tiebreaker" ? board?.tiebreaker && tiebreakerWords(board.tiebreaker) : board?.tasks?.[up.task])[up.part ?? 0];
 }
 
 /** The top of every guest screen: a title and the party line under it. */

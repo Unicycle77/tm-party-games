@@ -264,6 +264,13 @@
           "how": { ".validate": "newData.isString() && newData.val().length <= 200" },
           "$other": { ".validate": false }
         },
+        "phoneText": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['task'])",
+          "task": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "part": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 9" },
+          "$other": { ".validate": false }
+        },
         "units": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.val() === 'metric' || newData.val() === 'imperial'"
@@ -335,6 +342,14 @@
               "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
               "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+              "parts": {
+                "$i": {
+                  ".validate": "$i.matches(/^[0-9]$/)",
+                  "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+                  "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+                      "$other": { ".validate": false }
+                }
+              },
               "unit": {
                 ".validate": "newData.hasChildren(['name', 'amount', 'unit', 'kind'])",
                 "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30" },
@@ -364,7 +379,15 @@
             "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
             "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
             "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
-            "winner": { ".validate": "newData.isString() && root.child('sessions').child($code).child('scoreboard').child('contestants').child(newData.val()).exists()" },
+            "parts": {
+              "$i": {
+                ".validate": "$i.matches(/^[0-9]$/)",
+                "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
+                "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+                "$other": { ".validate": false }
+            }
+            },
+              "winner": { ".validate": "newData.isString() && root.child('sessions').child($code).child('scoreboard').child('contestants').child(newData.val()).exists()" },
             "$other": { ".validate": false }
           },
           "$other": { ".validate": false }

@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { asList, asNums, fmt } from "./JukeboxRemote";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
+import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
 import { noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
@@ -27,7 +28,7 @@ export function onScreenLine(session: Session): string {
     return pending.length ? `the scores, before ${list(pending)}` : "the scores";
   }
   if (display.step === "haul") return "the prize haul";
-  if (display.step === "tasktext") return "the task";
+  if (display.step === "tasktext") return partsOf(wordsOfTask(board, display.task)).length > 1 ? `the task, part ${(display.part ?? 0) + 1}` : "the task";
   if (!game) return display.step === "curtain" || session.begun ? "the curtain" : "the welcome";
   const players = Object.keys(session.players ?? {});
   const current = display.uid ? session.players?.[display.uid] : undefined;

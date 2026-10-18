@@ -3,9 +3,9 @@ import { db } from "./firebase";
 import { GAMES } from "./games";
 import { same } from "./games/secretTasks/data";
 import { MODES, TRIGGERS, findMode, findTrigger } from "./light/triggers";
-import { titleOf } from "./scoreboard/tasks";
+import { asParts, titleOf } from "./scoreboard/tasks";
 import { SETUP_FORMAT, SETUP_VERSION, type Setup, type SetupTask } from "./setupFile";
-import type { ScoreboardTask, SecretTasks, Session, TaskGame, TaskUnit } from "./types";
+import type { ScoreboardTask, SecretTasks, Session, TaskGame, TaskPart, TaskUnit } from "./types";
 
 export const NOT_A_SETUP = "That file isn't a party setup.";
 export const TOO_NEW = "That setup was made by a newer version of the app.";
@@ -19,12 +19,19 @@ const obj = (v: unknown): v is Record<string, unknown> => typeof v === "object" 
 /** A string at most `max` long (what the database rules allow), or nothing. */
 const str = (v: unknown, max: number) => typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined;
 
+/** The parts after a task's first: each with text, and its type if it has one, at most as many as the database rules allow. */
+const MAX_PARTS = 9;
+const partsOf = (v: unknown): TaskPart[] => Array.isArray(v)
+  ? v.filter(obj).flatMap((p) => str(p.text, 5000) ? [{ ...(str(p.type, 30) && { type: str(p.type, 30) }), text: str(p.text, 5000)! }] : []).slice(0, MAX_PARTS)
+  : [];
+
 /** The words a task or the tiebreaker carries, kept to the lengths the database rules allow. */
 function wordsOf(raw: Record<string, unknown>) {
   return {
     ...(str(raw.name, 80) && { name: str(raw.name, 80) }),
     ...(str(raw.type, 30) && { type: str(raw.type, 30) }),
     ...(str(raw.text, 5000) && { text: str(raw.text, 5000) }),
+    ...(partsOf(raw.parts).length > 0 && { parts: partsOf(raw.parts) }),
     ...(str(raw.note, 600) && { note: str(raw.note, 600) }),
     ...(str(raw.song, 300) && { song: str(raw.song, 300) }),
   };
@@ -97,9 +104,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "description", "song", "scoring", "unit", "dqOver", "dqStays"] as const;
+const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "scoring", "unit", "dqOver", "dqStays"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays,
+  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
@@ -125,7 +132,8 @@ export function planImport(setup: Setup, warnings: string[], session: Session, s
     if (!id) return { title, state: "new" as const };
     const now = byId[id] as unknown as Record<string, unknown>;
     const fields = fieldsOf(ft);
-    return { id, title, state: FIELDS.every((k) => sameValue(fields[k], now[k])) ? "unchanged" as const : "updated" as const };
+    const have: Record<string, unknown> = { ...now, parts: asParts(now.parts).length ? asParts(now.parts) : undefined };
+    return { id, title, state: FIELDS.every((k) => sameValue(fields[k], have[k])) ? "unchanged" as const : "updated" as const };
   });
   const left = party.filter(([id]) => !matched.includes(id));
   const kept = left.filter(([, t]) => hasPoints(t));
@@ -171,6 +179,7 @@ export function importWrites(setup: Setup, session: Session, secret: SecretTasks
     board["tiebreaker/song"] = tb.song ?? null;
     board["tiebreaker/type"] = tb.type ?? null;
     board["tiebreaker/text"] = tb.text ?? null;
+    board["tiebreaker/parts"] = tb.parts ?? null;
   }
   const light = setup.light && { trigger: setup.light.trigger ?? null, mode: setup.light.mode ?? null };
   let secretPatch: Record<string, unknown> | undefined;

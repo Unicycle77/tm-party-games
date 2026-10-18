@@ -24,6 +24,7 @@ export async function resetScores(code: string, session: Session, guests: boolea
     game: null,
     display: { step: "curtain" },
     conversion: null,
+    phoneText: null,
     "light/got": null,
     "games/box/round": null,
     "games/noisemaster/round": null,

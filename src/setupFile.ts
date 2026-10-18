@@ -1,7 +1,7 @@
 import { get, ref } from "firebase/database";
 import { db } from "./firebase";
-import { sorted } from "./scoreboard/tasks";
-import type { ScoreboardTask, Session, TaskGame, TaskUnit } from "./types";
+import { asParts, sorted } from "./scoreboard/tasks";
+import type { ScoreboardTask, Session, TaskGame, TaskPart, TaskUnit } from "./types";
 
 /** What a party's setup file says it is, so the importer can tell it from any other JSON. */
 export const SETUP_FORMAT = "taskmaster-party-setup";
@@ -15,6 +15,8 @@ export interface SetupTask {
   game?: TaskGame;
   type?: string;
   text?: string;
+  /** Parts 2, 3… of the words; `type` and `text` are part 1. */
+  parts?: TaskPart[];
   note?: string;
   song?: string;
   scoring?: "highest" | "lowest";
@@ -41,6 +43,7 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(t.game && { game: t.game }),
   ...(t.type && { type: t.type }),
   ...(t.text && { text: t.text }),
+  ...(asParts(t.parts).length > 0 && { parts: asParts(t.parts) }),
   ...(t.description && { note: t.description }),
   ...(t.song && { song: t.song }),
   ...(t.scoring && { scoring: t.scoring }),
@@ -53,7 +56,7 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
 export function buildSetup(session: Session, secretTasks: string[]): Setup {
   const board = session.scoreboard;
   const tb = board?.tiebreaker;
-  const tiebreaker = tb && taskOf({ order: 0, name: tb.name, description: tb.description, song: tb.song, type: tb.type, text: tb.text });
+  const tiebreaker = tb && taskOf({ order: 0, name: tb.name, description: tb.description, song: tb.song, type: tb.type, text: tb.text, parts: tb.parts });
   const { trigger, mode } = session.light ?? {};
   return {
     format: SETUP_FORMAT,

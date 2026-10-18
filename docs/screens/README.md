@@ -126,8 +126,14 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host.jpg` | The remote's home between tasks: "On the big screen: the curtain", the "Up next" card with gold "Start task 4 →", paper "Show the scoreboard" with "Opens on the scores before …", the read-only task list with one state each, and "Plan the party", "Show QR code", "Party settings" at the bottom. The header is four icons, with the party name and code under the title (2026-10-18) |
 | `run-of-show-host-scores-up.jpg` | The scores up: the scoreboard's controls take the top slot, gold "Update the scores" with "On the big screen: the scores, before Hum a theme tune", "Lower the curtain" as a link, and the "Up next" card's button paper (2026-10-18) |
 | `run-of-show-host-scores-updated.jpg` | After the update: gold "Lower the curtain" alone in the top slot, the pending note gone (2026-10-18) |
-| `task-page-host-live.jpg` | A live task's page: "← Run of show", the task as the title, "Task 4 of 8 · live task", gold "Show the task", the song strip, the note, the task card, then Points with a number box (2026-10-18) |
-| `task-page-host-live-up.jpg` | The same with its words on the big screen: "On the big screen: the task", "Show the task" pressed in (2026-10-18) |
+| `task-page-host-live.jpg` | A live task's page: "← Run of show", the task as the title, "Task 4 of 8 · live task", the BIG SCREEN and PHONES rows of radio buttons (Nothing / The task, Nothing pressed in), the song strip, the note, the task card, then Points with a number box (2026-10-18) |
+| `task-page-host-live-up.jpg` | The same with its words on the big screen: "On the big screen: the task", "The task" pressed in on the BIG SCREEN row (2026-10-18) |
+| `task-parts-host.jpg` | A task with two parts: "Dice tower" with two rows of radio buttons, BIG SCREEN and PHONES, each Nothing · Part 1 · Part 2 with Nothing pressed in, then the Individual and Team cards to read from (2026-10-18) |
+| `task-parts-host-up.jpg` | The same with part 2 on the big screen: "On the big screen: the task, part 2", BIG SCREEN set to Part 2 and PHONES still Nothing (2026-10-18) |
+| `task-parts-main.jpg` | The big screen with part 2 up: only the TEAM TASK card, no word "part" (2026-10-18) |
+| `task-parts-host-phones.jpg` | The same task with part 1 on the big screen and part 2 on the phones, each row set apart from the other (2026-10-18) |
+| `guest-task-parts-phone.jpg` | A guest's phone with part 2 up: "Here's the task. Read it, then put your phone away.", then the same paper task card as the host's, TEAM TASK centred, no task name, no "part" (2026-10-18) |
+| `task-parts-edit.jpg` | The ✎ page with "Task text" open on a two-part task: PART 1 and PART 2 each with their type and text, "✕ Remove this part", "+ Add a part" (2026-10-18) |
 | `task-page-host-app-game.jpg` | An app game's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app game", gold "First up: Sam →", Points at the bottom (2026-10-18) |
 | `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |
 | `task-song-edit.jpg` | "Change" on the song summary line: "Song (optional)" opened with its picker and ✕, Done and "✕ Remove song", the other summary lines kept above and below (2026-10-18) |
@@ -200,10 +206,10 @@ Task text (taken on 2026-10-18, from the real components with a made-up party; t
 |---|---|
 | `run-of-show-host-task-text-edit.jpg` | "Change" on a live task's task text: "Task type (optional)" with the heading it makes, then "Task text (optional)" grown to fit the story, Done and "✕ Remove task text"; the song and unit stay as summary lines (2026-10-18) |
 | `run-of-show-host-tiebreaker-text-edit.jpg` | The tiebreaker's task text opened with "Change": no type picked, so "Heads the task text: TIEBREAKER TASK." (2026-10-18) |
-| `tiebreaker-host-text.jpg` | The tiebreaker's page with its text: gold "Show the task", the song, the note, the story on the task card (TIEBREAKER TASK centred), and "Tap who won." fixed to the bottom with Sam and Priya side by side (2026-10-18) |
+| `tiebreaker-host-text.jpg` | The tiebreaker's page with its text: gold "Show the task", the song, the note, the story on the task card (TIEBREAKER TASK centred), and "Tap who won." fixed to the bottom with Sam and Priya side by side (2026-10-18; older shot: the page now has the BIG SCREEN and PHONES radio rows in place of "Show the task") |
 | `tiebreaker-host-text-mid.jpg` | The same page scrolled mid-story: the bar stays at the bottom |
-| `tiebreaker-host-text-won.jpg` | Priya tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Priya" with paper "Show the task" under it (2026-10-18) |
-| `tiebreaker-host-text-up.jpg` | The story on the big screen: "On the big screen: the task", the gold button pressed in (tap it again to lower the curtain) (2026-10-18) |
+| `tiebreaker-host-text-won.jpg` | Priya tapped as "won the tiebreaker": gold "🎁 Show the prize haul · Priya" with paper "Show the task" under it (2026-10-18; older shot: the page now has the BIG SCREEN and PHONES radio rows in place of "Show the task") |
+| `tiebreaker-host-text-up.jpg` | The story on the big screen: "On the big screen: the task", the gold button pressed in (tap it again to lower the curtain) (2026-10-18; older shot: the page now has the BIG SCREEN and PHONES radio rows in place of "Show the task") |
 | `scoreboard-host-points-text.jpg` | A live task's points page with its text: INDIVIDUAL TASK on the card under the note, "Show the task" under "Show the scoreboard" |
 | `scoreboard-host-points-text-up.jpg` | The same with its text on the big screen |
 | `main-task-text.jpg` | The big screen: the tiebreaker's story on the task card, centred on the curtain, TIEBREAKER TASK centred at the top, the type shrunk to fit |
