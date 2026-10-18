@@ -9,7 +9,7 @@ main > section {
 /* the Prize Haul and the sign-off share the last picture */
 #haul { padding-bottom: 0.5rem; }
 .signoff { background: var(--burgundy-deep) !important; padding-bottom: 2.6rem !important; }
-.phones { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; overflow: visible; margin-inline: 0; padding-inline: 0; }
+.phones { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); justify-content: stretch; gap: 0.6rem; overflow: visible; margin-inline: 0; padding-inline: 0; }
 .phones .caption { font-size: 0.72rem; padding: 0.15rem 0.4rem; text-align: center; }
 .phone { border-radius: 16px; padding: 4px; }
 .phone img { border-radius: 12px; }
