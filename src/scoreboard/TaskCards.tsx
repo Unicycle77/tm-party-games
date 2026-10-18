@@ -30,18 +30,24 @@ export function TaskCards({ code, session }: { code: string; session: Session })
 
   async function download() {
     setBusy(true); setNote(undefined);
+    // Opened now, while the tap still counts, so the browser lets the PDF come up in its own tab once it's made.
+    const tab = window.open("", "_blank");
     try {
       const pool = secret ? ((await get(ref(db(), `secretTasks/${code}/pool`))).val() ?? {}) as Record<string, string> : {};
       const secrets = Object.values(pool).filter((t) => t.trim());
       const pages = pagesOf(session.scoreboard);
-      if (!pages.length && !secrets.length) { setNote("No task has any text yet."); return; }
+      if (!pages.length && !secrets.length) { tab?.close(); setNote("No task has any text yet."); return; }
       const face = faceOf(await sfntOfWoff(await (await fetch(fontUrl)).arrayBuffer()));
       const pdf = await buildPdf(face, pages, secrets, layout);
       const url = URL.createObjectURL(new Blob([pdf as BlobPart], { type: "application/pdf" }));
-      const a = Object.assign(document.createElement("a"), { href: url, download: setupFileName(session, code).replace(/\.taskmaster\.json$/, " task cards.pdf") });
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch { setNote("Couldn't make the PDF. Try again."); }
+      if (tab) tab.location.href = url;
+      else {
+        // The browser wouldn't open a tab, so it downloads instead.
+        const a = Object.assign(document.createElement("a"), { href: url, download: setupFileName(session, code).replace(/\.taskmaster\.json$/, " task cards.pdf") });
+        a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch { tab?.close(); setNote("Couldn't make the PDF. Try again."); }
     finally { setBusy(false); }
   }
 
@@ -51,7 +57,7 @@ export function TaskCards({ code, session }: { code: string; session: Session })
         <span>Task cards</span>
         <button className="link" disabled={busy} onClick={() => void download()}>{busy ? "Making…" : "Download PDF"}</button>
       </div>
-      <p className="muted small">{note ?? "Each task's text, a page a part, to print."}</p>
+      <p className="muted small">{note ?? "Opens in a new tab: each task's text, a page a part, to print."}</p>
       <div className="toggles"><Toggle label="Include secret tasks" on={secret} onChange={setSecret} /></div>
       {secret && (
         <div className="choices marks" role="radiogroup" aria-label="Secret task sheets">
