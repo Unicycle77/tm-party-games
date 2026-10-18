@@ -39,6 +39,10 @@ export async function addPlayerToScoreboard(code: string, board: Scoreboard | un
   });
 }
 
+/** "Not playing": the host dismisses a guest's "add them?" card. They stay in "Here, but not on the scoreboard". */
+export const setNotPlaying = (code: string, uid: string, on = true) =>
+  update(ref(db(), `sessions/${code}`), { [`players/${uid}/notPlaying`]: on ? true : null });
+
 export const renameContestant = (code: string, id: string, name: string) => set(at(code, `contestants/${id}/name`), name.trim());
 
 /** Takes them off the scoreboard, with every point they were given. */

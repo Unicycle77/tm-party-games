@@ -188,7 +188,7 @@ function Contestants({ code, session, board, contestants }: {
           <ul className="sb-contestant-list">
             {loose.map(([uid, p]) => (
               <li key={uid}>
-                <span className="sb-contestant-name sb-loose">{p.name}<span className="muted small">checked in</span></span>
+                <span className="sb-contestant-name sb-loose">{p.name}<span className="muted small">{p.notPlaying ? "not playing" : "checked in"}</span></span>
                 <button className="sb-start" onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>+ Add</button>
               </li>
             ))}

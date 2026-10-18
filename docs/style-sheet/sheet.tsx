@@ -168,6 +168,14 @@ function Sheet() {
             </div>
             <Cap>The now-playing strip (<code>.now-playing-strip</code>): under "On the big screen" on every page while a song plays; one tap pauses</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="move-request new-guest"><p><strong>Riley</strong> joined, but isn't on the scoreboard. Add them if they're playing.</p><div className="row"><button>Add Riley</button><button>Not playing</button></div></section>
+            </div>
+            <Cap>A new guest's card (<code>.move-request.new-guest</code>): the move-request style, on any page</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="up-next the-finale"><p className="up-next-label">The finale</p><h3>All 8 tasks scored</h3><p className="up-next-note">One last update on the scoreboard, then the haul.</p><button className="big">🏆 Declare the winner</button></section>
+            </div>
+            <Cap>The finale (<code>.up-next.the-finale</code>): the Up next card once every task has points</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
               <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
                 ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
             </div>

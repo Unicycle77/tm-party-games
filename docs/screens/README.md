@@ -137,6 +137,11 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-haul-up.jpg` | The haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link (2026-10-18) |
 | `run-of-show-host-haul-waiting.jpg` | The scoreboard up with a task still without points: "The prize haul comes once every task has points. Still none for Prize task." under gold "Lower the curtain", and the "Up next" card's button paper (2026-10-18) |
 | `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
+| `run-of-show-host-arrivals.jpg` | Run of show before the first task: "Here so far · 3 of 5" in guest-list order with headshots and "checked in" or "not yet" (dimmed), paper "Show QR code", then the Up next card with gold "▶ Start Headshot" (2026-10-18) |
+| `host-new-guest.jpg` | A guest who isn't on the scoreboard comes as a card at the top of the page: "Riley joined, but isn't on the scoreboard. Add them if they're playing." with "Add Riley" and "Not playing" (2026-10-18) |
+| `host-new-guest-late.jpg` | The same card on a task page, mid-show: it appears on whatever page the host is on (2026-10-18) |
+| `scoreboard-host-not-playing.jpg` | Plan the party after "Not playing": Riley stays under "Here, but not on the scoreboard" marked "not playing", with "+ Add" if they change their mind (2026-10-18) |
+| `run-of-show-host-finale.jpg` | Every task has points: the Up next card becomes "The finale · All 8 tasks scored" with gold "🏆 Declare the winner", the quiet end-night link gone (2026-10-18) |
 | `run-of-show-host-declare.jpg` | Run of show mid-party with tasks unscored: a quiet "End the night now: declare the winner" under the task list (2026-10-18) |
 | `run-of-show-host-declare-update.jpg` | After "Declare the winner": the scoreboard is up, gold "Update the scores" for one last update (the status line names the task it adds), and "Declaring the winner with Prize task unscored. Not yet" (2026-10-18) |
 | `run-of-show-host-declare-haul.jpg` | After that last update: gold "🎁 Show the prize haul · Priya", the winner decided on the points so far (2026-10-18) |

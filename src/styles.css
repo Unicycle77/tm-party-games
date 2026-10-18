@@ -1300,3 +1300,13 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .read-out { display: grid; gap: 0.5rem; }
 .read-out h3 { margin: 0; }
 .read-out .conversion { text-align: center; }
+
+/* Run of show before the first task: who's here */
+.arrivals { display: grid; gap: 0.5rem; }
+.arrivals h3 { margin: 0; }
+.arrivals-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.arrivals-list li { display: flex; align-items: center; gap: 0.6rem; }
+.arrivals-list li.away { opacity: 0.55; }
+.arrivals-list .face { flex: none; width: 2rem; height: 2rem; border-radius: 4px; background: #0004; border: 1px solid var(--gold-dark); overflow: hidden; }
+.arrivals-list .face img { width: 100%; height: 100%; object-fit: cover; }
+.arrivals-list .name { flex: 1; font-family: var(--typewriter); }

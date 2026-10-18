@@ -15,6 +15,7 @@ import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { PinStep } from "./HostPin";
 import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
 import { Toggle } from "./Toggle";
 import type { Session } from "./types";
 
@@ -120,7 +121,6 @@ export function HostPage() {
           <RunOfShow code={code} session={session} onOpen={open} onTiebreak={() => open("tiebreaker")}
             footer={<>
               <button className="link" onClick={() => go({ view: "plan" })}>Plan the party</button>
-              <JoinQr code={code} session={session} />
               {settings}
             </>} />
         )}
@@ -152,9 +152,24 @@ function Dealer({ code, session }: { code: string; session: Session }) {
  * sound: the guest will usually be standing next to the host asking anyway.
  */
 function MoveRequests({ code, session }: { code: string; session: Session }) {
+  const board = session.scoreboard;
+  const listed = new Set(Object.values(board?.contestants ?? {}).map((c) => c.uid).filter(Boolean));
+  // A guest who joined but isn't on the scoreboard comes to the host as a card, on whatever page they're on.
+  const newcomers = Object.entries(session.players ?? {})
+    .filter(([uid, p]) => !listed.has(uid) && !p.notPlaying)
+    .sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const asks = Object.entries(session.moves ?? {}).filter(([, m]) => m.status === "asked" && session.players?.[m.from]);
   return (
     <>
+      {newcomers.map(([uid, p]) => (
+        <section key={uid} className="move-request new-guest">
+          <p><strong>{p.name}</strong> joined, but isn't on the scoreboard. Add them if they're playing.</p>
+          <div className="row">
+            <button onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>Add {p.name}</button>
+            <button onClick={() => void setNotPlaying(code, uid)}>Not playing</button>
+          </div>
+        </section>
+      ))}
       {asks.map(([to, m]) => {
         const name = session.players![m.from]!.name;
         return (

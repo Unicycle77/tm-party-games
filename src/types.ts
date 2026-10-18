@@ -33,6 +33,8 @@ export interface Player {
   joinedAt: number;
   /** The scoreboard contestant they checked in as, if the party had a guest list. */
   contestant?: string;
+  /** The host said this guest isn't playing: no "add them?" card, and they stay listed behind Plan the party. */
+  notPlaying?: boolean;
 }
 
 /** Download URLs of a player's Before & After submission. RTDB drops empty objects, so all optional. */

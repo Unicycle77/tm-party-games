@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { OnScreen } from "../HostRemote";
+import { JoinQr, OnScreen } from "../HostRemote";
 import { activeGame } from "../games";
 import { prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen } from "../session";
@@ -35,6 +35,9 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   const unscored = tasks.filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const final = !!board?.final;
   const adHoc = !activeTaskId(session) ? activeGame(session) : undefined;
+  // Until the first task starts (its first points, or ▶ Start) the page is about who's here.
+  const arrivals = !tasks.some(([, t]) => scored(t)) && !activeTaskId(session) && !up && !haulUp;
+  const finale = tasks.length > 0 && unscored.length === 0 && !final && !haulUp && !winner;
 
   // The scoreboard's next step takes the top slot, so there's only ever one gold button.
   const scores = haulUp ? (
@@ -75,7 +78,9 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
       ) : up && !pending.length && (
         <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or end the night now, below the list.</p>
       ))}
-      <UpNext code={code} session={session} quiet={!!scores} onOpen={onOpen} />
+      {arrivals && <Arrivals code={code} session={session} />}
+      {finale ? <Finale code={code} count={tasks.length} quiet={!!scores} />
+        : <UpNext code={code} session={session} quiet={!!scores} onOpen={onOpen} />}
       {!up && !haulUp && !winner && (
         <>
           <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
@@ -86,7 +91,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
       )}
       <TaskList session={session} onOpen={onOpen} />
       {/* The night can end before every task is played: one last update, then the haul. */}
-      {!final && !haulUp && tasks.some(([, t]) => scored(t)) && (
+      {!final && !haulUp && unscored.length > 0 && tasks.some(([, t]) => scored(t)) && (
         <button className="link end-night" onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>End the night now: declare the winner</button>
       )}
       <div className="run-links">
@@ -94,6 +99,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <button className="link" onClick={() => onOpen("adhoc")}>
           {adHoc ? `Back to ${adHoc.name} (not on the list)` : "Play a game that's not on the list"}
         </button>
+        {!arrivals && <JoinQr code={code} session={session} />}
         {footer}
       </div>
     </div>
@@ -164,6 +170,45 @@ function TaskList({ session, onOpen }: { session: Session; onOpen: (id: string) 
           );
         })}
       </ul>
+    </section>
+  );
+}
+
+/**
+ * Before the first task: who's here, in guest-list order, read-only (changing the list is on Plan the party). "Show QR code"
+ * is paper, since this is when people join.
+ */
+function Arrivals({ code, session }: { code: string; session: Session }) {
+  const board = session.scoreboard;
+  const contestants = Object.entries(board?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order);
+  if (!contestants.length) return null;
+  const here = (uid?: string) => !!uid && !!session.players?.[uid];
+  const count = contestants.filter(([, c]) => here(c.uid)).length;
+  return (
+    <section className="arrivals">
+      <h3>Here so far · {count} of {contestants.length}</h3>
+      <ul className="arrivals-list">
+        {contestants.map(([id, c]) => (
+          <li key={id} className={here(c.uid) ? undefined : "away"}>
+            <span className="face" aria-hidden>{c.photo ? <img src={c.photo} alt="" /> : null}</span>
+            <span className="name">{c.name}</span>
+            <span className="muted small">{!here(c.uid) ? "not yet" : c.photo ? "checked in" : "checked in · no headshot yet"}</span>
+          </li>
+        ))}
+      </ul>
+      <JoinQr code={code} session={session} button />
+    </section>
+  );
+}
+
+/** Once every task has points, the "Up next" card becomes the night's last gold button. */
+function Finale({ code, count, quiet }: { code: string; count: number; quiet: boolean }) {
+  return (
+    <section className="up-next the-finale">
+      <p className="up-next-label">The finale</p>
+      <h3>All {count} tasks scored</h3>
+      <p className="up-next-note">One last update on the scoreboard, then the haul.</p>
+      <button className={quiet ? undefined : "big"} onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>🏆 Declare the winner</button>
     </section>
   );
 }
