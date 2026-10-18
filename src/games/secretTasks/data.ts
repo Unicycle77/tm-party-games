@@ -5,7 +5,7 @@ import { setDisplay } from "../../session";
 import type { SecretReveal, SecretTasks, Session } from "../../types";
 
 /** Two tasks are the same if they match ignoring capitals, spacing and punctuation. */
-const same = (a: string, b: string) => key(a) === key(b);
+export const same = (a: string, b: string) => key(a) === key(b);
 const key = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, "").replace(/\s+/g, " ").trim();
 
 /** Tasks in the pool that nobody has been dealt yet, in the order the host typed them. */

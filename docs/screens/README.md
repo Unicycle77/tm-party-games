@@ -115,6 +115,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | A game that's not on the list: the same page with no number and no points (2026-10-18) |
 | `run-of-show-host-add-game.jpg` | "+ App game" on Plan the party: Noisemaster and Headshot greyed out as "on the list", Photos still offered (2026-10-18) |
+| `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
+| `host-setup-import-check.jpg` | The import check under that row, from the real `ImportCheck` component: "Import \"Halloween party\"?", "Nothing changes until you tap Import.", the tasks as they'll be (unchanged, new, kept: has points), Removed, Tiebreaker, Secret tasks with who picks again, The light, songs not in the music folder, gold "Import 5 tasks" and Cancel (2026-10-18) |
 | `secret-tasks-host-who-has-what.jpg` | Secret tasks on the host app (✉): "Who has what" with Sam's task tapped open ("Tap again to hide it."), the pile folded below |
 | `secret-tasks-host-pile-open.jpg` | "✉ Secret envelopes" opened with Change on Plan the party: "New tasks, one per line", Add to the pile, and the pile to fix or take out (2026-10-18) |
 | `secret-tasks-player-pile-drag.jpg` | A guest's phone picking an envelope: the pile, then an envelope being dragged off the others |
