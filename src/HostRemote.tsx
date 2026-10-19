@@ -53,10 +53,10 @@ export function onScreenLine(session: Session): string {
  * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
  */
 export function OnScreen({ code, session, chip }: { code: string; session: Session; chip?: ReactNode }) {
-  const line = <p className="on-screen">On the big screen: {onScreenLine(session)}</p>;
   return (
     <>
-      {chip ? <div className="line-chip">{line}{chip}</div> : line}
+      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      {chip}
       <NowPlaying code={code} session={session} />
     </>
   );

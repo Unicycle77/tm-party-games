@@ -11,7 +11,7 @@ import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upN
 
 /**
  * The host remote's home: the party line with a small "Show QR" chip, one line saying what's on the big screen with
- * a small "Show scores" chip, then the one next thing in gold (the scoreboard's next step while it's up, or else the
+ * a small "Show scores" chip under it, then the one next thing in gold (the scoreboard's next step while it's up, or else the
  * "Up next" card), and the task list to see where the night is. Tapping a task opens its page. Building the party is
  * behind "Plan the party".
  */
@@ -74,7 +74,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <JoinQr code={code} session={session} />
       </div>
       <OnScreen code={code} session={session} chip={!up && !haulUp && !winner
-        ? <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button> : undefined} />
+        ? <button className="line-chip-button under" onClick={() => void showScoreboard(code)}>Show scores</button> : undefined} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
       {!haulUp && unscored.length > 0 && (final ? (
