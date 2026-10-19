@@ -25,7 +25,7 @@ export function Portrait({ code, session }: { code: string; session: Session }) 
       {session.portrait ? <img src={session.portrait} alt="The Taskmaster's portrait" /> : <div className="ph">No portrait</div>}
       <div className="portrait-text">
         <span>Taskmaster portrait</span>
-        <span className="muted small">Shown on the big screen between games.</span>
+        <span className="muted small">Shown on the big screen between tasks.</span>
         {progress !== undefined ? <span className="small">Uploading… {Math.round(progress * 100)}%</span>
           : <button onClick={() => input.current?.click()}>{session.portrait ? "Change portrait" : "Upload portrait"}</button>}
         {failed && <span className="error small">That didn't upload. Try again.</span>}

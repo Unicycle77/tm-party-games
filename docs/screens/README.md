@@ -23,10 +23,11 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
+| `guest-join-code.jpg` | Joining without the QR: "Party code" with 📷 and "It's on the big screen.", Next waiting for 4 letters |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
 | `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
-| `run-of-show-host.jpg` | Host phone: the Run of show, "Up next" card with the gold Start button, "Show the scoreboard", and all eight tasks (taken 2026-10-18 from the ABCD party) |
+| `run-of-show-host.jpg` | Host phone: the Run of show, "Up next" card with the gold Start button, "Show the scoreboard", and all eight tasks, "app task" on the card (taken 2026-10-19 from the ABCD party) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
 | `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
@@ -41,8 +42,8 @@ Host phone (`/host`, 390px wide):
 
 | File | What it shows |
 |---|---|
-| `host-choose-game.jpg` | "Play a game" for a game that's not on the run of show: the picker under the task page's top, "Not on the run of show, so it isn't scored" (2026-10-18) |
-| `host-collecting-entries.jpg` | An app game's task page while entries come in (Photos: best costume): "Task 2 of 8 · app game", the status line, gold "First up: Sam →", stamps and 🔒, "◫ Show everyone", and Points open below (2026-10-18) |
+| `host-choose-game.jpg` | "Play a task" for a task that's not on the run of show: the picker under the task page's top, "Not on the run of show, so it isn't scored" (2026-10-19, from the ABCD party) |
+| `host-collecting-entries.jpg` | An app game's task page while entries come in (Photos: best costume): "Task 2 of 8 · app game", the status line, gold "First up: Sam →", stamps and 🔒, "◫ Show everyone", and Points open below (2026-10-18; taken before "app game" became "app task", see `task-page-host-app-game.jpg`) |
 | `host-contestant-on-screen.jpg` | A contestant on the big screen, a step inside the task page: "Alex, 3 of 4", their controls, "Lower the curtain", Points still at the bottom (2026-10-18) |
 | `host-running-order.jpg` | Curtain down between contestants: gold "Next: Alex →", the running order (shown ones dimmed), Points below (2026-10-18) |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
@@ -59,7 +60,7 @@ Host phone (`/host`, 390px wide):
 | `host-read-it-out.jpg` | "📏 Read it out" open under a measured task's points: contestant chips with Jordan picked (the last number typed), the conversion card, "Surprise me again", paper "Show on the big screen" (2026-10-18) |
 | `host-read-it-out-up.jpg` | The same with it on the big screen: the status line says "a useless conversion", the button is pressed in ("On the big screen · Jordan"), and 📏 is lit in the header (2026-10-18) |
 | `host-party-settings.jpg` | Party settings, at the bottom of Run of show: only the night-of switches, the download button and "Disconnect this phone" (the name, portrait and pin moved to Plan the party) (2026-10-18). "Reset scores…" now sits under the download switch: see `host-reset-scores.jpg` |
-| `host-reset-scores.jpg` | Party settings with "Reset scores…" opened in place: what it clears and keeps, "Also remove guests (8 joined)" switched on with what goes, and the paper "Reset and remove guests" button with Cancel (2026-10-18) |
+| `host-reset-scores.jpg` | Party settings with "Reset scores…" opened in place: what it clears and keeps, "the app tasks' rounds", "Also remove guests (6 joined)" switched on with what goes, and the paper "Reset and remove guests" button with Cancel (2026-10-19, from the ABCD party) |
 
 Main screen (`/`, 1600×900):
 
@@ -107,7 +108,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-edit-db-meter-on.jpg` | A dB task's ✎ page with its unit section open: 🔊 dB meter pressed, "🔇 DQ if louder than" set to 90 dB, Done and "✕ Remove unit"; the song above it is one summary line (2026-10-18) |
 | `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 100: Priya's 101.2 struck through with "over 100" under her 0, the others moved up, "over 100 dB is a DQ" in the status line, gold "Done: back to Run of show →" (2026-10-18) |
 | `scoreboard-host-points-db-lo.jpg` | A quietest-wins dB task: the LO chip under Mei's box while it's typed in, and Jo's LO in 1st (2026-10-17) |
-| `scoreboard-host-tasks-contestants.jpg` | Plan the party on a wide iPad: the party line across the top, tasks on the left and contestants on the right, the envelopes line across the bottom (2026-10-18) |
+| `scoreboard-host-tasks-contestants.jpg` | Plan the party on a wide iPad: the party line across the top, tasks on the left and contestants on the right, each task "· app task" or live, "+ Live task" and "+ App task" (2026-10-19, from the ABCD party) |
 | `headshot-crop-choice.jpg` | Plan the party, Contestants: headshots as tall thumbnails the shape of the scoreboard's window; Greg's (a wide group shot) tapped, opening "Greg's headshot" with Crop, Replace and Cancel in his row (sketch, 2026-10-19, from the ABCD party) |
 | `headshot-crop-page.jpg` | Crop opened on Greg's headshot: "← Plan the party", his whole group shot with the gold window (a dot on each corner to resize it) dragged onto him and the rest dimmed, the scoreboard's gold frame beside it showing the crop, "Back to the middle", gold Save and quiet Cancel (sketch, 2026-10-19, from the ABCD party) |
 | `headshot-crop-saved.jpg` | Back on Plan the party after Save: Greg's tall thumbnail now shows the part of his group shot he cropped to, the others still centred (sketch, 2026-10-19, from the ABCD party) |
@@ -118,7 +119,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-name-photo-task.jpg` | ✎ on a Photos task: "Photos: name it (optional)", no Scoring, the three "+" chips (2026-10-18) |
 | `scoreboard-host-photos-named.jpg` | A named photo task running: "Photos: best costume" |
 | `checkin-phone-list.jpg` | Guest's phone: "Joining Halloween party", tap your name |
-| `player-join-code-first.jpg` | Guest's phone without the QR: the code alone with "Next", then the list to tap a name, and "Not on the list? Type your name" |
+| `player-join-code-first.jpg` | Guest's phone without the QR: the code alone with "Next", then the list to tap a name, and "Not on the list? Type your name" (taken when the field said "Game code"; it's "Party code" now, see `guest-join-code.jpg`) |
 | `checkin-phone-confirm.jpg` | "You're Sam?" with gold "That's me" |
 | `checkin-phone-not-on-list.jpg` | Not on the list: typing a name, "Back to the list" |
 | `checkin-phone-headshot.jpg` | No headshot on file: "Add your headshot" |
@@ -140,7 +141,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `task-parts-host-phones.jpg` | The same task with part 1 on the big screen and part 2 on the phones, each row set apart from the other (2026-10-18) |
 | `guest-task-parts-phone.jpg` | A guest's phone with part 2 up: "Here's the task. Read it, then put your phone away.", then the same paper task card as the host's, TEAM TASK centred, no task name, no "part" (2026-10-18) |
 | `task-parts-edit.jpg` | The ✎ page with "Task text" open on a two-part task: PART 1 and PART 2 each with their type and text, "✕ Remove this part", "+ Add a part" (2026-10-18) |
-| `task-page-host-app-game.jpg` | An app game's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app game", gold "First up: Sam →", Points at the bottom (2026-10-18) |
+| `task-page-host-app-game.jpg` | An app task's page (Photos: best costume) with entries coming in: "Task 2 of 8 · app task", "Show the task" and the card, "First up: Alex →", Points at the bottom (2026-10-19, from the ABCD party) |
 | `task-page-host-points-done.jpg` | Everyone shown and scored: "All 5 shown." with "◫ Show everyone", Points with Priya's +1, gold "Done: back to Run of show →" (2026-10-18) |
 | `task-song-edit.jpg` | "Change" on the song summary line: "Song (optional)" opened with its picker and ✕, Done and "✕ Remove song", the other summary lines kept above and below (2026-10-18) |
 | `task-song-edit-missing.jpg` | A task whose song left the folder: the title struck through, "Not in the music folder any more. Pick another, or ✕." (2026-10-18) |
@@ -158,10 +159,10 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |
 | `task-unit-edit.jpg` | A task with a unit: "📏 Measured in · cm · one is 1 cm" as one summary line with Change, the song and the task text the same (2026-10-18) |
 | `task-unit-empty.jpg` | The "+ 📏 Unit" section just opened: the name field and "🎲 Dice (16 mm)" (2026-10-18) |
-| `host-game-task-song.jpg` | An app game's page with its task's song strip under the status line (2026-10-18) |
+| `host-game-task-song.jpg` | An app task's page with its task's song strip under the status line (2026-10-18) |
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
-| `run-of-show-host-play-a-game.jpg` | A game that's not on the list: the same page with no number and no points (2026-10-18) |
-| `run-of-show-host-add-game.jpg` | "+ App game" on Plan the party: Noisemaster and Headshot greyed out as "on the list", Photos still offered (2026-10-18) |
+| `run-of-show-host-play-a-game.jpg` | "Play a task": a task that's not on the list, the same page with no number and no points (2026-10-19, from the ABCD party) |
+| `run-of-show-host-add-game.jpg` | "+ App task" on Plan the party, "Which task?": Noisemaster, Secret Tasks, Headshot and Prize task greyed out as "on the list", Photos still offered (2026-10-19, from the ABCD party) |
 | `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
 | `plan-host-task-cards.jpg` | Plan the party's bottom: the "Task cards" row with Download PDF, "Include secret tasks" switched on and the "8 to cut" / "4 to fold" radio row, above Setup file (2026-10-18) |
 | `task-cards-pdf-page.jpg` | The downloaded PDF's first page: a task's Individual part, heading centred in capitals, the paragraphs, the block centred down a white Letter page (2026-10-18) |
@@ -204,7 +205,7 @@ Tiebreaker task (taken on 2026-10-13, from the real components with a made-up pa
 
 | File | What it shows |
 |---|---|
-| `run-of-show-host-tiebreaker.jpg` | Plan the party: the tasks with ≡ and ✎ (no ▶ Start), "+ Live task" and "+ App game", then "Tiebreaker task · only if there's a tie" as a summary line with ✎ under the list, then the contestants, "Add contestants, one per line" and "✉ Secret envelopes · 12 in the pile" with Change (2026-10-18) |
+| `run-of-show-host-tiebreaker.jpg` | Plan the party: the tasks with ≡ and ✎ (no ▶ Start), "+ Live task" and "+ App game" (taken before it became "+ App task"), then "Tiebreaker task · only if there's a tie" as a summary line with ✎ under the list, then the contestants, "Add contestants, one per line" and "✉ Secret envelopes · 12 in the pile" with Change (2026-10-18) |
 | `run-of-show-host-tiebreaker-edit.jpg` | ✎ on the tiebreaker task: its own page with "← Plan the party", name, note, "+ Task text" and "+ Song", no Scoring and no "Remove this task" (2026-10-18) |
 | `run-of-show-host-haul-remote-tie.jpg` | The run of show after the last update with Sam and Priya tied at the top: gold "Play the tiebreaker task · Sam and Priya", "Lower the curtain" as a link (2026-10-18) |
 | `tiebreaker-host-playing.jpg` | The tiebreaker's page, with the curtain down: "← Run of show", its name as the title, "Tiebreaker · Sam and Priya", the note to read out, "Tap who won.", nobody tapped (2026-10-18) |

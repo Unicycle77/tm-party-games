@@ -51,7 +51,7 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
     if (!obj(r)) { warnings.push(`Task ${i + 1} isn't a task, so it's left out.`); return; }
     const game = typeof r.game === "string" && (r.game === "light" || r.game in GAMES) ? (r.game as TaskGame) : undefined;
     const task: SetupTask = { id: typeof r.id === "string" ? r.id : "", ...wordsOf(r), ...(game && { game }) };
-    if (!task.name && !game) { warnings.push(`Task ${i + 1} has no name or game, so it's left out.`); return; }
+    if (!task.name && !game) { warnings.push(`Task ${i + 1} has no name or app task, so it's left out.`); return; }
     if (r.scoring === "highest" || r.scoring === "lowest") task.scoring = r.scoring;
     if (typeof r.dqOver === "number" && Number.isFinite(r.dqOver)) task.dqOver = r.dqOver;
     if (r.dqStays === true) task.dqStays = true;

@@ -19,7 +19,7 @@ import { useKeepAwake } from "../keepAwake";
 const KEY = "ba.lightCode";
 
 /**
- * The light (`/light`): runs all evening on a computer with a webcam, whatever game is on. It watches
+ * The light (`/light`): runs all evening on a computer with a webcam, whatever task is on. It watches
  * the room, turns the light on 2 seconds after anyone does the secret trigger, and drives a real Hue
  * lamp. The host phone picks the trigger, and can pause it or turn it on by hand. Players may see this
  * screen, so it never says what the trigger is.
@@ -218,13 +218,13 @@ function Connect({ onConnected }: { onConnected: (code: string) => void }) {
     <main className="join watch">
       <h1>Taskmaster - <span className="nowrap">The Light</span></h1>
       <form onSubmit={(e) => { e.preventDefault(); void connect(code); }}>
-        <label>Game code (from the main screen)
+        <label>Party code (from the main screen)
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
             maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
         </label>
         <button type="submit" className="big" disabled={busy || code.length !== 4}>{busy ? "Starting…" : "Start the light"}</button>
         {error && <p className="error">{error}</p>}
-        <p className="muted small">Run this on a computer with a webcam that can see everyone, on the same network as the Hue Bridge. It keeps running whatever game is on.</p>
+        <p className="muted small">Run this on a computer with a webcam that can see everyone, on the same network as the Hue Bridge. It keeps running whatever task is on.</p>
       </form>
       <RecentList recent={recent} busy={busy} onPick={(c) => void connect(c)} />
     </main>
