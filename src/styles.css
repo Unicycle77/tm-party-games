@@ -779,6 +779,12 @@ body.idle-cursor .stage { cursor: none; }
 /* host phone: header with the music and light one tap away */
 .host-head { display: flex; align-items: center; gap: 0.5rem; }
 .host-head { justify-content: flex-end; }
+/* it stays at the top while the page scrolls, on a band of the deep burgundy that reaches the phone's edges so rows slide under it */
+.host-head {
+  position: sticky; top: 0; z-index: 4;
+  margin: -1rem -1rem 0; padding: 0.75rem 1rem;
+  background: rgb(42 8 7 / 0.95); box-shadow: 0 6px 10px -6px #000c;
+}
 .party-line { margin: -0.4rem 0 0; }
 .head-icon { padding: 0.35rem 0.6rem; font-size: 1.2rem; line-height: 1; filter: grayscale(0.7); opacity: 0.75; }
 .head-icon.lit { filter: none; opacity: 1; box-shadow: 0 3px 0 var(--gold-dark), 0 0 12px var(--gold-bright); }

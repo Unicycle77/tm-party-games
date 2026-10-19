@@ -121,9 +121,9 @@ function Sheet() {
               <Item cap="A game code, with 📷 scan"><div className="row resume" style={{ marginTop: 0, display: "flex" }}><input defaultValue="" placeholder="ABCD" maxLength={4} /><button aria-label="Scan">📷</button></div></Item>
             </div>
           </Sec>
-          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you)">
+          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you) · stays at the top on its band">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
-              <header className="host-head">
+              <header className="host-head" style={{ position: "static", margin: 0 }}>
                 <button className="head-icon open lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
