@@ -20,7 +20,7 @@ export function screenState(session: Session) {
   const game = activeGame(session);
   const shown = session.display ?? { step: "list" as const };
   // A task's text taken away while it was up leaves the curtain.
-  const display = shown.step === "tasktext" && !textUp(session.scoreboard, shown.task) ? { step: "curtain" as const } : shown;
+  const display = shown.step === "tasktext" && !textUp(session.scoreboard, shown.task, shown.part) ? { step: "curtain" as const } : shown;
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
   const onStage = display.step === "scoreboard" || display.step === "haul" || display.step === "tasktext" || !!game && display.step !== "list" && display.step !== "curtain"
@@ -48,14 +48,14 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     preloadImages(photoUrls.split("\n"));
   }, [photoUrls]);
 
-  // A useless conversion covers whatever is on, until the host takes it down.
+  // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // The scoreboard belongs to no game, so it can go up whatever is on.
   if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
   // So is the winner's prize haul, at the end of the party.
   if (display.step === "haul") return <HaulStage code={code} session={session} />;
   // And a task's text, when the host puts it up.
-  const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task) : undefined;
+  const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task, display.part) : undefined;
   if (words) return <TaskTextStage {...words} />;
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 

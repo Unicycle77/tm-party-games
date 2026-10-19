@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { TaskCard } from "../TaskCard";
 import type { Scoreboard, TaskGame } from "../types";
+import { asParts } from "./tasks";
 
 /** The types every party uses; anything else ("Arrival") is typed under Other…. */
 const TYPES = ["Individual", "Team"];
@@ -8,10 +9,10 @@ const TYPES = ["Individual", "Team"];
 const GAME_TYPES: Partial<Record<TaskGame, string>> = { headshots: "Headshot", prize: "Prize", secretTasks: "Secret" };
 export const TIEBREAKER_TYPE = "Tiebreaker";
 
-/** "Individual" → "Individual task", as it heads the card (in capitals there). "Arrival task" isn't doubled. */
-const headingOf = (type: string | undefined) => {
-  const t = type?.trim().replace(/\s+task$/i, "");
-  return t ? `${t} task` : "";
+/** "Individual" → "Individual task", as it heads the card (in capitals there). A type that already ends in "task" or "tasks" ("Arrival task", "Secret Tasks") is left as it is. */
+export const headingOf = (type: string | undefined) => {
+  const t = type?.trim();
+  return t ? (/\s+tasks?$/i.test(t) ? t : `${t} task`) : "";
 };
 
 /** A task's type: the host's, or the one its app game already has. */
@@ -20,12 +21,21 @@ export const typeOf = (task: { type?: string; game?: TaskGame }) => task.type ||
 /** The text's lines, a paragraph each; blank lines are just space when typing. */
 const linesOf = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
-/** The words up on the big screen, if the task (or the tiebreaker) still has any. */
-export function textUp(board: Scoreboard | undefined, task: string | undefined) {
-  const t = task === "tiebreaker" ? board?.tiebreaker && { ...board.tiebreaker, type: board.tiebreaker.type || TIEBREAKER_TYPE }
-    : task ? board?.tasks?.[task] : undefined;
-  return t?.text ? { type: typeOf(t), text: t.text } : undefined;
+/** The task's words, a part each: its own type and text, for the parts that have any. A task with no parts has one. */
+export function partsOf(t: { type?: string; game?: TaskGame; text?: string; parts?: unknown } | undefined): { type: string; text: string }[] {
+  if (!t) return [];
+  return [{ type: typeOf(t), text: t.text ?? "" }, ...asParts(t.parts).map((p) => ({ type: p.type ?? "", text: p.text }))].filter((p) => p.text.trim());
 }
+
+/** The tiebreaker's words as a task's: its type is "Tiebreaker" unless the host gave it one. */
+export const tiebreakerWords = (tb: NonNullable<Scoreboard["tiebreaker"]>) => ({ ...tb, type: tb.type || TIEBREAKER_TYPE });
+
+/** The words of a task (a task's id, or "tiebreaker"), for `partsOf`. */
+export const wordsOfTask = (board: Scoreboard | undefined, task: string | undefined) =>
+  task === "tiebreaker" ? board?.tiebreaker && tiebreakerWords(board.tiebreaker) : task ? board?.tasks?.[task] : undefined;
+
+/** The words up on the big screen (part `part` of them, the first when absent), if the task (or the tiebreaker) still has any. */
+export const textUp = (board: Scoreboard | undefined, task: string | undefined, part = 0) => partsOf(wordsOfTask(board, task))[part];
 
 /**
  * "Task type (optional)" in a task's ✎: Individual and Team, or Other… for a word of the host's own. The

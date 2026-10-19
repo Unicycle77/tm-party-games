@@ -1,13 +1,22 @@
 import { useEffect, useRef, useState } from "react";
+import { GuestCard } from "../guest";
 import { useKeepAwake } from "../keepAwake";
+import type { Session } from "../types";
 import { uploadHeadshot } from "./data";
+
+/** What a guest reads under their headshot: the Headshot task's words, as written, or what the photo is for. */
+export function HeadshotCaption({ session }: { session: Session | null | undefined }) {
+  const text = Object.values(session?.scoreboard?.tasks ?? {}).find((t) => t.game === "headshots")?.text?.trim();
+  return <p className="caption">{text ? `“${text}”` : "Your headshot for the scoreboard."}</p>;
+}
 
 /**
  * Checking in without a headshot on file: the guest adds one, and it goes straight into their frame on
  * the scoreboard. Photos' card step for step (choose, check, sending, failed), with two equal paper
- * buttons since taking and choosing weigh the same. Required: "✓ You're in" comes once it's sent.
+ * buttons since taking and choosing weigh the same, in the same gold frame as "You're Sam?". Required: it's a
+ * step of checking in.
  */
-export function Headshot({ code, uid, id, name }: { code: string; uid: string; id: string; name: string }) {
+export function Headshot({ code, uid, id, session }: { code: string; uid: string; id: string; session: Session }) {
   const [picked, setPicked] = useState<{ file: File; url: string }>();
   const [progress, setProgress] = useState<number>();
   const [failed, setFailed] = useState(false);
@@ -37,17 +46,16 @@ export function Headshot({ code, uid, id, name }: { code: string; uid: string; i
     if (!picked) return;
     setFailed(false);
     setProgress(0);
-    // Once it lands, the card gives way to "✓ You're in" by itself.
+    // Once it lands, the card gives way to the next step of checking in by itself.
     try { await uploadHeadshot(code, uid, id, picked.file, setProgress); }
     catch { setFailed(true); }
     finally { setProgress(undefined); }
   }
 
   return (
-    <section className="slot task">
-      <h2>Welcome, {name}!</h2>
-      <p className="slot-hint"><strong>Add your headshot.</strong> It goes in your frame on the scoreboard.</p>
-      {picked ? <img src={picked.url} alt="Your headshot" /> : <div className="ph">Your headshot</div>}
+    <GuestCard label="To do now" title="Add your headshot">
+      {picked ? <img className="headshot" src={picked.url} alt="Your headshot" /> : <div className="ph headshot">Your headshot</div>}
+      <HeadshotCaption session={session} />
       {picked ? (
         uploading ? (
           <>
@@ -74,6 +82,6 @@ export function Headshot({ code, uid, id, name }: { code: string; uid: string; i
       )}
       <input ref={camera} type="file" accept="image/*" capture="user" hidden onChange={(e) => { choose(e.target.files?.[0]); e.target.value = ""; }} />
       <input ref={library} type="file" accept="image/*" hidden onChange={(e) => { choose(e.target.files?.[0]); e.target.value = ""; }} />
-    </section>
+    </GuestCard>
   );
 }

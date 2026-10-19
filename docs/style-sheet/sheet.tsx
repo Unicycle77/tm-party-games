@@ -7,6 +7,7 @@ import "./sheet.css";
 import { Toggle } from "../../src/Toggle";
 import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
+import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
@@ -91,6 +92,8 @@ function Sheet() {
               <Item cap={<><code>.steps.two</code>: what the stage shows</>}><div className="steps two"><button className="active">Before</button><button>After</button></div></Item>
               <Item cap="Disabled: 0.45, kept in place"><button disabled>Lower the curtain</button></Item>
             </div>
+            <Item cap={<><code>.pressed-in</code> on a paper button: a part of a task on the big screen now (<code>Show part 2</code>), never gold</>}><div className="steps"><button>Show part 1</button><button className="pressed-in" aria-pressed>Show part 2</button></div></Item>
+            <Item cap={<><code>.part-label</code>: host-only "part" label above a part of a task's text</>}><p className="part-label">Part 2</p></Item>
             <Item cap={<><code>.choices</code>: pick one setting, the chosen one gold</>}><div className="choices"><button className="active" aria-pressed>Photos</button><button aria-pressed={false}>Before &amp; After</button><button aria-pressed={false}>Noisemaster</button></div></Item>
             <Item cap={<><code>.choices.marks</code>: mark several, pressed in with ✓, never gold</>}><div className="choices marks"><button aria-pressed>✓ Sam</button><button aria-pressed={false}>Priya</button><button aria-pressed>✓ Mei</button></div></Item>
             <Item cap={<>Points rows: a small DQ chip (<code>.sb-dq</code>) by the name, then the points chips: picked pressed in; <code>.was</code> struck under a DQ; <code>.before</code> dashed, before a DQ moved them; then the bonus chip (<code>.sb-bonus</code>): +1, tapped again +2, kept through a DQ</>}>
@@ -120,6 +123,7 @@ function Sheet() {
               <Item cap={<><code>&lt;PinField&gt;</code>: dots, 👁 shows them</>}><PinField value="4821" onChange={noop} /></Item>
               <Item cap="A game code, with 📷 scan"><div className="row resume" style={{ marginTop: 0, display: "flex" }}><input defaultValue="" placeholder="ABCD" maxLength={4} /><button aria-label="Scan">📷</button></div></Item>
             </div>
+            <Item cap={<><code>.feet-in</code>: two boxes for ft and in (or lb and oz) at an imperial party, the number pad kept</>}><div className="converter"><div className="feet-in"><span>How much?</span><label><input inputMode="decimal" defaultValue="5" /> ft</label><label><input inputMode="decimal" defaultValue="11" /> in</label></div></div></Item>
           </Sec>
           <Sec title="Host header" note="idle · lit (running) · open · alert (needs you) · stays at the top on its band">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
@@ -191,6 +195,7 @@ function Sheet() {
               <Item cap={<><code>.slot</code>: the phone's paper panel</>}><div className="slot"><h2>🎁 Your prize</h2><p className="slot-hint">Add photos of what you brought.</p><button className="big" style={{ fontSize: "1rem", padding: ".7rem" }}>Add photos</button></div></Item>
             </div>
             <Item cap={<><code>.slot.conversion</code>: a result to read aloud (<code>.conversion-card</code> on the big screen)</>}><div className="slot conversion"><p className="lead">39 dice tall is</p><p className="main">65 LEGO bricks</p><p className="lead">a 2×4 brick, without its studs</p><p className="small">39 dice = 62.4 cm · a LEGO brick is 9.6 mm</p></div></Item>
+            <Item cap={<>The same at an imperial party: feet and inches to the quarter inch</>}><div className="slot conversion"><p className="lead">5 ft 11 in tall is</p><p className="main">about 1.23 Danny DeVitos</p><p className="lead">the actor</p><p className="small">5 ft 11 in · Danny DeVito is about 4 ft 9 ¾ in</p></div></Item>
             <Item cap={<><code>.up-next</code>: Run of show's next task, with the night's gold button (paper while the scores are up)</>}>
               <section className="up-next">
                 <p className="up-next-label">Up next · task 4 of 8 · live task</p>
@@ -198,6 +203,26 @@ function Sheet() {
                 <p className="up-next-note">"Tallest tower of dry spaghetti and marshmallows. Ten minutes."</p>
                 <button className="big">Start task 4 →</button>
               </section>
+            </Item>
+            <Item cap={<><code>.guest-card</code> (<code>GuestCard</code>): the guest phone's "To do now" card, the host's Up next card with a task's own controls inside; <code>Status</code> above it, <code>TodoList</code> below</>}>
+              <div style={{ display: "grid", gap: 12 }}>
+                <Status>1 thing left to do</Status>
+                <GuestCard label="To do now · Prize task" title="Got photos of your prize?">
+                  <Quote text="The most surprising quite-big thing you can conceal on your person" />
+                  <button className="big">Yes, add photos →</button>
+                  <button>Not now</button>
+                </GuestCard>
+                <TodoList rows={[{ id: "h", icon: "✓", label: "Headshot", state: "done", tone: "done" }, { id: "p", icon: "🎁", label: "Prize photos", state: "to do", tone: "next" }]} />
+              </div>
+            </Item>
+            <Item cap={<><code>.name-tag</code> (<code>NameTag</code>): "HELLO my name is", a burgundy band over paper; scattered and tappable at check-in (faded with "✓ here" once taken), bigger and centred (<code>.mine</code>) on a waiting phone</>}>
+              <div style={{ display: "grid", gap: 14, justifyItems: "center", padding: "8px 0 14px" }}>
+                <NameTag name="Sam" mine />
+                <div style={{ position: "relative", width: "100%", height: 90 }}>
+                  <NameTag name="Mei" style={{ left: "2%", top: 0, ["--r" as string]: "-4deg" }} />
+                  <NameTag name="Priya" here style={{ left: "52%", top: 6, ["--r" as string]: "4deg" }} />
+                </div>
+              </div>
             </Item>
             <Item cap={<><code>.stamp</code>: the one look for "done", with ✓ and words</>}><div style={{ display: "flex", gap: 16 }}><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ Submitted</span><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ You're in</span></div></Item>
           </Sec>

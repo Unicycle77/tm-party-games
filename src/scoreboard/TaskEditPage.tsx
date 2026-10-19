@@ -1,12 +1,15 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 import { asList, asNums, fmt } from "../JukeboxRemote";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
 import { editTask, editTiebreaker, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
 import { isMeasured, overLine } from "./measured";
-import { gameName, scored, titleOf } from "./tasks";
+import { asParts, gameName, scored, titleOf } from "./tasks";
 import { TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
+
+/** A task's words are at most this many parts (what the database rules allow). */
+const MAX_PARTS = 10;
 
 const SCORING = [["By hand", undefined], ["Highest wins", "highest"], ["Lowest wins", "lowest"]] as const;
 
@@ -61,13 +64,16 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const board = session.scoreboard;
   const tiebreaker = id === "tiebreaker";
   const task: ScoreboardTask | undefined = tiebreaker
-    ? { order: 0, name: board?.tiebreaker?.name ?? "Tiebreaker task", description: board?.tiebreaker?.description, song: board?.tiebreaker?.song, type: board?.tiebreaker?.type, text: board?.tiebreaker?.text }
+    ? { order: 0, name: board?.tiebreaker?.name ?? "Tiebreaker task", description: board?.tiebreaker?.description, song: board?.tiebreaker?.song, type: board?.tiebreaker?.type, text: board?.tiebreaker?.text, parts: board?.tiebreaker?.parts }
     : board?.tasks?.[id];
   const [name, setName] = useState(task?.name ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
   const [song, setSong] = useState(task?.song ?? "");
   const [type, setType] = useState(task?.type ?? "");
   const [text, setText] = useState(task?.text ?? "");
+  // Parts 2, 3…: each with a key of its own, so removing one in the middle doesn't hand its boxes to the next.
+  const [parts, setParts] = useState(() => asParts(task?.parts).map((p, k) => ({ k, type: p.type ?? "", text: p.text })));
+  const nextKey = useRef(parts.length);
   const [unit, setUnit] = useState(() => draftOf(task?.unit));
   const [scoring, setScoringDraft] = useState(task?.scoring);
   const [dqOver, setDqOver] = useState(task?.dqOver === undefined ? "" : String(task.dqOver));
@@ -83,15 +89,16 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
 
   const saved = unitOf(unit);
   const loud = unit.kind === "loudness";
+  const words = { type, text, parts: parts.map(({ type, text }) => ({ type, text })) };
   const save = () => {
-    if (tiebreaker) { void editTiebreaker(code, name, description, song, { type, text }); onBack(); return; }
+    if (tiebreaker) { void editTiebreaker(code, name, description, song, words); onBack(); return; }
     const rescored = !task.game && scoring !== task.scoring;
     // By-hand points with no numbers to work from would be lost.
     const lost = rescored && scoring && !isMeasured(task) && Object.keys(task.given ?? task.scores ?? {}).some((c) => !task.dq?.[c] && task.results?.[c] === undefined);
     if (lost && !confirm(`Score "${titleOf(task)}" by its numbers? Points given by hand to anyone without a number are cleared.`)) return;
     const line = Number(dqOver.replace(",", "."));
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
-    void editTask(code, id, name, description, song, { type, text }, saved, over ?? null).then(() => {
+    void editTask(code, id, name, description, song, words, saved, over ?? null).then(() => {
       // A new line, or none, applies to the readings already in.
       if (over === task.dqOver) return;
       const now = { ...task, dqOver: over };
@@ -117,6 +124,9 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const songAt = tracks.indexOf(song);
   const heading = tiebreaker ? `${type || TIEBREAKER_TYPE}`.toUpperCase() : typeOf({ type, game: task.game }).toUpperCase();
   const firstLine = text.split("\n").map((l) => l.trim()).find(Boolean) ?? "";
+  const typed = parts.filter((p) => p.text.trim());
+  const count = (text.trim() ? 1 : 0) + typed.length;
+  const headings = [...(text.trim() ? [heading] : []), ...typed.map((p) => p.type.trim().toUpperCase())].filter(Boolean);
   const clear = (f: () => void) => () => { f(); setOpen(undefined); };
 
   return (
@@ -140,10 +150,26 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
 
       <div className="extras">
         <Extra label="Task text" open={open === "text"} onOpen={() => setOpen("text")} onClose={() => setOpen(undefined)}
-          onClear={clear(() => { setText(""); setType(""); })}
-          summary={text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}</span></> : undefined}>
-          <TaskTypeField type={type} fallback={(tiebreaker ? TIEBREAKER_TYPE : typeOf({ game: task.game })) || undefined} onChange={setType} />
-          <TaskTextField text={text} onChange={setText} />
+          onClear={clear(() => { setText(""); setType(""); setParts([]); })}
+          summary={count > 1
+            ? <>Task text<span className="muted small"> · {count} parts · {headings.join(", ") || "no headings"}</span></>
+            : text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}</span></> : undefined}>
+          <div className="sb-part">
+            {parts.length > 0 && <p className="part-label">Part 1</p>}
+            <TaskTypeField type={type} fallback={(tiebreaker ? TIEBREAKER_TYPE : typeOf({ game: task.game })) || undefined} onChange={setType} />
+            <TaskTextField text={text} onChange={setText} />
+          </div>
+          {parts.map((p, i) => (
+            <div className="sb-part" key={p.k}>
+              <p className="part-label">Part {i + 2}</p>
+              <TaskTypeField type={p.type} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, type: t } : x))} />
+              <TaskTextField text={p.text} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, text: t } : x))} />
+              <button type="button" className="link" onClick={() => setParts(parts.filter((x) => x.k !== p.k))}>✕ Remove this part</button>
+            </div>
+          ))}
+          {parts.length + 1 < MAX_PARTS && !task.game && (
+            <button type="button" className="link" onClick={() => setParts([...parts, { k: nextKey.current++, type: "", text: "" }])}>+ Add a part</button>
+          )}
         </Extra>
         <Extra label="Song" open={open === "song"} onOpen={() => setOpen("song")} onClose={() => setOpen(undefined)} onClear={clear(() => setSong(""))}
           summary={song ? <>♪ Song<span className="muted small"> · {songAt < 0 ? <s>{song}</s> : song}{songAt >= 0 && ` · ${fmt(asNums(session.jukebox?.durations)[songAt])}`}</span></> : undefined}>
