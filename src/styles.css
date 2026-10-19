@@ -529,7 +529,7 @@ body.idle-cursor .stage { cursor: none; }
 .steps.three { grid-template-columns: 1fr 1.3fr 1fr; }
 .now-playing { font-family: var(--typewriter); color: var(--gold-bright); font-size: 1.15rem; margin: 0; min-height: 1.5em; overflow-wrap: anywhere; }
 .volume { display: grid; gap: 0.3rem; }
-.volume input[type="range"], .crop-side input[type="range"] { padding: 0; height: 2rem; accent-color: var(--gold); background: none; border: 0; }
+.volume input[type="range"] { padding: 0; height: 2rem; accent-color: var(--gold); background: none; border: 0; }
 .tracklist { list-style: none; margin: 0; padding: 0; max-height: 45vh; overflow: auto; display: grid; gap: 0.4rem; }
 .tracklist button { width: 100%; text-align: left; padding: 0.6rem 0.8rem; }
 .tracklist button { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
@@ -1384,9 +1384,18 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .phone.guest .env-pile { background: none; aspect-ratio: 1 / 1; overflow: visible; }
 .pile-rules { position: absolute; inset: 0 0 auto 0; z-index: 100; }
 /* Crop a headshot for the scoreboard: the whole photo with the window over it (the rest dimmed), and the frame beside it */
-.crop-photo { position: relative; justify-self: center; max-width: 100%; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; border: 3px solid var(--gold); border-radius: 2px; }
+.crop-photo { position: relative; justify-self: center; max-width: 100%; touch-action: none; user-select: none; -webkit-user-select: none; border: 3px solid var(--gold); border-radius: 2px; }
 .crop-photo img { display: block; max-width: 100%; max-height: 48vh; pointer-events: none; }
-.crop-window { position: absolute; box-sizing: border-box; border: 2px solid var(--gold-bright); box-shadow: 0 0 0 100vmax rgba(26, 15, 8, 0.6); cursor: move; }
+.crop-shade { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.crop-shade > div { position: absolute; box-shadow: 0 0 0 100vmax rgba(26, 15, 8, 0.6); }
+.crop-window { position: absolute; box-sizing: border-box; border: 2px solid var(--gold-bright); cursor: move; }
+/* a gold dot on each corner, inside a finger-sized patch that takes the drag */
+.crop-corner { position: absolute; width: 2.75rem; height: 2.75rem; margin: -1.375rem; display: grid; place-items: center; touch-action: none; }
+.crop-corner::after { content: ""; width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--gold-bright); border: 2px solid var(--ink); pointer-events: none; }
+.crop-corner.nw { left: 0; top: 0; cursor: nwse-resize; }
+.crop-corner.ne { right: 0; top: 0; cursor: nesw-resize; }
+.crop-corner.sw { left: 0; bottom: 0; cursor: nesw-resize; }
+.crop-corner.se { right: 0; bottom: 0; cursor: nwse-resize; }
 .crop-preview { display: flex; gap: 1rem; align-items: center; }
 /* frame.png is 566 by 688; the photo sits 33px in from each side of it at 250px tall */
 .crop-frame { position: relative; flex: none; height: 9rem; aspect-ratio: 566 / 688; }

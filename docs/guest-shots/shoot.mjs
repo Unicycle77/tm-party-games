@@ -52,11 +52,12 @@ const SHOTS = {
   "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
   // Greg's crop page: his wide group shot whole, the window dragged left onto him, the frame beside it
   "headshot-crop-page": ["host-crop", "", async (p) => {
-    await p.locator(".crop-side input").focus();
-    for (let i = 0; i < 35; i++) await p.keyboard.press("ArrowLeft");
+    const c = await p.locator(".crop-corner.se").boundingBox();
+    await p.mouse.move(c.x + c.width / 2, c.y + c.height / 2); await p.mouse.down();
+    await p.mouse.move(c.x + c.width / 2 - 80, c.y + c.height / 2 - 80, { steps: 5 }); await p.mouse.up();
     const w = await p.locator(".crop-window").boundingBox();
     await p.mouse.move(w.x + w.width / 2, w.y + w.height / 2); await p.mouse.down();
-    await p.mouse.move(w.x + w.width / 2 - 90, w.y + w.height / 2 - 20, { steps: 5 }); await p.mouse.up();
+    await p.mouse.move(w.x + w.width / 2 - 60, w.y + w.height / 2 + 20, { steps: 5 }); await p.mouse.up();
   }],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
