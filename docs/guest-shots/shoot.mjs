@@ -34,6 +34,7 @@ const SHOTS = {
   // the host phone, whole page
   "noisemaster-host-round": ["host-noisemaster"],
   "run-of-show-host": ["host-run"],
+  "run-of-show-host-arrivals": ["host-arrivals"],
   "points-host-given": ["host-points"],
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],
