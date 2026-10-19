@@ -10,9 +10,10 @@ import { beginTask } from "./TaskPage";
 import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upNextOf } from "./tasks";
 
 /**
- * The host remote's home: one line saying what's on the big screen, then the one next thing in gold (the
- * scoreboard's next step while it's up, or else the "Up next" card), "Show the scoreboard" as paper, and the
- * task list to see where the night is. Tapping a task opens its page. Building the party is behind "Plan the party".
+ * The host remote's home: the party line with a small "Show QR" chip, one line saying what's on the big screen with
+ * a small "Show scores" chip under it, then the one next thing in gold (the scoreboard's next step while it's up, or else the
+ * "Up next" card), and the task list to see where the night is. Tapping a task opens its page. Building the party is
+ * behind "Plan the party".
  */
 export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   code: string; session: Session;
@@ -68,8 +69,12 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   return (
     <div className="box-setup scoreboard-remote run-of-show">
       <h2>Run of show</h2>
-      <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
-      <OnScreen code={code} session={session} />
+      <div className="line-chip">
+        <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
+        <JoinQr code={code} session={session} />
+      </div>
+      <OnScreen code={code} session={session} chip={!up && !haulUp && !winner
+        ? <button className="line-chip-button under" onClick={() => void showScoreboard(code)}>Show scores</button> : undefined} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
       {!haulUp && unscored.length > 0 && (final ? (
@@ -82,14 +87,6 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
       {arrivals && <Arrivals code={code} session={session} />}
       {finale ? <Finale code={code} count={tasks.length} quiet={!!scores} />
         : <UpNext code={code} session={session} quiet={!!scores} onOpen={onOpen} />}
-      {!up && !haulUp && !winner && (
-        <>
-          <button onClick={() => void showScoreboard(code)}>Show the scoreboard</button>
-          {pending.length > 0 && (
-            <p className="muted small">Opens on the scores before {list(pending.map((id) => titleOf(board!.tasks![id]!)))}.</p>
-          )}
-        </>
-      )}
       <TaskList session={session} onOpen={onOpen} />
       {/* The night can end before every task is played: one last update, then the haul. */}
       {!final && !haulUp && unscored.length > 0 && tasks.some(([, t]) => scored(t)) && (
@@ -100,7 +97,6 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <button className="link" onClick={() => onOpen("adhoc")}>
           {adHoc ? `Back to ${adHoc.name} (not on the list)` : "Play a task that's not on the list"}
         </button>
-        {!arrivals && <JoinQr code={code} session={session} />}
         {footer}
       </div>
     </div>
@@ -176,8 +172,7 @@ function TaskList({ session, onOpen }: { session: Session; onOpen: (id: string) 
 }
 
 /**
- * Before the first task: who's here, in guest-list order, read-only (changing the list is on Plan the party). "Show QR code"
- * is paper, since this is when people join.
+ * Before the first task: who's here, in guest-list order, read-only (changing the list is on Plan the party).
  */
 function Arrivals({ code, session }: { code: string; session: Session }) {
   const board = session.scoreboard;
@@ -197,7 +192,6 @@ function Arrivals({ code, session }: { code: string; session: Session }) {
           </li>
         ))}
       </ul>
-      <JoinQr code={code} session={session} button />
     </section>
   );
 }
