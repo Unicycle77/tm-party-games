@@ -125,9 +125,9 @@ function Sheet() {
             </div>
             <Item cap={<><code>.feet-in</code>: two boxes for ft and in (or lb and oz) at an imperial party, the number pad kept</>}><div className="converter"><div className="feet-in"><span>How much?</span><label><input inputMode="decimal" defaultValue="5" /> ft</label><label><input inputMode="decimal" defaultValue="11" /> in</label></div></div></Item>
           </Sec>
-          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you)">
+          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you) · stays at the top on its band">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
-              <header className="host-head">
+              <header className="host-head" style={{ position: "static", margin: 0 }}>
                 <button className="head-icon open lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
