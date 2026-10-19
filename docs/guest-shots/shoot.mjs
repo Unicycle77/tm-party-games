@@ -48,12 +48,14 @@ const SHOTS = {
   "task-parts-host-phones": ["host-parts-phones"],
   "guest-task-parts-phone": ["task-parts-phone"],
   "task-parts-edit": ["host-parts-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
+  // the contestants on Plan the party, tall thumbnails, Greg's tapped: Crop or Replace photo
+  "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
 };
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
-for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
+for (const [name, [shot, extra = "", before, part]] of Object.entries(SHOTS)) {
   if (only.length && !only.includes(name)) continue;
   const tv = shot.startsWith("tv-");
   const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
@@ -63,7 +65,8 @@ for (const [name, [shot, extra = "", before]] of Object.entries(SHOTS)) {
   await page.waitForTimeout(300);
   if (before) { await before(page); await page.waitForTimeout(300); }
   const out = new URL(`../screens/${name}.jpg`, import.meta.url).pathname;
-  await page.screenshot({ path: out, type: "jpeg", quality: 88, fullPage: shot.startsWith("host-") });
+  if (part) await page.locator(part).first().screenshot({ path: out, type: "jpeg", quality: 88 });
+  else await page.screenshot({ path: out, type: "jpeg", quality: 88, fullPage: shot.startsWith("host-") });
   console.log(`wrote ${out}`);
   await page.close();
 }

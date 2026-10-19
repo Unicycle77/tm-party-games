@@ -219,6 +219,8 @@ function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
   const [progress, setProgress] = useState<number>();
   const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState<string>();
+  // Tapping a headshot that's already there asks what to do with it: frame it for the scoreboard, or pick a new one.
+  const [choosing, setChoosing] = useState(false);
   useEffect(() => setFailed(false), [photo]);
 
   async function upload(file: File | undefined) {
@@ -239,12 +241,22 @@ function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
 
   return (
     <li>
-      <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} onClick={() => input.current?.click()}>
+      <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} aria-expanded={photo ? choosing : undefined}
+        onClick={() => photo ? setChoosing(!choosing) : input.current?.click()}>
         {progress !== undefined ? <span className="small">{Math.round(progress * 100)}%</span>
           : photo ? <img src={photo} alt="" /> : <span aria-hidden>+</span>}
       </button>
       <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
-      {draft === undefined ? (
+      {choosing ? (
+        <div className="sb-photo-choice">
+          <span className="muted small">{name}'s headshot</span>
+          <div className="row">
+            <button onClick={() => setChoosing(false)}>Crop</button>
+            <button onClick={() => { setChoosing(false); input.current?.click(); }}>Replace</button>
+            <button className="link" onClick={() => setChoosing(false)}>Cancel</button>
+          </div>
+        </div>
+      ) : draft === undefined ? (
         <button className="sb-contestant-name" onClick={() => setDraft(name)}>
           {name}
           <span className="muted small">{here ? "checked in" : "not yet"}</span>

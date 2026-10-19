@@ -1178,7 +1178,8 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-start { flex: none; white-space: nowrap; }
 .sb-add { display: grid; gap: 0.5rem; }
 .sb-add textarea { font: inherit; width: 100%; padding: 0.7rem; border-radius: 6px; border: 2px solid var(--gold-dark); background: var(--paper); color: var(--ink); }
-.sb-photo { flex: none; width: 3.4rem; height: 3.4rem; padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 1.4rem; }
+/* the scoreboard's window, 140 by 184 inside its gold frame, so the thumbnail shows what the TV will */
+.sb-photo { flex: none; width: 2.8rem; aspect-ratio: 140 / 184; height: auto; padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 1.4rem; }
 .sb-photo img { width: 100%; height: 100%; object-fit: cover; }
 .sb-contestant-name { flex: 1; text-align: left; }
 .sb-rename { flex: 1; display: flex; gap: 0.4rem; align-items: center; }
@@ -1192,6 +1193,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-now-playing button { flex: none; }
 .sb-give { text-align: left; }
 .sb-rename button { flex: none; }
+.sb-photo-choice { flex: 1; display: grid; gap: 0.3rem; }
+.sb-photo-choice .row { gap: 0.4rem; align-items: center; }
+.sb-photo-choice .row > * { flex: none; white-space: nowrap; }
 @media (min-width: 1000px) {
   /* Plan the party on a wide iPad: tasks on the left, contestants on the right, the rest across */
   .scoreboard-remote.plan:not(.task-edit-page) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
