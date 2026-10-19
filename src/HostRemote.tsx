@@ -52,10 +52,11 @@ export function onScreenLine(session: Session): string {
  * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
  * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
  */
-export function OnScreen({ code, session }: { code: string; session: Session }) {
+export function OnScreen({ code, session, chip }: { code: string; session: Session; chip?: ReactNode }) {
+  const line = <p className="on-screen">On the big screen: {onScreenLine(session)}</p>;
   return (
     <>
-      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      {chip ? <div className="line-chip">{line}{chip}</div> : line}
       <NowPlaying code={code} session={session} />
     </>
   );
@@ -86,14 +87,14 @@ function NowPlaying({ code, session }: { code: string; session: Session }) {
 }
 
 /**
- * For anyone who arrives late: the join code, on the host's phone to hold up. While it's open the big screen
+ * For anyone who arrives late: the join code, on the host's phone to hold up. A small chip beside the code on Run of show. While it's open the big screen
  * shows it too, above its corner code (on the curtain and while entries come in), and closing it hides both.
  */
-export function JoinQr({ code, session, button }: { code: string; session: Session; button?: boolean }) {
+export function JoinQr({ code, session }: { code: string; session: Session }) {
   const close = () => void setShowQr(code, false);
   return (
     <>
-      <button className={button ? undefined : "link"} onClick={() => void setShowQr(code, true)}>Show QR code</button>
+      <button className="line-chip-button" onClick={() => void setShowQr(code, true)}>Show QR</button>
       {session.showQr && (
         <div className="qr-overlay" onClick={close}>
           <figure className="join-qr">
