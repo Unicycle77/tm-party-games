@@ -132,7 +132,13 @@ function build() {
     case "host-parts-phones": set("display", { step: "tasktext", task: "t6" }); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     // A live task with one part: the same two rows, "The task" in place of Part 1.
-    case "host-plan": case "host-plan-crop": case "host-plan-cropped": case "host-crop": set("begun", true); break;
+    case "host-plan": case "host-plan-crop": case "host-plan-cropped": case "host-crop": case "host-plan-add": case "host-plan-ipad": case "host-adhoc": set("begun", true); break;
+    // Photos: best costume is on, and three entries are in.
+    case "host-app-game":
+      picked(); task("photos"); g.photos!.task = "t2"; set("begun", true);
+      for (const [id, e] of [["alex", "🧛"], ["greg", "🎃"], ["mei", "👻"]]) (g.photos!.media as Record<string, unknown>)[id!] = { photo: pic(e!, "#3a2a1c") };
+      break;
+    case "host-reset": picked(); set("begun", true); Object.assign(tasks.t1 as object, { scores: { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 } }); break;
     case "host-onepart": set("begun", true); break;
     case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
     case "checkin-rules": case "checkin-pile": break;
@@ -144,9 +150,9 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
-const joined = shot !== "checkin-list";
+const joined = shot !== "checkin-list" && shot !== "join-code";
 localStorage.clear();
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
@@ -156,7 +162,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

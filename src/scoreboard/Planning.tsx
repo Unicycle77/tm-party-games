@@ -104,7 +104,7 @@ function TaskList({ code, session, board, tasks, onEdit }: {
               <button className="sb-handle" aria-label={`Move ${titleOf(t)}`}
                 onPointerDown={(e) => drag.start(e, id)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>
               <button className="sb-task" disabled>
-                <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app game</span>}</span>
+                <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app task</span>}</span>
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
                 {scored(t) && <span className="muted small">{plural(Object.keys(t.scores ?? {}).length, "contestant")} scored</span>}
               </button>
@@ -116,7 +116,7 @@ function TaskList({ code, session, board, tasks, onEdit }: {
       {adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
         : adding === "game" ? (
           <div className="sb-add">
-            <p className="muted small">Which game?</p>
+            <p className="muted small">Which task?</p>
             <div className="choices">
               {/* each game once (Photos as often as needed): a game already on the list is greyed out */}
               {[...Object.values(GAMES).map((g) => ({ id: g.id as TaskGame, name: g.name, repeatable: g.repeatable })), { id: "light" as const, name: LIGHT, repeatable: false }].map((g) => {
@@ -132,7 +132,7 @@ function TaskList({ code, session, board, tasks, onEdit }: {
         ) : (
           <div className="row">
             <button onClick={() => setAdding("live")}>+ Live task</button>
-            <button onClick={() => setAdding("game")}>+ App game</button>
+            <button onClick={() => setAdding("game")}>+ App task</button>
           </div>
         )}
       {/* Every party's tiebreaker: outside the running order, played only on a tie. */}

@@ -95,7 +95,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
       <div className="run-links">
         {/* A game that's not on the list is played on the same page, with no number and no points. */}
         <button className="link" onClick={() => onOpen("adhoc")}>
-          {adHoc ? `Back to ${adHoc.name} (not on the list)` : "Play a game that's not on the list"}
+          {adHoc ? `Back to ${adHoc.name} (not on the list)` : "Play a task that's not on the list"}
         </button>
         {footer}
       </div>
@@ -124,7 +124,7 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
   };
   return (
     <section className="up-next">
-      <p className="up-next-label">Up next · task {n} of {tasks.length} · {task.game ? "app game" : "live task"}</p>
+      <p className="up-next-label">Up next · task {n} of {tasks.length} · {task.game ? "app task" : "live task"}</p>
       <h3>{titleOf(task)}</h3>
       {task.description && <p className="up-next-note">"{task.description}"</p>}
       <button className={quiet ? undefined : "big"} onClick={go}>{label}</button>

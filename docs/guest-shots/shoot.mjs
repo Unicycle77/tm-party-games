@@ -49,6 +49,19 @@ const SHOTS = {
   "task-parts-host-phones": ["host-parts-phones"],
   "guest-task-parts-phone": ["task-parts-phone"],
   "task-parts-edit": ["host-parts-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
+  // "task", never "game": the screens that name app tasks, the unlisted task and the party code
+  "task-page-host-app-game": ["host-app-game"],
+  "host-choose-game": ["host-adhoc"],
+  "run-of-show-host-play-a-game": ["host-adhoc"],
+  "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
+  "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
+  "host-reset-scores": ["host-reset", "", async (p) => {
+    await p.getByRole("button", { name: "Party settings" }).click();
+    await p.getByRole("button", { name: /Reset scores/ }).click();
+    await p.getByRole("switch", { name: /Also remove guests/ }).check();
+    await p.evaluate(() => window.scrollTo(0, 0)); // the sticky header would otherwise land mid-page
+  }],
+  "guest-join-code": ["join-code"],
   // the contestants on Plan the party, tall thumbnails, Greg's tapped: Crop or Replace photo
   "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
   // back on the list after Save: Greg's tall thumbnail shows his crop
@@ -74,7 +87,8 @@ const browser = await chromium.launch();
 for (const [name, [shot, extra = "", before, part]] of Object.entries(SHOTS)) {
   if (only.length && !only.includes(name)) continue;
   const tv = shot.startsWith("tv-");
-  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
+  const ipad = shot.endsWith("-ipad");
+  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : ipad ? { width: 1100, height: 1024 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
   await page.waitForSelector("main, .scoreboard-stage, .task-text-stage");
   await page.evaluate(() => document.fonts.ready);

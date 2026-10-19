@@ -69,7 +69,7 @@ function Connect({ error, onConnect }: { error?: string; onConnect: (code: strin
     <main className="join watch">
       <h1>Taskmaster - <span className="nowrap">Watch Party</span></h1>
       <form onSubmit={(e) => { e.preventDefault(); onConnect(code); }}>
-        <label>Game code (from the main screen)
+        <label>Party code (from the main screen)
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
             maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />
         </label>
