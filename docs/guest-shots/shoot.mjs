@@ -63,6 +63,8 @@ const SHOTS = {
   }],
   // the scoreboard after the update, Greg in his cropped group shot, everyone else as before
   "headshot-crop-scoreboard": ["tv-scores-cropped"],
+  // Run of show before the first task: "Here so far", tall thumbnails, Greg's cropped, Sam not here yet
+  "headshot-crop-arrivals": ["host-arrivals", "", undefined, "section.arrivals"],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
 };
