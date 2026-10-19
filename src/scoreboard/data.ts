@@ -2,7 +2,7 @@ import { push, ref, remove, set, update } from "firebase/database";
 import { db, storage } from "../firebase";
 import { shrinkImage } from "../media";
 import { setDisplay } from "../session";
-import type { Session, Scoreboard, ScoreboardTask, TaskGame, TaskUnit } from "../types";
+import type { HeadshotCrop, Session, Scoreboard, ScoreboardTask, TaskGame, TaskUnit } from "../types";
 import { isMeasured, withBonus, workOut } from "./measured";
 import { currentPoints } from "./scoring";
 
@@ -67,6 +67,11 @@ export async function uploadHeadshot(code: string, uid: string, id: string, file
     task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
   });
   await set(at(code, `contestants/${id}/photo`), await getDownloadURL(task.snapshot.ref));
+}
+
+/** Sets the part of a contestant's headshot the scoreboard shows. The photo itself stays as it was. */
+export async function setHeadshotCrop(code: string, id: string, crop: HeadshotCrop | null) {
+  await set(at(code, `contestants/${id}/crop`), crop);
 }
 
 /** Adds a live task (a name, and the host's note) or an app game to the end of the task list. */

@@ -23,7 +23,7 @@ const arriving = shot.startsWith("checkin") || shot === "tv-welcome";
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
 // A wide group shot, Greg on the left: centred in the scoreboard's tall window, he'd be cut in half.
-const group = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120"><rect width="200" height="120" fill="#3a2a1c"/>${[[40, "#8a7556"], [100, "#5a4a36"], [160, "#5a4a36"]].map(([x, c]) => `<circle cx="${x}" cy="46" r="17" fill="${c}"/><path d="M${+x - 34} 120 C${+x - 30} 88 ${+x - 15} 72 ${x} 72 C${+x + 15} 72 ${+x + 30} 88 ${+x + 34} 120 Z" fill="${c}"/>`).join("")}</svg>`)}`;
+const group = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 200 120"><rect width="200" height="120" fill="#3a2a1c"/>${[[40, "#8a7556"], [100, "#5a4a36"], [160, "#5a4a36"]].map(([x, c]) => `<circle cx="${x}" cy="46" r="17" fill="${c}"/><path d="M${+x - 34} 120 C${+x - 30} 88 ${+x - 15} 72 ${x} 72 C${+x + 15} 72 ${+x + 30} 88 ${+x + 34} 120 Z" fill="${c}"/>`).join("")}</svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
 // Prize photos from earlier parties (docs/guest-shots/prizes), one prize each: Sam's sock puppet is on the big screen.
 const prize = (name: string) => `/docs/guest-shots/prizes/${name}.jpg`;
@@ -51,7 +51,7 @@ function build() {
     ...(shot.endsWith("haul") ? { photo: "/docs/guest-shots/faces/silhouette.jpg" } : !(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.includes("scores") || shot.endsWith("haul")) ? { photo: face("#6b5a44") } : {}),
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
-  if (shot === "host-plan-crop") contestants.greg!.photo = group;
+  if (shot === "host-plan-crop" || shot === "host-crop") contestants.greg!.photo = group;
   if (arriving) for (const id of checkedIn) contestants[id]!.uid = id;
   const tasks: Record<string, unknown> = {
     t1: { order: 1, game: "headshots", text: HEAD },
@@ -130,7 +130,7 @@ function build() {
     case "host-parts-phones": set("display", { step: "tasktext", task: "t6" }); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     // A live task with one part: the same two rows, "The task" in place of Part 1.
-    case "host-plan": case "host-plan-crop": set("begun", true); break;
+    case "host-plan": case "host-plan-crop": case "host-crop": set("begun", true); break;
     case "host-onepart": set("begun", true); break;
     case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
     case "checkin-rules": case "checkin-pile": break;
@@ -142,7 +142,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list";
 localStorage.clear();
@@ -154,7 +154,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" ? { view: "show" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

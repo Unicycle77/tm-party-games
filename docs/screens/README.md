@@ -109,6 +109,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-points-db-lo.jpg` | A quietest-wins dB task: the LO chip under Mei's box while it's typed in, and Jo's LO in 1st (2026-10-17) |
 | `scoreboard-host-tasks-contestants.jpg` | Plan the party on a wide iPad: the party line across the top, tasks on the left and contestants on the right, the envelopes line across the bottom (2026-10-18) |
 | `headshot-crop-choice.jpg` | Plan the party, Contestants: headshots as tall thumbnails the shape of the scoreboard's window; Greg's (a wide group shot) tapped, opening "Greg's headshot" with Crop, Replace and Cancel in his row (sketch, 2026-10-19, from the ABCD party) |
+| `headshot-crop-page.jpg` | Crop opened on Greg's headshot: "← Plan the party", his whole group shot with the gold window dragged onto him and the rest dimmed, the scoreboard's gold frame beside it showing the crop, a Size slider, "Back to the middle", gold Save and quiet Cancel (sketch, 2026-10-19, from the ABCD party) |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |
 | `scoreboard-host-name-photo-task.jpg` | ✎ on a Photos task: "Photos: name it (optional)", no Scoring, the three "+" chips (2026-10-18) |

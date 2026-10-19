@@ -529,7 +529,7 @@ body.idle-cursor .stage { cursor: none; }
 .steps.three { grid-template-columns: 1fr 1.3fr 1fr; }
 .now-playing { font-family: var(--typewriter); color: var(--gold-bright); font-size: 1.15rem; margin: 0; min-height: 1.5em; overflow-wrap: anywhere; }
 .volume { display: grid; gap: 0.3rem; }
-.volume input[type="range"] { padding: 0; height: 2rem; accent-color: var(--gold); background: none; border: 0; }
+.volume input[type="range"], .crop-side input[type="range"] { padding: 0; height: 2rem; accent-color: var(--gold); background: none; border: 0; }
 .tracklist { list-style: none; margin: 0; padding: 0; max-height: 45vh; overflow: auto; display: grid; gap: 0.4rem; }
 .tracklist button { width: 100%; text-align: left; padding: 0.6rem 0.8rem; }
 .tracklist button { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
@@ -1383,3 +1383,15 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .pick-head p { margin: 0; }
 .phone.guest .env-pile { background: none; aspect-ratio: 1 / 1; overflow: visible; }
 .pile-rules { position: absolute; inset: 0 0 auto 0; z-index: 100; }
+/* Crop a headshot for the scoreboard: the whole photo with the window over it (the rest dimmed), and the frame beside it */
+.crop-photo { position: relative; justify-self: center; max-width: 100%; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; border: 3px solid var(--gold); border-radius: 2px; }
+.crop-photo img { display: block; max-width: 100%; max-height: 48vh; pointer-events: none; }
+.crop-window { position: absolute; box-sizing: border-box; border: 2px solid var(--gold-bright); box-shadow: 0 0 0 100vmax rgba(26, 15, 8, 0.6); cursor: move; }
+.crop-preview { display: flex; gap: 1rem; align-items: center; }
+/* frame.png is 566 by 688; the photo sits 33px in from each side of it at 250px tall */
+.crop-frame { position: relative; flex: none; height: 9rem; aspect-ratio: 566 / 688; }
+.crop-frame img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.crop-fill { position: absolute; inset: 13.2% 16% ; background-color: white; background-repeat: no-repeat; }
+.crop-side { flex: 1; display: grid; gap: 0.5rem; font-family: var(--typewriter); color: var(--fg); }
+.crop-side .link { justify-self: start; }
+.crop-page > .link { justify-self: center; }
