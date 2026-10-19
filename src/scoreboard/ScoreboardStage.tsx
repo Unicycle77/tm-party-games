@@ -3,6 +3,7 @@ import blank from "../assets/scoreboard/blank.jpg";
 import frame from "../assets/frame.png";
 import seal from "../assets/scoreboard/seal.png";
 import type { Scoreboard } from "../types";
+import { cropFill } from "./crop";
 import { shownTotals } from "./scoring";
 import "./scoreboard.css";
 
@@ -73,7 +74,8 @@ export function ScoreboardStage({ board }: { board: Scoreboard | undefined }) {
 
   const top = Math.max(...order.map((id) => ranked[id] ?? 0));
   const leaders = order.filter((id) => (ranked[id] ?? 0) === top).length;
-  const photo = Object.fromEntries(contestants.map(([id, c]) => [id, c.photo || blank]));
+  // Each headshot as the host cropped it (centred if not); the photo itself is never changed.
+  const fill = Object.fromEntries(contestants.map(([id, c]) => [id, c.photo ? cropFill(c.photo, c.crop) : cropFill(blank, undefined)]));
 
   return (
     <div className="scoreboard-stage">
@@ -86,7 +88,7 @@ export function ScoreboardStage({ board }: { board: Scoreboard | undefined }) {
             <div key={id} className="sb-contestant" style={{ transform: `translateX(${275 * i + 30}px)` }}>
               <div className={`sb-frame-scaler${leader ? (leaders > 2 ? " sb-large" : " sb-larger") : ""}`}>
                 <div className="sb-frame-container" style={{ animationDelay: `${-(ids.indexOf(id) + 1) * 1.25}s` }}>
-                  <div className="sb-fill" style={{ backgroundImage: `url(${photo[id]})` }}><div className="sb-shadow" /></div>
+                  <div className="sb-fill" style={fill[id]}><div className="sb-shadow" /></div>
                   <img className="sb-frame" src={frame} alt="" />
                 </div>
               </div>

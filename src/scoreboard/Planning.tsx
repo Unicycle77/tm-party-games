@@ -3,8 +3,9 @@ import { GAMES } from "../games";
 import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
-import type { Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
+import type { HeadshotCrop, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
 import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
+import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
 import { TaskCards } from "./TaskCards";
@@ -15,10 +16,12 @@ import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
  * can be hit mid-show. The party (name, portrait, pin), the tasks (≡ to reorder, ✎ to a task's own page), the
  * contestants and the pile of secret envelopes.
  */
-export function PlanParty({ code, session, onBack, onEdit }: {
+export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
   code: string; session: Session; onBack: () => void;
   /** Opens a task's ✎ page: a task's id, or "tiebreaker". */
   onEdit: (id: string) => void;
+  /** Opens a contestant's headshot to crop it for the scoreboard. */
+  onCrop: (id: string) => void;
 }) {
   const board = session.scoreboard;
   const tasks = sorted(board?.tasks);
@@ -28,7 +31,7 @@ export function PlanParty({ code, session, onBack, onEdit }: {
       <h2>Plan the party</h2>
       <PartySummary code={code} session={session} />
       <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} />
-      <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} />
+      <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} />
       <Envelopes code={code} />
       <TaskCards code={code} session={session} />
       <SetupFile code={code} session={session} />
@@ -163,8 +166,8 @@ function AddLiveTask({ code, board, onClose }: { code: string; board: Scoreboard
  * Everyone at the party: the guest list (each with "checked in" once their phone is in) and, below it,
  * anyone who joined by typing a name while there was no list yet, ready to be added to the scoreboard.
  */
-function Contestants({ code, session, board, contestants }: {
-  code: string; session: Session; board: Scoreboard | undefined; contestants: [string, ScoreboardContestant][];
+function Contestants({ code, session, board, contestants, onCrop }: {
+  code: string; session: Session; board: Scoreboard | undefined; contestants: [string, ScoreboardContestant][]; onCrop: (id: string) => void;
 }) {
   const players = session.players ?? {};
   const linked = new Set(contestants.map(([, c]) => c.uid).filter((u) => u && players[u]));
@@ -182,7 +185,7 @@ function Contestants({ code, session, board, contestants }: {
       <h3>Contestants ({contestants.length})</h3>
       <ul className="sb-contestant-list">
         {contestants.map(([id, c]) => (
-          <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} hasPoints={id in totals}
+          <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} crop={c.crop} hasPoints={id in totals} onCrop={() => onCrop(id)}
             here={c.uid && players[c.uid] ? c.uid : undefined} />
         ))}
       </ul>
@@ -209,8 +212,8 @@ function Contestants({ code, session, board, contestants }: {
   );
 }
 
-function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
-  code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; hasPoints: boolean;
+function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, onCrop }: {
+  code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; crop?: HeadshotCrop; hasPoints: boolean; onCrop: () => void;
   /** Their phone's uid, once they've checked in. */
   here?: string;
 }) {
@@ -219,6 +222,8 @@ function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
   const [progress, setProgress] = useState<number>();
   const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState<string>();
+  // Tapping a headshot that's already there asks what to do with it: frame it for the scoreboard, or pick a new one.
+  const [choosing, setChoosing] = useState(false);
   useEffect(() => setFailed(false), [photo]);
 
   async function upload(file: File | undefined) {
@@ -239,12 +244,22 @@ function ContestantRow({ code, board, id, name, photo, hasPoints, here }: {
 
   return (
     <li>
-      <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} onClick={() => input.current?.click()}>
+      <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} aria-expanded={photo ? choosing : undefined}
+        onClick={() => photo ? setChoosing(!choosing) : input.current?.click()}>
         {progress !== undefined ? <span className="small">{Math.round(progress * 100)}%</span>
-          : photo ? <img src={photo} alt="" /> : <span aria-hidden>+</span>}
+          : photo ? <span className="sb-photo-fill" style={cropFill(photo, crop)} /> : <span aria-hidden>+</span>}
       </button>
       <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
-      {draft === undefined ? (
+      {choosing ? (
+        <div className="sb-photo-choice">
+          <span className="muted small">{name}'s headshot</span>
+          <div className="row">
+            <button onClick={() => { setChoosing(false); onCrop(); }}>Crop</button>
+            <button onClick={() => { setChoosing(false); input.current?.click(); }}>Replace</button>
+            <button className="link" onClick={() => setChoosing(false)}>Cancel</button>
+          </div>
+        </div>
+      ) : draft === undefined ? (
         <button className="sb-contestant-name" onClick={() => setDraft(name)}>
           {name}
           <span className="muted small">{here ? "checked in" : "not yet"}</span>

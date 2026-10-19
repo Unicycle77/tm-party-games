@@ -434,6 +434,20 @@ A review of the whole host remote, because it had got crowded: one page did both
 | Music while you work | While a song plays, a pressed-in strip under the status line on every page: "⏸ Eye of the Tiger · 1:55 left", one tap pauses. Playing is pressed in everywhere (song strips, the jukebox's Pause and current track), never gold, so the gold stays on the next thing to do. The time left comes from a new `jukebox/clock` the big screen writes on play, pause and seek (a database rules change). | Showing the whole player on every page: too much. Gold for playing: it competed with the next action. |
 | Reading out a measurement | Under a measured task's points, a quiet "📏 Read it out": contestant chips (the last number typed is picked), the conversion card with "Surprise me again", and a paper "Show on the big screen" that is pressed in while up. Picking someone else while it's up swaps the big screen. 📏 in the header still opens the free-form converter. | Sending the host to 📏 and retyping the number: the number is already on the page. |
 
+## Headshot crop
+
+The host chooses which part of each headshot the scoreboard shows, without changing the stored photo. Designed one moment at a time on 2026-10-19. Scenarios, in the agreed order: the host crops everyone before the party, and the host fixes one mid-party (the same route). A guest framing their own at check-in, and adjusting live while watching the TV, were dropped.
+
+| Moment | Decision | Rejected, and why |
+|---|---|---|
+| Where the crop shows | The TV scoreboard and the host remote's thumbnails (Plan the party's contestants, the arrivals list). Everywhere else (the Headshot task, the grid, the prize haul, the guest phone) shows the whole original, as framed media always does. | Cropping everywhere: the style guide's "never crop framed media" holds outside the scoreboard. |
+| Thumbnails | Tall, in the scoreboard window's exact shape (140 by 184), showing the crop, so the host's list previews the TV. | Square thumbnails: they can't match what the TV shows. |
+| Getting there | Tapping a thumbnail that has a photo opens "Greg's headshot" in the row: paper Crop and Replace, quiet Cancel, laid out like Rename. With no photo, the tap still goes straight to picking one. | A pop-up menu: it covers the rows below. "Replace photo": doesn't fit on one line on a phone. |
+| The crop page | Its own page, "← Plan the party", like a task's ✎ page. The whole photo stays still and the window moves over it, the rest dimmed; the scoreboard's frame beside it shows the result live. Gold Save, quiet Cancel, "Back to the middle". | Cropping inside the list: dragging would fight scrolling. Dragging the photo under a fixed frame, as phone photo apps do: it hides what's cut off, and on a group shot you lose track of who's where. |
+| Resizing | A gold dot on each corner, in a finger-sized patch, that can hang over the photo's edge; dragging one resizes about the opposite corner, keeping the window's shape. Pinch works too. | A Size slider: Jeffrey's first instinct was to drag a corner, and the corners show you can resize. |
+| Mid-party | The same route: Run of show, Plan the party, the thumbnail, Crop. | A shortcut from Run of show: crops are nearly always set before the party, and the arrivals list goes once the first task starts. |
+| A new photo, a reset | Replacing a photo clears its crop. A reset that removes guests clears crops with the headshots. | Keeping the old crop: it was for a different photo. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

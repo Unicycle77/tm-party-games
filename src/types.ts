@@ -225,11 +225,16 @@ export interface Jukebox {
   state?: { current?: number; playing?: boolean; volume?: number; repeat?: boolean };
 }
 
+/** A share of the headshot in the scoreboard window's shape: its left and top edges, width and height, each from 0 to 1 of the photo's. */
+export interface HeadshotCrop { x: number; y: number; w: number; h: number }
+
 /** A contestant on the party's scoreboard. The host adds them before the party, and guests check in by picking theirs. */
 export interface ScoreboardContestant {
   name: string;
   /** Their headshot (a download URL or data URL). Absent: the scoreboard's blank frame. */
   photo?: string;
+  /** What part of the headshot the scoreboard and the host's lists show; the stored photo is never changed. Cleared with a new photo. */
+  crop?: HeadshotCrop;
   /** Where they come in the host's list (the order they were added). */
   order: number;
   /** The guest (player uid) who checked in as them, by tapping their name or typing it in. */

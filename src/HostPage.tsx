@@ -9,6 +9,7 @@ import { LightRemote } from "./light/LightRemote";
 import { QrScannerModal } from "./QrScannerModal";
 import { PlanParty } from "./scoreboard/Planning";
 import { TaskEditPage } from "./scoreboard/TaskEditPage";
+import { CropPage } from "./scoreboard/CropPage";
 import { RunOfShow } from "./scoreboard/RunOfShow";
 import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
 import { activeTaskId } from "./scoreboard/tasks";
@@ -24,11 +25,11 @@ const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
 const BACK_KEY = "ba.hostBack";
 /** Run of show (home), a task's page, Plan the party, a task's ✎ page, and the side jobs in the header. */
-type View = "show" | "task" | "plan" | "edit" | "music" | "light" | "tasks" | "convert";
+type View = "show" | "task" | "plan" | "edit" | "crop" | "music" | "light" | "tasks" | "convert";
 /** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
-interface Place { view: View; task?: string }
+interface Place { view: View; task?: string; contestant?: string }
 const SIDE: View[] = ["music", "light", "tasks", "convert"];
-const VIEWS: View[] = ["show", "task", "plan", "edit", ...SIDE];
+const VIEWS: View[] = ["show", "task", "plan", "edit", "crop", ...SIDE];
 const HOME: Place = { view: "show" };
 
 /** A place this phone remembered; older phones kept just a view's name ("scoreboard" was home, "show" the game). */
@@ -107,7 +108,9 @@ export function HostPage() {
       {place.view === "task" && task === "adhoc" ? <AdHocPage code={code} session={session} onBack={() => go(HOME)} />
         : place.view === "task" && task === "tiebreaker" ? <TiebreakerPage code={code} session={session} onBack={() => go(HOME)} />
         : place.view === "task" && task ? <TaskPage code={code} session={session} id={task} onBack={() => go(HOME)} onLight={() => go({ view: "light" })} />
-        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onEdit={(id) => go({ view: "edit", task: id })} />
+        : place.view === "plan" ? <PlanParty code={code} session={session} onBack={() => go(HOME)} onEdit={(id) => go({ view: "edit", task: id })}
+            onCrop={(id) => go({ view: "crop", contestant: id })} />
+        : place.view === "crop" && place.contestant ? <CropPage code={code} session={session} id={place.contestant} onBack={() => go({ view: "plan" })} />
         : place.view === "edit" && place.task ? <TaskEditPage code={code} session={session} id={place.task} onBack={() => go({ view: "plan" })} />
         : SIDE.includes(place.view) ? (
           <>
