@@ -61,6 +61,8 @@ const SHOTS = {
     await p.mouse.move(w.x + w.width / 2, w.y + w.height / 2); await p.mouse.down();
     await p.mouse.move(w.x + w.width / 2 - 60, w.y + w.height / 2 + 20, { steps: 5 }); await p.mouse.up();
   }],
+  // the scoreboard after the update, Greg in his cropped group shot, everyone else as before
+  "headshot-crop-scoreboard": ["tv-scores-cropped"],
   "scores-main-before": ["tv-scores-before"],
   "scores-main-after": ["tv-scores"],
 };

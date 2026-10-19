@@ -53,7 +53,7 @@ function build() {
   }]));
   if (shot.startsWith("host-plan-crop") || shot === "host-crop") contestants.greg!.photo = group;
   // Back on the list after Save: the window the crop page shot left on Greg.
-  if (shot === "host-plan-cropped") Object.assign(contestants.greg!, { photo: group, crop: { x: 0.05, y: 0.08, w: 0.27, h: 0.59 } });
+  if (shot === "host-plan-cropped" || shot === "tv-scores-cropped") Object.assign(contestants.greg!, { photo: group, crop: { x: 0.05, y: 0.08, w: 0.27, h: 0.59 } });
   if (arriving) for (const id of checkedIn) contestants[id]!.uid = id;
   const tasks: Record<string, unknown> = {
     t1: { order: 1, game: "headshots", text: HEAD },
@@ -117,7 +117,7 @@ function build() {
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
-    case "tv-scores-before": case "tv-scores": case "tv-haul": case "host-haul": {
+    case "tv-scores-before": case "tv-scores": case "tv-scores-cropped": case "tv-haul": case "host-haul": {
       picked(); set("display", { step: shot.endsWith("haul") ? "haul" : "scoreboard" }); set("begun", true);
       const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 };
       Object.assign(tasks.t1 as object, { scores: t1 }); Object.assign(tasks.t2 as object, { scores: t2 }); Object.assign(tasks.t3 as object, { scores: t3 });
