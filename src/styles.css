@@ -1178,8 +1178,11 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-start { flex: none; white-space: nowrap; }
 .sb-add { display: grid; gap: 0.5rem; }
 .sb-add textarea { font: inherit; width: 100%; padding: 0.7rem; border-radius: 6px; border: 2px solid var(--gold-dark); background: var(--paper); color: var(--ink); }
-.sb-photo { flex: none; width: 3.4rem; height: 3.4rem; padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 1.4rem; }
+/* the scoreboard's window, 140 by 184 inside its gold frame, so the thumbnail shows what the TV will */
+.sb-photo { flex: none; align-self: center; width: 2.8rem; height: calc(2.8rem * 184 / 140); padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 1.4rem; }
 .sb-photo img { width: 100%; height: 100%; object-fit: cover; }
+/* the headshot as the scoreboard crops it */
+.sb-photo-fill { width: 100%; height: 100%; background-repeat: no-repeat; }
 .sb-contestant-name { flex: 1; text-align: left; }
 .sb-rename { flex: 1; display: flex; gap: 0.4rem; align-items: center; }
 .sb-contestant-name { display: flex; align-items: baseline; gap: 0.6rem; }
@@ -1192,6 +1195,9 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-now-playing button { flex: none; }
 .sb-give { text-align: left; }
 .sb-rename button { flex: none; }
+.sb-photo-choice { flex: 1; display: grid; gap: 0.3rem; }
+.sb-photo-choice .row { gap: 0.4rem; align-items: center; }
+.sb-photo-choice .row > * { flex: none; white-space: nowrap; }
 @media (min-width: 1000px) {
   /* Plan the party on a wide iPad: tasks on the left, contestants on the right, the rest across */
   .scoreboard-remote.plan:not(.task-edit-page) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
@@ -1326,8 +1332,9 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .arrivals-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
 .arrivals-list li { display: flex; align-items: center; gap: 0.6rem; }
 .arrivals-list li.away { opacity: 0.55; }
-.arrivals-list .face { flex: none; width: 2rem; height: 2rem; border-radius: 4px; background: #0004; border: 1px solid var(--gold-dark); overflow: hidden; }
-.arrivals-list .face img { width: 100%; height: 100%; object-fit: cover; }
+/* the scoreboard window's shape, cropped as it will be */
+.arrivals-list .face { flex: none; width: 2rem; height: calc(2rem * 184 / 140); border-radius: 4px; background: #0004; border: 1px solid var(--gold-dark); overflow: hidden; }
+.arrivals-list .face .fill { display: block; width: 100%; height: 100%; background-repeat: no-repeat; }
 .arrivals-list .name { flex: 1; font-family: var(--typewriter); }
 
 /* ---- the guest phone: the host remote's layout (title, status line, one "To do now" card, quiet rows, quiet links) ---- */
@@ -1379,3 +1386,24 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .pick-head p { margin: 0; }
 .phone.guest .env-pile { background: none; aspect-ratio: 1 / 1; overflow: visible; }
 .pile-rules { position: absolute; inset: 0 0 auto 0; z-index: 100; }
+/* Crop a headshot for the scoreboard: the whole photo with the window over it (the rest dimmed), and the frame beside it */
+.crop-photo { position: relative; justify-self: center; max-width: 100%; touch-action: none; user-select: none; -webkit-user-select: none; border: 3px solid var(--gold); border-radius: 2px; }
+.crop-photo img { display: block; max-width: 100%; max-height: 48vh; pointer-events: none; }
+.crop-shade { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.crop-shade > div { position: absolute; box-shadow: 0 0 0 100vmax rgba(26, 15, 8, 0.6); }
+.crop-window { position: absolute; box-sizing: border-box; border: 2px solid var(--gold-bright); cursor: move; }
+/* a gold dot on each corner, inside a finger-sized patch that takes the drag */
+.crop-corner { position: absolute; width: 2.75rem; height: 2.75rem; margin: -1.375rem; display: grid; place-items: center; touch-action: none; }
+.crop-corner::after { content: ""; width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--gold-bright); border: 2px solid var(--ink); pointer-events: none; }
+.crop-corner.nw { left: 0; top: 0; cursor: nwse-resize; }
+.crop-corner.ne { right: 0; top: 0; cursor: nesw-resize; }
+.crop-corner.sw { left: 0; bottom: 0; cursor: nesw-resize; }
+.crop-corner.se { right: 0; bottom: 0; cursor: nwse-resize; }
+.crop-preview { display: flex; gap: 1rem; align-items: center; }
+/* frame.png is 566 by 688; the photo sits 33px in from each side of it at 250px tall */
+.crop-frame { position: relative; flex: none; height: 9rem; aspect-ratio: 566 / 688; }
+.crop-frame img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.crop-fill { position: absolute; inset: 13.2% 16% ; background-color: white; background-repeat: no-repeat; }
+.crop-side { flex: 1; display: grid; gap: 0.5rem; font-family: var(--typewriter); color: var(--fg); }
+.crop-side .link { justify-self: start; }
+.crop-page > .link { justify-self: center; }

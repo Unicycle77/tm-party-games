@@ -13,8 +13,13 @@ import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
+import { cropFill } from "../../src/scoreboard/crop";
 
 const noop = () => {};
+// A wide group shot cropped onto the person on the left, as on the crop page.
+const group = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 200 120"><rect width="200" height="120" fill="#3a2a1c"/>${[[40, "#8a7556"], [100, "#5a4a36"], [160, "#5a4a36"]].map(([x, c]) => `<circle cx="${x}" cy="46" r="17" fill="${c}"/><path d="M${+x - 34} 120 C${+x - 30} 88 ${+x - 15} 72 ${x} 72 C${+x + 15} 72 ${+x + 30} 88 ${+x + 34} 120 Z" fill="${c}"/>`).join("")}</svg>`)}`;
+const crop = { x: 0.05, y: 0.08, w: 0.27, h: 0.59 };
+const headshotCrop = { left: "5%", top: "8%", width: "27%", height: "59%" };
 // A task's song strip, idle, playing and unable to play, drawn by the real component from a pretend jukebox.
 const jukebox = (playing: boolean, open = true) => ({
   jukebox: { tracks: ["Entry of the Gladiators", "Hall of the Mountain King"], durations: [160, 151], open: open || undefined, state: { current: 1, playing } },
@@ -247,6 +252,16 @@ function Sheet() {
               <div className="stage-label"><span>Before</span> · Sam</div>
             </div>
             <Cap>Gold 9-slice frame hugging the media, never cropped; a paper <code>.stage-label</code> under it</Cap>
+            <div className="pair" style={{ alignItems: "center" }}>
+              <div className="crop-photo" style={{ width: 300 }}>
+                <img src={group} alt="" style={{ width: 300 }} />
+                <div className="crop-shade"><div style={headshotCrop} /></div>
+                <div className="crop-window" style={headshotCrop}>{["nw", "ne", "sw", "se"].map((c) => <span key={c} className={`crop-corner ${c}`} />)}</div>
+              </div>
+              <div className="crop-frame"><div className="crop-fill" style={cropFill(group, crop)} /><img src={frame} alt="" /></div>
+              <button className="sb-photo" style={{ flex: "none" }}><span className="sb-photo-fill" style={cropFill(group, crop)} /></button>
+            </div>
+            <Cap>Headshot crop, the one exception: the window over the whole photo (<code>.crop-window</code>, dots to resize), the scoreboard's frame, and the host's tall thumbnail (<code>.sb-photo</code>), all the same crop</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>

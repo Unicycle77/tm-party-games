@@ -4,6 +4,7 @@ import { activeGame } from "../games";
 import { prizesIn, showHaul, standing } from "../games/prize/data";
 import { noBigScreen } from "../session";
 import type { Session } from "../types";
+import { cropFill } from "./crop";
 import { declareWinner, lowerCurtain, showScoreboard, updateScores } from "./data";
 import { beginTask } from "./TaskPage";
 import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upNextOf } from "./tasks";
@@ -190,7 +191,7 @@ function Arrivals({ code, session }: { code: string; session: Session }) {
       <ul className="arrivals-list">
         {contestants.map(([id, c]) => (
           <li key={id} className={here(c.uid) ? undefined : "away"}>
-            <span className="face" aria-hidden>{c.photo ? <img src={c.photo} alt="" /> : null}</span>
+            <span className="face" aria-hidden>{c.photo ? <span className="fill" style={cropFill(c.photo, c.crop)} /> : null}</span>
             <span className="name">{c.name}</span>
             <span className="muted small">{!here(c.uid) ? "not yet" : c.photo ? "checked in" : "checked in · no headshot yet"}</span>
           </li>
