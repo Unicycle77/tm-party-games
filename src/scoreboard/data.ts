@@ -66,7 +66,8 @@ export async function uploadHeadshot(code: string, uid: string, id: string, file
   await new Promise<void>((resolve, reject) => {
     task.on("state_changed", (s) => onProgress(s.bytesTransferred / s.totalBytes), reject, resolve);
   });
-  await set(at(code, `contestants/${id}/photo`), await getDownloadURL(task.snapshot.ref));
+  // A new photo starts uncropped: the old crop was for the old one.
+  await update(at(code, `contestants/${id}`), { photo: await getDownloadURL(task.snapshot.ref), crop: null });
 }
 
 /** Sets the part of a contestant's headshot the scoreboard shows. The photo itself stays as it was. */

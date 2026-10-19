@@ -50,6 +50,8 @@ const SHOTS = {
   "task-parts-edit": ["host-parts-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
   // the contestants on Plan the party, tall thumbnails, Greg's tapped: Crop or Replace photo
   "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
+  // back on the list after Save: Greg's tall thumbnail shows his crop
+  "headshot-crop-saved": ["host-plan-cropped", "", undefined, "section:has(.sb-contestant-list)"],
   // Greg's crop page: his wide group shot whole, the window dragged left onto him, the frame beside it
   "headshot-crop-page": ["host-crop", "", async (p) => {
     const c = await p.locator(".crop-corner.se").boundingBox();

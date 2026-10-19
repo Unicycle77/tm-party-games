@@ -43,6 +43,7 @@ export async function resetScores(code: string, session: Session, guests: boolea
     for (const id of keys(board?.contestants)) {
       patch[`scoreboard/contestants/${id}/uid`] = null;
       patch[`scoreboard/contestants/${id}/photo`] = null;
+      patch[`scoreboard/contestants/${id}/crop`] = null;
     }
     for (const id of keys(games?.prize?.photos)) patch[`games/prize/photos/${id}`] = null;
     for (const game of ["photos", "beforeAfter"] as const) {

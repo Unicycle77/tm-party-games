@@ -51,7 +51,9 @@ function build() {
     ...(shot.endsWith("haul") ? { photo: "/docs/guest-shots/faces/silhouette.jpg" } : !(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.includes("scores") || shot.endsWith("haul")) ? { photo: face("#6b5a44") } : {}),
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
-  if (shot === "host-plan-crop" || shot === "host-crop") contestants.greg!.photo = group;
+  if (shot.startsWith("host-plan-crop") || shot === "host-crop") contestants.greg!.photo = group;
+  // Back on the list after Save: the window the crop page shot left on Greg.
+  if (shot === "host-plan-cropped") Object.assign(contestants.greg!, { photo: group, crop: { x: 0.05, y: 0.08, w: 0.27, h: 0.59 } });
   if (arriving) for (const id of checkedIn) contestants[id]!.uid = id;
   const tasks: Record<string, unknown> = {
     t1: { order: 1, game: "headshots", text: HEAD },
@@ -130,7 +132,7 @@ function build() {
     case "host-parts-phones": set("display", { step: "tasktext", task: "t6" }); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     // A live task with one part: the same two rows, "The task" in place of Part 1.
-    case "host-plan": case "host-plan-crop": case "host-crop": set("begun", true); break;
+    case "host-plan": case "host-plan-crop": case "host-plan-cropped": case "host-crop": set("begun", true); break;
     case "host-onepart": set("begun", true); break;
     case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
     case "checkin-rules": case "checkin-pile": break;

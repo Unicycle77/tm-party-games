@@ -3,8 +3,9 @@ import { GAMES } from "../games";
 import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
-import type { Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
+import type { HeadshotCrop, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
 import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
+import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
 import { TaskCards } from "./TaskCards";
@@ -184,7 +185,7 @@ function Contestants({ code, session, board, contestants, onCrop }: {
       <h3>Contestants ({contestants.length})</h3>
       <ul className="sb-contestant-list">
         {contestants.map(([id, c]) => (
-          <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} hasPoints={id in totals} onCrop={() => onCrop(id)}
+          <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} crop={c.crop} hasPoints={id in totals} onCrop={() => onCrop(id)}
             here={c.uid && players[c.uid] ? c.uid : undefined} />
         ))}
       </ul>
@@ -211,8 +212,8 @@ function Contestants({ code, session, board, contestants, onCrop }: {
   );
 }
 
-function ContestantRow({ code, board, id, name, photo, hasPoints, here, onCrop }: {
-  code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; hasPoints: boolean; onCrop: () => void;
+function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, onCrop }: {
+  code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; crop?: HeadshotCrop; hasPoints: boolean; onCrop: () => void;
   /** Their phone's uid, once they've checked in. */
   here?: string;
 }) {
@@ -246,7 +247,7 @@ function ContestantRow({ code, board, id, name, photo, hasPoints, here, onCrop }
       <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} aria-expanded={photo ? choosing : undefined}
         onClick={() => photo ? setChoosing(!choosing) : input.current?.click()}>
         {progress !== undefined ? <span className="small">{Math.round(progress * 100)}%</span>
-          : photo ? <img src={photo} alt="" /> : <span aria-hidden>+</span>}
+          : photo ? <span className="sb-photo-fill" style={cropFill(photo, crop)} /> : <span aria-hidden>+</span>}
       </button>
       <input ref={input} type="file" accept="image/*" hidden onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ""; }} />
       {choosing ? (

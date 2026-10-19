@@ -65,7 +65,8 @@ export function CropPage({ code, session, id, onBack }: { code: string; session:
       const py = s.crop.y + (north ? 0 : h0) + (e.clientY - s.y) / height;
       const room = Math.min(west ? ax : 1 - ax, ((north ? ay : 1 - ay) * WINDOW) / ratio);
       const w = Math.min(room, max, Math.max(max / 5, Math.abs(px - ax), (Math.abs(py - ay) * WINDOW) / ratio));
-      setCrop({ x: west ? ax - w : ax, y: north ? ay - heightOf(w, ratio) : ay, w });
+      const h = heightOf(w, ratio);
+      setCrop({ x: west ? ax - w : ax, y: north ? ay - h : ay, w, h });
     } else {
       setCrop(clamp({ ...s.crop, x: s.crop.x + (e.clientX - s.x) / width, y: s.crop.y + (e.clientY - s.y) / height }, ratio));
     }
@@ -97,7 +98,7 @@ export function CropPage({ code, session, id, onBack }: { code: string; session:
       </div>
       <div className="crop-preview">
         <div className="crop-frame">
-          <div className="crop-fill" style={cropFill(photo, now, ratio)} />
+          <div className="crop-fill" style={cropFill(photo, now)} />
           <img src={frame} alt="" />
         </div>
         <div className="crop-side">

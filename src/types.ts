@@ -225,8 +225,8 @@ export interface Jukebox {
   state?: { current?: number; playing?: boolean; volume?: number; repeat?: boolean };
 }
 
-/** A share of the headshot in the scoreboard window's shape: its left and top edges and its width, each from 0 to 1 of the photo's. */
-export interface HeadshotCrop { x: number; y: number; w: number }
+/** A share of the headshot in the scoreboard window's shape: its left and top edges, width and height, each from 0 to 1 of the photo's. */
+export interface HeadshotCrop { x: number; y: number; w: number; h: number }
 
 /** A contestant on the party's scoreboard. The host adds them before the party, and guests check in by picking theirs. */
 export interface ScoreboardContestant {
