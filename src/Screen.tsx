@@ -86,7 +86,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
           ? "💡 The light is running."
           : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> on a computer with a webcam that can see everyone.</>}
       </p>
-      {game && <button className="link" onClick={() => void setGame(code, null)}>← Between games</button>}
+      {game && <button className="link" onClick={() => void setGame(code, null)}>← Between tasks</button>}
       {footer}
     </LobbyMenu>
   );

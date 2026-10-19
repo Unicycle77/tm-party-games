@@ -244,7 +244,7 @@ function ResetScores({ code, session }: { code: string; session: Session }) {
   return (
     <div className="extra-open reset-scores">
       <h3>Reset scores</h3>
-      <p><b>Clears</b> the points, DQs and bonuses on {on}, the winner, the app games' rounds, and the dealt secret tasks (back on the pile).</p>
+      <p><b>Clears</b> the points, DQs and bonuses on {on}, the winner, the app tasks' rounds, and the dealt secret tasks (back on the pile).</p>
       <p className="muted"><b>Keeps</b> the contestants, the tasks and how they're set up, and the envelopes.</p>
       <div className="toggles">
         <Toggle label={`Also remove guests (${joined} joined)`} on={guests} onChange={setGuests} disabled={!joined} />

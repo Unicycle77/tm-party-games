@@ -293,7 +293,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
         <h1>Taskmaster</h1>
         {notice && <p className="notice">{notice}</p>}
         <form onSubmit={next}>
-          <label>Game code
+          <label>Party code
             <div className="row">
               <input value={code} onChange={(e) => { setCode(e.target.value.toUpperCase().slice(0, 4)); setError(undefined); }}
                 maxLength={4} autoCapitalize="characters" autoComplete="off" placeholder="ABCD" required />

@@ -118,7 +118,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       <button className="link back" onClick={onBack}>← Run of show</button>
       <div className="task-head">
         <h1>{titleOf(task)}</h1>
-        <p className="muted">Task {place} of {of} · {task.game ? "app game" : "live task"}</p>
+        <p className="muted">Task {place} of {of} · {task.game ? "app task" : "live task"}</p>
       </div>
       <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
@@ -153,7 +153,7 @@ export function AdHocPage({ code, session, onBack }: { code: string; session: Se
     <>
       <button className="link back" onClick={onBack}>← Run of show</button>
       <div className="task-head">
-        <h1>{game && !listed ? game.name : "Play a game"}</h1>
+        <h1>{game && !listed ? game.name : "Play a task"}</h1>
         <p className="muted">Not on the run of show, so it isn't scored</p>
       </div>
       <OnScreen code={code} session={session} />

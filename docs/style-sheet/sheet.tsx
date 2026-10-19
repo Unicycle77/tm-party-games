@@ -121,7 +121,7 @@ function Sheet() {
             </div>
             <div className="pair">
               <Item cap={<><code>&lt;PinField&gt;</code>: dots, 👁 shows them</>}><PinField value="4821" onChange={noop} /></Item>
-              <Item cap="A game code, with 📷 scan"><div className="row resume" style={{ marginTop: 0, display: "flex" }}><input defaultValue="" placeholder="ABCD" maxLength={4} /><button aria-label="Scan">📷</button></div></Item>
+              <Item cap="A party code, with 📷 scan"><div className="row resume" style={{ marginTop: 0, display: "flex" }}><input defaultValue="" placeholder="ABCD" maxLength={4} /><button aria-label="Scan">📷</button></div></Item>
             </div>
             <Item cap={<><code>.feet-in</code>: two boxes for ft and in (or lb and oz) at an imperial party, the number pad kept</>}><div className="converter"><div className="feet-in"><span>How much?</span><label><input inputMode="decimal" defaultValue="5" /> ft</label><label><input inputMode="decimal" defaultValue="11" /> in</label></div></div></Item>
           </Sec>
