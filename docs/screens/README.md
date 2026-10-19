@@ -26,7 +26,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
 | `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
-| `run-of-show-host.jpg` | Host phone: the Run of show, "Up next" card with the gold Start button, "Show the scoreboard", and all eight tasks (taken 2026-10-18 from the ABCD party) |
+| `run-of-show-host.jpg` | Host phone: the Run of show, "Show QR" by the code, "Show scores" under the big-screen line, the "Up next" card with the gold Start button, and all eight tasks (party ABCD, 2026-10-19) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
 | `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
@@ -128,7 +128,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Plan the party with the party line opened by "Change": renaming the party, with the portrait and the host pin under it (2026-10-18) |
-| `run-of-show-host.jpg` | The remote's home between tasks: "On the big screen: the curtain", the "Up next" card with gold "Start task 4 →", paper "Show the scoreboard" with "Opens on the scores before …", the read-only task list with one state each, and "Plan the party", "Show QR code", "Party settings" at the bottom. The header is four icons, with the party name and code under the title (2026-10-18) |
+| `run-of-show-host.jpg` | The remote's home: the party line "Halloween party · ABCD" with a small "Show QR" chip at its right, "On the big screen: the soundboard" with a small "Show scores" chip under it, the "Up next" card with gold "▶ Start Headshot", the read-only task list with one state each, and "Play a game that's not on the list", "Plan the party", "Party settings" at the bottom (party ABCD, 2026-10-19) |
 | `run-of-show-host-scrolled.jpg` | Run of show scrolled down to the task list (party ABCD, Halloween party): the four header icons stay at the top on their dark band, with the page sliding under them. Older host screenshots show the header without its band (2026-10-19) |
 | `run-of-show-host-scores-up.jpg` | The scores up: the scoreboard's controls take the top slot, gold "Update the scores" with "On the big screen: the scores, before Hum a theme tune", "Lower the curtain" as a link, and the "Up next" card's button paper (2026-10-18) |
 | `run-of-show-host-scores-updated.jpg` | After the update: gold "Lower the curtain" alone in the top slot, the pending note gone (2026-10-18) |
@@ -190,7 +190,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-haul-up.jpg` | The haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link (2026-10-18) |
 | `run-of-show-host-haul-waiting.jpg` | The scoreboard up with a task still without points: "The prize haul comes once every task has points. Still none for Prize task." under gold "Lower the curtain", and the "Up next" card's button paper (2026-10-18) |
 | `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
-| `run-of-show-host-arrivals.jpg` | Run of show before the first task: "Here so far · 3 of 5" in guest-list order with headshots and "checked in" or "not yet" (dimmed), paper "Show QR code", then the Up next card with gold "▶ Start Headshot" (2026-10-18) |
+| `run-of-show-host-arrivals.jpg` | Run of show before the first task: "Show QR" by the code and "Show scores" under the big-screen line, then "Here so far · 5 of 6" in guest-list order with headshots and "checked in" or "not yet" (dimmed), then the Up next card with gold "▶ Start Headshot" (party ABCD, 2026-10-19) |
 | `host-new-guest.jpg` | A guest who isn't on the scoreboard comes as a card at the top of the page: "Riley joined, but isn't on the scoreboard. Add them if they're playing." with "Add Riley" and "Not playing" (2026-10-18) |
 | `host-new-guest-late.jpg` | The same card on a task page, mid-show: it appears on whatever page the host is on (2026-10-18) |
 | `scoreboard-host-not-playing.jpg` | Plan the party after "Not playing": Riley stays under "Here, but not on the scoreboard" marked "not playing", with "+ Add" if they change their mind (2026-10-18) |

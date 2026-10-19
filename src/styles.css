@@ -157,7 +157,7 @@ input::placeholder { color: #8b7a63; }
 .collecting.no-task .collecting-side .tile .name { font-size: clamp(1.5rem, 3.4vh, 2.4rem); }
 .corner-code { position: fixed; right: 1.2rem; bottom: 0.8rem; display: grid; justify-items: end; gap: 0.6rem; }
 .corner-code p { margin: 0; color: var(--muted); font-size: clamp(0.9rem, 1.8vh, 1.2rem); }
-/* the host remote's "Show QR code", mirrored above the address: big enough to scan from a sofa */
+/* the host remote's "Show QR", mirrored above the address: big enough to scan from a sofa */
 .corner-code svg { width: 24vh; height: auto; border-radius: 4px; border: 6px solid var(--gold); background: #fff; box-shadow: 0 6px 18px #000a; }
 .corner-code strong { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.2em; }
 .corner-download { position: fixed; left: 1.2rem; bottom: 0.8rem; }

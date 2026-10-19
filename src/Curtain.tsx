@@ -22,7 +22,7 @@ export function Curtain({ code, session, children }: { code: string; session: Se
 }
 
 /**
- * The join address, small in the bottom-right corner for latecomers. While the host remote's "Show QR code" is
+ * The join address, small in the bottom-right corner for latecomers. While the host remote's "Show QR" is
  * open, the join QR sits just above it.
  */
 export function CornerCode({ code, session }: { code: string; session: Session }) {

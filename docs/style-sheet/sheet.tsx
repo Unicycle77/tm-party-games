@@ -88,9 +88,12 @@ function Sheet() {
         <div className="col">
           <Sec title="3 · Buttons">
             <div className="pair">
-              <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Show the scoreboard</button></Item>
+              <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Lower the curtain</button></Item>
               <Item cap={<><code>.active</code>: what's on screen now</>}><button className="active">Before</button></Item>
             </div>
+            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show scores" under the big-screen line)</>}>
+              <div className="line-chip"><p className="muted small party-line">Halloween party · ABCD</p><button className="line-chip-button">Show QR</button></div>
+            </Item>
             <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
             <Item cap={<><code>.big.pressed</code>: a gold button whose thing is on the big screen now; tap again to take it down</>}><button className="big pressed" aria-pressed>Show the task</button></Item>
             <div className="pair">
@@ -273,7 +276,7 @@ function Sheet() {
               <QRCodeSVG value="https://example.com/play?code=ABCD" bgColor="#fff" marginSize={2} style={{ width: 110, height: 110 }} />
               <p>example.com/play · <strong>ABCD</strong></p>
             </div>
-            <Cap><code>.corner-code</code>: the join address in the big screen's corner; while the host's "Show QR code" is open, the player QR sits above it, with no caption</Cap>
+            <Cap><code>.corner-code</code>: the join address in the big screen's corner; while the host's "Show QR" is open, the player QR sits above it, with no caption</Cap>
             <div className="slot" style={{ gridTemplateColumns: "1fr auto", alignItems: "center" }}><h2>Your secret task</h2><button className="help-q" aria-expanded>?</button></div>
             <Cap><code>.help-q</code>: a circled ? that opens the rules in place, burgundy while open</Cap>
           </Sec>
