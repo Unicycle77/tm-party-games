@@ -191,4 +191,11 @@ if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); loc
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
-createRoot(document.getElementById("root")!).render(shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);
+const root = createRoot(document.getElementById("root")!);
+// For the reveal: checks a guest in on the big screen, so the shot can catch their face sharpening.
+(window as unknown as { checkIn: (id: string) => void }).checkIn = (id) => {
+  ((session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[id]!).uid = id;
+  (session.players as Record<string, unknown>)[id] = { name: people[id], joinedAt: 9, contestant: id };
+  root.render(<Screen code={CODE} session={structuredClone(session) as unknown as Session} viewOnly />);
+};
+root.render(shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);

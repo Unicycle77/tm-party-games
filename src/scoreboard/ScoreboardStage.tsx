@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useLayoutEffect, useRef, useState } from "react";
 import blank from "../assets/scoreboard/blank.jpg";
 import frame from "../assets/frame.png";
 import seal from "../assets/scoreboard/seal.png";
-import type { Player, Scoreboard } from "../types";
+import type { HeadshotCrop, Player, Scoreboard } from "../types";
 import { cropFill } from "./crop";
 import { Mosaic } from "./Mosaic";
 import { shownTotals } from "./scoring";
@@ -14,7 +14,7 @@ import "./scoreboard.css";
  * leader on the right, enlarged. It shows the totals as of the host's last update; when the host
  * updates, it waits a second, ticks each seal to its new total over two seconds and slides everyone
  * into their new order, just like the original's Play button. Unless the host turned it off, anyone with a
- * headshot who hasn't checked in yet is a 3 by 4 mosaic of it.
+ * headshot who hasn't checked in yet is a 3 by 4 mosaic of it, which sharpens to their face when they do.
  */
 export function ScoreboardStage({ board, players }: { board: Scoreboard | undefined; players: Record<string, Player> | undefined }) {
   const contestants = Object.entries(board?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order);
@@ -92,10 +92,7 @@ export function ScoreboardStage({ board, players }: { board: Scoreboard | undefi
             <div key={id} className="sb-contestant" style={{ transform: `translateX(${275 * i + 30}px)` }}>
               <div className={`sb-frame-scaler${leader ? (leaders > 2 ? " sb-large" : " sb-larger") : ""}`}>
                 <div className="sb-frame-container" style={{ animationDelay: `${-(ids.indexOf(id) + 1) * 1.25}s` }}>
-                  <div className="sb-fill" style={pixelated(byId[id]!) ? undefined : fill[id]}>
-                    {pixelated(byId[id]!) && <Mosaic photo={byId[id]!.photo!} crop={byId[id]!.crop} cols={3} rows={4} />}
-                    <div className="sb-shadow" />
-                  </div>
+                  <Face photo={byId[id]!.photo} crop={byId[id]!.crop} fill={fill[id]!} hidden={pixelated(byId[id]!)} />
                   <img className="sb-frame" src={frame} alt="" />
                 </div>
               </div>
@@ -107,6 +104,33 @@ export function ScoreboardStage({ board, players }: { board: Scoreboard | undefi
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/** The mosaics a face sharpens through, in blocks across (four down for every three), before the photo itself. */
+const REVEAL = [3, 6, 12, 24, 48];
+/** How long each one holds: the whole reveal takes 2s, like the scores ticking up. */
+const STEP = 400;
+
+/**
+ * What's in the frame: the headshot, or while `hidden` its 3 by 4 mosaic. When they check in it sharpens a step
+ * at a time to the photo; a face that's sharp from the start never animates.
+ */
+function Face({ photo, crop, fill, hidden }: { photo?: string; crop?: HeadshotCrop; fill: CSSProperties; hidden: boolean }) {
+  const [level, setLevel] = useState(hidden ? 0 : REVEAL.length);
+  useEffect(() => {
+    if (hidden) return setLevel(0);
+    if (level >= REVEAL.length) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setLevel(REVEAL.length);
+    const timer = window.setTimeout(() => setLevel(level + 1), STEP);
+    return () => clearTimeout(timer);
+  }, [hidden, level]);
+  const cols = REVEAL[level];
+  return (
+    <div className="sb-fill" style={photo && cols ? undefined : fill}>
+      {photo && cols && <Mosaic photo={photo} crop={crop} cols={cols} rows={(cols * 4) / 3} />}
+      <div className="sb-shadow" />
     </div>
   );
 }
