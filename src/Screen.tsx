@@ -51,7 +51,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // The scoreboard belongs to no game, so it can go up whatever is on.
-  if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} />;
+  if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} players={session.players} />;
   // So is the winner's prize haul, at the end of the party.
   if (display.step === "haul") return <HaulStage code={code} session={session} />;
   // And a task's text, when the host puts it up.

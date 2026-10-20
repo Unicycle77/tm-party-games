@@ -255,6 +255,9 @@ export const declareWinner = (code: string, on = true) =>
     ? { "scoreboard/final": true, display: { step: "scoreboard" }, conversion: null }
     : { "scoreboard/final": null });
 
+/** Whether the big screen pixelates the headshots of guests who haven't checked in (on unless turned off). */
+export const setPixelate = (code: string, on: boolean) => set(at(code, "pixelate"), on ? null : false);
+
 export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain" });
 
 /** Records who won the tiebreaker task (null clears it). Nothing changes on the big screen. */

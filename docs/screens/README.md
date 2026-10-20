@@ -2,7 +2,7 @@
 
 Reference screenshots of the app, taken on 2026-10-02. They show the UI at that date and go stale as it changes. The host remote's pages were redrawn on 2026-10-18 (see "The host remote, less crowded" in [redesign-decisions](../redesign-decisions.md)); the ones dated then are current, and an older host screenshot may still show the previous layout around a part that hasn't changed (the points rows, for instance).
 
-Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip` and `GotIt` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
+Style sheet (taken on 2026-10-17, from `src/styles.css` and the real `Toggle`, `TaskCard`, `PinField`, `SongStrip`, `GotIt` and `Mosaic` components; re-render it with [docs/style-sheet](../style-sheet/README.md)):
 
 | File | What it shows |
 |---|---|
@@ -116,6 +116,9 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-crop-page.jpg` | Crop opened on Greg's headshot: "← Plan the party", his whole group shot with the gold window (a dot on each corner to resize it) dragged onto him and the rest dimmed, the scoreboard's gold frame beside it showing the crop, "Back to the middle", gold Save and quiet Cancel (sketch, 2026-10-19, from the ABCD party) |
 | `headshot-crop-saved.jpg` | Back on Plan the party after Save: Greg's tall thumbnail now shows the part of his group shot he cropped to, the others still centred (sketch, 2026-10-19, from the ABCD party) |
 | `headshot-crop-scoreboard.jpg` | Main screen: the scoreboard after the Prize task's update, Greg (9) framed on just him from his wide group shot by his saved crop, everyone else centred as before (sketch, 2026-10-19, from the ABCD party) |
+| `pixelate-host-plan.jpg` | Plan the party, Contestants mid-arrival: "Pixelate until checked in" switched on under the heading with its muted line, Alex, Greg and Priya "checked in", Mei, Sam and Tom (no headshot yet) "not yet" (2026-10-20, from the ABCD party) |
+| `pixelate-main-arriving.jpg` | Main screen: the scoreboard as guests arrive, before any points. Alex, Greg and Priya's faces; Mei and Sam, not checked in, as 3 by 4 mosaics of their crops; Tom's camera placeholder (2026-10-20, from the ABCD party) |
+| `pixelate-main-reveal.jpg` | Sam's frame as he checks in, left to right: the 3 by 4 mosaic, then 6×8, 12×16, 24×32, 48×64 and his face, 400ms a step (drawn with `node docs/guest-shots/reveal.mjs`, 2026-10-20, from the ABCD party) |
 | `headshot-crop-arrivals.jpg` | Run of show before the first task, "Here so far · 5 of 6": tall thumbnails in the scoreboard window's shape, Greg's showing his crop, Sam "not yet", Tom "checked in · no headshot yet" (sketch, 2026-10-19, from the ABCD party) |
 | `scoreboard-host-update.jpg` | 🏆 with the scoreboard up: gold "Update the scores · N new tasks" |
 | `scoreboard-host-remote-scoreboard-up.jpg` | The remote's main view while the scoreboard is on the big screen |

@@ -69,6 +69,8 @@ const SHOTS = {
   "secret-tasks-edit-parts": ["host-secret-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); await p.evaluate(() => window.scrollTo(0, 0)); }],
   // the contestants on Plan the party, tall thumbnails, Greg's tapped: Crop or Replace photo
   "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
+  // the contestants on Plan the party mid-arrival, with the pixelate switch under the heading
+  "pixelate-host-plan": ["host-plan-pixel", "", undefined, "section:has(.sb-contestant-list)"],
   // back on the list after Save: Greg's tall thumbnail shows his crop
   "headshot-crop-saved": ["host-plan-cropped", "", undefined, "section:has(.sb-contestant-list)"],
   // Greg's crop page: his wide group shot whole, the window dragged left onto him, the frame beside it
@@ -85,6 +87,8 @@ const SHOTS = {
   // Run of show before the first task: "Here so far", tall thumbnails, Greg's cropped, Sam not here yet
   "headshot-crop-arrivals": ["host-arrivals", "", undefined, "section.arrivals"],
   "scores-main-before": ["tv-scores-before"],
+  // mid-arrival, before any points: Mei and Sam haven't checked in, so they're 3 by 4 mosaics; Tom has no headshot yet
+  "pixelate-main-arriving": ["tv-pixel-arriving"],
   "scores-main-after": ["tv-scores"],
 };
 const only = process.argv.slice(2);

@@ -4,11 +4,12 @@ import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
 import type { HeadshotCrop, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
-import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
+import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, setPixelate, uploadHeadshot } from "./data";
 import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
 import { TaskCards } from "./TaskCards";
+import { Toggle } from "../Toggle";
 import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 
 /**
@@ -183,6 +184,8 @@ function Contestants({ code, session, board, contestants, onCrop }: {
   return (
     <section className="sb-contestants">
       <h3>Contestants ({contestants.length})</h3>
+      <div className="toggles"><Toggle label="Pixelate until checked in" on={board?.pixelate !== false} onChange={(on) => void setPixelate(code, on)} /></div>
+      <p className="muted small">On the big screen's scoreboard only. Each face sharpens as they check in.</p>
       <ul className="sb-contestant-list">
         {contestants.map(([id, c]) => (
           <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} crop={c.crop} hasPoints={id in totals} onCrop={() => onCrop(id)}
