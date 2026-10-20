@@ -91,7 +91,7 @@ export function HostLobby({ code, session }: { code: string; session: Session; d
           </li>
         ))}
       </ul>
-      <button className="lower" onClick={() => { if (confirm("End the reveal? The envelopes you haven't opened stay secret, and the scores are cleared.")) void endReveal(code); }}>
+      <button className="lower" onClick={() => { if (confirm("End the reveal? The envelopes you haven't opened stay secret, and the points so far go on the scoreboard.")) void endReveal(code, session); }}>
         Lower the curtain
       </button>
     </>
@@ -136,7 +136,7 @@ function Finish({ code, session, reveal }: { code: string; session: Session; rev
   return (
     <>
       <h2 className="contestant">{leaders.length ? `Most points: ${names(leaders)}, ${top}` : "No points scored."}</h2>
-      <button className="big" onClick={() => void endReveal(code)}>Lower the curtain</button>
+      <button className="big" onClick={() => void endReveal(code, session)}>Lower the curtain</button>
       <h2>Final scores</h2>
       <ul className="picker running">
         {players.map(([uid, p]) => (

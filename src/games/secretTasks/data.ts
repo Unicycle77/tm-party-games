@@ -1,6 +1,7 @@
 import { get, onValue, push, ref, remove, set, update } from "firebase/database";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase";
+import { enterPoints, taskFor } from "../../scoreboard/data";
 import { setDisplay } from "../../session";
 import type { SecretReveal, SecretTasks, Session } from "../../types";
 
@@ -46,6 +47,29 @@ export const RULES = [
   "You must not reveal your secret task to anyone else.",
   "Your time starts now.",
 ] as const;
+
+/** Part 2, the reveal, as a Taskmaster task: what the host reads out (or puts on the big screen) before the first envelope. */
+export const PART_2 = [
+  "Divulge each other\u2019s secrets.",
+  "The TASKMASTER will name a guest. Quickly and secretly write down the named guest\u2019s secret task. When instructed by the TASKMASTER, simultaneously reveal what you have written.",
+  "You will repeat this process for each guest.",
+  "You will receive a point for each correctly identified secret task.",
+  "You will receive a bonus point if nobody correctly identifies your secret task.",
+] as const;
+
+/** A new party's Secret Tasks: the rules as Part 1, the reveal as Part 2. The host can change either on its ✎ page. */
+export const DEFAULT_WORDS = {
+  type: "Secret Task",
+  text: RULES.join("\n\n"),
+  parts: [{ type: "Secret Tasks", text: PART_2.join("\n\n") }],
+};
+
+/** The rules guests read on their phones: this party's Part 1, a paragraph a line, or the built-in rules if it has none. */
+export function rulesOf(session: Session): readonly string[] {
+  const text = Object.values(session.scoreboard?.tasks ?? {}).find((t) => t.game === "secretTasks")?.text;
+  const lines = (text ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+  return lines.length ? lines : RULES;
+}
 
 /** Whether this player has opened their envelope before. Undefined while loading. */
 export function useSeen(code: string, uid: string): boolean | undefined {
@@ -278,8 +302,23 @@ export function pointsOf(reveal: SecretReveal): Record<string, number> {
   return points;
 }
 
-/** Host: ends the reveal; the big screen goes back to the curtain. */
-export async function endReveal(code: string) {
+/**
+ * Host: ends the reveal, putting the points scored so far on Secret Tasks' row of the scoreboard, as each guest's
+ * points for the task (none for anyone on nothing); the big screen goes back to the curtain.
+ */
+export async function endReveal(code: string, session: Session) {
+  const reveal = revealOf(session);
+  const board = session.scoreboard;
+  const id = taskFor(board, "secretTasks");
+  if (reveal && id && reveal.scores) {
+    const points = pointsOf(reveal);
+    const given: Record<string, number | null> = Object.fromEntries(Object.keys(board?.contestants ?? {}).map((c) => [c, null]));
+    for (const [uid, n] of Object.entries(points)) {
+      const c = session.players?.[uid]?.contestant ?? Object.entries(board?.contestants ?? {}).find(([, x]) => x.uid === uid)?.[0];
+      if (c && c in given && n > 0) given[c] = n;
+    }
+    await enterPoints(code, board, session.display?.step === "scoreboard", id, { given });
+  }
   await setDisplay(code, { step: "list" });
   await remove(ref(db(), `sessions/${code}/games/secretTasks/reveal`));
 }

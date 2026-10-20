@@ -47,6 +47,16 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
     : `${contestants.filter(([c]) => worked.points[c] !== undefined).length} of ${contestants.length} scored`;
   const bonuses = contestants.reduce((n, [c]) => n + bonusOf(task, c), 0);
 
+  // Secret Tasks scores itself: the reveal works the points out, and they land here when the host lowers the curtain.
+  if (task.game === "secretTasks") {
+    return (
+      <section className="sb-points">
+        <h2>Points</h2>
+        <p className="muted small">{status} · from the reveal, when you lower the curtain</p>
+        {allScored(board, task) && <button className="big" onClick={onDone}>Done: back to Run of show →</button>}
+      </section>
+    );
+  }
   if (!contestants.length) {
     return <section className="sb-points"><h2>Points</h2><p className="muted small">No contestants yet. Add them on Plan the party.</p></section>;
   }

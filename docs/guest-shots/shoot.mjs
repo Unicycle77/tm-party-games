@@ -62,6 +62,11 @@ const SHOTS = {
     await p.evaluate(() => window.scrollTo(0, 0)); // the sticky header would otherwise land mid-page
   }],
   "guest-join-code": ["join-code"],
+  // Secret Tasks as the last task: the reveal's title card up, Part 2 behind a plain "Show the task", no point buttons
+  "secret-reveal-host-title": ["host-secret-title"],
+  "secret-reveal-main-part2": ["tv-secret-part2"],
+  // its ✎ page: Part 1 (the rules) and Part 2 (the reveal), the built-in words for a new party
+  "secret-tasks-edit-parts": ["host-secret-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); await p.evaluate(() => window.scrollTo(0, 0)); }],
   // the contestants on Plan the party, tall thumbnails, Greg's tapped: Crop or Replace photo
   "headshot-crop-choice": ["host-plan-crop", "", async (p) => { await p.getByRole("button", { name: "Change Greg's headshot" }).click(); }, "section:has(.sb-contestant-list)"],
   // back on the list after Save: Greg's tall thumbnail shows his crop

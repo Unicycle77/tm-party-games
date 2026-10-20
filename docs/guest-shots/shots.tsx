@@ -7,6 +7,7 @@ import { HostPage } from "../../src/HostPage";
 import { Screen } from "../../src/Screen";
 import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
+import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
@@ -104,6 +105,17 @@ function build() {
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
       g.secretTasks!.reveal = { order: ["sam", "alex", "greg", "mei", "priya", "tom"], index: 0, ...(shot === "tv-secret" ? { task: "Hum a tune only you know." } : {}), startedAt: 1 };
       break;
+    // Secret Tasks as the last task, with the built-in Part 1 and Part 2: the reveal's title card is up (or Part 2 is, on the big screen).
+    case "host-secret-title": case "tv-secret-part2": case "host-secret-edit":
+      picked(); set("begun", true);
+      Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true]));
+      Object.assign(tasks.t4 as object, { order: 9, ...DEFAULT_WORDS });
+      if (shot !== "host-secret-edit") {
+        task("secretTasks");
+        set("display", shot === "tv-secret-part2" ? { step: "tasktext", task: "t4", part: 1 } : { step: "envelopes" });
+        g.secretTasks!.reveal = { order: ["sam", "alex", "greg", "mei", "priya", "tom"], index: 0, title: true, startedAt: 1 };
+      }
+      break;
     case "host-secret":
       picked(); task("secretTasks"); set("display", { step: "envelopes" }); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).filter((id) => id !== "tom").map((id) => [id, true]));
@@ -162,7 +174,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
