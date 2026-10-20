@@ -321,6 +321,11 @@ export interface Scoreboard {
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
    */
+  /**
+   * The big screen's scoreboard shows a 3 by 4 mosaic of the headshot of anyone not checked in yet. On unless the
+   * host turns it off in Plan the party (false); the photos themselves are never changed.
+   */
+  pixelate?: false;
   tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; parts?: TaskPart[]; winner?: string };
 }
 

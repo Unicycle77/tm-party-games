@@ -23,6 +23,15 @@ const arriving = shot.startsWith("checkin") || shot === "tv-welcome" || shot ===
 // Alex and Greg are always guests, as a nod to the show.
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
 const face = (c: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 125"><rect width="100" height="125" fill="#1a0f08"/><circle cx="50" cy="48" r="22" fill="${c}"/><path d="M8 125 C12 88 32 78 50 78 C68 78 88 88 92 125 Z" fill="${c}"/></svg>`)}`;
+// For the pixelate shots, faces that differ (backdrop, hair, skin, top), so each one's mosaic is its own.
+const portrait = ([bg, hair, skin, top]: string[]) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 100 125"><rect width="100" height="125" fill="${bg}"/><ellipse cx="50" cy="44" rx="27" ry="30" fill="${hair}"/><path d="M6 125 C10 92 30 82 50 82 C70 82 90 92 94 125 Z" fill="${top}"/><rect x="42" y="62" width="16" height="22" fill="${skin}"/><ellipse cx="50" cy="52" rx="20" ry="24" fill="${skin}"/><circle cx="42" cy="50" r="2.4" fill="#1a0f08"/><circle cx="58" cy="50" r="2.4" fill="#1a0f08"/><path d="M42 64 Q50 70 58 64" stroke="#5a2a1c" stroke-width="2.4" fill="none"/></svg>`)}`;
+const PORTRAITS: Record<string, string> = {
+  alex: portrait(["#4a78b0", "#e0b030", "#e8b49a", "#2c3e50"]),
+  greg: portrait(["#d8d0c0", "#6a4a2a", "#c89070", "#8a2a1c"]),
+  mei: portrait(["#7a2a6a", "#1a1010", "#d9a07a", "#c0603a"]),
+  priya: portrait(["#5a6a7a", "#2a1a10", "#a87050", "#3a4a5a"]),
+  sam: portrait(["#c8d0d8", "#3a2418", "#d8a890", "#3a4a8a"]),
+};
 // A wide group shot, Greg on the left: centred in the scoreboard's tall window, he'd be cut in half.
 const group = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 200 120"><rect width="200" height="120" fill="#3a2a1c"/>${[[40, "#8a7556"], [100, "#5a4a36"], [160, "#5a4a36"]].map(([x, c]) => `<circle cx="${x}" cy="46" r="17" fill="${c}"/><path d="M${+x - 34} 120 C${+x - 30} 88 ${+x - 15} 72 ${x} 72 C${+x + 15} 72 ${+x + 30} 88 ${+x + 34} 120 Z" fill="${c}"/>`).join("")}</svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
@@ -53,6 +62,7 @@ function build() {
     ...(shot.endsWith("haul") ? { photo: "/docs/guest-shots/faces/silhouette.jpg" } : !(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.includes("scores") || shot.endsWith("haul")) ? { photo: face("#6b5a44") } : {}),
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
+  if (shot.includes("pixel")) for (const [id, src] of Object.entries(PORTRAITS)) contestants[id]!.photo = src;
   if (shot.startsWith("host-plan-crop") || shot === "host-crop") contestants.greg!.photo = group;
   // Back on the list after Save: the window the crop page shot left on Greg.
   if (shot === "host-plan-cropped" || shot === "tv-scores-cropped" || shot === "host-arrivals") Object.assign(contestants.greg!, { photo: group, crop: { x: 0.05, y: 0.08, w: 0.27, h: 0.59 } });
@@ -129,6 +139,8 @@ function build() {
       if (shot === "host-points") (tasks.t3 as { scores?: Record<string, number> }).scores = { alex: 3, greg: 4, priya: 5, sam: 5 };
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
+    // The scoreboard on the big screen as guests arrive, before any points: Mei and Sam, not in yet, are mosaics.
+    case "tv-pixel-arriving": picked(); set("display", { step: "scoreboard" }); break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
     case "tv-scores-before": case "tv-scores": case "tv-scores-cropped": case "tv-haul": case "host-haul": {
       picked(); set("display", { step: shot.endsWith("haul") ? "haul" : "scoreboard" }); set("begun", true);

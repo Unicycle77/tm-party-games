@@ -87,6 +87,8 @@ const SHOTS = {
   // Run of show before the first task: "Here so far", tall thumbnails, Greg's cropped, Sam not here yet
   "headshot-crop-arrivals": ["host-arrivals", "", undefined, "section.arrivals"],
   "scores-main-before": ["tv-scores-before"],
+  // mid-arrival, before any points: Mei and Sam haven't checked in, so they're 3 by 4 mosaics; Tom has no headshot yet
+  "pixelate-main-arriving": ["tv-pixel-arriving"],
   "scores-main-after": ["tv-scores"],
 };
 const only = process.argv.slice(2);

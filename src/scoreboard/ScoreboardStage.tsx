@@ -2,8 +2,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import blank from "../assets/scoreboard/blank.jpg";
 import frame from "../assets/frame.png";
 import seal from "../assets/scoreboard/seal.png";
-import type { Scoreboard } from "../types";
+import type { Player, Scoreboard } from "../types";
 import { cropFill } from "./crop";
+import { Mosaic } from "./Mosaic";
 import { shownTotals } from "./scoring";
 import "./scoreboard.css";
 
@@ -12,9 +13,10 @@ import "./scoreboard.css";
  * THIRD_PARTY_NOTICES.md): framed headshots swaying over wax seals, lowest score on the left and the
  * leader on the right, enlarged. It shows the totals as of the host's last update; when the host
  * updates, it waits a second, ticks each seal to its new total over two seconds and slides everyone
- * into their new order, just like the original's Play button.
+ * into their new order, just like the original's Play button. Unless the host turned it off, anyone with a
+ * headshot who hasn't checked in yet is a 3 by 4 mosaic of it.
  */
-export function ScoreboardStage({ board }: { board: Scoreboard | undefined }) {
+export function ScoreboardStage({ board, players }: { board: Scoreboard | undefined; players: Record<string, Player> | undefined }) {
   const contestants = Object.entries(board?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order);
   const target = shownTotals(board);
   const ids = contestants.map(([id]) => id);
@@ -76,6 +78,8 @@ export function ScoreboardStage({ board }: { board: Scoreboard | undefined }) {
   const leaders = order.filter((id) => (ranked[id] ?? 0) === top).length;
   // Each headshot as the host cropped it (centred if not); the photo itself is never changed.
   const fill = Object.fromEntries(contestants.map(([id, c]) => [id, c.photo ? cropFill(c.photo, c.crop) : cropFill(blank, undefined)]));
+  const pixelated = (c: (typeof contestants)[number][1]) => board?.pixelate !== false && !!c.photo && !(c.uid && players?.[c.uid]);
+  const byId = Object.fromEntries(contestants);
 
   return (
     <div className="scoreboard-stage">
@@ -88,7 +92,10 @@ export function ScoreboardStage({ board }: { board: Scoreboard | undefined }) {
             <div key={id} className="sb-contestant" style={{ transform: `translateX(${275 * i + 30}px)` }}>
               <div className={`sb-frame-scaler${leader ? (leaders > 2 ? " sb-large" : " sb-larger") : ""}`}>
                 <div className="sb-frame-container" style={{ animationDelay: `${-(ids.indexOf(id) + 1) * 1.25}s` }}>
-                  <div className="sb-fill" style={fill[id]}><div className="sb-shadow" /></div>
+                  <div className="sb-fill" style={pixelated(byId[id]!) ? undefined : fill[id]}>
+                    {pixelated(byId[id]!) && <Mosaic photo={byId[id]!.photo!} crop={byId[id]!.crop} cols={3} rows={4} />}
+                    <div className="sb-shadow" />
+                  </div>
                   <img className="sb-frame" src={frame} alt="" />
                 </div>
               </div>

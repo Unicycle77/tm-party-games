@@ -4,7 +4,7 @@ import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
 import type { HeadshotCrop, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
-import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, uploadHeadshot } from "./data";
+import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, setPixelate, uploadHeadshot } from "./data";
 import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
@@ -174,7 +174,6 @@ function Contestants({ code, session, board, contestants, onCrop }: {
   const linked = new Set(contestants.map(([, c]) => c.uid).filter((u) => u && players[u]));
   const loose = Object.entries(players).filter(([uid]) => !linked.has(uid)).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const [names, setNames] = useState("");
-  const [pixelate, setPixelate] = useState(true);
   const add = (e: React.FormEvent) => {
     e.preventDefault();
     if (!names.trim()) return;
@@ -185,7 +184,7 @@ function Contestants({ code, session, board, contestants, onCrop }: {
   return (
     <section className="sb-contestants">
       <h3>Contestants ({contestants.length})</h3>
-      <div className="toggles"><Toggle label="Pixelate until checked in" on={pixelate} onChange={setPixelate} /></div>
+      <div className="toggles"><Toggle label="Pixelate until checked in" on={board?.pixelate !== false} onChange={(on) => void setPixelate(code, on)} /></div>
       <p className="muted small">On the big screen's scoreboard only. Each face sharpens as they check in.</p>
       <ul className="sb-contestant-list">
         {contestants.map(([id, c]) => (
