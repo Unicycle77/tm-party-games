@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Session } from "../../types";
 import { Status } from "../../guest";
 import { TaskCard } from "../../TaskCard";
-import { RULES, markSeen, pickEnvelope, useMyTask, useSeen } from "./data";
+import { markSeen, rulesOf, pickEnvelope, useMyTask, useSeen } from "./data";
 
 /** How long each letter of the task takes to be typed. */
 const TYPE_MS = 45;
@@ -95,7 +95,7 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
   if (!gotIt) {
     return (
       <>
-        <TaskCard lines={RULES} small />
+        <TaskCard lines={rulesOf(session)} small />
         <button className="big" onClick={() => setGotIt(true)}>Got it: pick an envelope →</button>
       </>
     );
@@ -119,7 +119,7 @@ function Pile({ code, uid, session, onPicked }: { code: string; uid: string; ses
             onMove={(x, y) => setMoved((m) => ({ ...m, [id]: { x, y } }))}
             onPick={() => void pick(id)} />
         ))}
-        {rules && <div className="pile-rules"><TaskCard lines={RULES} small /></div>}
+        {rules && <div className="pile-rules"><TaskCard lines={rulesOf(session)} small /></div>}
       </div>
       {error && <p className="error">{error}</p>}
     </>
@@ -165,7 +165,7 @@ export function SecretEnvelope({ code, uid, session, onPicked = () => {} }: { co
         <button className="help-q" aria-label={rules ? "Hide the rules" : "Read the rules again"} aria-expanded={rules}
           style={open ? { visibility: "hidden" } : undefined} onClick={() => setRules(!rules)}>?</button>
       </h2>
-      {rules && !open && <TaskCard lines={RULES} small />}
+      {rules && !open && <TaskCard lines={rulesOf(session)} small />}
       <div className="env-stack">
         <Envelope open={open} onOpen={() => { setTypeIt(!seen); setOpen(true); setRules(false); }} />
         {open && <Letter task={task} instant={!typeIt} />}

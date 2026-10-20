@@ -32,11 +32,11 @@ export async function beginTask(code: string, session: Session, id: string) {
 }
 
 /** "Show the task": gold, since putting the words up is usually what comes next. Pressed in while they're up; tapping again lowers the curtain. */
-function ShowTask({ code, session, task, gold, onShown }: { code: string; session: Session; task: string; gold: boolean; onShown: () => void }) {
-  const up = session.display?.step === "tasktext" && session.display.task === task;
+function ShowTask({ code, session, task, part = 0, gold, onShown }: { code: string; session: Session; task: string; part?: number; gold: boolean; onShown: () => void }) {
+  const up = session.display?.step === "tasktext" && session.display.task === task && (session.display.part ?? 0) === part;
   return (
     <button className={[gold && "big", up && "pressed"].filter(Boolean).join(" ") || undefined} aria-pressed={up}
-      onClick={() => { if (up) void lowerCurtain(code); else { onShown(); void showTaskText(code, task); } }}>Show the task</button>
+      onClick={() => { if (up) void lowerCurtain(code); else { onShown(); void showTaskText(code, task, part); } }}>Show the task</button>
   );
 }
 
@@ -111,7 +111,9 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   const parts = partsOf(task);
   // A live task puts its words up by radio rows, never gold (it's the host's choice); only an app game has the gold "Show the task".
   const rows = !task.game && parts.length > 0;
-  const textFirst = !!task.text && !rows && !textSeen && !textOn;
+  // Secret Tasks is the reveal: its words are on paper or the guests' phones already, so only Part 2 (the reveal's) can go up, never gold.
+  const secret = task.game === "secretTasks";
+  const textFirst = !secret && !!task.text && !rows && !textSeen && !textOn;
   const startable = task.game && task.game !== "light" && !playing;
   const top = (
     <>
@@ -122,10 +124,11 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       </div>
       <OnScreen code={code} session={session} />
       <LowerIfUp code={code} session={session} />
-      {task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
+      {secret ? parts.length > 1 && <ShowTask code={code} session={session} task={id} part={1} gold={false} onShown={() => setTextSeen(true)} />
+        : task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
       {task.description && <p className="muted small sb-note">{task.description}</p>}
-      {task.text && !rows && <TaskTextCard type={typeOf(task)} text={task.text} />}
+      {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>

@@ -36,6 +36,9 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `main-secret-tasks.jpg` | Secret Tasks on the big screen: "What was Sam's secret?" over the opened envelope, the task on its paper (2026-10-18) |
 | `main-secret-sealed.jpg` | Main screen during the Secret Tasks reveal before the envelope opens: "What was Sam's secret?" over the sealed envelope with the red TM wax seal (taken 2026-10-18 from the ABCD party) |
 | `guest-secret-open.jpg` | Sam's opened envelope on the guest phone: the task on its paper, "Seal it again", the to-do list with the secret envelope "picked" (2026-10-18) |
+| `secret-reveal-host-title.jpg` | Secret Tasks as the last task (8 of 8), the reveal's title card up: a paper "Show the task" (Part 2), no task card, gold "First up: Sam →", and Points as only "0 of 6 scored · from the reveal, when you lower the curtain", no chips (2026-10-20, ABCD party) |
+| `secret-reveal-main-part2.jpg` | The big screen with Secret Tasks' Part 2 up: "SECRET TASKS · Divulge each other's secrets." on the task card (2026-10-20, ABCD party) |
+| `secret-tasks-edit-parts.jpg` | Secret Tasks' ✎ page, Task text open: Part 1 (the rules, SECRET TASK) and Part 2 (the reveal, SECRET TASKS), the built-in words a new party starts with (2026-10-20, ABCD party) |
 | `guest-noisemaster-watch.jpg` | Watching a Noisemaster turn: no card, "Alex is at the soundboard. Watch the big screen." |
 
 Host phone (`/host`, 390px wide):

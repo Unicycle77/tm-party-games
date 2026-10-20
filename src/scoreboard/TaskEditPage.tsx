@@ -167,7 +167,8 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
               <button type="button" className="link" onClick={() => setParts(parts.filter((x) => x.k !== p.k))}>✕ Remove this part</button>
             </div>
           ))}
-          {parts.length + 1 < MAX_PARTS && !task.game && (
+          {/* App tasks have one part, except Secret Tasks: the rules, then the reveal. */}
+          {(task.game === "secretTasks" ? parts.length === 0 : parts.length + 1 < MAX_PARTS && !task.game) && (
             <button type="button" className="link" onClick={() => setParts([...parts, { k: nextKey.current++, type: "", text: "" }])}>+ Add a part</button>
           )}
         </Extra>
