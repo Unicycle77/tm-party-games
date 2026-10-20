@@ -26,3 +26,8 @@
 .stage-box .frame img { width: auto !important; height: 220px; }
 .stage-box .stage-label { font-size: 1.15rem; bottom: 12px; }
 .mini-phone { width: 100%; }
+
+/* The scoreboard's mosaic outside the stage (scoreboard.css styles it there). */
+.crop-fill .sb-mosaic { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.mosaic-steps { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mosaic-steps .crop-frame { height: 6rem; }

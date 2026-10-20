@@ -14,6 +14,7 @@ import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
 import { cropFill } from "../../src/scoreboard/crop";
+import { Mosaic } from "../../src/scoreboard/Mosaic";
 
 const noop = () => {};
 // A wide group shot cropped onto the person on the left, as on the crop page.
@@ -265,6 +266,11 @@ function Sheet() {
               <button className="sb-photo" style={{ flex: "none" }}><span className="sb-photo-fill" style={cropFill(group, crop)} /></button>
             </div>
             <Cap>Headshot crop, the one exception: the window over the whole photo (<code>.crop-window</code>, dots to resize), the scoreboard's frame, and the host's tall thumbnail (<code>.sb-photo</code>), all the same crop</Cap>
+            <div className="mosaic-steps">
+              {[3, 6, 12, 24, 48].map((cols) => <div key={cols} className="crop-frame"><div className="crop-fill"><Mosaic photo={group} crop={crop} cols={cols} rows={(cols * 4) / 3} /></div><img src={frame} alt="" /></div>)}
+              <div className="crop-frame"><div className="crop-fill" style={cropFill(group, crop)} /><img src={frame} alt="" /></div>
+            </div>
+            <Cap>Not checked in yet: the scoreboard's 3 by 4 mosaic of the crop (<code>Mosaic</code>), and the reveal when they check in, a step every 400ms to the photo</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>
