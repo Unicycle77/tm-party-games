@@ -18,7 +18,7 @@ const who = shot.startsWith("host-") ? "host" : q.get("who") ?? "sam";
 const BOARD = ["cheese", "I", "banana", "Noisemaster", "wobble", "am", "Greg", "sausage", "the", "trumpet", "Alex", "moist", "duck", "hello", "spoon", "yes"];
 const SECRETS: Record<string, string> = { alex: "Get three people to high-five you without explaining why.", greg: "Say the word moist in every sentence for ten minutes.", mei: "Get a guest to hold your drink while you tie your shoe.", priya: "Convince someone you have met before.", sam: "Hum a tune only you know.", tom: "Leave mid-sentence and come back with a snack." };
 const midGo = () => ({ player: "sam", phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1, progress: 2, mistakes: 1, firstAt: Date.now() - 23400, last: { key: "k1", i: 5, ok: true } });
-const arriving = shot.startsWith("checkin") || shot === "tv-welcome" || shot === "host-arrivals";
+const arriving = shot.startsWith("checkin") || shot === "tv-welcome" || shot === "host-arrivals" || shot === "host-plan-pixel";
 
 // Alex and Greg are always guests, as a nod to the show.
 const people: Record<string, string> = { alex: "Alex", greg: "Greg", mei: "Mei", priya: "Priya", sam: "Sam", tom: "Tom" };
@@ -46,7 +46,8 @@ const env = (n: number) => {
 
 function build() {
   const ids = Object.keys(people);
-  const checkedIn = new Set(arriving ? ids.filter((id) => id !== "sam") : ids);
+  // Mid-arrival for the pixelate shots: Alex, Greg and Priya are in; Mei, Sam and Tom (no headshot yet) aren't.
+  const checkedIn = new Set(shot.includes("pixel") ? ["alex", "greg", "priya"] : arriving ? ids.filter((id) => id !== "sam") : ids);
   const contestants = Object.fromEntries(ids.map((id, i) => [id, {
     name: people[id], order: i,
     ...(shot.endsWith("haul") ? { photo: "/docs/guest-shots/faces/silhouette.jpg" } : !(shot === "checkin-headshot" && id === who) && (id !== "tom" || shot.includes("scores") || shot.endsWith("haul")) ? { photo: face("#6b5a44") } : {}),
