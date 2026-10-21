@@ -5,7 +5,9 @@ A one-page tour of the app to send to friends: [Taskmaster Party](https://claude
 | File | What it is |
 |---|---|
 | `index.html` | The page. It has no `<html>`/`<head>`/`<body>`: the artifact host adds them when it's published. |
-| `noisemaster.html` | A task page: Noisemaster pitched to a host choosing tasks. The same column, frames and labels, telling one task in its own order: the opening with an At a glance card, 1 · The turn, 2 · On the TV, 3 · The host, and the sign-off with links to every task (`tasks.html`, not made yet) and the next one. Its two phones sit side by side at any width instead of the swipe strip. "How long" is an estimate. |
+| `tasks.html` | The list of every app task, for a host picking the mix for their next party: grouped by how the room plays them (On the spot, Everyone at once, All night, in the background), each task the brochure's index card under its TV picture, two to a row, linking to its page. |
+| `noisemaster.html`, `box.html`, `photos.html`, `before-after.html`, `flipchart.html`, `headshot.html`, `prize.html`, `secret-tasks.html`, `light.html` | A page per task, pitched to a host choosing tasks. The brochure's column, frames and labels, telling one task in its own order: the opening with an At a glance card (who plays, how long, your prep, to bring, winner), then the task, the TV and the host's phone, and a sign-off linking to the list and the next task in the list's order. Phones sit two side by side at any width instead of the swipe strip. The "How long" lines are estimates. |
+| `task-pages.css` | The task pages' and the list's styles: the brochure's own (copied from `index.html`), then what they add. |
 | `img/` | Its images, cropped from `docs/screens` and the project's screenshots, plus the curtain, gold frame and typewriter font from `src/assets`. |
 | `share/` | The page as eight phone-sized pictures (780px wide), one per moment and one per task, to send together in a text. |
 | `export.cjs`, `export.css` | Re-render `share/` after changing the page: `NODE_PATH=$(npm root -g) node docs/showcase/export.cjs`. Which part of the page goes in which picture is the `SHOTS` list at its top. |

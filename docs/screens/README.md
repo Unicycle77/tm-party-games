@@ -257,3 +257,25 @@ Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up par
 | File | What it shows |
 |---|---|
 | `before-after-player-too-long.jpg` | Before & After on a guest's phone: the hint now says "up to 2 minutes", and the error after choosing a longer video ("That video is 2:30 long… Trim it in your phone's Photos app, then choose it again."). A file over 300 MB gets the same kind of error before it's even read |
+
+The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`, for the brochure's task pages in [docs/showcase](../showcase/README.md); the photos are emoji stand-ins and the headshots drawn faces):
+
+| File | What it shows |
+|---|---|
+| `photos-main-photo.jpg` | Photos: best costume on the big screen, Mei's photo (a T-rex) in the gold frame with "Photo · Mei" |
+| `photos-main-everyone.jpg` | Everyone's costume photos at once, six gold frames with name plates |
+| `photos-host-up.jpg` | The host phone's Photos page with Mei's photo on the big screen: "Mei, 3 of 6", Lower the curtain, Points |
+| `headshot-main-photo.jpg` | The Headshot task: Sam's headshot in the gold frame with "Headshot · Sam" |
+| `headshot-main-everyone.jpg` | Everyone's headshots at once |
+| `headshot-host-up.jpg` | The host phone's Headshot page with Sam up: gold "Next: Tom →", the running order with "shown" and "on the big screen" |
+| `before-after-main-both.jpg` | Before & After on the big screen: Sam's before (a full plate of spaghetti) and after (an empty plate) side by side |
+| `before-after-main-everyone.jpg` | Everyone's befores and afters at once (Alex, Greg, Priya, Sam) |
+| `before-after-guest.jpg` | Before & After on Sam's phone before he's sent his: "Your video", empty Before and After frames, gold "Choose your video" |
+| `before-after-host-up.jpg` | The host phone's Before & After page with Sam's up: Before, After, Side by side, Pause and Restart |
+| `box-main-closed.jpg` | [BLANK] in a Box on the big screen: "Eggplant in a Box", Alex's and Greg's boxes closed, Greg's "looked inside" |
+| `box-main-open.jpg` | The boxes opened after "Alex swapped!": the eggplant in Alex's frame, Greg's box empty |
+| `box-guest-peek.jpg` | Greg's phone: "You're the peeker. Only you can look.", the box and gold "Hold to peek" |
+| `box-guest-decide.jpg` | Alex's phone: "Swap boxes with Greg, or keep yours?", Swap boxes and Keep my box |
+| `box-host.jpg` | The host phone's Box page mid-round: "Alex and Greg", "Greg can look inside", "Waiting for Alex to swap or keep…", Open Alex's box and Open Greg's box |
+| `light-main-lit.jpg` | The light computer's page with the bulb lit (red, one secret) over the curtain |
+| `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |
