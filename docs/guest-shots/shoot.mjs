@@ -26,6 +26,7 @@ const SHOTS = {
   // the big screen, 1600x900: same party as the check-in shots
   "main-welcome": ["tv-welcome"],
   "main-noisemaster": ["tv-noisemaster"],
+  "main-noisemaster-done": ["tv-noisemaster-done"],
   "main-secret-tasks": ["tv-secret"],
   "prize-main-photo": ["tv-prize"],
   "prize-host-up": ["host-prize"],
@@ -33,6 +34,32 @@ const SHOTS = {
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page
   "noisemaster-host-round": ["host-noisemaster"],
+  // the task pages (docs/showcase): Photos, Headshot, Before & After, [BLANK] in a Box and the light
+  "photos-main-photo": ["tv-photos"],
+  "photos-main-everyone": ["tv-photos-grid", "", async (p) => { await p.waitForTimeout(11000); await readyPics(p); }],
+  "photos-host-up": ["host-photos"],
+  "headshot-main-photo": ["tv-headshot"],
+  "headshot-main-everyone": ["tv-headshot-grid", "", async (p) => { await p.waitForTimeout(11000); await readyPics(p); }],
+  "headshot-host-up": ["host-headshot"],
+  "before-after-main-both": ["tv-beforeafter"],
+  "before-after-main-everyone": ["tv-beforeafter-review", "", async (p) => { await p.waitForTimeout(11000); await readyPics(p); }],
+  "before-after-guest": ["task-beforeafter"],
+  "before-after-host-up": ["host-beforeafter"],
+  "box-main-closed": ["tv-box"],
+  "box-main-open": ["tv-box-open"],
+  "box-guest-peek": ["task-box-peek"],
+  "box-guest-decide": ["task-box-decide"],
+  "box-host": ["host-box"],
+  "light-main-lit": ["tv-light", "", async (p) => { await p.waitForTimeout(3000); }],
+  "light-host-got-it": ["host-light"],
+  "light-main-all": ["tv-light-all", "", async (p) => { await p.waitForTimeout(3000); }],
+  "light-host-change": ["host-light-change", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
+  "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
+    await p.getByRole("button", { name: "Sam", exact: true }).click();
+    await p.getByPlaceholder(/quick brown fox/).fill("I am the Noisemaster");
+    await p.getByPlaceholder(/cat dog banana/).fill("cheese banana wobble Greg sausage trumpet Alex moist duck hello spoon yes");
+    await p.evaluate(() => window.scrollTo(0, 0));
+  }],
   "run-of-show-host": ["host-run"],
   "run-of-show-host-arrivals": ["host-arrivals"],
   "points-host-given": ["host-points"],
@@ -102,6 +129,9 @@ const SHOTS = {
   "pixelate-main-arriving": ["tv-pixel-arriving"],
   "scores-main-after": ["tv-scores"],
 };
+// The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:
+// once its 10 s fallback has shown the grid, mark the frames ready, as they are once a real photo loads.
+async function readyPics(p) { await p.evaluate(() => document.querySelectorAll(".review .pic").forEach((e) => e.classList.add("ready"))); await p.waitForTimeout(800); }
 const only = process.argv.slice(2);
 const browser = await chromium.launch();
 for (const [name, [shot, extra = "", before, part]] of Object.entries(SHOTS)) {

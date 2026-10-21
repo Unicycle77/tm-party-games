@@ -44,36 +44,48 @@ function face(variant: number): { c: number; pts: Pt[] }[] {
   return shapes;
 }
 
-/** Where a point is on its page, as a pen on that page would draw it: clamped to the page, and turned for the pages printed upside down. */
-const onPage = (x: number, y: number, col: number, row: number): number[] => {
+/**
+ * How the guest read the front page, as at a real party: "pattern" followed it and drew the four upside-down pages upside down (a
+ * clean face); "upright" followed it but drew every page upright, so those four land upside down; "reading" took the pages to run
+ * in reading order (1 to 4 across the top), "columns" took them to run down each column, and "backwards" started at 16 in the top
+ * left: each of those lands scrambled in its own way.
+ */
+export type Reading = "pattern" | "upright" | "reading" | "columns" | "backwards";
+
+/** The page a guest drawing at this spot of their imagined chart is on. */
+const pageAt = (col: number, row: number, how: Reading) =>
+  how === "reading" ? row * 4 + col + 1 : how === "columns" ? col * 4 + row + 1 : how === "backwards" ? 16 - (row * 4 + col) : PATTERN[row]![col]!;
+
+/** Where a point is on its page, as a pen on that page would draw it: clamped to the page, and turned for the pages printed upside down if the guest turned them. */
+const onPage = (x: number, y: number, col: number, row: number, how: Reading): number[] => {
   const lx = Math.round(Math.min(PAGE_W, Math.max(0, x - col * PAGE_W))), ly = Math.round(Math.min(PAGE_H, Math.max(0, y - row * PAGE_H)));
-  return UPSIDE_DOWN.has(PATTERN[row]![col]!) ? [PAGE_W - lx, PAGE_H - ly] : [lx, ly];
+  return how === "pattern" && UPSIDE_DOWN.has(PATTERN[row]![col]!) ? [PAGE_W - lx, PAGE_H - ly] : [lx, ly];
 };
 const cellOf = (x: number, y: number): [number, number] => [Math.min(3, Math.max(0, Math.floor(x / PAGE_W))), Math.min(3, Math.max(0, Math.floor(y / PAGE_H)))];
 
 /** The 16 pages, `p1`…`p16`, as the strokes a guest's phone would have saved. */
-export function portraitPages(variant: number): Record<string, string> {
+export function portraitPages(variant: number, how: Reading = "pattern"): Record<string, string> {
   const pages: Stroke[][] = Array.from({ length: 16 }, () => []);
   for (const { c, pts } of face(variant)) {
     let run: { page: number; p: number[] } | undefined;
     let prev: Pt | undefined;
     for (const [x, y] of pts) {
       const [col, row] = cellOf(x, y);
-      const page = PATTERN[row]![col]!;
+      const page = pageAt(col, row, how);
       let carried: Pt | undefined;
       if (run && run.page !== page) {
         // the pen runs off one page and onto the next: each keeps its own end of the line
         const [pc, pr] = cellOf(prev![0], prev![1]);
-        run.p.push(...onPage(x, y, pc, pr));
+        run.p.push(...onPage(x, y, pc, pr, how));
         run = undefined;
         carried = prev;
       }
       if (!run) {
         run = { page, p: [] };
         pages[page - 1]!.push({ c, p: run.p });
-        if (carried) run.p.push(...onPage(carried[0], carried[1], col, row));
+        if (carried) run.p.push(...onPage(carried[0], carried[1], col, row, how));
       }
-      run.p.push(...onPage(x, y, col, row));
+      run.p.push(...onPage(x, y, col, row, how));
       prev = [x, y];
     }
   }

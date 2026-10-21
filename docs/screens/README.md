@@ -29,14 +29,16 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `flipchart-guest-send.jpg` | The last page asks "Send your portrait? You can't change it after." (send is only ever on page 16) (2026-10-21) |
 | `flipchart-guest-sent.jpg` | Sent: the front page closed, "✓ Submitted" and the locked line (2026-10-21) |
 | `flipchart-main-clock.jpg` | The big screen while they draw: the show's clock as the one focus, the tally beside it (2026-10-21) |
-| `flipchart-main-portrait.jpg` | One guest's finished portrait in the gold frame, pages in the show's pattern (2026-10-21) |
-| `flipchart-main-everyone.jpg` | Everyone's portraits at once; Tom's is blank and still shown (2026-10-21) |
+| `flipchart-main-portrait.jpg` | Sam's finished portrait in the gold frame, pages in the show's pattern; he drew as if the pages ran in reading order, so his face lands scrambled (re-shot 2026-10-21) |
+| `flipchart-main-everyone.jpg` | Everyone's portraits at once, mostly in pieces as at a real party: only Greg followed the front page (a clean face), Mei forgot to turn the upside-down pages, Alex and Sam drew in reading order, Priya down the columns and Tom starting from 16 (re-shot 2026-10-21) |
 | `flipchart-host-start.jpg` | Host task page before the start: the clock at its limit and gold "Your time starts now" (2026-10-21) |
 | `flipchart-host-live.jpg` | Host task page while it runs: the clock, "+5 minutes", "End now: send everyone's" (2026-10-21) |
 | `flipchart-host-edit.jpg` | The task's ✎ page: what they draw and the time limit (10, 15, 20 or 30 minutes) (2026-10-21) |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
-| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
+| `main-noisemaster-done.jpg` | Noisemaster on the big screen when the go is finished: all four words as gold tiles, the clock stopped at 0:41.3, "4 of 4 words", "2 restarts" and the ✓ Done stamp (2026-10-21) |
+| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-21) |
+| `noisemaster-host-setup.jpg` | The host phone's Noisemaster page before a go, whole page: Sam picked, "I am the Noisemaster" typed as the phrase, twelve decoys, "16 different words." and the gold Start Noisemaster (no sound files, so the main screen says the words) (2026-10-21) |
 | `run-of-show-host.jpg` | Host phone: the Run of show, "Show QR" by the code, "Show scores" under the big-screen line, the "Up next" card with the gold Start button and "app task" on the card, and all eight tasks (party ABCD, 2026-10-19) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
@@ -255,3 +257,27 @@ Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up par
 | File | What it shows |
 |---|---|
 | `before-after-player-too-long.jpg` | Before & After on a guest's phone: the hint now says "up to 2 minutes", and the error after choosing a longer video ("That video is 2:30 long… Trim it in your phone's Photos app, then choose it again."). A file over 300 MB gets the same kind of error before it's even read |
+
+The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`, for the brochure's task pages in [docs/showcase](../showcase/README.md); the photos are emoji stand-ins and the headshots drawn faces):
+
+| File | What it shows |
+|---|---|
+| `photos-main-photo.jpg` | Photos: best costume on the big screen, Mei's photo (a T-rex) in the gold frame with "Photo · Mei" |
+| `photos-main-everyone.jpg` | Everyone's costume photos at once, six gold frames with name plates |
+| `photos-host-up.jpg` | The host phone's Photos page with Mei's photo on the big screen: "Mei, 3 of 6", Lower the curtain, Points |
+| `headshot-main-photo.jpg` | The Headshot task: Sam's headshot in the gold frame with "Headshot · Sam" |
+| `headshot-main-everyone.jpg` | Everyone's headshots at once |
+| `headshot-host-up.jpg` | The host phone's Headshot page with Sam up: gold "Next: Tom →", the running order with "shown" and "on the big screen" |
+| `before-after-main-both.jpg` | Before & After on the big screen: Sam's before (a full plate of spaghetti) and after (an empty plate) side by side |
+| `before-after-main-everyone.jpg` | Everyone's befores and afters at once (Alex, Greg, Priya, Sam) |
+| `before-after-guest.jpg` | Before & After on Sam's phone before he's sent his: "Your video", empty Before and After frames, gold "Choose your video" |
+| `before-after-host-up.jpg` | The host phone's Before & After page with Sam's up: Before, After, Side by side, Pause and Restart |
+| `box-main-closed.jpg` | [BLANK] in a Box on the big screen: "Eggplant in a Box", Alex's and Greg's boxes closed, Greg's "looked inside" |
+| `box-main-open.jpg` | The boxes opened after "Alex swapped!": the eggplant in Alex's frame, Greg's box empty |
+| `box-guest-peek.jpg` | Greg's phone: "You're the peeker. Only you can look.", the box and gold "Hold to peek" |
+| `box-guest-decide.jpg` | Alex's phone: "Swap boxes with Greg, or keep yours?", Swap boxes and Keep my box |
+| `box-host.jpg` | The host phone's Box page mid-round: "Alex and Greg", "Greg can look inside", "Waiting for Alex to swap or keep…", Open Alex's box and Open Greg's box |
+| `light-main-lit.jpg` | The light computer's page with the bulb lit (red, one secret) over the curtain |
+| `light-main-all.jpg` | The light computer's page in "All at once": six bulbs in their own colours, red (stops smiling) and blue (raises an arm) just gone on |
+| `light-host-change.jpg` | The host's 💡 page with Change open: One secret, Smiles or All at once, then the seven secrets with Stops smiling picked |
+| `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |

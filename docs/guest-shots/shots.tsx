@@ -9,12 +9,14 @@ import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
 import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
 import { flipchartDefaults } from "../../src/games/flipchart/data";
-import { portraitPages } from "./portraits";
+import { portraitPages, type Reading } from "./portraits";
+import { Bulb } from "../../src/light/Bulb";
+import { MODES } from "../../src/light/triggers";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
 const shot = q.get("shot") ?? "home-waiting";
-const who = shot.startsWith("host-") ? "host" : q.get("who") ?? "sam";
+const who = shot.startsWith("host-") ? "host" : shot === "task-box-peek" ? "greg" : shot === "task-box-decide" ? "alex" : q.get("who") ?? "sam";
 // The check-in shots and the TV's welcome are one moment of one party: everyone but Sam is already in, and he's the last to check in.
 // Noisemaster mid-go: Sam has said "I am" of "I am the Noisemaster", on the board the host set up.
 const BOARD = ["cheese", "I", "banana", "Noisemaster", "wobble", "am", "Greg", "sausage", "the", "trumpet", "Alex", "moist", "duck", "hello", "spoon", "yes"];
@@ -34,6 +36,7 @@ const PORTRAITS: Record<string, string> = {
   priya: portrait(["#5a6a7a", "#2a1a10", "#a87050", "#3a4a5a"]),
   sam: portrait(["#c8d0d8", "#3a2418", "#d8a890", "#3a4a8a"]),
 };
+const TOM = portrait(["#3a5a3a", "#b04a20", "#e0b090", "#d8c070"]);
 // A wide group shot, Greg on the left: centred in the scoreboard's tall window, he'd be cut in half.
 const group = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 200 120"><rect width="200" height="120" fill="#3a2a1c"/>${[[40, "#8a7556"], [100, "#5a4a36"], [160, "#5a4a36"]].map(([x, c]) => `<circle cx="${x}" cy="46" r="17" fill="${c}"/><path d="M${+x - 34} 120 C${+x - 30} 88 ${+x - 15} 72 ${x} 72 C${+x + 15} 72 ${+x + 30} 88 ${+x + 34} 120 Z" fill="${c}"/>`).join("")}</svg>`)}`;
 const pic = (e: string, bg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90"><rect width="120" height="90" fill="${bg}"/><text x="60" y="58" font-size="40" text-anchor="middle">${e}</text></svg>`)}`;
@@ -65,6 +68,8 @@ function build() {
     ...(checkedIn.has(id) && !arriving ? { uid: id } : {}),
   }]));
   if (shot.includes("pixel")) for (const [id, src] of Object.entries(PORTRAITS)) contestants[id]!.photo = src;
+  // The task pages' Headshot shots: everyone's own face.
+  if (shot.includes("headshot")) for (const [id, src] of Object.entries({ ...PORTRAITS, tom: TOM })) contestants[id]!.photo = src;
   if (shot.startsWith("host-plan-crop") || shot === "host-crop") contestants.greg!.photo = group;
   // Back on the list after Save: the window the crop page shot left on Greg.
   if (shot === "host-plan-cropped" || shot === "tv-scores-cropped" || shot === "host-arrivals") Object.assign(contestants.greg!, { photo: group, crop: { x: 0.05, y: 0.08, w: 0.27, h: 0.59 } });
@@ -88,8 +93,13 @@ function build() {
     order: 7, name: "Sock puppet show", type: "Team",
     text: "Make a puppet from one sock and put on a show.\n\nYou have 5 minutes. Best show wins.",
   };
-  // Flipchart is one task, the ninth; its clock has 14:30 or so to go in the live shots.
-  if (shot.includes("flipchart")) tasks.t9 = { order: 9, game: "flipchart", ...flipchartDefaults() };
+  // Flipchart takes the eighth task's place, so the party still has eight; its clock has 14:30 or so to go in the live shots.
+  if (shot.includes("flipchart")) tasks.t8 = { order: 8, game: "flipchart", ...flipchartDefaults() };
+  // The task pages' shots of Before & After, [BLANK] in a Box and the light.
+  // They take the place of a live task, so the party still has eight.
+  if (shot.includes("beforeafter")) tasks.t6 = { order: 6, game: "beforeAfter", text: "Film the most satisfying before and after." };
+  if (shot.includes("box")) tasks.t7 = { order: 7, game: "box" };
+  if (shot.includes("light")) tasks.t8 = { order: 8, game: "light", results: { sam: 1, priya: 2 } };
   const session: Record<string, unknown> = {
     hostUid: "host", name: "Halloween party",
     players: Object.fromEntries(ids.filter((id) => checkedIn.has(id)).map((id, i) => [id, { name: people[id], joinedAt: i, contestant: id }])),
@@ -112,6 +122,12 @@ function build() {
     case "prize-check": picked(); q.set("pick", "1"); break;
     case "noisemaster-up": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: who, phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1 } }; break;
     case "noisemaster-watch": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: "alex", phrase: ["I", "am"], startedAt: 1 } }; break;
+    // Noisemaster finished: Sam's same go, all four words said and the clock stopped.
+    case "tv-noisemaster-done":
+      picked(); task("noisemaster"); g.noisemaster = { round: { ...midGo(), progress: 4, mistakes: 2, doneAt: Date.now() - 400, firstAt: Date.now() - 41700, last: { key: "k3", i: 3, ok: true } } }; set("display", { step: "soundboard" }); set("begun", true);
+      break;
+    // Noisemaster before a go: the host's setup, Sam picked and the phrase and decoys typed in (no sound files).
+    case "host-noisemaster-setup": picked(); task("noisemaster"); set("begun", true); break;
     case "tv-noisemaster": case "host-noisemaster": case "host-run":
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
       break;
@@ -182,8 +198,11 @@ function build() {
       const fc: Record<string, unknown> = {};
       if (live || over) Object.assign(fc, { startedAt: now - 5.5 * 60_000, endsAt: now + 14.5 * 60_000 });
       if (over) Object.assign(fc, { startedAt: now - 20 * 60_000, endsAt: now - 1000, closed: true });
-      const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people).filter((id) => id !== "tom") : [];
-      fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id))]));
+      const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people) : [];
+      // Mostly in pieces, as at a real party: only Greg followed the front page and Mei forgot to turn the upside-down pages; Sam and Alex
+      // drew in reading order, Priya down the columns, and Tom started from 16.
+      const reading: Record<string, Reading> = { greg: "pattern", mei: "upright", alex: "reading", sam: "reading", priya: "columns", tom: "backwards" };
+      fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id), reading[id])]));
       if (shot.includes("sent")) fc.submitted = { sam: true };
       if (over) fc.submitted = Object.fromEntries(drawers.map((id) => [id, true]));
       g.flipchart = fc;
@@ -191,6 +210,47 @@ function build() {
       if (shot === "tv-flipchart-everyone") set("display", { step: "portraits" });
       break;
     }
+    // Photos: best costume. Mei's photo on the big screen, everyone's at once, and the host's page with all six in.
+    case "tv-photos": case "tv-photos-grid": case "host-photos": {
+      picked(); task("photos"); g.photos!.task = "t2"; set("begun", true);
+      const costumes: [string, string, string][] = [["alex", "🧛", "#2a1a2a"], ["greg", "🎃", "#3a2410"], ["mei", "🦖", "#1a2a1a"], ["priya", "👻", "#2a2a3a"], ["sam", "🧙", "#2a1a10"], ["tom", "🤖", "#1a2430"]];
+      for (const [id, e, bg] of costumes) (g.photos!.media as Record<string, unknown>)[id] = { photo: pic(e, bg) };
+      if (shot === "tv-photos") set("display", { step: "photo", uid: "mei" });
+      if (shot === "tv-photos-grid") set("display", { step: "grid" });
+      if (shot === "host-photos") set("display", { step: "photo", uid: "mei" });
+      break;
+    }
+    // Headshot: Sam's on the big screen, everyone's at once, and the host's page with Sam up.
+    case "tv-headshot": case "tv-headshot-grid": case "host-headshot":
+      picked(); task("headshots"); set("begun", true);
+      set("display", shot === "tv-headshot-grid" ? { step: "grid" } : { step: "photo", contestant: "sam" });
+      g.headshots = { shown: { alex: true, greg: true, mei: true, priya: true, sam: true } };
+      break;
+    // Before & After: Sam's before and after side by side on the big screen, his phone sending them, and the host's page.
+    case "tv-beforeafter": case "tv-beforeafter-review": case "task-beforeafter": case "host-beforeafter": {
+      picked(); q.set("later", "1"); task("beforeAfter"); set("begun", true);
+      const ba: Record<string, unknown> = {};
+      for (const [id, b, a] of [["alex", "🧶", "🧣"], ["greg", "🥚", "🍳"], ["priya", "🌱", "🌻"], ["sam", "🍝", "🍽️"]]) ba[id!] = { before: pic(b!, "#2a1a10"), after: pic(a!, "#2a1a10") };
+      if (shot === "task-beforeafter") delete ba.sam;
+      g.beforeAfter = { media: ba };
+      if (shot !== "task-beforeafter") set("display", shot === "tv-beforeafter-review" ? { step: "review" } : { step: "both", uid: "sam" });
+      break;
+    }
+    // [BLANK] in a Box: Alex and Greg, Greg peeked, Alex has to choose; the big screen, both phones and the host's.
+    case "tv-box": case "tv-box-open": case "task-box-peek": case "task-box-decide": case "host-box": {
+      picked(); q.set("later", "1"); task("box"); set("begun", true);
+      const round: Record<string, unknown> = { object: "eggplant", players: { a: "alex", b: "greg" }, peeker: "greg", startedAt: 1 };
+      if (shot === "tv-box-open") Object.assign(round, { decision: "swap", revealed: { L: "empty", R: "object" } });
+      g.box = { round, played: { alex: true, greg: true } };
+      set("display", { step: "boxes" });
+      break;
+    }
+    // The light: the bulb lit on the light computer, and the host's 💡 page with Sam and Priya already got it.
+    case "tv-light": case "tv-light-all": case "host-light": case "host-light-change":
+      picked(); set("begun", true);
+      set("lightUid", "light-pc");
+      set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
+      break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
@@ -200,7 +260,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box", "host-light", "host-light-change"].includes(shot)) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list" && shot !== "join-code";
 localStorage.clear();
@@ -214,8 +274,8 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t9" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t9" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
-seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" || shot === "host-light-change" ? { view: "light" } : { view: "task", task: "t5" })); }
+seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } }, boxSecrets: { [CODE]: { inBox: "R" } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
 const root = createRoot(document.getElementById("root")!);
@@ -225,4 +285,8 @@ const root = createRoot(document.getElementById("root")!);
   (session.players as Record<string, unknown>)[id] = { name: people[id], joinedAt: 9, contestant: id };
   root.render(<Screen code={CODE} session={structuredClone(session) as unknown as Session} viewOnly />);
 };
-root.render(shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);
+// "All at once": every trigger's bulb in its own colour, two of them just gone on.
+const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
+root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
+  shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);
