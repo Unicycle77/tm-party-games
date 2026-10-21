@@ -94,7 +94,7 @@ Main screen (`/`, 1600×900):
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
 | `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
 | `converter-main-fraction.jpg` | The same with a fraction: "exactly 1/300 the height of Big Ben" |
-| `converter-main-jimothy.jpg` | Jimothy on the big screen: the Eiffel Tower's height typed in, "330 m tall is / about 2,165 Jimothys / the Ballard raccoon, at the shoulder" (2026-10-21) |
+| `converter-main-jimothy.jpg` | Started from a thing (2026-10-21): "The Eiffel Tower is / about 2,165 Jimothys / the Ballard raccoon, at the shoulder", the thing named and its 330 m left out |
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
 | `main-curtain-join-qr.jpg` | The curtain while the host remote's "Show QR code" is open: the join QR in the bottom-right corner, above the address (taken 2026-10-13, stand-in portrait) |
 
@@ -181,6 +181,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-imperial-first.jpg` | At an imperial party (2026-10-18): the units above "How much?", "in ft mm cm m", opening on ft with its two boxes, ft and in, even on a phone that last used cm |
 | `converter-host-feet-inches.jpg` | 5 ft 11 in typed in the two boxes: "5 ft 11 in tall is / about 1.23 Danny DeVitos" and "5 ft 11 in · Danny DeVito is about 4 ft 9 ¾ in" (2026-10-18) |
 | `converter-host-pounds-ounces.jpg` | 1 lb 8 oz: "1 lb 8 oz is / 1.82 pounds of gold" and the label-style "24 oz (1 lb 8 oz) · a pound of gold is 13 ¼ oz" (2026-10-18) |
+| `converter-host-find-thing.jpg` | "a thing ▴" open under the units (2026-10-21): "Find a thing…" with "eif" typed, leaving Eiffel Tower · 330 m |
+| `converter-host-thing.jpg` | The Eiffel Tower picked as the starting thing, "How much?" a count (1), and Jimothys chosen from "Use a different unit": "The Eiffel Tower is / about 2,165 Jimothys" and "1 Eiffel Tower = 330 m · Jimothy is about 15.24 cm" (2026-10-21) |
 | `converter-host-dice-imperial.jpg` | A task's unit at an imperial party: "39 dice tall is / 5.11 soda cans" and "39 dice = 2 ft ½ in · a soda can is 4 ¾ in" (2026-10-18) |
 | `host-party-units.jpg` | Plan the party's summary line open: "… · pin set · imperial", and "📏 Conversions in" with Metric and Imperial (2026-10-18) |
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |

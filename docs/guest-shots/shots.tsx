@@ -185,6 +185,9 @@ function build() {
       break;
     case "host-reset": picked(); set("begun", true); Object.assign(tasks.t1 as object, { scores: { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 } }); break;
     case "host-onepart": set("begun", true); break;
+    // 📏 started from a thing: the Eiffel Tower in Jimothys
+    case "host-convert": set("begun", true); break;
+    case "tv-convert": set("conversion", { lead: "The Eiffel Tower is", main: "about 2,165 Jimothys", how: "the Ballard raccoon, at the shoulder" }); set("begun", true); break;
     case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
     // Flipchart: before the clock starts (words and the front page), mid-drawing (page 7 of Sam's, see below), on the last page asking to send, sent;
     // on the big screen the clock, one finished portrait, and everyone's; on the host's phone before the start and while it runs, and its ✎ page.

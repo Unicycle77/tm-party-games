@@ -3,11 +3,15 @@ import { scored, sorted, titleOf } from "../scoreboard/tasks";
 import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
-import { COMMON, commonFor, feetAndInches, firstUnit, ofSystem, type System, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, toAnchor, working, type Match } from "./convert";
+import { COMMON, commonFor, feetAndInches, firstUnit, ofSystem, type System, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, sizeText, toAnchor, working, type Match } from "./convert";
 import { UNITS, type Kind } from "./units";
 
 const UNIT_KEY = "ba.convertUnit";
-type Source = { task: string } | { kind: Kind; unit: string };
+/** A task's unit, a common unit, or a useless unit itself (`thing`, its `many`): "2 Eiffel Towers". */
+type Source = { task: string } | { kind: Kind; unit: string; thing?: string };
+
+/** For finding a thing by name: lower case, without accents, so "timothee" finds Timothée Chalamet. */
+const plain = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 /**
  * The last common unit this phone measured in ("height:cm"), so a run of the same task is one tap each. A unit from
@@ -35,37 +39,44 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   };
   const [typed, setTyped] = useState("");
   const [typedIn, setTypedIn] = useState("");
+  // The list of things to start from, and what's typed to find one.
+  const [finding, setFinding] = useState(false);
+  const [find, setFind] = useState("");
 
   const taskUnit = "task" in source ? session.scoreboard?.tasks?.[source.task]?.unit : undefined;
   // A task whose unit was removed falls back to the common units.
   const common = "unit" in source ? source : lastCommon(session.units);
+  const thing = !taskUnit && "thing" in source ? UNITS[common.kind].find((u) => u.many === source.thing) : undefined;
   // At an imperial party, feet come with an inches box (5 ft 11 in, the way a height is said: a phone's number pad has
   // no ' or "), and pounds with an ounces box (1 lb 8 oz).
-  const split = session.units !== "imperial" || taskUnit ? undefined
+  const split = session.units !== "imperial" || taskUnit || thing ? undefined
     : common.unit === "ft" ? { small: "in", per: 12, hint: ["5", "11"] } : common.unit === "lb" ? { small: "oz", per: 16, hint: ["1", "8"] } : undefined;
   const amount = Number(typed.replace(",", ".")) + (split ? Number(typedIn.replace(",", ".")) / split.per : 0);
   const kind: Kind = taskUnit?.kind ?? common.kind;
   // Abbreviations read the same for any number ("2 kg"); "cup" is the one word among them.
-  const label = taskUnit?.name ?? (common.unit === "cup" && amount !== 1 ? "cups" : common.unit);
-  const anchor = taskUnit ? toAnchor(amount * taskUnit.amount, taskUnit.unit) : toAnchor(amount, common.unit);
+  const label = thing ? (amount === 1 ? thing.one : thing.many) : taskUnit?.name ?? (common.unit === "cup" && amount !== 1 ? "cups" : common.unit);
+  const anchor = thing ? amount * thing.size : taskUnit ? toAnchor(amount * taskUnit.amount, taskUnit.unit) : toAnchor(amount, common.unit);
   const ready = (typed.trim() !== "" || (!!split && typedIn.trim() !== "")) && amount > 0 && isFinite(anchor);
 
   // Each "Surprise me" steps down the ranking; a new measurement starts it again.
-  const key = `${kind}:${anchor}`;
-  const ranked = useMemo(() => (ready ? rank(kind, anchor) : []), [key, ready]);
+  // A thing is never measured in itself ("1 Eiffel Tower is exactly 1 Eiffel Tower").
+  const key = `${kind}:${anchor}:${thing?.many ?? ""}`;
+  const ranked = useMemo(() => (ready ? rank(kind, anchor).filter((m) => m.unit !== thing) : []), [key, ready]);
   const [at, setAt] = useState(-1);
   const [picked, setPicked] = useState<Match>();
   const [choosing, setChoosing] = useState(false);
   useEffect(() => { setAt(-1); setPicked(undefined); setChoosing(false); }, [key]);
   const match = picked ?? ranked[at];
   // Read out in the smaller unit, so 0 ft 8 in is "8 in", and 5 ft 11 in stays "5 ft 11 in".
-  const said = match && (split ? say(kind, amount * split.per, split.small, match, session.units) : say(kind, amount, label, match, session.units));
+  const said = match && (split ? say(kind, amount * split.per, split.small, match, session.units) : say(kind, amount, label, match, session.units, thing));
 
   // While it's on the big screen, the big screen follows the host's result.
   const onScreen = !!session.conversion;
   useEffect(() => {
     if (onScreen && said && (said.main !== session.conversion?.main || said.lead !== session.conversion?.lead)) void showConversion(code, said);
   }, [onScreen, said?.lead, said?.main]);
+
+  const found = UNITS[kind].filter((u) => [u.one, u.many].some((n) => plain(n).includes(plain(find.trim()))));
 
   const surprise = () => { setPicked(undefined); setChoosing(false); setAt((a) => (a + 1) % ranked.length); };
 
@@ -96,10 +107,38 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
       {/* While a task's unit is in use, the common units stay where they are, dimmed, until one is tapped. */}
       <div className={`choices units${taskUnit ? " idle" : ""}`}>
         {commonFor(kind, session.units).map((u) => {
-          const on = !taskUnit && common.unit === u;
+          const on = !taskUnit && !thing && common.unit === u;
           return <button key={u} className={on ? "active" : ""} aria-pressed={on} onClick={() => setSource({ kind, unit: u })}>{u}</button>;
         })}
+        {/* Or start from a useless unit: its own row, since a name is longer than a unit. */}
+        <button className={`thing${thing ? " active" : ""}`} aria-pressed={!!thing} aria-expanded={finding} onClick={() => setFinding(!finding)}>
+          {thing ? thing.one : "a thing"} {finding ? "▴" : "▾"}
+        </button>
       </div>
+      {finding && (
+        <div className="find-thing">
+          <div className="clearable">
+            <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Find a thing…" aria-label="Find a thing" enterKeyHint="search" autoFocus />
+            {find && <button type="button" aria-label="Clear find a thing" onClick={() => setFind("")}>×</button>}
+          </div>
+          <ul className="tracklist">
+            {found.map((u) => (
+              <li key={u.many}>
+                <button className={thing === u ? "active" : ""} onClick={() => {
+                  setSource({ kind, unit: common.kind === kind ? common.unit : firstUnit(kind, session.units), thing: u.many });
+                  setTyped("1");
+                  setTypedIn("");
+                  setFinding(false);
+                  setFind("");
+                }}>
+                  <span className="title">{u.one}</span><span className="dur">{sizeText(kind, u, session.units)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {!found.length && <p className="muted">Nothing called that in {KIND_LABEL[kind].toLowerCase()}.</p>}
+        </div>
+      )}
       {split ? (
         <div className="feet-in">
           <span>How much?</span>
@@ -121,7 +160,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
           {choosing && (
             <ul className="tracklist">
-              {UNITS[kind].map((u) => (
+              {UNITS[kind].filter((u) => u !== thing).map((u) => (
                 <li key={u.many}>
                   <button className={match.unit === u ? "active" : ""} onClick={() => { setPicked(matchFor(u, anchor)); setChoosing(false); }}>{u.many}</button>
                 </li>

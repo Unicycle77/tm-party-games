@@ -85,20 +85,23 @@ export const toAnchor = (amount: number, unit: string) => unit === "dB" ? soundE
 const num = (n: number, digits = 2) => n.toLocaleString("en-US", { maximumFractionDigits: digits });
 const article = (u: UselessUnit) => u.the ?? (/^[aeiou]/i.test(u.one) ? "an" : "a");
 const withArticle = (u: UselessUnit) => [article(u), u.one].filter(Boolean).join(" ");
+const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const DIMENSION: Record<Kind, string> = { height: "height", length: "length", weight: "weight", time: "length", volume: "volume", loudness: "noise" };
 const ADJECTIVE: Record<Kind, string> = { height: " tall", length: " long", weight: "", time: "", volume: "", loudness: "" };
 /** Two significant figures, for a count worked out from a reading to a tenth of a dB: 2,630.3 conversations is "about 2,600". */
 const rough = (n: number) => num(Number(n.toPrecision(2)), 2);
 
 /** The three lines the host reads out, and the big screen shows: "39 dice tall is" / "4 dollar bills" / "the long side". */
-export function say(kind: Kind, amount: number, inUnit: string, m: Match, system: System = "metric"): ShownConversion {
+export function say(kind: Kind, amount: number, inUnit: string, m: Match, system: System = "metric", from?: UselessUnit): ShownConversion {
   // At an imperial party, 5.5 ft or 66 in is read the way it's said: "5 ft 6 in tall is". Under a foot it stays as typed.
   // Weights in lb or oz read like a label, without its total ounces: "10 ½ oz is", "1 lb 8 oz is", "5.25 lb is".
   const imperial = system === "imperial" && ANCHOR[inUnit] !== undefined;
   const length = imperial && (inUnit === "ft" || inUnit === "in") && amount * ANCHOR[inUnit]! >= ANCHOR.ft!;
   const weight = imperial && (inUnit === "lb" || inUnit === "oz");
   const typed = length ? feetAndInches(amount * ANCHOR[inUnit]!) : weight ? poundsAndOunces(amount * ANCHOR[inUnit]!, false) : `${num(amount)} ${inUnit}`;
-  const lead = `${typed}${ADJECTIVE[kind]} is`;
+  // Started from a thing, the thing is named and its size left out, so the number doesn't spoil the joke:
+  // "The Eiffel Tower is", "2 Eiffel Towers are".
+  const lead = from ? (amount === 1 ? `${capital(withArticle(from))} is` : `${num(amount)} ${from.many} are`) : `${typed}${ADJECTIVE[kind]} is`;
   const u = m.unit;
   // Sounds are always "about" (see `sounds`): so many of them going at once, or a fraction of one.
   if (kind === "loudness") {
@@ -165,27 +168,33 @@ export function poundsAndOunces(g: number, dual = true): string {
   return dual ? `${ounces(quarters)} oz (${split})` : split;
 }
 
-/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
-export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
-  if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is about ${num(10 * Math.log10(m.unit.size), 1)} dB`;
-  const imperial = (a: number) => {
+/** An amount in a kind's anchor, the way the host reads it: "62.4 cm", "1.5 kg", "2 hr", or in imperial "2 ft ½ in". */
+export function amountText(kind: Kind, a: number, system: System = "metric"): string {
+  if (system === "imperial" && kind !== "time") {
     if (kind === "weight") return poundsAndOunces(a);
     if (kind === "volume") {
       const gal = a / ANCHOR.gal!, cups = a / ANCHOR.cup!;
       return gal >= 1e9 ? `${num(a / 4.168181825e15)} cubic miles` : gal >= 1 ? `${num(gal)} gal` : cups >= 1 ? `${num(cups)} ${cups === 1 ? "cup" : "cups"}` : `${num(a / ANCHOR["fl oz"]!, 3)} fl oz`;
     }
     return feetAndInches(a);
-  };
-  const show = (a: number) => {
-    if (system === "imperial" && kind !== "time") return imperial(a);
-    if (kind === "weight") return a >= 1e6 ? `${num(a / 1e6)} t` : a >= 1000 ? `${num(a / 1000)} kg` : `${num(a, 3)} g`;
-    if (kind === "time") {
-      const yr = ANCHOR.yr!, d = ANCHOR.d!;
-      return a >= yr ? `${num(a / yr)} years` : a >= d ? `${num(a / d)} days` : a >= 3600 ? `${num(a / 3600)} hr` : a >= 60 ? `${num(a / 60)} min` : `${num(a, 3)} sec`;
-    }
-    if (kind === "volume") return a >= 1e15 ? `${num(a / 1e15)} km³` : a >= 1e6 ? `${num(a / 1e6)} m³` : a >= 1000 ? `${num(a / 1000)} L` : `${num(a, 3)} ml`;
-    return a >= 1e6 ? `${num(a / 1e6)} km` : a >= 1000 ? `${num(a / 1000)} m` : a >= 10 ? `${num(a / 10)} cm` : `${num(a, 3)} mm`;
-  };
+  }
+  if (kind === "weight") return a >= 1e6 ? `${num(a / 1e6)} t` : a >= 1000 ? `${num(a / 1000)} kg` : `${num(a, 3)} g`;
+  if (kind === "time") {
+    const yr = ANCHOR.yr!, d = ANCHOR.d!;
+    return a >= yr ? `${num(a / yr)} years` : a >= d ? `${num(a / d)} days` : a >= 3600 ? `${num(a / 3600)} hr` : a >= 60 ? `${num(a / 60)} min` : `${num(a, 3)} sec`;
+  }
+  if (kind === "volume") return a >= 1e15 ? `${num(a / 1e15)} km³` : a >= 1e6 ? `${num(a / 1e6)} m³` : a >= 1000 ? `${num(a / 1000)} L` : `${num(a, 3)} ml`;
+  return a >= 1e6 ? `${num(a / 1e6)} km` : a >= 1000 ? `${num(a / 1000)} m` : a >= 10 ? `${num(a / 10)} cm` : `${num(a, 3)} mm`;
+}
+
+/** A useless unit's own size, for the list it's picked from: "330 m", "about 15.24 cm", "about 88 dB". */
+export const sizeText = (kind: Kind, u: UselessUnit, system: System = "metric") =>
+  kind === "loudness" ? `about ${num(10 * Math.log10(u.size), 1)} dB` : `${u.about ? "about " : ""}${amountText(kind, u.size, system)}`;
+
+/** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
+export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
+  if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is ${sizeText(kind, m.unit)}`;
+  const show = (a: number) => amountText(kind, a, system);
   // Typed as it's shown ("5 ft 11 in"), there's nothing to convert.
   const measured = inLabel === show(anchor) ? inLabel : `${inLabel} = ${show(anchor)}`;
   return `${measured} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;

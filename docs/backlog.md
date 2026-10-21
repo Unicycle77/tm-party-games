@@ -90,6 +90,11 @@ Status: nothing here is fixed yet. Notes under each item are initial diagnosis o
 - **Open questions:** where it's entered (Party settings, or the converter itself); whether it stays on the host's phone only (the safer default for a birthdate) or goes in the session so the big screen can show it; whether "the Taskmaster" is the host's name or always the title.
 - **Related:** the unit list draft in the project's shared files (`useless-conversions/units.md`).
 
+### E9. Find a song in the jukebox by typing (idea, not designed yet)
+- The 🎵 jukebox's song list is one long scroll. Give it the same find box as the converter's "a thing ▾" list (`.clearable`, filtering as you type, ignoring case and accents), so a song you know by name is a few letters away.
+- **Open questions:** whether it also matches the artist; whether it's always there or only past a certain number of songs; whether the Plan-the-party "♪ Song" picker (`.sb-song-field`) gets it too.
+- **Related:** the converter's find box (`ConverterRemote.tsx`), Jeffrey's ask in the "Jimothy in height conversions" thread (2026-10-21).
+
 ### E8. Export and import whole party configurations (built 2026-10-18: Export and Import)
 Settled with Jeffrey in a pair-design thread; the working notes (scenarios, rejected ideas) are in the project's `export-import/framing.md`.
 
