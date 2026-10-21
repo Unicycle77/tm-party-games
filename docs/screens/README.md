@@ -30,7 +30,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `flipchart-guest-sent.jpg` | Sent: the front page closed, "✓ Submitted" and the locked line (2026-10-21) |
 | `flipchart-main-clock.jpg` | The big screen while they draw: the show's clock as the one focus, the tally beside it (2026-10-21) |
 | `flipchart-main-portrait.jpg` | Sam's finished portrait in the gold frame, pages in the show's pattern; he drew as if the pages ran in reading order, so his face lands scrambled (re-shot 2026-10-21) |
-| `flipchart-main-everyone.jpg` | Everyone's portraits at once, the range a room sees: Greg followed the front page (a clean face), Alex and Mei forgot to turn the upside-down pages, Sam and Priya drew in reading order; Tom's is blank and still shown (re-shot 2026-10-21) |
+| `flipchart-main-everyone.jpg` | Everyone's portraits at once, mostly in pieces as at a real party: only Greg followed the front page (a clean face), Mei forgot to turn the upside-down pages, Alex and Sam drew in reading order, Priya down the columns and Tom starting from 16 (re-shot 2026-10-21) |
 | `flipchart-host-start.jpg` | Host task page before the start: the clock at its limit and gold "Your time starts now" (2026-10-21) |
 | `flipchart-host-live.jpg` | Host task page while it runs: the clock, "+5 minutes", "End now: send everyone's" (2026-10-21) |
 | `flipchart-host-edit.jpg` | The task's ✎ page: what they draw and the time limit (10, 15, 20 or 30 minutes) (2026-10-21) |

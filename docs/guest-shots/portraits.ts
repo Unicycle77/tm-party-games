@@ -47,12 +47,14 @@ function face(variant: number): { c: number; pts: Pt[] }[] {
 /**
  * How the guest read the front page, as at a real party: "pattern" followed it and drew the four upside-down pages upside down (a
  * clean face); "upright" followed it but drew every page upright, so those four land upside down; "reading" took the pages to run
- * in reading order (1 to 4 across the top), so the face lands scrambled.
+ * in reading order (1 to 4 across the top), "columns" took them to run down each column, and "backwards" started at 16 in the top
+ * left: each of those lands scrambled in its own way.
  */
-export type Reading = "pattern" | "upright" | "reading";
+export type Reading = "pattern" | "upright" | "reading" | "columns" | "backwards";
 
 /** The page a guest drawing at this spot of their imagined chart is on. */
-const pageAt = (col: number, row: number, how: Reading) => how === "reading" ? row * 4 + col + 1 : PATTERN[row]![col]!;
+const pageAt = (col: number, row: number, how: Reading) =>
+  how === "reading" ? row * 4 + col + 1 : how === "columns" ? col * 4 + row + 1 : how === "backwards" ? 16 - (row * 4 + col) : PATTERN[row]![col]!;
 
 /** Where a point is on its page, as a pen on that page would draw it: clamped to the page, and turned for the pages printed upside down if the guest turned them. */
 const onPage = (x: number, y: number, col: number, row: number, how: Reading): number[] => {

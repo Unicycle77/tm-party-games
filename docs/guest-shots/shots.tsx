@@ -197,9 +197,10 @@ function build() {
       const fc: Record<string, unknown> = {};
       if (live || over) Object.assign(fc, { startedAt: now - 5.5 * 60_000, endsAt: now + 14.5 * 60_000 });
       if (over) Object.assign(fc, { startedAt: now - 20 * 60_000, endsAt: now - 1000, closed: true });
-      const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people).filter((id) => id !== "tom") : [];
-      // The range a room sees: Greg followed the front page, Alex and Mei forgot to turn the upside-down pages, Sam and Priya drew in reading order.
-      const reading: Record<string, Reading> = { greg: "pattern", alex: "upright", mei: "upright", sam: "reading", priya: "reading" };
+      const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people) : [];
+      // Mostly in pieces, as at a real party: only Greg followed the front page and Mei forgot to turn the upside-down pages; Sam and Alex
+      // drew in reading order, Priya down the columns, and Tom started from 16.
+      const reading: Record<string, Reading> = { greg: "pattern", mei: "upright", alex: "reading", sam: "reading", priya: "columns", tom: "backwards" };
       fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id), reading[id])]));
       if (shot.includes("sent")) fc.submitted = { sam: true };
       if (over) fc.submitted = Object.fromEntries(drawers.map((id) => [id, true]));
