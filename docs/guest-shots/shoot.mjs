@@ -34,6 +34,12 @@ const SHOTS = {
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page
   "noisemaster-host-round": ["host-noisemaster"],
+  "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
+    await p.getByRole("button", { name: "Sam", exact: true }).click();
+    await p.getByPlaceholder(/quick brown fox/).fill("I am the Noisemaster");
+    await p.getByPlaceholder(/cat dog banana/).fill("cheese banana wobble Greg sausage trumpet Alex moist duck hello spoon yes");
+    await p.evaluate(() => window.scrollTo(0, 0));
+  }],
   "run-of-show-host": ["host-run"],
   "run-of-show-host-arrivals": ["host-arrivals"],
   "points-host-given": ["host-points"],

@@ -37,7 +37,8 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
 | `main-noisemaster-done.jpg` | Noisemaster on the big screen when the go is finished: all four words as gold tiles, the clock stopped at 0:41.3, "4 of 4 words", "2 restarts" and the ✓ Done stamp (2026-10-21) |
-| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |
+| `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-21) |
+| `noisemaster-host-setup.jpg` | The host phone's Noisemaster page before a go, whole page: Sam picked, "I am the Noisemaster" typed as the phrase, twelve decoys, "16 different words." and the gold Start Noisemaster (no sound files, so the main screen says the words) (2026-10-21) |
 | `run-of-show-host.jpg` | Host phone: the Run of show, "Show QR" by the code, "Show scores" under the big-screen line, the "Up next" card with the gold Start button and "app task" on the card, and all eight tasks (party ABCD, 2026-10-19) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |

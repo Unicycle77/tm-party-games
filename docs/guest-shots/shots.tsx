@@ -116,6 +116,8 @@ function build() {
     case "tv-noisemaster-done":
       picked(); task("noisemaster"); g.noisemaster = { round: { ...midGo(), progress: 4, mistakes: 2, doneAt: Date.now() - 400, firstAt: Date.now() - 41700, last: { key: "k3", i: 3, ok: true } } }; set("display", { step: "soundboard" }); set("begun", true);
       break;
+    // Noisemaster before a go: the host's setup, Sam picked and the phrase and decoys typed in (no sound files).
+    case "host-noisemaster-setup": picked(); task("noisemaster"); set("begun", true); break;
     case "tv-noisemaster": case "host-noisemaster": case "host-run":
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
       break;
@@ -204,7 +206,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list" && shot !== "join-code";
 localStorage.clear();
