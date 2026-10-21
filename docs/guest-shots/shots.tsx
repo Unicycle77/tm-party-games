@@ -8,6 +8,8 @@ import { Screen } from "../../src/Screen";
 import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
 import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
+import { flipchartDefaults } from "../../src/games/flipchart/data";
+import { portraitPages } from "./portraits";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
@@ -86,6 +88,8 @@ function build() {
     order: 7, name: "Sock puppet show", type: "Team",
     text: "Make a puppet from one sock and put on a show.\n\nYou have 5 minutes. Best show wins.",
   };
+  // Flipchart is one task, the ninth; its clock has 14:30 or so to go in the live shots.
+  if (shot.includes("flipchart")) tasks.t9 = { order: 9, game: "flipchart", ...flipchartDefaults() };
   const session: Record<string, unknown> = {
     hostUid: "host", name: "Halloween party",
     players: Object.fromEntries(ids.filter((id) => checkedIn.has(id)).map((id, i) => [id, { name: people[id], joinedAt: i, contestant: id }])),
@@ -166,6 +170,27 @@ function build() {
     case "host-reset": picked(); set("begun", true); Object.assign(tasks.t1 as object, { scores: { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 } }); break;
     case "host-onepart": set("begun", true); break;
     case "host-onepart-up": set("display", { step: "tasktext", task: "t7" }); set("begun", true); break;
+    // Flipchart: before the clock starts (words and the front page), mid-drawing (page 7 of Sam's, see below), on the last page asking to send, sent;
+    // on the big screen the clock, one finished portrait, and everyone's; on the host's phone before the start and while it runs, and its ✎ page.
+    case "task-flipchart-front": case "task-flipchart-drawing": case "task-flipchart-send": case "task-flipchart-sent":
+    case "tv-flipchart-clock": case "tv-flipchart-portrait": case "tv-flipchart-everyone": case "tv-flipchart-task":
+    case "host-flipchart": case "host-flipchart-live": case "host-flipchart-edit": {
+      picked(); q.set("later", "1"); task("flipchart"); set("begun", true);
+      const now = Date.now();
+      const live = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") || shot.includes("clock") || shot === "host-flipchart-live";
+      const over = shot.includes("portrait") || shot.includes("everyone") || shot === "tv-flipchart-task";
+      const fc: Record<string, unknown> = {};
+      if (live || over) Object.assign(fc, { startedAt: now - 5.5 * 60_000, endsAt: now + 14.5 * 60_000 });
+      if (over) Object.assign(fc, { startedAt: now - 20 * 60_000, endsAt: now - 1000, closed: true });
+      const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people).filter((id) => id !== "tom") : [];
+      fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id))]));
+      if (shot.includes("sent")) fc.submitted = { sam: true };
+      if (over) fc.submitted = Object.fromEntries(drawers.map((id) => [id, true]));
+      g.flipchart = fc;
+      if (shot === "tv-flipchart-portrait") set("display", { step: "portrait", uid: "sam", settled: true });
+      if (shot === "tv-flipchart-everyone") set("display", { step: "portraits" });
+      break;
+    }
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
@@ -175,10 +200,12 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul") { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list" && shot !== "join-code";
 localStorage.clear();
+if (shot.includes("drawing")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "7");
+if (shot.includes("send")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "16");
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
 if (joined && shot.startsWith("checkin")) {
@@ -187,7 +214,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t9" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t9" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 

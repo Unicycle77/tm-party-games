@@ -15,24 +15,29 @@ export class CorsError extends Error {}
 export async function downloadAllMedia(
   code: string,
   players: Record<string, Player>,
-  filesOf: (uid: string) => { name: string; url: string }[],
+  filesOf: (uid: string) => { name: string; url?: string; render?: () => Promise<Blob> }[],
   onProgress: (done: number, total: number) => void,
 ): Promise<void> {
-  const jobs: { folder: string; name: string; url: string }[] = [];
+  const jobs: { folder: string; name: string; url?: string; render?: () => Promise<Blob> }[] = [];
   const folders = new Set<string>();
   for (const [uid, player] of Object.entries(players)) {
     const base = player.name.replace(/[^\p{L}\p{N} _.-]/gu, "").trim() || "Player";
     let folder = base;
     for (let n = 2; folders.has(folder.toLowerCase()); n++) folder = `${base} (${n})`;
     folders.add(folder.toLowerCase());
-    for (const { name, url } of filesOf(uid)) jobs.push({ folder, name, url });
+    for (const file of filesOf(uid)) jobs.push({ folder, ...file });
   }
 
   const files: { name: string; input: Blob }[] = [];
   onProgress(0, jobs.length);
   for (const job of jobs) {
+    if (job.render) {
+      files.push({ name: `${job.folder}/${job.name}.png`, input: await job.render() });
+      onProgress(files.length, jobs.length);
+      continue;
+    }
     let res: Response;
-    try { res = await fetch(job.url); }
+    try { res = await fetch(job.url!); }
     catch { throw new CorsError("The browser blocked downloading the files (bucket CORS isn't set up)."); }
     if (!res.ok) throw new Error(`Couldn't download ${job.folder}'s ${job.name} (HTTP ${res.status}).`);
     const type = (res.headers.get("content-type") ?? "").split(";")[0]!.trim();

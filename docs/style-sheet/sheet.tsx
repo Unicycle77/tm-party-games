@@ -9,6 +9,8 @@ import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
+import { FlipClock } from "../../src/games/flipchart/FlipClock";
+import { Portrait } from "../../src/games/flipchart/Portrait";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
@@ -271,6 +273,13 @@ function Sheet() {
               <div className="crop-frame"><div className="crop-fill" style={cropFill(group, crop)} /><img src={frame} alt="" /></div>
             </div>
             <Cap>Not checked in yet: the scoreboard's 3 by 4 mosaic of the crop (<code>Mosaic</code>), and the reveal when they check in, a step every 400ms to the photo</Cap>
+          </Sec>
+          <Sec title="Flipchart clock &amp; portrait" note="the stage">
+            <div className="pair" style={{ alignItems: "center" }}>
+              <FlipClock ms={14 * 60_000 + 30_000} width="280px" />
+              <div style={{ width: 120 }}><Portrait pages={[]} /></div>
+            </div>
+            <Cap>The show's clock (<code>.fc-clock</code>): red seven-segment digits on a black 4:3 screen, white matte, black frame about half the matte's width; the same on the TV and the host's phone, for the whole task. The portrait (<code>.fc-portrait</code>): sixteen pages in the show's pattern as one picture</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>

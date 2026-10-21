@@ -545,8 +545,8 @@ body.idle-cursor .stage { cursor: none; }
 .review-grid.revealed .review-cell { animation: hang 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards; }
 .review-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.6rem 1.6rem; font-family: var(--typewriter); font-size: 1.4rem; box-shadow: 0 4px 10px #000a; }
 .review-slot {
-  width: calc(var(--s) * 4.6);
-  height: calc(var(--s) * 3.6);
+  width: calc(var(--s) * var(--sw, 4.6));
+  height: calc(var(--s) * var(--sh, 3.6));
   display: grid;
   place-items: center;
 }
@@ -1412,3 +1412,55 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .crop-side { flex: 1; display: grid; gap: 0.5rem; font-family: var(--typewriter); color: var(--fg); }
 .crop-side .link { justify-self: start; }
 .crop-page > .link { justify-self: center; }
+
+/* Flipchart: the show's clock (red seven-segment digits on black, in a white matte, in a black frame), the guest's pages and the assembled portrait */
+.fc-clock {
+  --w: 300px;
+  width: var(--w);
+  max-width: 100%;
+  padding: calc(var(--w) * 0.022);
+  background: #0a0a0a;
+  border-radius: calc(var(--w) * 0.012);
+  box-shadow: 0 calc(var(--w) * 0.03) calc(var(--w) * 0.06) #000a;
+  line-height: 0;
+}
+.fc-clock .matte { padding: calc(var(--w) * 0.045); background: #f3efe6; }
+.fc-clock .screen { aspect-ratio: 4 / 3; display: grid; place-items: center; background: #000; }
+.fc-clock svg { width: 86%; height: auto; }
+.fc-clock .on { fill: #ff2b1c; filter: drop-shadow(0 0 3px #ff2b1c88); }
+.fc-clock .off { fill: #2b0705; }
+.fc-clock circle.on { fill: #ff2b1c; }
+.collecting-main .fc-clock.tv { width: min(var(--w), 100%); }
+.fc-round { display: grid; gap: 0.7rem; justify-items: center; }
+.fc-round-links { justify-content: center; gap: 1.2rem; }
+
+.flipchart { display: grid; background: #fff; border: 1px solid #0003; box-shadow: 0 3px 8px #0005; }
+.flipchart .bar { height: 0.7rem; background: linear-gradient(#6b6b6b, #3c3c3c); }
+.flipchart .page { position: relative; aspect-ratio: 1000 / 1414; background: #fffdf8; color: var(--ink); }
+.flipchart.small { width: 38%; justify-self: center; }
+.fc-surface { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+.fc-svg { display: block; width: 100%; height: 100%; }
+.fc-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); }
+.fc-grid span { display: grid; place-items: center; border: 1px dashed #0004; font-family: var(--typewriter); font-size: 1.6rem; color: #6b5a44; }
+.flipchart.small .fc-grid span { font-size: 0.9rem; }
+.fc-grid span.turned { transform: rotate(180deg); }
+.fc-tools { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.4rem; }
+.fc-tools .ink { width: 2.4rem; height: 2.4rem; padding: 0; margin: 0; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #0006; }
+.fc-tools .ink.on { box-shadow: 0 0 0 3px var(--gold-dark); }
+.fc-tools .undo { margin: 0 0 0 auto; padding: 0.45rem 0.8rem; }
+.fc-flips { display: grid; grid-template-columns: auto 1fr auto; gap: 0.6rem; }
+.fc-flips button { min-width: 4rem; font-size: 1.3rem; }
+.fc-confirm { display: grid; gap: 0.4rem; }
+.fc-confirm .row { display: flex; gap: 0.6rem; }
+.fc-confirm .row button { flex: 1; }
+
+.fc-portrait { position: relative; aspect-ratio: 1000 / 1414; background: #fffdf8; line-height: 0; }
+.frame .fc-portrait {
+  width: min(calc(100vw - 2 * var(--bw) - var(--pad)), calc((100vh - 2 * var(--bw) - var(--pad)) * var(--ratio, 1)));
+}
+.review .pic .fc-portrait { width: 100%; height: 100%; aspect-ratio: auto; }
+.fc-page { position: absolute; width: 25%; height: 25%; background: #fffdf8; box-shadow: 0 0 0 1px #0002, 0 2px 6px #0004; transition: transform 0.9s cubic-bezier(0.3, 0.8, 0.3, 1); }
+.fc-portrait.settled .fc-page { box-shadow: 0 0 0 1px #0001; }
+.fc-page.dropping { animation: fc-drop 0.5s ease-out backwards; transition: none; }
+@keyframes fc-drop { from { opacity: 0; margin-top: -4%; } }
+@media (prefers-reduced-motion: reduce) { .fc-page, .fc-page.dropping { animation: none; transition: none; } }

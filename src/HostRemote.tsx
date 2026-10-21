@@ -10,7 +10,7 @@ import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
 const SHOWING: Partial<Record<Display["step"], string>> = {
-  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo",
+  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait",
 };
 
 /**
@@ -43,6 +43,7 @@ export function onScreenLine(session: Session): string {
   const ready = players.filter((uid) => game.status!(session, uid) === "submitted");
   const data = session.games?.[game.id];
   const shown = (data && "shown" in data && data.shown) || {};
+  if (display.step === "list" && game.holdsScreen?.(session)) return "the clock";
   if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
   if (display.step === "curtain") return `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
   return "everyone's entries";
@@ -154,14 +155,17 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
   const shownCount = ready.filter(([uid]) => shown[uid]).length;
   const next = ready.find(([uid]) => !shown[uid]);
   const everyone = !collecting && ready.length > 0 && !next;
+  // A timed round (Flipchart) has its own gold control until it's over, and nobody is shown before then.
+  const hold = game.canShow?.(session) === false;
 
   return (
     <>
       {head}
       {/* Once everyone has been shown the game is one line, and the gold moves to the points. Until then it's
           always rendered, so the gold button never moves: disabled with a reason when there's no one to show. */}
+      {game.Round && <game.Round code={code} session={session} />}
       {everyone ? <p className="muted">All {ready.length} shown.</p> : (
-        <button className={quiet ? undefined : "big"} disabled={!next} onClick={() => next && show(next[0])}>
+        <button className={quiet || hold ? undefined : "big"} disabled={!next || hold} onClick={() => next && show(next[0])}>
           {next ? `${shownCount === 0 ? "First up" : "Next"}: ${next[1].name} →` : "Waiting for entries"}
         </button>
       )}
@@ -174,7 +178,7 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
           return (
             <li key={uid} className={cls}>
               {/* Any name can be shown out of turn (the room's mood, a funny one again); "Next" stays put. */}
-              <button disabled={s !== "submitted"} onClick={() => show(uid)}>
+              <button disabled={s !== "submitted" || hold} onClick={() => show(uid)}>
                 <span>{p.name}</span>
                 {collecting && s === "submitted" ? <span className="stamp">✓ Submitted</span>
                   : <span className="muted small">
@@ -182,7 +186,7 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
                     </span>}
                 {collecting && unlocked && <span className="muted small">🔓 may resubmit</span>}
               </button>
-              {collecting && (s === "submitted"
+              {collecting && !game.Round && (s === "submitted"
                 ? <button className="lock" aria-label={unlocked ? `Lock ${p.name}'s entry` : `Let ${p.name} resubmit`}
                     onClick={() => void setUnlocked(code, game.id, uid, !unlocked)}>{unlocked ? "🔓" : "🔒"}</button>
                 : <span className="lock" aria-hidden />)}

@@ -130,16 +130,17 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   const submitted = players.filter(([uid]) => status(session, uid) === "submitted").length;
   const allIn = players.length > 0 && submitted === players.length;
   return (
-    <main className={game.task ? "collecting" : "collecting no-task"}>
+    <main className={game.task || game.Collecting ? "collecting" : "collecting no-task"}>
       <section className="collecting-main">
-        {game.task ? <TaskCard lines={game.task}>{allIn && <span className="stamp all-in">✓ All submitted</span>}</TaskCard> : <h1 className="collecting-title">{game.heading(session)}</h1>}
+        {game.Collecting ? <game.Collecting code={code} session={session} viewOnly={viewOnly} />
+          : game.task ? <TaskCard lines={game.task}>{allIn && <span className="stamp all-in">✓ All submitted</span>}</TaskCard> : <h1 className="collecting-title">{game.heading(session)}</h1>}
       </section>
       <aside className="collecting-side">
         <h2>{submitted} of {players.length} submitted</h2>
         <ul className="tiles">
           {players.map(([uid, p]) => (
             <Tile key={uid} player={p} status={status(session, uid)}
-              onPick={viewOnly ? undefined : () => void showContestant(code, game.id, { uid, step: game.firstStep })} />
+              onPick={viewOnly || game.canShow?.(session) === false ? undefined : () => void showContestant(code, game.id, { uid, step: game.firstStep })} />
           ))}
         </ul>
       </aside>

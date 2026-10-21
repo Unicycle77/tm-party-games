@@ -61,6 +61,17 @@ const SHOTS = {
     await p.getByRole("switch", { name: /Also remove guests/ }).check();
     await p.evaluate(() => window.scrollTo(0, 0)); // the sticky header would otherwise land mid-page
   }],
+  // Flipchart: the guest's phone before the start, drawing, asking to send on the last page, sent; the big screen's clock, one portrait, everyone's; the host's phone
+  "flipchart-guest-front": ["task-flipchart-front"],
+  "flipchart-guest-drawing": ["task-flipchart-drawing"],
+  "flipchart-guest-send": ["task-flipchart-send", "", async (p) => { await p.getByRole("button", { name: /Send my portrait/ }).click(); }],
+  "flipchart-guest-sent": ["task-flipchart-sent"],
+  "flipchart-main-clock": ["tv-flipchart-clock"],
+  "flipchart-main-portrait": ["tv-flipchart-portrait"],
+  "flipchart-main-everyone": ["tv-flipchart-everyone"],
+  "flipchart-host-start": ["host-flipchart"],
+  "flipchart-host-live": ["host-flipchart-live"],
+  "flipchart-host-edit": ["host-flipchart-edit"],
   "guest-join-code": ["join-code"],
   // Secret Tasks as the last task: the reveal's title card up, Part 2 behind a plain "Show the task", no point buttons
   "secret-reveal-host-title": ["host-secret-title"],

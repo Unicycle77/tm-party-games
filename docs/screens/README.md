@@ -24,6 +24,16 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
 | `guest-join-code.jpg` | Joining without the QR: "Party code" with 📷 and "It's on the big screen.", Next waiting for 4 letters |
+| `flipchart-guest-front.jpg` | Flipchart before the host starts the clock: the task's words and the front page with the show's pattern (3, 9, 10, 16 upside down), flipping locked (2026-10-21) |
+| `flipchart-guest-drawing.jpg` | Flipchart mid-task: one page, markers, Undo, ← and →, "It's task time. 14:30 left." and no page number (2026-10-21) |
+| `flipchart-guest-send.jpg` | The last page asks "Send your portrait? You can't change it after." (send is only ever on page 16) (2026-10-21) |
+| `flipchart-guest-sent.jpg` | Sent: the front page closed, "✓ Submitted" and the locked line (2026-10-21) |
+| `flipchart-main-clock.jpg` | The big screen while they draw: the show's clock as the one focus, the tally beside it (2026-10-21) |
+| `flipchart-main-portrait.jpg` | One guest's finished portrait in the gold frame, pages in the show's pattern (2026-10-21) |
+| `flipchart-main-everyone.jpg` | Everyone's portraits at once; Tom's is blank and still shown (2026-10-21) |
+| `flipchart-host-start.jpg` | Host task page before the start: the clock at its limit and gold "Your time starts now" (2026-10-21) |
+| `flipchart-host-live.jpg` | Host task page while it runs: the clock, "+5 minutes", "End now: send everyone's" (2026-10-21) |
+| `flipchart-host-edit.jpg` | The task's ✎ page: what they draw and the time limit (10, 15, 20 or 30 minutes) (2026-10-21) |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
 | `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-18) |

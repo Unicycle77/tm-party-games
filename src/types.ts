@@ -1,5 +1,5 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize", "flipchart"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 /** What can be on the task list as an app game: a game, or the light (which runs all evening, so it's never started). */
 export type TaskGame = GameId | "light";
@@ -7,11 +7,11 @@ export type TaskGame = GameId | "light";
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the curtain between contestants (with the portrait, if any). The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks; "portrait" = one guest's Flipchart portrait, "portraits" = everyone's).
  * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on. Nor does "tasktext":
  * a task's text on the paper task card (`task` says which).
  */
-export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes";
+export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits";
 
 export interface Display {
   uid?: string;
@@ -28,6 +28,8 @@ export interface Display {
   playing?: boolean;
   /** Video step only: set to a new timestamp to restart from the beginning. */
   restartAt?: number;
+  /** Portrait step only: the host skipped the pages landing one by one, so the whole portrait is up. */
+  settled?: boolean;
 }
 
 export interface Player {
@@ -53,6 +55,26 @@ export interface PhotosMedia { photo?: string }
 export interface PhotosData extends GameData<PhotosMedia> {
   task?: string;
   sets?: Record<string, GameData<PhotosMedia>>;
+}
+
+/**
+ * The Flipchart task: every guest draws a portrait on 16 pages of a flipchart, one page at a time, against a clock the host
+ * starts. The strokes are the portrait: the big screen and the party download draw it from them, in the show's pattern.
+ */
+export interface FlipchartData {
+  /** When the host started the clock, and when it runs out (database time, in ms). Moved on by "+5 minutes". */
+  startedAt?: number;
+  endsAt?: number;
+  /** The time is up, or the host ended it: every portrait is final, sent or not. */
+  closed?: true;
+  /** Each guest's pages, by uid: "p1" to "p16" (page order, as on the front page) to the page's strokes (see games/flipchart/strokes.ts). */
+  pages?: Record<string, Record<string, string>>;
+  /** Guests who have sent their portrait. */
+  submitted?: Record<string, true>;
+  /** Players the host has let draw again, while the clock runs. */
+  unlocked?: Record<string, boolean>;
+  /** Contestants the host has put on the big screen, for the running order's "Next". */
+  shown?: Record<string, boolean>;
 }
 
 /** The two boxes of [BLANK] in a Box: "L" starts with the left player, "R" with the right one. */
@@ -286,6 +308,9 @@ export interface ScoreboardTask {
   restarts?: Record<string, number>;
   /** What the task is measured in, like "dice": the 📏 converter offers it for this task. */
   unit?: TaskUnit;
+  /** Flipchart: what the guests draw ("a portrait of the Taskmaster"), the words of the task, and how many minutes they have. */
+  draw?: string;
+  minutes?: number;
 }
 
 /** A unit a task measures in, like "dice" at 16 mm. `kind` is what it measures, and so which useless units it's compared with. */
@@ -357,6 +382,7 @@ export interface Session {
      * scoreboard): each prize's photos in the guest's order, the first standing for it in the haul.
      */
     prize?: { photos?: Record<string, string[]>; presented?: Record<string, boolean> };
+    flipchart?: FlipchartData;
     box?: { round?: BoxRound; played?: Record<string, boolean> };
     /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
     /**

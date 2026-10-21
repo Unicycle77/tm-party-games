@@ -55,6 +55,11 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
     if (r.scoring === "highest" || r.scoring === "lowest") task.scoring = r.scoring;
     if (typeof r.dqOver === "number" && Number.isFinite(r.dqOver)) task.dqOver = r.dqOver;
     if (r.dqStays === true) task.dqStays = true;
+    if (game === "flipchart") {
+      const draw = str(r.draw, 120);
+      if (draw) task.draw = draw;
+      if (typeof r.minutes === "number" && r.minutes >= 1 && r.minutes <= 120) task.minutes = Math.round(r.minutes);
+    }
     if (obj(r.unit)) {
       const u = r.unit;
       const name = str(u.name, 30);
@@ -104,9 +109,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "scoring", "unit", "dqOver", "dqStays"] as const;
+const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays,
+  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
