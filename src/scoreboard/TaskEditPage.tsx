@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 import { asList, asNums, fmt } from "../JukeboxRemote";
+import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
 import { editTask, editTiebreaker, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
@@ -77,6 +78,8 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const [unit, setUnit] = useState(() => draftOf(task?.unit));
   const [scoring, setScoringDraft] = useState(task?.scoring);
   const [dqOver, setDqOver] = useState(task?.dqOver === undefined ? "" : String(task.dqOver));
+  const [draw, setDraw] = useState(task?.draw ?? "");
+  const [minutes, setMinutes] = useState(minutesOf(task));
   const [open, setOpen] = useState<"text" | "song" | "unit">();
   if (!task) {
     return (
@@ -89,7 +92,10 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
 
   const saved = unitOf(unit);
   const loud = unit.kind === "loudness";
-  const words = { type, text, parts: parts.map(({ type, text }) => ({ type, text })) };
+  const flip = task.game === "flipchart";
+  // The words follow what they draw, until the host has written their own.
+  const flipText = flip && text.trim() === flipchartWords(drawOf(task)) ? flipchartWords(draw) : text;
+  const words = { type, text: flip ? flipText : text, parts: parts.map(({ type, text }) => ({ type, text })) };
   const save = () => {
     if (tiebreaker) { void editTiebreaker(code, name, description, song, words); onBack(); return; }
     const rescored = !task.game && scoring !== task.scoring;
@@ -98,6 +104,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
     if (lost && !confirm(`Score "${titleOf(task)}" by its numbers? Points given by hand to anyone without a number are cleared.`)) return;
     const line = Number(dqOver.replace(",", "."));
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
+    if (flip) void editFlipchart(code, id, draw, minutes);
     void editTask(code, id, name, description, song, words, saved, over ?? null).then(() => {
       // A new line, or none, applies to the readings already in.
       if (over === task.dqOver) return;
@@ -146,6 +153,19 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
         <textarea rows={2} value={description} maxLength={600} placeholder={tiebreaker ? "How it's played, and how it's won: one winner." : undefined}
           onChange={(e) => setDescription(e.target.value)} />
       </label>
+      {flip && (
+        <>
+          <label>What they draw
+            <input value={draw} maxLength={120} placeholder={DEFAULT_DRAW} onChange={(e) => setDraw(e.target.value)} />
+          </label>
+          <div className="sb-scoring">
+            <span>Time limit</span>
+            <div className="choices">
+              {MINUTES.map((m) => <button type="button" key={m} className={minutes === m ? "active" : ""} aria-pressed={minutes === m} onClick={() => setMinutes(m)}>{m} min</button>)}
+            </div>
+          </div>
+        </>
+      )}
       {!task.game && !tiebreaker && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
 
       <div className="extras">

@@ -147,6 +147,9 @@ Photos and videos on the stage are **always** in the gold frame (`frame.png` as 
 
 See: [headshot-task-main-everyone.jpg](screens/headshot-task-main-everyone.jpg), [prize-main-photo.jpg](screens/prize-main-photo.jpg).
 
+### Flipchart clock and portrait
+The Flipchart task has two materials of its own. **The clock** (`FlipClock`, `.fc-clock`) copies the show's: red seven-segment digits (`#ff2b1c`, unlit segments a dark red) on a black screen kept to a 4:3 iPad shape, in a white matte (`#f3efe6`), in a black frame about half the matte's width. It's the same clock on the big screen (about the height of the screen, the one focus; it never hides or moves) and on the host's phone, and keeps this look the whole task. **The portrait** (`Portrait`, `.fc-portrait`) is sixteen A1-shaped pages (1 : 1.414) laid out four by four in the show's pattern, pages 3, 9, 10 and 16 turned half way round, drawn from strokes (never a stored image), and it's framed like any media on the stage and in "everyone". On the reveal the pages land upside down one at a time, a little skewed, then all slide into place together. The guest's pad (`.flipchart`) is one white page under a grey binding strip; markers are black, red, blue and green (`MARKERS`), pages are turned with plain ← and →, and never numbered. See: [flipchart-main-clock.jpg](screens/flipchart-main-clock.jpg), [flipchart-main-portrait.jpg](screens/flipchart-main-portrait.jpg), [flipchart-guest-drawing.jpg](screens/flipchart-guest-drawing.jpg).
+
 ### QR codes
 White background, 6px `--gold` border (`--paper` border for the host QR, so the two can't be confused), with a typewriter caption underneath ("Players scan here" / "Host scans here").
 

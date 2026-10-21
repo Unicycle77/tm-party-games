@@ -35,6 +35,10 @@ export async function resetScores(code: string, session: Session, guests: boolea
   for (const id of keys(games?.prize?.presented)) patch[`games/prize/presented/${id}`] = null;
   for (const uid of keys(games?.box?.played)) patch[`games/box/played/${uid}`] = null;
   for (const uid of keys(games?.noisemaster?.played)) patch[`games/noisemaster/played/${uid}`] = null;
+  for (const k of ["startedAt", "endsAt", "closed"]) patch[`games/flipchart/${k}`] = null;
+  for (const part of ["pages", "submitted", "unlocked", "shown"] as const) {
+    for (const uid of keys(games?.flipchart?.[part])) patch[`games/flipchart/${part}/${uid}`] = null;
+  }
   for (const id of keys(games?.secretTasks?.picks)) patch[`games/secretTasks/picks/${id}`] = null;
 
   if (guests) {

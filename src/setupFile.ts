@@ -23,6 +23,9 @@ export interface SetupTask {
   unit?: TaskUnit;
   dqOver?: number;
   dqStays?: true;
+  /** Flipchart: what the guests draw, and the minutes they get. */
+  draw?: string;
+  minutes?: number;
 }
 
 /** The party's setup: what the host plans before the night. */
@@ -50,6 +53,8 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(t.unit && { unit: t.unit }),
   ...(t.dqOver !== undefined && { dqOver: t.dqOver }),
   ...(t.dqStays && { dqStays: true as const }),
+  ...(t.draw && { draw: t.draw }),
+  ...(t.minutes !== undefined && { minutes: t.minutes }),
 });
 
 /** The setup file's content for a party. `secretTasks` is the pool, which lives outside the session. */

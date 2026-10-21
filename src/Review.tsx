@@ -13,8 +13,8 @@ const SLOT_W = 4;
 const SLOT_H = 3;
 const PAIR_GAP = 0.4;
 /** Width of a cell holding `n` photos side by side: 9.6 for a pair, 4.6 for one. */
-const cellWidth = (n: number) => n * (SLOT_W + 2 * FRAME) + (n - 1) * PAIR_GAP;
-const CELL_H = SLOT_H + 2 * FRAME + 0.9; // 4.5 (framed slot + name plate)
+const cellWidth = (n: number, slotW = SLOT_W) => n * (slotW + 2 * FRAME) + (n - 1) * PAIR_GAP;
+const cellHeight = (slotH = SLOT_H) => slotH + 2 * FRAME + 0.9; // 4.5 (framed slot + name plate)
 const DEFAULT_RATIO = SLOT_W / SLOT_H;
 const PAD = 16;
 const GAP = 14;
@@ -30,12 +30,12 @@ function useViewport() {
 }
 
 /** Picks the column count that lets the (uniform) cells be as large as possible. */
-function bestLayout(count: number, cellW: number, w: number, h: number) {
+function bestLayout(count: number, cellW: number, cellH: number, w: number, h: number) {
   let best = { cols: 1, s: 0 };
   for (let cols = 1; cols <= Math.max(1, count); cols++) {
     const rows = Math.ceil(count / cols);
     const sw = (w - 2 * PAD - (cols - 1) * GAP) / cols / cellW;
-    const sh = (h - 2 * PAD - (rows - 1) * GAP) / rows / CELL_H;
+    const sh = (h - 2 * PAD - (rows - 1) * GAP) / rows / cellH;
     const s = Math.min(sw, sh);
     if (s > best.s + 0.01) best = { cols, s };
   }
@@ -45,25 +45,28 @@ function bestLayout(count: number, cellW: number, w: number, h: number) {
 /**
  * Everyone's photos with their name, all on one screen: `photosOf` gives each player's photos
  * (the same number for everyone, e.g. [before, after]). Players with none are left out.
- * `children` are the stage's backup controls.
+ * `children` are the stage's backup controls. `art`: each player has a picture drawn in the app rather than a photo (the
+ * Flipchart portraits), of this shape (a slot as tall as a photo's, as wide as the shape needs).
  */
-export function Review({ players, photosOf, labels, children }: {
+export function Review({ players, photosOf, labels, art, children }: {
   players: Record<string, Player>;
   photosOf: (uid: string) => (string | undefined)[];
   /** What each photo is, for alt text (e.g. ["before", "after"]). */
   labels: string[];
+  art?: { ratio: number; slot: [number, number]; has: (uid: string) => boolean; render: (uid: string) => React.ReactNode };
   children?: React.ReactNode;
 }) {
   const { w, h } = useViewport();
+  const [slotW, slotH] = art?.slot ?? [SLOT_W, SLOT_H];
   const entries = Object.entries(players)
-    .filter(([uid]) => photosOf(uid).some((u) => u))
+    .filter(([uid]) => art ? art.has(uid) : photosOf(uid).some((u) => u))
     .sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
-  const cellW = cellWidth(labels.length);
-  const { cols, s } = bestLayout(entries.length, cellW, w, h);
+  const cellW = cellWidth(labels.length, slotW);
+  const { cols, s } = bestLayout(entries.length, cellW, cellHeight(slotH), w, h);
 
   // Hold everything back until every photo has loaded (or failed), then show it all at once.
   // After 10s we show what we have rather than wait forever; once shown, it stays shown.
-  const urls = entries.flatMap(([uid]) => photosOf(uid).filter((u): u is string => !!u));
+  const urls = art ? [] : entries.flatMap(([uid]) => photosOf(uid).filter((u): u is string => !!u));
   const [settled, setSettled] = useState<Set<string>>(new Set());
   const [timedOut, setTimedOut] = useState(false);
   const [revealed, setRevealed] = useState(false);
@@ -85,12 +88,12 @@ export function Review({ players, photosOf, labels, children }: {
         <div
           className={revealed ? "review-grid revealed" : "review-grid"}
           // Exactly `cols` cells wide (+1px slack for rounding), so rows wrap at the right place and each row is centered.
-          style={{ "--s": `${s}px`, "--cw": cellW, width: Math.ceil(cols * cellW * s + (cols - 1) * GAP) + 1, gap: GAP } as React.CSSProperties}
+          style={{ "--s": `${s}px`, "--cw": cellW, "--sw": slotW + 2 * FRAME, "--sh": slotH + 2 * FRAME, width: Math.ceil(cols * cellW * s + (cols - 1) * GAP) + 1, gap: GAP } as React.CSSProperties}
         >
           {entries.map(([uid, p]) => (
             <div key={uid} className="review-cell">
               <div className="review-pair">
-                {photosOf(uid).map((src, i) => (
+                {art ? <ArtPic ratio={art.ratio} slot={art.slot}>{art.render(uid)}</ArtPic> : photosOf(uid).map((src, i) => (
                   <Pic key={labels[i]} src={src} alt={`${p.name} ${labels[i]}`} onSettled={onSettled} />
                 ))}
               </div>
@@ -103,6 +106,12 @@ export function Review({ players, photosOf, labels, children }: {
       {children}
     </main>
   );
+}
+
+/** A fixed slot with a drawn picture in it: the frame hugs the picture's shape, shrunk to fit and centered. */
+function ArtPic({ ratio, slot: [slotW, slotH], children }: { ratio: number; slot: [number, number]; children: React.ReactNode }) {
+  const style = { "--pw": Math.min(slotW, slotH * ratio), "--ph": Math.min(slotH, slotW / ratio) } as React.CSSProperties;
+  return <div className="review-slot"><div className="pic ready" style={style}>{children}</div></div>;
 }
 
 /** A fixed slot; the frame inside it hugs the photo, shrunk to fit and centered. */

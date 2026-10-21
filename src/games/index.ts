@@ -4,6 +4,7 @@ import type { SubmissionStatus } from "../submission";
 import type { Display, GameId, Session, Step } from "../types";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
+import { flipchart } from "./flipchart";
 import { noisemaster } from "./noisemaster";
 import { headshotsGame } from "./headshots";
 import { photos } from "./photos";
@@ -36,7 +37,15 @@ export interface Game {
   /** Photos the main screen downloads ahead of time, so reveals appear instantly. */
   photoUrls(session: Session): string[];
   /** A player's files for the download-all zip, named without an extension (e.g. "before"). */
-  files(session: Session, uid: string): { name: string; url: string }[];
+  files(session: Session, uid: string): { name: string; url?: string; render?: () => Promise<Blob> }[];
+  /** Games with a round the host starts: false until the round is over, and then nobody can be shown (and the TV shows `Collecting`). */
+  canShow?(session: Session): boolean;
+  /** True while the round holds the main screen, so a pick on it does nothing. */
+  holdsScreen?(session: Session): boolean;
+  /** Main screen, collecting: replaces the task card in the middle. */
+  Collecting?: ComponentType<{ code: string; session: Session; viewOnly: boolean }>;
+  /** Host phone, collecting: the round's own control, above the player list (the gold "next thing" while the round is on). */
+  Round?: ComponentType<{ code: string; session: Session }>;
   /** Main screen, for every step but "list". `viewOnly` (an extra screen): no controls, and never writes to the session. */
   Stage: ComponentType<{ code: string; session: Session; display: Display; viewOnly: boolean }>;
   /** The player's phone, below their name. */
@@ -59,7 +68,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart };
 
 /** The games on the game picker (the rest only start from the scoreboard's task list). */
 export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);
