@@ -448,6 +448,21 @@ The host chooses which part of each headshot the scoreboard shows, without chang
 | Mid-party | The same route: Run of show, Plan the party, the thumbnail, Crop. | A shortcut from Run of show: crops are nearly always set before the party, and the arrivals list goes once the first task starts. |
 | A new photo, a reset | Replacing a photo clears its crop. A reset that removes guests clears crops with the headshots. | Keeping the old crop: it was for a different photo. |
 
+## The ⏱ clock
+
+A utility in the host's header that runs the show's clock (the one Flipchart drew) at any time, as a countdown or a stopwatch. Designed one step at a time with Jeffrey; the sketches are the `clock-host-*` and `clock-main-*` screens.
+
+| Decision | What we agreed | What we turned down, and why |
+|---|---|---|
+| Running and showing | Separate. The host can start it with nothing on the TV and put it up later or never. "Show the clock" is paper, pressed in while up, never gold; on the TV it replaces whatever was up (words, scoreboard) until the host puts something else up. | Showing it automatically on start; the clock beside a task's words (Jeffrey: replace). |
+| Presets | A task's time limits are read from its words ("You have exactly 3 minutes"), a part each, with the sentence shown so a misread is obvious. The part on the big screen starts picked; any time and "Your own" are always there. | A time-limit field in ✎ (setup on every task; the words already say it). |
+| Pick, then start | One button in one place: gold ▶ Start (and to carry on), pressed-in ⏸ Stop while it runs. Quiet "+1 minute" and "Reset". | One tap on a preset starting it (no setting up while reading the task out); Flipchart's "Your time starts now" wording and a "Stop the clock" link (Jeffrey: common icons). |
+| The strip | Under "On the big screen" on every page while the clock is going: the song strip's shape. The strip opens ⏱; a separate ⏸ beside it holds the clock. | Tapping the strip pausing it (Jeffrey would tap it expecting to show the clock). |
+| A song that ends on 0:00 | Optional, from the jukebox. It starts when the time left is its length; a longer song starts with the clock and plays on past 0:00. ⏸ pauses the clock and the song together; "+1 minute" lets it play on. No sound at 0:00 otherwise. | Starting a long song partway in (jarring). |
+| Stopwatch | For "fastest wins". Chips: the first tap picks just one, more taps add; while it runs a tap takes their time; it stops itself when everyone going is timed; a tap on a timed chip undoes it. Tenths on the face. Times go into a lowest-wins live task's results by themselves, in seconds. | Re-running a clock for a redo (Jeffrey: undo the tap; fix a late one on the task). |
+| Flipchart | One clock in the party. Flipchart's own clock (its state stays with the game, since it closes the drawing) is what ⏱ and the strip show while it runs; ⏱'s buttons are off then. | A second clock running over it. |
+| Guest phones | The clock is never on them, and Flipchart's pad no longer shows the time left either. | A clock on guests' phones. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

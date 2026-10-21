@@ -72,6 +72,15 @@ const SHOTS = {
   "flipchart-host-start": ["host-flipchart"],
   "flipchart-host-live": ["host-flipchart-live"],
   "flipchart-host-edit": ["host-flipchart-edit"],
+  // The ⏱ clock: set from Dice tower's 3 minutes, with a song that ends on 0:00, counting, the task page with its strip, Flipchart's clock, a stopwatch; the big screen's two
+  "clock-host-set": ["host-cd-set"],
+  "clock-host-song": ["host-cd-song"],
+  "clock-host-running": ["host-cd-running"],
+  "clock-host-task": ["host-cd-task"],
+  "clock-host-flipchart": ["host-cd-flipchart"],
+  "clock-host-stopwatch": ["host-sw-running"],
+  "clock-main-countdown": ["tv-cd"],
+  "clock-main-stopwatch": ["tv-sw"],
   "guest-join-code": ["join-code"],
   // Secret Tasks as the last task: the reveal's title card up, Part 2 behind a plain "Show the task", no point buttons
   "secret-reveal-host-title": ["host-secret-title"],

@@ -394,7 +394,7 @@ export const activeGameId = (session: Session): GameId | undefined => session.ga
  * or with `null` goes back to the game selection screen. Nothing submitted to any game is lost.
  */
 export const setGame = (code: string, game: GameId | null) =>
-  update(ref(db(), `sessions/${code}`), { game, display: { step: "list" }, conversion: null, ...(game ? { begun: true } : {}) });
+  update(ref(db(), `sessions/${code}`), { game, display: { step: "list" }, conversion: null, "clock/shown": null, ...(game ? { begun: true } : {}) });
 
 /**
  * Main screen: moves a session from before there were games into the games layout, so it can be resumed.
@@ -412,16 +412,16 @@ export async function migrateLegacySession(code: string, session: Session): Prom
 /** A player leaving on their own: same as being removed. */
 export const leaveSession = removePlayer;
 
-/** Puts something on the big screen. Like every write to the display, it takes down a useless conversion. */
+/** Puts something on the big screen. Like every write to the display, it takes down a useless conversion and the ⏱ clock (which keeps running). */
 export const setDisplay = (code: string, display: Display) =>
-  update(ref(db(), `sessions/${code}`), { display, conversion: null });
+  update(ref(db(), `sessions/${code}`), { display, conversion: null, "clock/shown": null });
 
 /**
  * Puts a contestant's entry on the main screen and ticks them off the host's running order
  * (so "Next" moves on). Revisiting someone already shown changes nothing there.
  */
 export const showContestant = (code: string, game: GameId, display: Display & { uid: string }) =>
-  update(ref(db(), `sessions/${code}`), { display, conversion: null, [`games/${game}/shown/${display.uid}`]: true });
+  update(ref(db(), `sessions/${code}`), { display, conversion: null, "clock/shown": null, [`games/${game}/shown/${display.uid}`]: true });
 
 /** Host remote: renames the party (shown on the remote, the guests' join screen and the recent list). */
 export const renameParty = (code: string, name: string) =>
@@ -439,7 +439,7 @@ export const setUnits = (code: string, units: "metric" | "imperial") =>
  * Anything else the host puts up takes it down too (every display write clears it).
  */
 export const showConversion = (code: string, conversion: ShownConversion | null) =>
-  set(ref(db(), `sessions/${code}/conversion`), conversion);
+  update(ref(db(), `sessions/${code}`), { conversion, ...(conversion ? { "clock/shown": null } : {}) });
 
 /** Host remote: opens or closes the join QR, on the host's phone and above the big screen's corner code. */
 export const setShowQr = (code: string, show: boolean) =>
@@ -470,7 +470,7 @@ export const setJukeboxState = (code: string, patch: Partial<NonNullable<Jukebox
 /** Changes part of the display (e.g. play/pause) without resetting the rest. */
 export const patchDisplay = (code: string, patch: Partial<Display>) =>
   update(ref(db(), `sessions/${code}`), {
-    ...Object.fromEntries(Object.entries(patch).map(([k, v]) => [`display/${k}`, v ?? null])), conversion: null,
+    ...Object.fromEntries(Object.entries(patch).map(([k, v]) => [`display/${k}`, v ?? null])), conversion: null, "clock/shown": null,
   });
 
 /** `undefined` while loading, `null` if the session doesn't exist. */

@@ -1,5 +1,6 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type ReactNode } from "react";
+import { ClockStrip } from "./clock/ClockStrip";
 import { asList, asNums, fmt } from "./JukeboxRemote";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
@@ -23,6 +24,7 @@ export function onScreenLine(session: Session): string {
   const game = activeGame(session);
   if (noBigScreen(session)) return "not connected yet";
   if (session.conversion) return "a useless conversion";
+  if (session.clock?.shown) return "the clock";
   if (display.step === "scoreboard") {
     const pending = pendingIds(board).map((id) => board?.tasks?.[id]).filter((t) => !!t).map(titleOf);
     return pending.length ? `the scores, before ${list(pending)}` : "the scores";
@@ -53,11 +55,12 @@ export function onScreenLine(session: Session): string {
  * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
  * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
  */
-export function OnScreen({ code, session, chip }: { code: string; session: Session; chip?: ReactNode }) {
+export function OnScreen({ code, session, chip, noClock }: { code: string; session: Session; chip?: ReactNode; noClock?: boolean }) {
   return (
     <>
       <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
       {chip}
+      {!noClock && <ClockStrip code={code} session={session} />}
       <NowPlaying code={code} session={session} />
     </>
   );

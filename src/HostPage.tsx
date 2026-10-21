@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { JoinQr, OnScreen } from "./HostRemote";
 import { JukeboxRemote } from "./JukeboxRemote";
+import { ClockRemote } from "./clock/ClockRemote";
+import { ClockIcon, OpenClock } from "./clock/ClockStrip";
 import { ConverterRemote } from "./conversions/ConverterRemote";
 import { isArmed, lightOf, releaseLight } from "./light/data";
 import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
@@ -25,10 +27,10 @@ const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
 const BACK_KEY = "ba.hostBack";
 /** Run of show (home), a task's page, Plan the party, a task's ✎ page, and the side jobs in the header. */
-type View = "show" | "task" | "plan" | "edit" | "crop" | "music" | "light" | "tasks" | "convert";
+type View = "show" | "task" | "plan" | "edit" | "crop" | "music" | "light" | "tasks" | "convert" | "clock";
 /** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
 interface Place { view: View; task?: string; contestant?: string }
-const SIDE: View[] = ["music", "light", "tasks", "convert"];
+const SIDE: View[] = ["music", "light", "tasks", "convert", "clock"];
 const VIEWS: View[] = ["show", "task", "plan", "edit", "crop", ...SIDE];
 const HOME: Place = { view: "show" };
 
@@ -96,12 +98,14 @@ export function HostPage() {
   const open = (id: string) => go(id === "tiebreaker" ? { view: "task", task: "tiebreaker" } : { view: "task", task: id });
 
   return (
+    <OpenClock.Provider value={() => go({ view: "clock" })}>
     <main className="phone host">
       <header className="host-head">
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
         {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
         {icon("convert", session.conversion ? "Useless conversions (on the big screen)" : "Useless conversions", "📏", !!session.conversion)}
+        <ClockIcon session={session} icon={icon} />
       </header>
       <Dealer code={code} session={session} />
       <MoveRequests code={code} session={session} />
@@ -115,10 +119,11 @@ export function HostPage() {
         : SIDE.includes(place.view) ? (
           <>
             <button className="link back" onClick={() => go(back)}>← Back</button>
-            <OnScreen code={code} session={session} />
+            <OnScreen code={code} session={session} noClock={place.view === "clock"} />
             {place.view === "music" ? <JukeboxRemote code={code} session={session} />
               : place.view === "tasks" ? <TaskPile code={code} session={session} />
               : place.view === "convert" ? <ConverterRemote code={code} session={session} />
+              : place.view === "clock" ? <ClockRemote code={code} session={session} from={back.view === "task" ? back.task : undefined} />
               : <LightRemote code={code} session={session} />}
           </>
         ) : (
@@ -129,6 +134,7 @@ export function HostPage() {
             </>} />
         )}
     </main>
+    </OpenClock.Provider>
   );
 }
 

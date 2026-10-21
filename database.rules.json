@@ -305,6 +305,22 @@
           "how": { ".validate": "newData.isString() && newData.val().length <= 200" },
           "$other": { ".validate": false }
         },
+        "clock": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          "mode": { ".validate": "newData.val() === 'up'" },
+          "set": { ".validate": "newData.isNumber()" },
+          "ms": { ".validate": "newData.isNumber()" },
+          "at": { ".validate": "newData.isNumber()" },
+          "begun": { ".validate": "newData.val() === true" },
+          "stopped": { ".validate": "newData.val() === true" },
+          "shown": { ".validate": "newData.val() === true" },
+          "songOn": { ".validate": "newData.val() === true" },
+          "task": { ".validate": "newData.isString() && newData.val().length <= 60" },
+          "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
+          "going": { "$id": { ".validate": "newData.val() === true" } },
+          "times": { "$id": { ".validate": "newData.isNumber()" } },
+          "$other": { ".validate": false }
+        },
         "phoneText": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.hasChildren(['task'])",

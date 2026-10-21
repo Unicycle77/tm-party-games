@@ -324,6 +324,38 @@ export interface TaskUnit {
   kind: "height" | "length" | "weight" | "time" | "volume" | "loudness";
 }
 
+/**
+ * The ⏱ clock, the party's one utility clock (a countdown, or a stopwatch counting up). Flipchart's own clock lives with
+ * its game, and is the one clock in the party while it runs (see `clockOf` in clock/data.ts). Times are in ms, and the
+ * moments (`at`) in database time, so every screen counts the same.
+ */
+export interface ClockState {
+  /** "up": a stopwatch. Absent: a countdown. */
+  mode?: "up";
+  /** A countdown's set time, which Reset goes back to. */
+  set?: number;
+  /** The face while it isn't running: the time set (before the start), or the time left or so far (held). */
+  ms: number;
+  /** Running: a countdown's end, or the moment a stopwatch's count started (now minus this is the time so far). */
+  at?: number;
+  /** It has been started, so ⏸ and Reset apply, even while held. */
+  begun?: true;
+  /** A stopwatch stopped itself, with every contestant who was going timed. `at` stays, so undoing a time carries on as if it never stopped. */
+  stopped?: true;
+  /** The clock is on the big screen, covering whatever's there until the host takes it down or puts something else up. */
+  shown?: true;
+  /** The task the host came from when setting it: where a stopwatch's times go (a lowest-wins live task). */
+  task?: string;
+  /** A song (a title in the jukebox) that ends on 0:00: it starts when the time left is its length, or with the clock if it's longer. */
+  song?: string;
+  /** That song has been started on this run (and is held with the clock). */
+  songOn?: true;
+  /** A stopwatch: the contestants going. Absent: everyone who has no time yet. */
+  going?: Record<string, true>;
+  /** A stopwatch with no task to hold them: each contestant's time. */
+  times?: Record<string, number>;
+}
+
 /** A useless conversion on the big screen: the three lines the host reads out. */
 export interface ShownConversion {
   lead: string;
@@ -410,6 +442,8 @@ export interface Session {
   phoneText?: { task: string; part?: number };
   /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
+  /** The ⏱ clock the host set, and maybe has on the big screen. */
+  clock?: ClockState;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */
   units?: "metric" | "imperial";
   jukebox?: Jukebox;
