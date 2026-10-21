@@ -1219,6 +1219,8 @@ button.help-q:active { transform: none; box-shadow: none; }
 /* the five kinds sit three and two, never four and a lone one; a unit ("fl oz") never breaks over two lines */
 .converter .choices.kinds button { flex-basis: 5.5rem; }
 .converter .choices.units button { flex-basis: 3rem; white-space: nowrap; }
+.converter .choices.units button.thing { flex-basis: 100%; }
+.converter .find-thing { display: grid; gap: 0.5rem; }
 .converter .feet-in { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 0.8rem; }
 .converter .feet-in > span { grid-column: 1 / -1; color: var(--muted); }
 .converter .feet-in label { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: center; }
