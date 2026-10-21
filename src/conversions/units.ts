@@ -140,6 +140,7 @@ export const UNITS: Record<Kind, UselessUnit[]> = {
     ["capybaras", "capybara", "an adult, at the shoulder", 55, "cm", about],
     ["pygmy hippos", "pygmy hippo", "Moo Deng's kind, fully grown, at the shoulder", 85, "cm", about],
     ["chihuahuas", "chihuahua", "at the shoulder", 18, "cm", about],
+    ["Jimothys", "Jimothy", "the Ballard raccoon, at the shoulder", 6, "in", { about: true, the: "" }],
     ["dachshunds", "dachshund", "a standard, at the shoulder", 22, "cm", about],
     ["French bulldogs", "French bulldog", "at the shoulder", 30, "cm", about],
     ["Pikachus", "Pikachu", "its Pokédex height", 0.4, "m"],
