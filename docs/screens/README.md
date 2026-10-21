@@ -94,6 +94,7 @@ Main screen (`/`, 1600×900):
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
 | `converter-main-loudness.jpg` | A sound on the big screen: "94.2 dB is / about 26 garbage disposals at once / at the sink" (2026-10-17) |
 | `converter-main-fraction.jpg` | The same with a fraction: "exactly 1/300 the height of Big Ben" |
+| `converter-main-jimothy.jpg` | Jimothy on the big screen: "12 dice tall is / about 1.26 Jimothys / the Ballard raccoon, at the shoulder" (2026-10-21) |
 | `main-hidden-menu.jpg` | The ☰ Menu in the top-left corner, open |
 | `main-curtain-join-qr.jpg` | The curtain while the host remote's "Show QR code" is open: the join QR in the bottom-right corner, above the address (taken 2026-10-13, stand-in portrait) |
 
