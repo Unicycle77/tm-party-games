@@ -111,19 +111,21 @@ export function say(kind: Kind, amount: number, inUnit: string, m: Match, system
   // How close: exactly (to the last decimal shown), almost exactly (within 2%), or only roughly.
   const value = m.fraction ? 1 / m.count : m.count;
   const rel = Math.abs(value - m.whole) / m.whole;
-  const exact = !u.about && rel < 0.001;
+  // Either side being an average makes the whole thing one: Jimothy (about 6 in) is never "exactly" anything.
+  const about = u.about || !!from?.about;
+  const exact = !about && rel < 0.001;
   const almost = rel < 0.02;
   let main: string;
   if (m.fraction) {
-    const prefix = exact ? "exactly " : almost && !u.about ? "almost exactly " : "about ";
+    const prefix = exact ? "exactly " : almost && !about ? "almost exactly " : "about ";
     main = `${prefix}1/${num(m.whole, 0)} the ${DIMENSION[kind]} of ${withArticle(u)}`;
   } else if (exact) {
     main = `${num(m.whole, 0)} ${m.whole === 1 ? u.one : u.many}`;
   } else if (almost) {
-    main = `${u.about ? "about" : "almost exactly"} ${num(m.whole, 0)} ${m.whole === 1 ? u.one : u.many}`;
+    main = `${about ? "about" : "almost exactly"} ${num(m.whole, 0)} ${m.whole === 1 ? u.one : u.many}`;
   } else {
     const digits = m.count < 10 ? 2 : m.count < 1000 ? 1 : 0;
-    main = `${u.about ? "about " : ""}${num(m.count, digits)} ${u.many}`;
+    main = `${about ? "about " : ""}${num(m.count, digits)} ${u.many}`;
   }
   return { lead, main, how: u.measured };
 }
@@ -192,10 +194,10 @@ export const sizeText = (kind: Kind, u: UselessUnit, system: System = "metric") 
   kind === "loudness" ? `about ${num(10 * Math.log10(u.size), 1)} dB` : `${u.about ? "about " : ""}${amountText(kind, u.size, system)}`;
 
 /** The working, for the host: "39 dice = 62.4 cm · a dollar bill is 15.6 cm", or in imperial "39 dice = 2 ft ½ in · a dollar bill is 6 ¼ in". */
-export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric"): string {
+export function working(kind: Kind, anchor: number, inLabel: string, m: Match, system: System = "metric", from?: UselessUnit): string {
   if (kind === "loudness") return `${inLabel} · ${withArticle(m.unit)} is ${sizeText(kind, m.unit)}`;
   const show = (a: number) => amountText(kind, a, system);
   // Typed as it's shown ("5 ft 11 in"), there's nothing to convert.
-  const measured = inLabel === show(anchor) ? inLabel : `${inLabel} = ${show(anchor)}`;
+  const measured = inLabel === show(anchor) ? inLabel : `${inLabel} = ${from?.about ? "about " : ""}${show(anchor)}`;
   return `${measured} · ${withArticle(m.unit)} is ${m.unit.about ? "about " : ""}${show(m.unit.size)}`;
 }

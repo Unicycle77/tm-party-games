@@ -1228,6 +1228,7 @@ button.help-q:active { transform: none; box-shadow: none; }
 .slot.conversion .lead { font-family: var(--typewriter); color: #1f1a14; font-size: 1.05rem; }
 .slot.conversion .main { font-family: var(--typewriter); color: var(--burgundy); font-size: 2rem; line-height: 1.1; }
 .slot.conversion .tracklist { max-height: 15rem; }
+.slot.conversion .summary-links { justify-content: center; flex-wrap: wrap; }
 .unit-field { display: grid; gap: 0.5rem; }
 .unit-field .unit-size { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; align-items: center; }
 .unit-field .unit-size.after { grid-template-columns: 1fr auto; }

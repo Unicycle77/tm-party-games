@@ -4,7 +4,7 @@ import { showConversion, store } from "../session";
 import { Toggle } from "../Toggle";
 import type { Session } from "../types";
 import { COMMON, commonFor, feetAndInches, firstUnit, ofSystem, type System, KIND_LABEL, KINDS, matchFor, poundsAndOunces, rank, say, sizeText, toAnchor, working, type Match } from "./convert";
-import { UNITS, type Kind } from "./units";
+import { UNITS, type Kind, type UselessUnit } from "./units";
 
 const UNIT_KEY = "ba.convertUnit";
 /** A task's unit, a common unit, or a useless unit itself (`thing`, its `many`): "2 Eiffel Towers". */
@@ -65,7 +65,9 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   const [at, setAt] = useState(-1);
   const [picked, setPicked] = useState<Match>();
   const [choosing, setChoosing] = useState(false);
-  useEffect(() => { setAt(-1); setPicked(undefined); setChoosing(false); }, [key]);
+  // "⇄ Flip it" swaps the two things: the answer becomes the one to start from, and lands on the old start.
+  const [flipTo, setFlipTo] = useState<UselessUnit>();
+  useEffect(() => { setAt(-1); setPicked(flipTo && matchFor(flipTo, anchor)); setFlipTo(undefined); setChoosing(false); }, [key]);
   const match = picked ?? ranked[at];
   // Read out in the smaller unit, so 0 ft 8 in is "8 in", and 5 ft 11 in stays "5 ft 11 in".
   const said = match && (split ? say(kind, amount * split.per, split.small, match, session.units) : say(kind, amount, label, match, session.units, thing));
@@ -156,8 +158,17 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           <p className="lead">{said.lead}</p>
           <p className="main">{said.main}</p>
           <p className="lead">{said.how}</p>
-          <p className="small">{working(kind, anchor, split ? (kind === "weight" ? poundsAndOunces(anchor) : feetAndInches(anchor)) : `${typed.trim()} ${label}`, match, session.units)}</p>
-          <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
+          <p className="small">{working(kind, anchor, split ? (kind === "weight" ? poundsAndOunces(anchor) : feetAndInches(anchor)) : `${typed.trim()} ${label}`, match, session.units, thing)}</p>
+          <div className="summary-links">
+            <button className="link" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Use a different unit {choosing ? "▴" : "▾"}</button>
+            {thing && (
+              <button className="link" onClick={() => {
+                setFlipTo(thing);
+                setSource({ kind, unit: common.unit, thing: match.unit.many });
+                setTyped("1");
+              }}>⇄ Flip it</button>
+            )}
+          </div>
           {choosing && (
             <ul className="tracklist">
               {UNITS[kind].filter((u) => u !== thing).map((u) => (
