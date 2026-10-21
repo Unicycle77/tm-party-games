@@ -4,7 +4,7 @@ import { db } from "../../firebase";
 import { GuestCard, Quote, Status, afterwards, useGuest } from "../../guest";
 import { store } from "../../session";
 import type { Session } from "../../types";
-import { clockText, closed, dataOf, drawOf, flipchartTask, started, useRemaining } from "./data";
+import { closed, dataOf, drawOf, flipchartTask, started, useRemaining } from "./data";
 import { PageSvg } from "./Portrait";
 import { MARKERS, MIN_STEP, PAGES, PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN, encodePage, pageKey, pagesOf, type Stroke } from "./strokes";
 
@@ -32,7 +32,7 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   if ((sent && !again) || over) return <Receipt code={code} uid={uid} sent={sent} label={label} title={title} left={left} />;
   return (
     <>
-      <Status>{live ? `It's task time. ${clockText(remaining)} left.` : "Your time starts when the host says."}</Status>
+      <Status>{live ? "It's task time." : "Your time starts when the host says."}</Status>
       <GuestCard label={label} title={title}>
         <Flipchart key={again ? "again" : "first"} code={code} uid={uid} session={session} live={live} words={task?.text} again={again} />
       </GuestCard>

@@ -40,12 +40,6 @@ export const flipchartStatus = (session: Session, uid: string): SubmissionStatus
 export const sentCount = (session: Session) =>
   Object.keys(session.players ?? {}).filter((uid) => flipchartStatus(session, uid) === "submitted").length;
 
-/** "14:32": what's left, rounded up to the second, never below nothing. */
-export function clockText(ms: number): string {
-  const s = Math.max(0, Math.ceil(ms / 1000));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
-
 /** How much time is left on every screen's clock, ticking while it runs: the limit before the start, nothing once it's closed. */
 export function useRemaining(session: Session): number {
   const data = dataOf(session);
@@ -66,6 +60,7 @@ export function startClock(code: string, session: Session, offset: number) {
     "games/flipchart/closed": null,
     display: { step: "list" },
     conversion: null,
+    "clock/shown": null,
   });
 }
 

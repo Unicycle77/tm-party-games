@@ -9,7 +9,7 @@ import { TaskCard } from "../../src/TaskCard";
 import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
-import { FlipClock } from "../../src/games/flipchart/FlipClock";
+import { FlipClock } from "../../src/clock/FlipClock";
 import { Portrait } from "../../src/games/flipchart/Portrait";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
@@ -44,7 +44,7 @@ const tokens: [string, string, string][] = [
   ["--tm-red", "#c8102e", "Noisemaster"], ["--key", "#1e1d1c", "soundboard keys"],
 ];
 const icons: [string, string][] = [
-  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["🎲", "Dice preset"], ["🔊", "dB meter preset"], ["🎁", "Prizes"],
+  ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["⏱", "The clock"], ["⏸ ▶", "Stop / start the clock"], ["🎲", "Dice preset"], ["🔊", "dB meter preset"], ["🎁", "Prizes"],
   ["☰", "Hidden menu"], ["📺", "Screen"], ["📷", "Scan a QR"], ["◫", "Side by side"], ["▶ ⏸ ↺", "Play, pause, restart"],
   ["←", "Back"], ["→", "Next thing"], ["✕ ×", "Close, remove"], ["✎", "Fix in place"], ["+", "Add"], ["≡", "Drag to reorder"],
   ["★ ☆", "Chosen photo"], ["✓", "Done"], ["🔒 🔓", "Locked, may resubmit"], ["🔇", "Sound blocked"], ["👁", "Show the pin"],
@@ -143,6 +143,7 @@ function Sheet() {
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
                 <button className="head-icon" aria-label="Light">💡</button>
                 <button className="head-icon" aria-label="Useless conversions">📏</button>
+                <button className="head-icon lit" aria-label="The clock (running)">⏱</button>
               </header>
             </div>
             <p className="on-screen">On the big screen: the scoreboard</p>
@@ -182,6 +183,8 @@ function Sheet() {
               <button className="sb-song now-playing-strip"><span className="title">⏸ Eye of the Tiger</span><span className="dur">1:55 left</span></button>
             </div>
             <Cap>The now-playing strip (<code>.now-playing-strip</code>): under "On the big screen" on every page while a song plays; one tap pauses</Cap>
+            <div className="clock-strip"><button className="sb-song"><span className="title">⏱ The clock →</span><span className="dur">2:31 left</span></button><button className="clock-hold" aria-label="Stop the clock">⏸</button></div>
+            <Cap>The clock strip (<code>.clock-strip</code>): the same place and shape, on every page while the clock is set going, shown or Flipchart's. The strip opens ⏱ and never touches the room; the ⏸ beside it holds the clock (▶ carries on)</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
               <section className="move-request new-guest"><p><strong>Riley</strong> joined, but isn't on the scoreboard. Add them if they're playing.</p><div className="row"><button>Add Riley</button><button>Not playing</button></div></section>
             </div>
@@ -279,6 +282,11 @@ function Sheet() {
               <FlipClock ms={14 * 60_000 + 30_000} width="280px" />
               <div style={{ width: 120 }}><Portrait pages={[]} /></div>
             </div>
+            <div className="pair" style={{ alignItems: "center" }}>
+              <FlipClock ms={17_300} up width="200px" />
+              <div className="clock-go-demo"><button className="big">▶ Start</button><button className="pressed-in clock-go">⏸ Stop</button></div>
+            </div>
+            <Cap>The ⏱ clock is the same object (<code>FlipClock</code>), counting down or, as a stopwatch (<code>up</code>), up with a small tenths digit. One button in one place: gold ▶ Start (and to carry on), pressed-in paper ⏸ Stop while it runs, never gold</Cap>
             <Cap>The show's clock (<code>.fc-clock</code>): red seven-segment digits on a black 4:3 screen, white matte, black frame about half the matte's width; the same on the TV and the host's phone, for the whole task. The portrait (<code>.fc-portrait</code>): sixteen pages in the show's pattern as one picture</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">

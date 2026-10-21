@@ -1,7 +1,7 @@
 import { setDisplay } from "../../session";
 import type { Display, Session } from "../../types";
 import { addFiveMinutes, closed, dataOf, endNow, flipchartStatus, running, sentCount, startClock, started, useRemaining } from "./data";
-import { FlipClock } from "./FlipClock";
+import { FlipClock } from "../../clock/FlipClock";
 import { useServerOffset } from "../noisemaster/data";
 
 /**

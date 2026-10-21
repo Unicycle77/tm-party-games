@@ -5,7 +5,7 @@ import { setDisplay, showContestant } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
 import { TaskCard } from "../../TaskCard";
 import type { Display, Session } from "../../types";
-import { FlipClock } from "./FlipClock";
+import { FlipClock } from "../../clock/FlipClock";
 import { closed, drawOf, flipchartStatus, flipchartTask, flipchartWords, running, useCloser, useRemaining } from "./data";
 import { Portrait } from "./Portrait";
 import { PORTRAIT_RATIO, pagesOf } from "./strokes";

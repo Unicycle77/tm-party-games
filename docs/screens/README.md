@@ -25,7 +25,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
 | `guest-join-code.jpg` | Joining without the QR: "Party code" with 📷 and "It's on the big screen.", Next waiting for 4 letters |
 | `flipchart-guest-front.jpg` | Flipchart before the host starts the clock: the task's words and the front page with the show's pattern (3, 9, 10, 16 upside down), flipping locked (2026-10-21) |
-| `flipchart-guest-drawing.jpg` | Flipchart mid-task: one page, markers, Undo, ← and →, "It's task time. 14:30 left." and no page number (2026-10-21) |
+| `flipchart-guest-drawing.jpg` | Flipchart mid-task: one page, markers, Undo, ← and →, "It's task time." (no time left on any guest phone) and no page number (2026-10-21) |
 | `flipchart-guest-send.jpg` | The last page asks "Send your portrait? You can't change it after." (send is only ever on page 16) (2026-10-21) |
 | `flipchart-guest-sent.jpg` | Sent: the front page closed, "✓ Submitted" and the locked line (2026-10-21) |
 | `flipchart-main-clock.jpg` | The big screen while they draw: the show's clock as the one focus, the tally beside it (2026-10-21) |
@@ -34,6 +34,14 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `flipchart-host-start.jpg` | Host task page before the start: the clock at its limit and gold "Your time starts now" (2026-10-21) |
 | `flipchart-host-live.jpg` | Host task page while it runs: the clock, "+5 minutes", "End now: send everyone's" (2026-10-21) |
 | `flipchart-host-edit.jpg` | The task's ✎ page: what they draw and the time limit (10, 15, 20 or 30 minutes) (2026-10-21) |
+| `clock-host-set.jpg` | ⏱ The clock, set from a task: Dice tower's time limits read from its words (3 min for part 1, which is on the big screen, 2 min for part 2), quick times, "Your own", "+ Song to end on", gold ▶ Start (2026-10-21) |
+| `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
+| `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |
+| `clock-host-task.jpg` | The task page while the clock counts: the clock strip under "On the big screen", and the ⏸ beside it (2026-10-21) |
+| `clock-host-stopwatch.jpg` | The stopwatch: contestant chips (Alex timed, Greg going), "Times go into task 7, Five socks · lowest wins", the face with tenths (2026-10-21) |
+| `clock-host-flipchart.jpg` | ⏱ while Flipchart's clock runs: the one clock in the party, read-only, "Run it from the task" (2026-10-21) |
+| `clock-main-countdown.jpg` | The big screen with the clock shown: the show's clock alone, over whatever was up (2026-10-21) |
+| `clock-main-stopwatch.jpg` | The big screen with a stopwatch: counting up, a small tenths digit (2026-10-21) |
 | `guest-noisemaster-up.jpg` | "You're up!": the phrase and the board in the card |
 | `main-noisemaster.jpg` | Noisemaster on the big screen mid-go: the words said so far as gold tiles, the red board with the last button lit green, the player's name, the clock, "2 of 4 words" and "1 restart" (2026-10-18) |
 | `main-noisemaster-done.jpg` | Noisemaster on the big screen when the go is finished: all four words as gold tiles, the clock stopped at 0:41.3, "4 of 4 words", "2 restarts" and the ✓ Done stamp (2026-10-21) |

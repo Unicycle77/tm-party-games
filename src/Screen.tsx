@@ -11,6 +11,7 @@ import { useDealer } from "./games/secretTasks/data";
 import { preloadImages } from "./preload";
 import { PUBLIC_URL, hostUrlFor, joinUrlFor } from "./firebase";
 import { ConversionStage } from "./conversions/ConversionStage";
+import { ClockStage } from "./clock/ClockStage";
 import { removeHostPin, resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
@@ -50,6 +51,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
 
   // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
+  // So does the ⏱ clock, when the host shows it.
+  if (session.clock?.shown) return <ClockStage session={session} />;
   // The scoreboard belongs to no game, so it can go up whatever is on.
   if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} players={session.players} />;
   // So is the winner's prize haul, at the end of the party.

@@ -1,4 +1,4 @@
-import { clockText } from "./data";
+import { clockText, watchText } from "./text";
 
 /** Which of a digit's seven segments are lit, as on a clock face: a top, b upper right, c lower right, d bottom, e lower left, f upper left, g middle. */
 const LIT: Record<string, string> = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg" };
@@ -18,8 +18,8 @@ const segment = (s: string, x: number): string => {
   }
 };
 
-/** "14:32" as four seven-segment digits and a colon; a minutes digit that isn't needed ("9:05") stays dark. */
-function Digits({ text }: { text: string }) {
+/** "14:32" as four seven-segment digits and a colon; a minutes digit that isn't needed ("9:05") stays dark. A stopwatch adds a small tenths digit. */
+function Digits({ text, tenth }: { text: string; tenth?: string }) {
   const [minutes, seconds] = text.split(":") as [string, string];
   const slots = [minutes.padStart(2, " "), seconds];
   const parts: JSX.Element[] = [];
@@ -34,6 +34,14 @@ function Digits({ text }: { text: string }) {
       x += 26;
     }
   });
+  if (tenth !== undefined) {
+    // Half the size, on the bottom line, after a dot.
+    const at = x - SPACE + 14;
+    parts.push(<circle key="dot" cx={at + 4} cy={H - 6} r={6} className="on" />);
+    const small = "abcdefg".split("").map((s) => <path key={`t${s}`} d={segment(s, 0)} className={LIT[tenth]?.includes(s) ? "on" : "off"} />);
+    parts.push(<g key="tenth" transform={`translate(${at + 22} ${H / 2}) scale(0.5)`}>{small}</g>);
+    x = at + 22 + W / 2 + SPACE;
+  }
   return (
     <svg viewBox={`-10 -10 ${x - SPACE + 20} ${H + 20}`} aria-hidden="true">
       <g transform="skewX(-6)">{parts}</g>
@@ -44,12 +52,13 @@ function Digits({ text }: { text: string }) {
 /**
  * The show's clock: red seven-segment digits on a black screen the shape of an iPad on its side, in a white matte inside a
  * thin black frame. The same on the big screen and the host's phone; `width` sets its size (the frame and matte scale with it).
+ * `up`: a stopwatch, counting up with a small tenths digit.
  */
-export function FlipClock({ ms, width, className }: { ms: number; width: string; className?: string }) {
-  const text = clockText(ms);
+export function FlipClock({ ms, width, className, up }: { ms: number; width: string; className?: string; up?: boolean }) {
+  const { text, tenth } = up ? watchText(ms) : { text: clockText(ms), tenth: undefined };
   return (
-    <div className={["fc-clock", className].filter(Boolean).join(" ")} style={{ "--w": width } as React.CSSProperties} role="timer" aria-label={`${text} left`}>
-      <div className="matte"><div className="screen"><Digits text={text} /></div></div>
+    <div className={["fc-clock", className].filter(Boolean).join(" ")} style={{ "--w": width } as React.CSSProperties} role="timer" aria-label={up ? `${text}.${tenth}` : `${text} left`}>
+      <div className="matte"><div className="screen"><Digits text={text} tenth={tenth} /></div></div>
     </div>
   );
 }

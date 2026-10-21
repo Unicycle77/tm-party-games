@@ -29,6 +29,6 @@ export function neighbour(session: Session, id: string, dir: 1 | -1): string | u
 
 /** One contestant's headshot on the big screen, ticked off in the running order. */
 export const showHeadshot = (code: string, id: string) =>
-  update(ref(db(), `sessions/${code}`), { display: { step: "photo", contestant: id }, conversion: null, [`games/headshots/shown/${id}`]: true });
+  update(ref(db(), `sessions/${code}`), { display: { step: "photo", contestant: id }, conversion: null, "clock/shown": null, [`games/headshots/shown/${id}`]: true });
 
 export const showEveryone = (code: string) => setDisplay(code, { step: "grid" });

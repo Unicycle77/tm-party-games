@@ -1464,3 +1464,15 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .fc-page.dropping { animation: fc-drop 0.5s ease-out backwards; transition: none; }
 @keyframes fc-drop { from { opacity: 0; margin-top: -4%; } }
 @media (prefers-reduced-motion: reduce) { .fc-page, .fc-page.dropping { animation: none; transition: none; } }
+
+/* ---- the ⏱ clock: set on the host's phone, the show's clock on the big screen ---- */
+.clock-stage { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; }
+.clock-stage .fc-clock.tv { width: min(var(--w), 100%); }
+.clock-remote .clock-face { display: grid; justify-items: center; }
+.clock-go { font-size: 1.25rem; padding: 1rem 1.5rem; width: 100%; text-transform: uppercase; }
+/* under "On the big screen", the song strip's shape: the strip opens ⏱, the ⏸ beside it holds the clock */
+.clock-strip { display: flex; gap: 0.4rem; margin: 0.2rem 0; }
+.clock-strip .sb-song { flex: 1; min-width: 0; margin: 0; }
+.clock-hold { flex: none; padding: 0.45rem 0.9rem; }
+.clock-who { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
+.clock-chips button.timed { opacity: 0.8; }

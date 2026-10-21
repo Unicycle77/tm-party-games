@@ -122,7 +122,8 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
         <h1>{titleOf(task)}</h1>
         <p className="muted">Task {place} of {of} · {task.game ? "app task" : "live task"}</p>
       </div>
-      <OnScreen code={code} session={session} />
+      {/* Flipchart's own page has its clock already (the strip would say the same twice). */}
+      <OnScreen code={code} session={session} noClock={task.game === "flipchart"} />
       <LowerIfUp code={code} session={session} />
       {secret ? parts.length > 1 && <ShowTask code={code} session={session} task={id} part={1} gold={false} onShown={() => setTextSeen(true)} />
         : task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}

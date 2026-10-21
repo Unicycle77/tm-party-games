@@ -253,7 +253,7 @@ export const updateScores = (code: string, board: Scoreboard | undefined) => {
  */
 export const declareWinner = (code: string, on = true) =>
   update(ref(db(), `sessions/${code}`), on
-    ? { "scoreboard/final": true, display: { step: "scoreboard" }, conversion: null }
+    ? { "scoreboard/final": true, display: { step: "scoreboard" }, conversion: null, "clock/shown": null }
     : { "scoreboard/final": null });
 
 /** Whether the big screen pixelates the headshots of guests who haven't checked in (on unless turned off). */
