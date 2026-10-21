@@ -14,7 +14,7 @@ Think of the UI as six physical materials. Every element is made of one of them.
 
 | Material | Used for | Recipe |
 |---|---|---|
-| **Curtain** (backdrop) | Page background everywhere | `--bg-image` under a dark red tint; `--burgundy-deep` as the fallback colour. Already on `body`; don't paint over it. |
+| **Curtain** (backdrop) | Page background everywhere | `--bg-image` under a dark red tint; `--burgundy-deep` as the fallback colour. Already on `body` (a fixed layer, so only content scrolls); don't paint over it. A big-screen `.stage` lights that same layer (lighter tint, vignette) rather than painting a second curtain. |
 | **Paper** | Buttons, inputs, cards, labels, notices | `background: var(--paper)`, `color: var(--ink)`, `border: 2px solid var(--gold-dark)`, drop shadow |
 | **Gold** | The main action, the active choice | `--gold-gradient` fill + `--gold-edge` border (see §3) |
 | **Gold frame** | Every photo or video on the stage | `border-image: url("./assets/frame.png")` (the `.frame` / `.review .pic` recipe) |
