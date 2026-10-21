@@ -9,7 +9,7 @@ import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
 import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
 import { flipchartDefaults } from "../../src/games/flipchart/data";
-import { portraitPages } from "./portraits";
+import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
 
 const CODE = "ABCD";
@@ -198,7 +198,9 @@ function build() {
       if (live || over) Object.assign(fc, { startedAt: now - 5.5 * 60_000, endsAt: now + 14.5 * 60_000 });
       if (over) Object.assign(fc, { startedAt: now - 20 * 60_000, endsAt: now - 1000, closed: true });
       const drawers = shot.includes("drawing") || shot.includes("send") || shot.includes("sent") ? ["sam"] : over ? Object.keys(people).filter((id) => id !== "tom") : [];
-      fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id))]));
+      // The range a room sees: Greg followed the front page, Alex and Mei forgot to turn the upside-down pages, Sam and Priya drew in reading order.
+      const reading: Record<string, Reading> = { greg: "pattern", alex: "upright", mei: "upright", sam: "reading", priya: "reading" };
+      fc.pages = Object.fromEntries(drawers.map((id) => [id, portraitPages(Object.keys(people).indexOf(id), reading[id])]));
       if (shot.includes("sent")) fc.submitted = { sam: true };
       if (over) fc.submitted = Object.fromEntries(drawers.map((id) => [id, true]));
       g.flipchart = fc;
