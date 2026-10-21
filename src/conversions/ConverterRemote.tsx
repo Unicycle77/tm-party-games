@@ -39,9 +39,8 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   };
   const [typed, setTyped] = useState("");
   const [typedIn, setTypedIn] = useState("");
-  // The list of things to start from, and what's typed to find one.
+  // The list of things to start from.
   const [finding, setFinding] = useState(false);
-  const [find, setFind] = useState("");
 
   const taskUnit = "task" in source ? session.scoreboard?.tasks?.[source.task]?.unit : undefined;
   // A task whose unit was removed falls back to the common units.
@@ -77,8 +76,6 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
   useEffect(() => {
     if (onScreen && said && (said.main !== session.conversion?.main || said.lead !== session.conversion?.lead)) void showConversion(code, said);
   }, [onScreen, said?.lead, said?.main]);
-
-  const found = UNITS[kind].filter((u) => [u.one, u.many].some((n) => plain(n).includes(plain(find.trim()))));
 
   const surprise = () => { setPicked(undefined); setChoosing(false); setAt((a) => (a + 1) % ranked.length); };
 
@@ -118,28 +115,12 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
         </button>
       </div>
       {finding && (
-        <div className="find-thing">
-          <div className="clearable">
-            <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Find a thing…" aria-label="Find a thing" enterKeyHint="search" autoFocus />
-            {find && <button type="button" aria-label="Clear find a thing" onClick={() => setFind("")}>×</button>}
-          </div>
-          <ul className="tracklist">
-            {found.map((u) => (
-              <li key={u.many}>
-                <button className={thing === u ? "active" : ""} onClick={() => {
-                  setSource({ kind, unit: common.kind === kind ? common.unit : firstUnit(kind, session.units), thing: u.many });
-                  setTyped("1");
-                  setTypedIn("");
-                  setFinding(false);
-                  setFind("");
-                }}>
-                  <span className="title">{u.one}</span><span className="dur">{sizeText(kind, u, session.units)}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {!found.length && <p className="muted">Nothing called that in {KIND_LABEL[kind].toLowerCase()}.</p>}
-        </div>
+        <FindThing kind={kind} system={session.units} active={thing} onPick={(u) => {
+          setSource({ kind, unit: common.kind === kind ? common.unit : firstUnit(kind, session.units), thing: u.many });
+          setTyped("1");
+          setTypedIn("");
+          setFinding(false);
+        }} />
       )}
       {split ? (
         <div className="feet-in">
@@ -153,6 +134,13 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
         </label>
       )}
       <button className="big" disabled={!ready} onClick={surprise}>{match ? "Surprise me again" : "Surprise me"}</button>
+      {/* Or go straight to the answer: the same list as "Use a different unit", before there's a result. */}
+      {ready && !match && (
+        <>
+          <button className="link pick-one" aria-expanded={choosing} onClick={() => setChoosing(!choosing)}>Or pick one {choosing ? "▴" : "▾"}</button>
+          {choosing && <FindThing kind={kind} system={session.units} except={thing} onPick={(u) => { setPicked(matchFor(u, anchor)); setChoosing(false); }} />}
+        </>
+      )}
       {said && match && (
         <div className="slot conversion">
           <p className="lead">{said.lead}</p>
@@ -169,15 +157,7 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
               }}>⇄ Flip it</button>
             )}
           </div>
-          {choosing && (
-            <ul className="tracklist">
-              {UNITS[kind].filter((u) => u !== thing).map((u) => (
-                <li key={u.many}>
-                  <button className={match.unit === u ? "active" : ""} onClick={() => { setPicked(matchFor(u, anchor)); setChoosing(false); }}>{u.many}</button>
-                </li>
-              ))}
-            </ul>
-          )}
+          {choosing && <FindThing kind={kind} system={session.units} active={match.unit} except={thing} onPick={(u) => { setPicked(matchFor(u, anchor)); setChoosing(false); }} />}
         </div>
       )}
       <div className="toggles">
@@ -185,5 +165,32 @@ export function ConverterRemote({ code, session }: { code: string; session: Sess
           onChange={(on) => void showConversion(code, on && said ? said : null)} />
       </div>
     </section>
+  );
+}
+
+/**
+ * A kind's useless units to pick from, each with its size, under a find box that narrows them as you type ("eif"):
+ * for "a thing ▾", "Or pick one" and "Use a different unit".
+ */
+function FindThing({ kind, system, active, except, onPick }: { kind: Kind; system?: System; active?: UselessUnit; except?: UselessUnit; onPick: (u: UselessUnit) => void }) {
+  const [find, setFind] = useState("");
+  const found = UNITS[kind].filter((u) => u !== except && [u.one, u.many].some((n) => plain(n).includes(plain(find.trim()))));
+  return (
+    <div className="find-thing">
+      <div className="clearable">
+        <input value={find} onChange={(e) => setFind(e.target.value)} placeholder="Find a thing…" aria-label="Find a thing" enterKeyHint="search" autoFocus />
+        {find && <button type="button" aria-label="Clear find a thing" onClick={() => setFind("")}>×</button>}
+      </div>
+      <ul className="tracklist">
+        {found.map((u) => (
+          <li key={u.many}>
+            <button className={active === u ? "active" : ""} onClick={() => onPick(u)}>
+              <span className="title">{u.one}</span><span className="dur">{sizeText(kind, u, system)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {!found.length && <p className="muted">Nothing called that in {KIND_LABEL[kind].toLowerCase()}.</p>}
+    </div>
   );
 }
