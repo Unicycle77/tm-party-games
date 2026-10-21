@@ -278,4 +278,6 @@ The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`,
 | `box-guest-decide.jpg` | Alex's phone: "Swap boxes with Greg, or keep yours?", Swap boxes and Keep my box |
 | `box-host.jpg` | The host phone's Box page mid-round: "Alex and Greg", "Greg can look inside", "Waiting for Alex to swap or keep…", Open Alex's box and Open Greg's box |
 | `light-main-lit.jpg` | The light computer's page with the bulb lit (red, one secret) over the curtain |
+| `light-main-all.jpg` | The light computer's page in "All at once": six bulbs in their own colours, red (stops smiling) and blue (raises an arm) just gone on |
+| `light-host-change.jpg` | The host's 💡 page with Change open: One secret, Smiles or All at once, then the seven secrets with Stops smiling picked |
 | `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |

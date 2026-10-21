@@ -79,16 +79,13 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 .moment h2 { color: var(--gold-bright); font-size: clamp(1.7rem, 5.5vw, 2.5rem); line-height: 1.15; text-shadow: 0 2px 0 #000a; }
 .moment header p { margin: 0; max-width: 36rem; }
 
-/* phones: a swipeable strip on a phone, a row on a wider screen */
+/* phones: side by side at any width, two sharing the column (each up to 250px), so none is cut off at the edge */
 .phones {
-  display: grid; grid-auto-flow: column; grid-auto-columns: min(62vw, 250px);
-  gap: 1.1rem; justify-content: start;
-  overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
-  margin-inline: -16px; padding-inline: 16px; padding-block: 0.4rem 0.8rem;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 250px);
+  gap: 0.8rem; justify-content: center; padding-block: 0.4rem 0.8rem;
 }
-.phones::-webkit-scrollbar { display: none; }
-@media (min-width: 820px) { .phones { justify-content: center; margin-inline: 0; overflow: visible; } }
-.phones figure { margin: 0; display: grid; gap: 0.7rem; justify-items: center; scroll-snap-align: center; }
+@media (max-width: 560px) { .phones .caption { font-size: 0.8rem; text-align: center; padding: 0.2rem 0.5rem; } }
+.phones figure { margin: 0; display: grid; gap: 0.7rem; justify-items: center; }
 .phone {
   width: 100%; border-radius: 26px; padding: 7px; line-height: 0;
   background: #120806; border: 1px solid #ffffff22;
@@ -98,8 +95,6 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 .phones figure:nth-child(1) .phone { transform: rotate(-1deg); }
 .phones figure:nth-child(2) .phone { transform: rotate(0.8deg); }
 .phones figure:nth-child(3) .phone { transform: rotate(-0.4deg); }
-.swipe { font-family: var(--typewriter); color: var(--muted); font-size: 0.9rem; margin: -0.6rem 0 0; }
-@media (min-width: 820px) { .swipe { display: none; } }
 
 @media (prefers-reduced-motion: no-preference) {
   .hero .frame { animation: hang 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
@@ -155,12 +150,8 @@ h1, h2 { font-family: var(--typewriter); font-weight: normal; letter-spacing: 0.
 .back { font-family: var(--typewriter); color: var(--muted); font-size: 0.9rem; text-decoration: none; justify-self: start; }
 .task-page .hero h1 { max-width: none; }
 .phones.pair { align-items: start; }
-.phones.pair.one { grid-template-columns: minmax(0, 250px); }
-/* two phones always fit the column, side by side, no swipe */
-.phones.pair { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 250px)); grid-auto-columns: auto; justify-content: center; overflow: visible; margin-inline: 0; padding-inline: 0; gap: 0.8rem; }
 .phones.pair .phone { border-radius: 18px; padding: 5px; }
 .phones.pair .phone img { border-radius: 14px; }
-.phones.pair .caption { font-size: 0.8rem; text-align: center; padding: 0.2rem 0.5rem; }
 /* the way on to the other task pages, as two paper tags like the step labels */
 .more { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-top: 0.6rem; }
 .more a {

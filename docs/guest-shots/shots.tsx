@@ -11,6 +11,7 @@ import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
 import { flipchartDefaults } from "../../src/games/flipchart/data";
 import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
+import { MODES } from "../../src/light/triggers";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
@@ -92,8 +93,8 @@ function build() {
     order: 7, name: "Sock puppet show", type: "Team",
     text: "Make a puppet from one sock and put on a show.\n\nYou have 5 minutes. Best show wins.",
   };
-  // Flipchart is one task, the ninth; its clock has 14:30 or so to go in the live shots.
-  if (shot.includes("flipchart")) tasks.t9 = { order: 9, game: "flipchart", ...flipchartDefaults() };
+  // Flipchart takes the eighth task's place, so the party still has eight; its clock has 14:30 or so to go in the live shots.
+  if (shot.includes("flipchart")) tasks.t8 = { order: 8, game: "flipchart", ...flipchartDefaults() };
   // The task pages' shots of Before & After, [BLANK] in a Box and the light.
   // They take the place of a live task, so the party still has eight.
   if (shot.includes("beforeafter")) tasks.t6 = { order: 6, game: "beforeAfter", text: "Film the most satisfying before and after." };
@@ -245,7 +246,7 @@ function build() {
       break;
     }
     // The light: the bulb lit on the light computer, and the host's 💡 page with Sam and Priya already got it.
-    case "tv-light": case "host-light":
+    case "tv-light": case "tv-light-all": case "host-light": case "host-light-change":
       picked(); set("begun", true);
       set("lightUid", "light-pc");
       set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
@@ -259,7 +260,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box", "host-light"].includes(shot)) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box", "host-light", "host-light-change"].includes(shot)) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 (window as unknown as { __uid: string }).__uid = who;
 const joined = shot !== "checkin-list" && shot !== "join-code";
 localStorage.clear();
@@ -273,7 +274,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t9" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t9" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" ? { view: "light" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" || shot === "host-light-change" ? { view: "light" } : { view: "task", task: "t5" })); }
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } }, boxSecrets: { [CODE]: { inBox: "R" } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
@@ -284,4 +285,8 @@ const root = createRoot(document.getElementById("root")!);
   (session.players as Record<string, unknown>)[id] = { name: people[id], joinedAt: 9, contestant: id };
   root.render(<Screen code={CODE} session={structuredClone(session) as unknown as Session} viewOnly />);
 };
-root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);
+// "All at once": every trigger's bulb in its own colour, two of them just gone on.
+const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
+root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
+  shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);

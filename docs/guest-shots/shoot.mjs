@@ -52,6 +52,8 @@ const SHOTS = {
   "box-host": ["host-box"],
   "light-main-lit": ["tv-light", "", async (p) => { await p.waitForTimeout(3000); }],
   "light-host-got-it": ["host-light"],
+  "light-main-all": ["tv-light-all", "", async (p) => { await p.waitForTimeout(3000); }],
+  "light-host-change": ["host-light-change", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
   "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
     await p.getByRole("button", { name: "Sam", exact: true }).click();
     await p.getByPlaceholder(/quick brown fox/).fill("I am the Noisemaster");
