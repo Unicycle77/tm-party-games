@@ -260,6 +260,9 @@ input::placeholder { color: #8b7a63; }
   place-items: center;
   position: relative;
   overflow: hidden;
+}
+/* a stage keeps body's one fixed curtain, lit for the show: lighter, with a vignette (painting it on .stage too doubled it on scroll) */
+body:has(.stage)::before {
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.6)), linear-gradient(rgba(20, 0, 0, 0.1), rgba(20, 0, 0, 0.25)), var(--bg-image) center / cover no-repeat;
 }
 
