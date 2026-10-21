@@ -183,6 +183,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-pounds-ounces.jpg` | 1 lb 8 oz: "1 lb 8 oz is / 1.82 pounds of gold" and the label-style "24 oz (1 lb 8 oz) · a pound of gold is 13 ¼ oz" (2026-10-18) |
 | `converter-host-find-thing.jpg` | "a thing ▴" open under the units (2026-10-21): "Find a thing…" with "eif" typed, leaving Eiffel Tower · 330 m |
 | `converter-host-thing.jpg` | The Eiffel Tower picked as the starting thing, "How much?" a count (1), and Jimothys chosen from "Use a different unit": "The Eiffel Tower is / about 2,165 Jimothys" and "1 Eiffel Tower = 330 m · Jimothy is about 15.24 cm" (2026-10-21) |
+| `converter-host-flipped.jpg` | After "⇄ Flip it" (2026-10-21): "Jimothy is / about 1/2,165 the height of the Eiffel Tower / with its antennas", "1 Jimothy = about 15.24 cm · the Eiffel Tower is 330 m", the chip now "Jimothy ▾" |
 | `converter-host-dice-imperial.jpg` | A task's unit at an imperial party: "39 dice tall is / 5.11 soda cans" and "39 dice = 2 ft ½ in · a soda can is 4 ¾ in" (2026-10-18) |
 | `host-party-units.jpg` | Plan the party's summary line open: "… · pin set · imperial", and "📏 Conversions in" with Metric and Imperial (2026-10-18) |
 | `converter-host-on-screen.jpg` | The result on the big screen: the toggle on, 📏 glowing in the header |

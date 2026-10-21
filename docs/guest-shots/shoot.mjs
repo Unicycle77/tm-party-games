@@ -145,6 +145,12 @@ const SHOTS = {
     await p.getByRole("button", { name: "Jimothys" }).click(); await p.evaluate(() => window.scrollTo(0, 0));
   }],
   "converter-main-jimothy": ["tv-convert"],
+  // …and "⇄ Flip it": Jimothy is about 1/2,165 the height of the Eiffel Tower
+  "converter-host-flipped": ["host-convert", "", async (p) => {
+    await openThings(p); await p.getByLabel("Find a thing").fill("eif"); await p.getByRole("button", { name: /Eiffel Tower/ }).click();
+    await p.getByRole("button", { name: "Surprise me" }).click(); await p.getByRole("button", { name: /Use a different unit/ }).click();
+    await p.getByRole("button", { name: "Jimothys" }).click(); await p.getByRole("button", { name: "⇄ Flip it" }).click(); await p.evaluate(() => window.scrollTo(0, 0));
+  }],
 };
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:
