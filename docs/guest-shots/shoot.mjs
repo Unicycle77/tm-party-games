@@ -26,6 +26,7 @@ const SHOTS = {
   // the big screen, 1600x900: same party as the check-in shots
   "main-welcome": ["tv-welcome"],
   "main-noisemaster": ["tv-noisemaster"],
+  "main-noisemaster-done": ["tv-noisemaster-done"],
   "main-secret-tasks": ["tv-secret"],
   "prize-main-photo": ["tv-prize"],
   "prize-host-up": ["host-prize"],

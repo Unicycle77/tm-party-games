@@ -112,6 +112,10 @@ function build() {
     case "prize-check": picked(); q.set("pick", "1"); break;
     case "noisemaster-up": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: who, phrase: ["I", "am", "the", "Noisemaster"], startedAt: 1 } }; break;
     case "noisemaster-watch": picked(); q.set("later", "1"); task("noisemaster"); g.noisemaster = { round: { player: "alex", phrase: ["I", "am"], startedAt: 1 } }; break;
+    // Noisemaster finished: Sam's same go, all four words said and the clock stopped.
+    case "tv-noisemaster-done":
+      picked(); task("noisemaster"); g.noisemaster = { round: { ...midGo(), progress: 4, mistakes: 2, doneAt: Date.now() - 400, firstAt: Date.now() - 41700, last: { key: "k3", i: 3, ok: true } } }; set("display", { step: "soundboard" }); set("begun", true);
+      break;
     case "tv-noisemaster": case "host-noisemaster": case "host-run":
       picked(); task("noisemaster"); g.noisemaster = { round: midGo() }; set("display", { step: "soundboard" }); set("begun", true);
       break;
