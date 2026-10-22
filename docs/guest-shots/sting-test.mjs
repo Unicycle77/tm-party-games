@@ -21,7 +21,11 @@ await run("music+picture", { transition: "Fanfare", transitionImage: "Slide.png"
   await p.waitForTimeout(700);
   ok("music+picture: picture up while it plays", (await pic()) === 1);
   const s = await sting(); ok("music+picture: sting marked with a start time", !!s?.at);
-  await p.waitForTimeout(2500);
+  // the last half second eases out instead of stopping dead
+  const vols = [];
+  for (let i = 0; i < 40 && (await sting()); i++) { vols.push(await p.evaluate(() => document.querySelector("audio").volume)); await p.waitForTimeout(40); }
+  ok("music+picture: fades before the end", vols[0] === 1 && vols.some((v) => v > 0 && v < 1));
+  await p.waitForTimeout(500);
   ok("music+picture: ends itself", (await sting()) === null);
   ok("music+picture: picture gone", (await pic()) === 0);
 });

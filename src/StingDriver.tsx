@@ -12,12 +12,27 @@ import type { Session } from "./types";
  * the transition when it finishes. A picture is Screen's to show. A picture on its own has no sound to end it: it goes the moment
  * the host puts anything else on the big screen. Anything the PC can't play ends the transition at once, so Start never hangs.
  */
+const FADE = 0.5;
+
+/** Eases the volume to silence over the last half second, so a clip cut short at its end doesn't stop dead. */
+function fadeOutAtEnd(el: HTMLMediaElement) {
+  let frame = 0;
+  const tick = () => {
+    const left = el.duration - el.currentTime;
+    el.volume = Number.isFinite(left) && left < FADE ? Math.max(0, left / FADE) : 1;
+    frame = requestAnimationFrame(tick);
+  };
+  frame = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(frame);
+}
+
 export function StingDriver({ code, session }: { code: string; session: Session }) {
   const sting = session.sting;
   const files = stingFiles(session);
   const music = files?.music;
   const video = files?.video;
   const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [videoUrl, setVideoUrl] = useState<string>();
   const on = !!sting;
 
@@ -56,13 +71,14 @@ export function StingDriver({ code, session }: { code: string; session: Session 
     if (!hasStingMusic(music)) { void endSting(code); return; }
     let url: string | undefined;
     let cancelled = false;
+    const stopFade = fadeOutAtEnd(audio);
     void stingMusicFile(music).then((file) => {
       if (cancelled || !file) return;
       url = URL.createObjectURL(file);
       audio.src = url;
       return audio.play();
     }).catch(() => { if (!cancelled) void endSting(code); });
-    return () => { cancelled = true; audio.pause(); audio.removeAttribute("src"); if (url) URL.revokeObjectURL(url); };
+    return () => { cancelled = true; stopFade(); audio.volume = 1; audio.pause(); audio.removeAttribute("src"); if (url) URL.revokeObjectURL(url); };
   }, [on, music, code]);
 
   // The video: from its file, full screen.
@@ -79,11 +95,13 @@ export function StingDriver({ code, session }: { code: string; session: Session 
     return () => { cancelled = true; setVideoUrl(undefined); if (url) URL.revokeObjectURL(url); };
   }, [on, video, code]);
 
+  useEffect(() => (videoUrl && videoRef.current ? fadeOutAtEnd(videoRef.current) : undefined), [videoUrl]);
+
   return (
     <>
       <audio ref={audioRef} onPlaying={() => void markSting(code, Date.now())} onEnded={() => void endSting(code)} onError={() => { if (audioRef.current?.getAttribute("src")) void endSting(code); }} />
       {videoUrl && (
-        <video className="sting-video" src={videoUrl} autoPlay onPlaying={() => void markSting(code, Date.now())} onEnded={() => void endSting(code)} onError={() => void endSting(code)} />
+        <video className="sting-video" ref={videoRef} src={videoUrl} autoPlay onPlaying={() => void markSting(code, Date.now())} onEnded={() => void endSting(code)} onError={() => void endSting(code)} />
       )}
     </>
   );
