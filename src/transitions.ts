@@ -3,7 +3,7 @@ import {
   readDurations, scanFolder, subfolder,
 } from "./musicFolder";
 import { publishTransitions } from "./session";
-import { setTransitionFiles } from "./stingPictures";
+import { setSkippedPictures, setTransitionFiles } from "./stingPictures";
 
 const MAX_PICTURES = 60;
 const HEIC = /\.(heic|heif)$/i;
@@ -12,9 +12,17 @@ const AUDIO = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)$/i;
 /** A picture's file as something the browser can show: an iPhone's HEIC becomes a JPEG (in memory; the file isn't touched). */
 async function showable(file: File): Promise<Blob> {
   if (!HEIC.test(file.name)) return file;
-  const { default: heic2any } = await import("heic2any");
-  const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
-  return (Array.isArray(out) ? out[0] : out) ?? file;
+  // Chrome on a Mac may decode HEIC itself; if not, a converter is loaded (only now, as it's large).
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width; canvas.height = bitmap.height;
+    canvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+    const jpeg = await new Promise<Blob | null>((done) => canvas.toBlob(done, "image/jpeg", 0.9));
+    if (jpeg) return jpeg;
+  } catch { /* not decodable here: use the converter */ }
+  const { heicTo } = await import("heic-to");
+  return heicTo({ blob: file, type: "image/jpeg", quality: 0.9 });
 }
 
 /**
@@ -30,9 +38,11 @@ export async function loadTransitions(code: string, music: DirHandle) {
   const [sounds, pics, vids] = await Promise.all([scan(TRANSITION_MUSIC, AUDIO), scan(TRANSITION_PICTURES, PICTURE_FILES), scan(TRANSITION_VIDEOS, VIDEO_FILES)]);
   // Pictures and videos are listed by their whole file name (the name is how a task keeps them); music by its title, as songs are.
   const pictures = new Map<string, string>();
+  const skipped: string[] = [];
   for (const t of pics.slice(0, MAX_PICTURES)) {
-    try { pictures.set(t.handle.name, URL.createObjectURL(await showable(await t.handle.getFile()))); } catch { /* unreadable: left out */ }
+    try { pictures.set(t.handle.name, URL.createObjectURL(await showable(await t.handle.getFile()))); } catch { skipped.push(t.handle.name); }
   }
+  setSkippedPictures(skipped);
   setTransitionFiles({
     music: new Map(sounds.map((t) => [t.title, t.handle])),
     videos: new Map(vids.map((t) => [t.handle.name, t.handle])),
