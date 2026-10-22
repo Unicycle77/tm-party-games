@@ -98,6 +98,12 @@ const SHOTS = {
   "run-of-show-host-play-a-game": ["host-adhoc"],
   "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
   "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
+  "task-edit-scoring": ["host-plan-edit"],
+  // ✉ Secret envelopes opened with Change before the night: two more tasks typed in, the pile of ten below
+  "secret-tasks-host-pile-open": ["host-plan-pile", "", async (p) => {
+    await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
+    await p.getByLabel("New tasks, one per line").fill("Swap seats with someone without asking.\nLaugh at a joke before it ends.");
+  }, "section.envelopes"],
   "host-reset-scores": ["host-reset", "", async (p) => {
     await p.getByRole("button", { name: "Party settings" }).click();
     await p.getByRole("button", { name: /Reset scores/ }).click();
