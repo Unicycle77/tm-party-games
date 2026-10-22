@@ -62,6 +62,8 @@ const SHOTS = {
   }],
   "run-of-show-host": ["host-run"],
   "run-of-show-host-arrivals": ["host-arrivals"],
+  // the Up next card for a task that opens with a sting from the Transitions folder
+  "up-next-transition": ["host-run-transition", "", undefined, ".up-next"],
   "points-host-given": ["host-points"],
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],

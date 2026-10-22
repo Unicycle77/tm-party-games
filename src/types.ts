@@ -236,6 +236,10 @@ export interface Jukebox {
    * still pick tasks' songs from it; this says how old that list is.
    */
   tracksAt?: number;
+  /** Sting titles from the music folder's Transitions subfolder (the jukebox leaves them out), published with `tracks`. */
+  transitions?: string[];
+  /** Sting lengths in seconds, same order as `transitions` (0 = unknown). */
+  transitionDurations?: number[];
   /** The main screen has its music folder open right now, so songs can play. Gone when it disconnects. */
   open?: boolean;
   /**
@@ -277,6 +281,8 @@ export interface ScoreboardTask {
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
+  /** A short sting from the music folder's Transitions subfolder, by title: it plays on the big screen the moment the host starts the task. */
+  transition?: string;
   /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
