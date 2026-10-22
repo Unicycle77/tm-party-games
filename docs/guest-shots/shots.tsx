@@ -201,7 +201,7 @@ function build() {
       } as typeof get;
       session.jukebox = {
         tracks: Array.from({ length: 42 }, (_, i) => `Song ${i + 1}`), transitions: ["Drumroll", "Task fanfare", "Whoosh"],
-        transitionPictures: ["Dice tower.jpg", "Halloween title.png", "Sock puppets.jpg"], transitionVideos: ["Drumroll cam.mp4", "Spooky intro.mp4"], open: true, state: {},
+        transitionPictures: ["Dice tower.jpg", "Halloween title.png", "Sock puppets.jpg"], transitionVideos: [], open: true, state: {},
       };
       break;
     }
