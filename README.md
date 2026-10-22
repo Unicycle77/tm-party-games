@@ -29,6 +29,8 @@ Players join with a 4-letter code (or QR) on their phone. A session has several 
 
   Like Headshot, it isn't on the game picker: it's only added as a task from the scoreboard's "+ App game".
 
+  **Where it comes from:** not one video: it's the prize task that opens every episode of *Taskmaster*.
+
 - **Headshot**: the headshots guests added at check-in, shown on the big screen one at a time or all at once, like Photos.
 
   **How it differs:** every other game has players doing something on their phone during it, but Headshot asks nothing of them: its photos are the ones already in the scoreboard's frames, checked in or not, in the scoreboard's order. Phones just say everyone's headshot is going up.
