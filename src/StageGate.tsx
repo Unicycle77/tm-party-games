@@ -94,7 +94,7 @@ export function StageGate({ code, session, onRaised, onEnd }: {
         )}
         {folder && music === "done" && transitions.map(([name, list]) => {
           const n = list ? Object.keys(list).length : 0;
-          return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || "none found"}</li>;
+          return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || `none found (add a folder named "${name}")`}</li>;
         })}
       </ul>
       {tried && (full === "failed" || music === "failed") && (
