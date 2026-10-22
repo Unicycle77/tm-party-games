@@ -13,6 +13,7 @@
     "@mediapipe/tasks-vision": "1.0.1",
     "client-zip": "^2.5.1",
     "firebase": "^11.0.2",
+    "heic2any": "^0.0.4",
     "qr-scanner": "^1.4.2",
     "qrcode.react": "^4.1.0",
     "react": "^18.3.1",

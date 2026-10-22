@@ -18,7 +18,7 @@ export interface Track { title: string; handle: FileHandle }
 const AUDIO_EXT = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)$/i;
 const MAX_TRACKS = 1000;
 const MAX_DEPTH = 4;
-const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif|heic|heif)$/i;
 const VIDEO_EXT = /\.(mp4|m4v|webm|mov)$/i;
 /** A subfolder of the music folder holding Noisemaster's sounds: not songs, so the jukebox skips it. */
 export const SOUNDS_FOLDER = "noisemaster";
