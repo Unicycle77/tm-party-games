@@ -477,6 +477,10 @@ export function publishTransitions(code: string, t: { music?: string[]; pictures
   return update(ref(db(), `sessions/${code}/jukebox`), patch);
 }
 
+/** Main screen: one transition video's length in seconds, by its place in the published list. */
+export const publishVideoLength = (code: string, index: number, seconds: number) =>
+  set(ref(db(), `sessions/${code}/jukebox/transitionVideoDurations/${index}`), seconds);
+
 /** Main screen: publishes song lengths in seconds (same order as the titles); null clears them. */
 export const publishDurations = (code: string, seconds: number[] | null) =>
   set(ref(db(), `sessions/${code}/jukebox/durations`), seconds);
