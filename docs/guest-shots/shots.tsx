@@ -87,8 +87,8 @@ function build() {
   for (let i = 6; i <= 8; i++) tasks[`t${i}`] = { order: i, name: `Live task ${i}` };
   // Plan the party shows the lineup to a friend, so its live tasks have real names: the ones played elsewhere tonight.
   if (shot.startsWith("host-plan")) {
-    tasks.t6 = { order: 6, name: "Dice tower" };
-    tasks.t7 = { order: 7, name: "Five socks" };
+    tasks.t6 = { order: 6, name: "Dice tower", type: "Individual", text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins." };
+    tasks.t7 = { order: 7, name: "Five socks", type: "Individual", text: "Put on five socks, a sock at a time, as fast as you can. Fastest wins." };
     tasks.t8 = { order: 8, name: "Hum a theme tune" };
   }
   // A live task with two parts: an Individual one, then a Team one.
