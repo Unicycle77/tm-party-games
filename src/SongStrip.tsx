@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { asList, asNums, fmt } from "./JukeboxRemote";
 import { setJukeboxState } from "./session";
+import { stingFiles } from "./sting";
 import type { Session } from "./types";
 
 /**
@@ -15,8 +16,8 @@ export function SongStrip({ code, session, song }: { code: string; session: Sess
   const i = tracks.indexOf(song);
   const state = jukebox?.state ?? {};
   const playing = i >= 0 && state.current === i && state.playing === true;
-  const stingTask = session.sting && session.scoreboard?.tasks?.[session.sting.task];
-  const stingSounds = !!stingTask && !!(stingTask.transition || stingTask.transitionVideo);
+  const sting = stingFiles(session);
+  const stingSounds = !!sting && !!(sting.music || sting.video);
   const problem = !jukebox?.open ? "music folder not open" : i < 0 ? "not in the music folder" : stingSounds ? "after the transition" : undefined;
   const toggle = () => void setJukeboxState(code, playing ? { playing: false } : { current: i, playing: true, repeat: false });
   return (

@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { endSting } from "../session";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 import { asList, asNums, fmt } from "../JukeboxRemote";
 import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
@@ -91,6 +92,10 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const [minutes, setMinutes] = useState(minutesOf(task));
   const [transition, setTransition] = useState<TransitionDraft>({ music: task?.transition ?? "", picture: task?.transitionImage ?? "", video: task?.transitionVideo ?? "" });
   const [open, setOpen] = useState<"text" | "song" | "transition" | "unit">();
+  // A "Try it" still on when the host leaves this page (Save, Cancel, ←) ends with it: a lone picture would otherwise stay on the big screen.
+  const trying = useRef(false);
+  trying.current = !!session.sting?.draft && session.sting.task === id;
+  useEffect(() => () => { if (trying.current) void endSting(code); }, [code]);
   if (!task) {
     return (
       <div className="box-setup scoreboard-remote plan">
@@ -211,7 +216,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
           <Extra label="Transition" open={open === "transition"} onOpen={() => setOpen("transition")} onClose={() => setOpen(undefined)}
             onClear={clear(() => setTransition({ music: "", picture: "", video: "" }))}
             summary={transition.music || transition.picture || transition.video ? <>Transition<span className="muted small"> · {transitionSummary(session, transition)}</span></> : undefined}>
-            <TransitionField session={session} draft={transition} onChange={setTransition} />
+            <TransitionField code={code} id={id} session={session} draft={transition} onChange={setTransition} />
           </Extra>
         )}
         {!tiebreaker && task.game !== "light" && (

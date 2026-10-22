@@ -1,4 +1,6 @@
 import { FolderPick } from "../SongStrip";
+import { endSting } from "../session";
+import { startSting } from "./data";
 import type { ReactNode } from "react";
 import type { ScoreboardTask, Session } from "../types";
 import { asList, asNums, fmt } from "../JukeboxRemote";
@@ -12,8 +14,10 @@ export const bare = (file: string) => file.replace(/\.[^.]+$/, "");
  * A task's transition in ✎: what plays the moment the host starts it. Music, a picture, both, or a video, each from its own
  * subfolder of the main screen's music folder. A video has its own sound, so picking one clears the other two, and the other way round.
  */
-export function TransitionField({ session, draft, onChange }: { session: Session; draft: TransitionDraft; onChange: (d: TransitionDraft) => void }) {
+export function TransitionField({ code, id, session, draft, onChange }: { code: string; id: string; session: Session; draft: TransitionDraft; onChange: (d: TransitionDraft) => void }) {
   const jukebox = session.jukebox;
+  const picked = !!(draft.music || draft.picture || draft.video);
+  const trying = !!session.sting?.draft && session.sting.task === id;
   const at = jukebox?.tracksAt;
   return (
     <>
@@ -30,6 +34,11 @@ export function TransitionField({ session, draft, onChange }: { session: Session
         items={asList(jukebox?.transitionVideos)} durations={asNums(jukebox?.transitionVideoDurations)}
         onChange={(video) => onChange(video ? { music: "", picture: "", video } : { ...draft, video })}
         empty="Put videos in a Transition videos folder inside the music folder." gone="Not in Transition videos any more. Pick another, or ✕." />
+      <button type="button" className={trying ? "pressed-in" : undefined} disabled={!picked || !jukebox?.open} aria-pressed={trying}
+        onClick={trying ? () => void endSting(code) : () => void startSting(code, id, jukebox?.state?.playing === true, draft)}>
+        {trying ? "⏹ Stop" : "▶ Try it on the big screen"}
+      </button>
+      <p className="muted small">{!jukebox?.open ? "The music folder isn't open on the main screen." : !picked ? "Pick something to try it." : "Plays what's picked now, before you save."}</p>
       <p className="muted small">{draft.video ? "A video has its own sound, so it plays on its own." : draft.picture && !draft.music ? "A picture on its own stays up until you put something else on the big screen." : draft.picture ? "The picture comes down when the music ends." : ""}</p>
     </>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { endSting, markSting } from "./session";
+import { stingFiles } from "./sting";
 import { hasStingMusic, hasStingVideo, stingMusicFile, stingVideoFile } from "./stingPictures";
 import type { Session } from "./types";
 
@@ -11,9 +12,9 @@ import type { Session } from "./types";
  */
 export function StingDriver({ code, session }: { code: string; session: Session }) {
   const sting = session.sting;
-  const task = sting && session.scoreboard?.tasks?.[sting.task];
-  const music = task?.transitionVideo ? undefined : task?.transition;
-  const video = task?.transitionVideo;
+  const files = stingFiles(session);
+  const music = files?.music;
+  const video = files?.video;
   const audioRef = useRef<HTMLAudioElement>(null);
   const [videoUrl, setVideoUrl] = useState<string>();
   const on = !!sting;
