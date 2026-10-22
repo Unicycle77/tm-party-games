@@ -18,8 +18,17 @@ export interface Track { title: string; handle: FileHandle }
 const AUDIO_EXT = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)$/i;
 const MAX_TRACKS = 1000;
 const MAX_DEPTH = 4;
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const VIDEO_EXT = /\.(mp4|m4v|webm|mov)$/i;
 /** A subfolder of the music folder holding Noisemaster's sounds: not songs, so the jukebox skips it. */
 export const SOUNDS_FOLDER = "noisemaster";
+/** The three subfolders of a task's transition (what plays when the host starts it): not songs either. Matched in any capitalisation. */
+export const TRANSITION_MUSIC = "transition music";
+export const TRANSITION_PICTURES = "transition pictures";
+export const TRANSITION_VIDEOS = "transition videos";
+const NOT_SONGS = [SOUNDS_FOLDER, TRANSITION_MUSIC, TRANSITION_PICTURES, TRANSITION_VIDEOS];
+export const PICTURE_FILES = IMAGE_EXT;
+export const VIDEO_FILES = VIDEO_EXT;
 
 type Picker = (o?: { mode?: "read" }) => Promise<DirHandle>;
 const picker = () => (window as unknown as { showDirectoryPicker?: Picker }).showDirectoryPicker;
@@ -35,15 +44,15 @@ export async function pickFolder(): Promise<DirHandle | undefined> {
   }
 }
 
-/** Recursively lists audio files (title = file name without extension), sorted by title. Skips the sounds folder. */
-export async function scanFolder(dir: DirHandle): Promise<Track[]> {
+/** Recursively lists audio files (title = file name without extension), sorted by title. Skips the sounds and transition folders. */
+export async function scanFolder(dir: DirHandle, ext: RegExp = AUDIO_EXT, skip: string[] = NOT_SONGS): Promise<Track[]> {
   const tracks: Track[] = [];
   async function walk(d: DirHandle, depth: number) {
     for await (const entry of d.values()) {
       if (tracks.length >= MAX_TRACKS) return;
       if (entry.kind === "file") {
-        if (AUDIO_EXT.test(entry.name)) tracks.push({ title: entry.name.replace(AUDIO_EXT, ""), handle: entry });
-      } else if (depth < MAX_DEPTH && !(depth === 0 && entry.name.toLowerCase() === SOUNDS_FOLDER)) {
+        if (ext.test(entry.name)) tracks.push({ title: entry.name.replace(/\.[^.]+$/, ""), handle: entry });
+      } else if (depth < MAX_DEPTH && !(depth === 0 && skip.includes(entry.name.toLowerCase()))) {
         await walk(entry, depth + 1);
       }
     }
@@ -52,13 +61,17 @@ export async function scanFolder(dir: DirHandle): Promise<Track[]> {
   return tracks.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: "base" }));
 }
 
-/** The music folder's sounds subfolder (any capitalisation), if it has one. */
-export async function soundsFolder(dir: DirHandle): Promise<DirHandle | undefined> {
+/** A subfolder of the music folder (any capitalisation), if it has one. */
+export async function subfolder(dir: DirHandle, name: string): Promise<DirHandle | undefined> {
   for await (const entry of dir.values()) {
-    if (entry.kind === "directory" && entry.name.toLowerCase() === SOUNDS_FOLDER) return entry;
+    if (entry.kind === "directory" && entry.name.toLowerCase() === name) return entry;
   }
   return undefined;
 }
+
+/** The music folder's sounds subfolder, if it has one. */
+export const soundsFolder = (dir: DirHandle) => subfolder(dir, SOUNDS_FOLDER);
+
 
 /** Song length in whole seconds (0 if it can't be read). Reads metadata only. */
 function readDuration(file: File): Promise<number> {

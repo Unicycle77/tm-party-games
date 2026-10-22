@@ -19,6 +19,10 @@ export interface SetupTask {
   parts?: TaskPart[];
   note?: string;
   song?: string;
+  /** The transition that plays when the task starts: music (a title), a picture and a video (file names). The files stay on the main-screen PC. */
+  transition?: string;
+  transitionImage?: string;
+  transitionVideo?: string;
   scoring?: "highest" | "lowest";
   unit?: TaskUnit;
   dqOver?: number;
@@ -49,6 +53,9 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(asParts(t.parts).length > 0 && { parts: asParts(t.parts) }),
   ...(t.description && { note: t.description }),
   ...(t.song && { song: t.song }),
+  ...(t.transition && { transition: t.transition }),
+  ...(t.transitionImage && { transitionImage: t.transitionImage }),
+  ...(t.transitionVideo && { transitionVideo: t.transitionVideo }),
   ...(t.scoring && { scoring: t.scoring }),
   ...(t.unit && { unit: t.unit }),
   ...(t.dqOver !== undefined && { dqOver: t.dqOver }),

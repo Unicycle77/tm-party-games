@@ -62,6 +62,18 @@ const SHOTS = {
   }],
   "run-of-show-host": ["host-run"],
   "run-of-show-host-arrivals": ["host-arrivals"],
+  // the Up next card for a task that opens with a sting from the Transitions folder
+  "up-next-transition": ["host-run-transition", "", undefined, ".up-next"],
+  // the big screen just after that Start: the task's sting picture, whole, while the sting plays
+  "main-sting": ["tv-sting"],
+  // the same card when the sting's file has gone from Transition music: struck through, "not in the folder", Start still gold
+  "up-next-transition-missing": ["host-run-transition-missing", "", undefined, ".up-next"],
+  // the host's phone two seconds after that Start: the big-screen line names the picture, the ⏹ strip ends the transition
+  "host-sting": ["host-sting"],
+  // the gate after a refresh: the music folder's line, then a line for each transition folder
+  "main-gate-transitions": ["tv-gate"],
+  // Dice tower's ✎ page with its Transition open: music and a picture picked, the video empty
+  "task-edit-transition": ["host-edit-transition", "", async (p) => { await p.locator(".summary-line", { hasText: "Transition" }).getByRole("button", { name: "Change" }).click(); }],
   "points-host-given": ["host-points"],
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],

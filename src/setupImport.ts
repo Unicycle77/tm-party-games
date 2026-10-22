@@ -67,6 +67,7 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
         task.unit = { name, amount: u.amount, unit: u.unit, kind: u.kind as TaskUnit["kind"] };
       else warnings.push(`${task.name ?? "A task"}'s unit isn't one the app knows, so it's left out.`);
     }
+    for (const k of ["transition", "transitionImage", "transitionVideo"] as const) { const v = str(r[k], 300); if (v) task[k] = v; }
     tasks.push(task);
   });
   if (raw.tasks.length > MAX_TASKS) warnings.push(`Only the first ${MAX_TASKS} tasks are read.`);
@@ -109,9 +110,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
+const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "transition", "transitionImage", "transitionVideo", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
+  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, transition: t.transition, transitionImage: t.transitionImage, transitionVideo: t.transitionVideo, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 

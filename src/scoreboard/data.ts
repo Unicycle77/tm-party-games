@@ -265,6 +265,14 @@ export const lowerCurtain = (code: string) => setDisplay(code, { step: "curtain"
 export const setTiebreakerWinner = (code: string, contestant: string | null) =>
   set(at(code, "tiebreaker/winner"), contestant);
 
+/** Host: starts a task's transition on the big screen. The jukebox stops, so a song never plays under it. */
+export const startSting = (code: string, task: string, stopJukebox: boolean) =>
+  update(ref(db(), `sessions/${code}`), { sting: { task }, ...(stopJukebox && { "jukebox/state/playing": false }) });
+
+/** A task's transition: music and/or a picture, or a video on its own. Empty ones are removed. */
+export const editTransition = (code: string, id: string, t: { music: string; picture: string; video: string }) =>
+  update(at(code, `tasks/${id}`), { transition: t.music || null, transitionImage: t.picture || null, transitionVideo: t.video || null });
+
 /** Fixes the tiebreaker task's name, note, song or words. It can't be removed: every party has one. */
 export const editTiebreaker = (code: string, name: string, description: string, song: string, words: TaskWords) =>
   update(at(code, "tiebreaker"), { name: name.trim() || null, description: description.trim() || null, song: song || null, ...wordsOf(words) });

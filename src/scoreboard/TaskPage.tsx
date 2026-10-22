@@ -6,7 +6,7 @@ import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
 import type { GameId, Session } from "../types";
-import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startTask, takeDownPhones } from "./data";
+import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
 import { Points } from "./Points";
 import { activeTaskId, list, scored, titleOf } from "./tasks";
 import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
@@ -24,11 +24,15 @@ export async function beginTask(code: string, session: Session, id: string) {
     await startTask(code, session.scoreboard, false, id);
     if (task.game === "photos") await switchPhotosTask(code, session, id);
     await setGame(code, task.game as GameId);
-    return;
+  } else {
+    if (session.game) await setGame(code, null);
+    else if (step === "scoreboard" || step === "haul") await lowerCurtain(code);
+    await startTask(code, session.scoreboard, false, id);
   }
-  if (session.game) await setGame(code, null);
-  else if (step === "scoreboard" || step === "haul") await lowerCurtain(code);
-  await startTask(code, session.scoreboard, false, id);
+  // Last, so the sting starts over what starting the task put up. Only when the main screen has its music folder open to play it.
+  if ((task.transition || task.transitionImage || task.transitionVideo) && session.jukebox?.open) {
+    await startSting(code, id, session.jukebox.state?.playing === true);
+  }
 }
 
 /** "Show the task": gold, since putting the words up is usually what comes next. Pressed in while they're up; tapping again lowers the curtain. */

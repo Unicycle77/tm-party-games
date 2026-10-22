@@ -8,6 +8,7 @@ import { cropFill } from "./crop";
 import { declareWinner, lowerCurtain, showScoreboard, updateScores } from "./data";
 import { beginTask } from "./TaskPage";
 import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upNextOf } from "./tasks";
+import { transitionLine } from "./TransitionField";
 
 /**
  * The host remote's home: the party line with a small "Show QR" chip, one line saying what's on the big screen with
@@ -118,6 +119,9 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
   // Half-scored, already on, or the light (which runs all evening): just open it.
   const open = next.unfinished || playing || task.game === "light";
   const label = open ? `Open task ${n} →` : task.game ? `▶ Start ${titleOf(task)}` : `Start task ${n} →`;
+  // Start plays the task's transition on the big screen, so the button says so as its second line: it belongs to that tap.
+  // Greyed, with the reason, when the main screen can't play it; Start still works.
+  const sting = open ? undefined : transitionLine(session, task);
   const go = () => {
     if (open) onOpen(next.id);
     else void beginTask(code, session, next.id).then(() => onOpen(next.id));
@@ -127,7 +131,10 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
       <p className="up-next-label">Up next · task {n} of {tasks.length} · {task.game ? "app task" : "live task"}</p>
       <h3>{titleOf(task)}</h3>
       {task.description && <p className="up-next-note">"{task.description}"</p>}
-      <button className={quiet ? undefined : "big"} onClick={go}>{label}</button>
+      <button className={quiet ? undefined : "big"} onClick={go}>
+        {label}
+        {sting && <span className={`button-sub${sting.problem ? " missing" : ""}`}>{sting.line}</span>}
+      </button>
     </section>
   );
 }

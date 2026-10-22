@@ -99,6 +99,7 @@ function Sheet() {
             </Item>
             <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
             <Item cap={<><code>.big.pressed</code>: a gold button whose thing is on the big screen now; tap again to take it down</>}><button className="big pressed" aria-pressed>Show the task</button></Item>
+            <Item cap={<><code>.button-sub</code>: a second line saying what else the tap does, only when there's something to say</>}><button className="big">Start task 6 →<span className="button-sub">♪ Task fanfare · 0:08</span></button></Item>
             <div className="pair">
               <Item cap={<><code>.steps.two</code>: what the stage shows</>}><div className="steps two"><button className="active">Before</button><button>After</button></div></Item>
               <Item cap="Disabled: 0.45, kept in place"><button disabled>Lower the curtain</button></Item>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ClockSongStarter } from "./clock/data";
 import { Jukebox } from "./Jukebox";
+import { StingDriver } from "./StingDriver";
 import { HOSTED_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { Screen, screenState } from "./Screen";
 import { StageGate } from "./StageGate";
@@ -169,6 +170,7 @@ export function MainScreen() {
         ? <Screen code={code} session={session} footer={<button className="link" onClick={end}>End session</button>} />
         : <StageGate code={code} session={session} onRaised={() => setRaised(true)} onEnd={end} />}
       {raised && <ClockSongStarter code={code} session={session} />}
+      {raised && <StingDriver code={code} session={session} />}
       <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying || display.step === "soundboard"} showUi={raised && !onStage} />
     </>
   );

@@ -81,6 +81,9 @@ button.big {
   width: 100%;
   text-transform: uppercase;
 }
+/* a button's second line: what else the tap does, in quiet sentence case under the label */
+button .button-sub { display: block; font-size: 0.8rem; font-weight: normal; text-transform: none; letter-spacing: 0; opacity: 0.8; margin-top: 0.2rem; }
+button .button-sub.missing, button .button-sub .missing { opacity: 0.55; }
 button.link { background: none; border: 0; box-shadow: none; color: var(--muted); text-decoration: underline; padding: 0.3rem; }
 
 input {
@@ -195,6 +198,7 @@ input::placeholder { color: #8b7a63; }
 .gate-checks li { display: flex; gap: 0.6rem; align-items: baseline; }
 .gate-checks li.done { color: var(--gold-bright); }
 .gate-checks li.failed { color: var(--muted); }
+.gate-checks li.gate-sub { font-size: 0.95rem; padding-left: 1.6rem; }
 .gate .host-qr { justify-items: center; }
 .gate-quiet { margin: 0; }
 /* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the
@@ -328,6 +332,11 @@ body:has(.stage)::before {
   z-index: 1;
 }
 .stage-label span { text-transform: uppercase; color: var(--burgundy); font-weight: bold; }
+/* ---- main screen: a task's sting picture and video ---- */
+.sting-video { position: fixed; inset: 0; z-index: 50; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.sting-stage { position: fixed; inset: 0; background: #000; display: grid; place-items: center; }
+.sting-stage img { width: 100%; height: 100%; object-fit: contain; }
+
 /* ---- main screen: the prize haul ---- */
 /* a gallery wall (each frame hugs its photo, never cropped): the winner's headshot in the centre column, the prizes hung in the columns either side */
 .stage.haul {

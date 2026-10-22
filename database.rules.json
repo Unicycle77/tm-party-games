@@ -270,6 +270,21 @@
           "durations": {
             ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
           },
+          "transitions": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
+          },
+          "transitionDurations": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
+          },
+          "transitionPictures": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
+          },
+          "transitionVideos": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
+          },
+          "transitionVideoDurations": {
+            ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid"
+          },
           "tracksAt": {
             ".write": "auth != null && root.child('sessions').child($code).child('hostUid').val() === auth.uid",
             ".validate": "newData.isNumber()"
@@ -296,6 +311,13 @@
         "showDownload": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           ".validate": "newData.isBoolean()"
+        },
+        "sting": {
+          ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+          ".validate": "newData.hasChild('task')",
+          "task": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "at": { ".validate": "newData.isNumber()" },
+          "$other": { ".validate": false }
         },
         "conversion": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
@@ -402,6 +424,9 @@
               "game": { ".validate": "newData.isString()" },
               "description": { ".validate": "newData.isString() && newData.val().length <= 600" },
               "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "transition": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "transitionImage": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "transitionVideo": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
               "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
               "parts": {

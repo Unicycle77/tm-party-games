@@ -236,6 +236,16 @@ export interface Jukebox {
    * still pick tasks' songs from it; this says how old that list is.
    */
   tracksAt?: number;
+  /** Sting titles from the music folder's Transition music subfolder (the jukebox leaves it out), published with `tracks`. */
+  transitions?: string[];
+  /** Sting lengths in seconds, same order as `transitions` (0 = unknown). */
+  transitionDurations?: number[];
+  /** Picture file names from the music folder's Transition pictures subfolder, published with `tracks`. */
+  transitionPictures?: string[];
+  /** Video file names from the music folder's Transition videos subfolder, published with `tracks`. */
+  transitionVideos?: string[];
+  /** Their lengths in seconds, same order (0 = unknown). */
+  transitionVideoDurations?: number[];
   /** The main screen has its music folder open right now, so songs can play. Gone when it disconnects. */
   open?: boolean;
   /**
@@ -277,6 +287,12 @@ export interface ScoreboardTask {
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
+  /** A short sting from the music folder's Transition music subfolder, by title: it plays on the big screen the moment the host starts the task. */
+  transition?: string;
+  /** A picture from the music folder's Transition pictures subfolder, by file name (never uploaded): it fills the big screen while the sting plays. Only with a `transition`. */
+  transitionImage?: string;
+  /** A video from the music folder's Transition videos subfolder, by file name: it plays full screen, with its own sound, on its own (no music or picture with it). */
+  transitionVideo?: string;
   /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
@@ -442,6 +458,12 @@ export interface Session {
   phoneText?: { task: string; part?: number };
   /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
+  /**
+   * The task whose transition is on after the host started it: its music plays, its picture or video covers the big screen.
+   * `at` is when the main screen started it. Music (with or without a picture) and a video end it themselves; a picture on
+   * its own stays until the host puts something else up. The host's strip ends it at once.
+   */
+  sting?: { task: string; at?: number };
   /** The ⏱ clock the host set, and maybe has on the big screen. */
   clock?: ClockState;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */
