@@ -5,6 +5,9 @@ Live at **https://tm-party-games.web.app** (the old `before-and-after-6a096.web.
 Players join with a 4-letter code (or QR) on their phone. A session has several games that share the same players. Every session starts on a game selection screen, where the host picks a game (host phone or main screen). The host phone can then switch straight to another game from the (foldable) game section at the top; "← Games" goes back to the selection screen. Players' phones always show the active game (or wait while one is picked):
 
 - **Before & After**: each player records a **video**; its first and last frames become their **before** and **after**. The host (not a player) drives the main screen from their phone at `/host` using the same code: before → after → (pause to discuss) → video.
+
+  **Where it comes from:** Before & After is based on [this video](https://youtu.be/S-iwuKrQP6A?t=1112&is=4r5NvLQ05E6I0vTx).
+
 - **Photos**: each player submits one **photo**. The host shows them one at a time (Previous / Next) or everyone at once.
 - **[BLANK] in a Box**: the host picks an object (e.g. a carrot, making it "Carrot in a Box"), two players and which of them may look inside their box. That player can peek on their phone as often as they like; the other chooses once to **swap** boxes or **keep** theirs. The stage announces the choice and swaps the boxes, then the host opens them one at a time. Which box holds the object is stored outside the session (`boxSecrets/{code}`), readable only by the host, the main screen and the peeker.
 
@@ -15,6 +18,10 @@ Players join with a 4-letter code (or QR) on their phone. A session has several 
   **Adding sounds:** like the music, sounds are never uploaded. Put one audio file per word in a `Noisemaster` subfolder of the main screen's music folder (`hello.mp3` → "hello"). The jukebox leaves that subfolder out. The board needs at least 16 sounds. After adding files, select the asset folder again on the main screen so it reads them.
 
   **Where it comes from:** Noisemaster is based on [this video](https://youtu.be/aKABUN2XHVo?is=bSptqy3YkNJX6ltL).
+
+- **Flipchart**: each player draws a portrait on a 16-page flip chart on their phone, against the show's clock. The big screen puts the pages together in the show's pattern (pages 3, 9, 10 and 16 upside down).
+
+  **Where it comes from:** Flipchart is based on [this video](https://youtu.be/huB67xaX47A?t=1039&is=VDg4xvuEvGGdvLPT).
 
 - **Secret Tasks**: the host types a pile of secret tasks (any number, one per line) in the **✉** tab in the host phone's header, which is there whichever game is on. Each task becomes a sealed envelope on a scattered pile on every player's phone, which shows nothing about what's inside. A player who checks in picks one envelope from the pile; the first to take an envelope has it, so nobody shares a task and nobody's ever changes (the main screen turns each pick into their dealt task, so it has to be open). Stragglers can be dealt a random one from the ✉ page. If there are fewer tasks than players, the rest wait until the host adds more; a removed player's task goes back on the pile. Tapping a task fixes its wording in place, and anyone already dealt it keeps it, corrected. Envelopes nobody picked roll forward to the host phone's next party (`hostLeftovers/{uid}`), offered as "Left over from your last party" until the host adds them or taps "Forget these". Once picked, a player sees their white envelope sealed with the TM wax seal: tapping it breaks the seal and the task is typed out in the typewriter font, and "Seal it again" closes it. Until then a **✉ Pick your secret envelope** button shows on their phone, and afterwards **✉ My secret task**; it appears at the top of their phone in every game, so they can pull it up at any time. The ✉ icon shows a burgundy dot while anyone hasn't opened their envelope yet (phones note the first opening at `secretTasks/{code}/seen`) or is waiting for one with the pile empty, and the ✉ page names them at the top. Its "Who has what" list shows each guest's state; holding a name shows that one task until you let go, and ✎ fixes it in place.
 
