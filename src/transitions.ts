@@ -6,7 +6,16 @@ import { publishTransitions } from "./session";
 import { setTransitionFiles } from "./stingPictures";
 
 const MAX_PICTURES = 60;
+const HEIC = /\.(heic|heif)$/i;
 const AUDIO = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)$/i;
+
+/** A picture's file as something the browser can show: an iPhone's HEIC becomes a JPEG (in memory; the file isn't touched). */
+async function showable(file: File): Promise<Blob> {
+  if (!HEIC.test(file.name)) return file;
+  const { default: heic2any } = await import("heic2any");
+  const out = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.9 });
+  return (Array.isArray(out) ? out[0] : out) ?? file;
+}
 
 /**
  * Main screen: reads a freshly loaded music folder's three transition subfolders (music, pictures, videos), keeps what it
@@ -22,7 +31,7 @@ export async function loadTransitions(code: string, music: DirHandle) {
   // Pictures and videos are listed by their whole file name (the name is how a task keeps them); music by its title, as songs are.
   const pictures = new Map<string, string>();
   for (const t of pics.slice(0, MAX_PICTURES)) {
-    try { pictures.set(t.handle.name, URL.createObjectURL(await t.handle.getFile())); } catch { /* unreadable: left out */ }
+    try { pictures.set(t.handle.name, URL.createObjectURL(await showable(await t.handle.getFile()))); } catch { /* unreadable: left out */ }
   }
   setTransitionFiles({
     music: new Map(sounds.map((t) => [t.title, t.handle])),
