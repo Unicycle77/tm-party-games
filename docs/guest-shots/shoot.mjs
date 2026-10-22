@@ -154,6 +154,13 @@ const SHOTS = {
     await openThings(p); await p.getByLabel("Find a thing").fill("eif"); await p.getByRole("button", { name: /Eiffel Tower/ }).click();
     await p.getByRole("button", { name: /Or pick one/ }).click(); await p.getByRole("button", { name: /^Jimothy/ }).click(); await p.getByRole("button", { name: "⇄ Flip it" }).click(); await p.evaluate(() => window.scrollTo(0, 0));
   }],
+  // 📏 without a party (/convert): opening on a US phone; a sandwich, 1 ft 2 in long, put in Jimothys; the way in from the host remote's start page
+  "converter-alone-open": ["alone-convert"],
+  "converter-alone-result": ["alone-convert", "", async (p) => {
+    await p.getByRole("button", { name: "Length" }).click(); await p.getByLabel("ft", { exact: true }).fill("1"); await p.getByLabel("in", { exact: true }).fill("2");
+    await p.getByRole("button", { name: /Or pick one/ }).click(); await p.getByLabel("Find a thing").fill("jim"); await p.getByRole("button", { name: /^Jimothy/ }).click();
+  }],
+  "host-start-convert": ["start-host"],
 };
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:

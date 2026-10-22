@@ -369,6 +369,8 @@ function Connect({ onConnected }: { onConnected: (code: string, created?: boolea
         {error && <p className="error">{error}</p>}
       </form>
       <RecentList recent={recent} busy={busy} onPick={(c) => void connect(c)} />
+      {/* 📏 works without a party too: quiet, under the parties, since it's not why anyone opens the host remote. */}
+      <button className="link" onClick={() => window.location.assign("/convert")}>📏 Useless conversions, no party needed</button>
       {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
         setScanning(false);
         const c = extractCode(t);

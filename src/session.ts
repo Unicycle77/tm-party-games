@@ -2,6 +2,7 @@ import { onAuthStateChanged, signInAnonymously, type User } from "firebase/auth"
 import { get, onDisconnect, onValue, push, ref, remove, serverTimestamp, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
+import { store } from "./store";
 import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session, type ShownConversion } from "./types";
 
 let signIn: Promise<User> | undefined;
@@ -484,8 +485,5 @@ export function useSession(code: string | undefined): Session | null | undefined
   return session;
 }
 
-/** Safe localStorage wrapper (private mode can throw). */
-export const store = {
-  get: (k: string) => { try { return localStorage.getItem(k) ?? ""; } catch { return ""; } },
-  set: (k: string, v: string) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch { /* ignore */ } },
-};
+// Kept in its own file so pages without a party (📏 at /convert) don't load Firebase.
+export { store };

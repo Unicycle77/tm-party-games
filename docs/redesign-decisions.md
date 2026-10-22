@@ -463,6 +463,17 @@ A utility in the host's header that runs the show's clock (the one Flipchart dre
 | Flipchart | One clock in the party. Flipchart's own clock (its state stays with the game, since it closes the drawing) is what ⏱ and the strip show while it runs; ⏱'s buttons are off then. | A second clock running over it. |
 | Guest phones | The clock is never on them, and Flipchart's pad no longer shows the time left either. | A clock on guests' phones. |
 
+## 📏 without a party
+
+The useless converter on its own, at `/convert`, so it can be used anywhere without a party code. Designed one step at a time with Jeffrey on 2026-10-21. Scenarios, ranked: a gag on your own phone (designed), trying a prop's size before a party (the same screen covers it), a TV with no party (dropped: this is for phones), sending a result as a link (later, maybe never).
+
+| Moment | Decision | Rejected, and why |
+|---|---|---|
+| What it is | The host's converter with the party taken out: the same kinds, units, "a thing ▾", gold button and read-aloud card. No header, no "← Back", no status line, no tasks' units, no big screen; nothing connects to a stage. | A page of its own design: two converters would drift apart. |
+| Metric or US units | A "US units (ft, lb, cups)" switch at the bottom, where "Show on the big screen" sits on the host's: set once and rarely touched, so it stays below the number being typed. The first visit follows the phone's region, then the switch is remembered on the phone. | Metric/US chips at the top: a second row of chips competing with the units. |
+| Switching mid-result | The result stays: what was typed stays as typed (1 ft 2 in folds into 1.17 ft), the answer keeps its unit, and only the working line changes system. | Clearing the result: it loses the laugh just got. |
+| The way in | `/convert`, to bookmark on a phone's home screen, and a quiet link under the host remote's recent parties. | |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.
