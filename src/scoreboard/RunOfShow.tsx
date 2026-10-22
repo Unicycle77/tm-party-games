@@ -119,7 +119,7 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
   // Half-scored, already on, or the light (which runs all evening): just open it.
   const open = next.unfinished || playing || task.game === "light";
   const label = open ? `Open task ${n} →` : task.game ? `▶ Start ${titleOf(task)}` : `Start task ${n} →`;
-  // Start plays the task's sting on the big screen, so the card says so before the tap. Not a button: Start is the tap that plays it.
+  // Start plays the task's sting on the big screen, so the button says so as its second line: the sound belongs to that tap.
   const stingAt = task.transition ? asList(session.jukebox?.transitions).indexOf(task.transition) : -1;
   const stingLength = asNums(session.jukebox?.transitionDurations)[stingAt];
   const go = () => {
@@ -131,8 +131,10 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
       <p className="up-next-label">Up next · task {n} of {tasks.length} · {task.game ? "app task" : "live task"}</p>
       <h3>{titleOf(task)}</h3>
       {task.description && <p className="up-next-note">"{task.description}"</p>}
-      {task.transition && !open && <p className="up-next-sting">♪ Opens with {task.transition}{stingLength ? ` · ${fmt(stingLength)}` : ""}</p>}
-      <button className={quiet ? undefined : "big"} onClick={go}>{label}</button>
+      <button className={quiet ? undefined : "big"} onClick={go}>
+        {label}
+        {task.transition && !open && <span className="button-sub">♪ plays {task.transition}{stingLength ? ` · ${fmt(stingLength)}` : ""}</span>}
+      </button>
     </section>
   );
 }

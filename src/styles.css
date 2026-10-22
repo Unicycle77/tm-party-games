@@ -81,6 +81,8 @@ button.big {
   width: 100%;
   text-transform: uppercase;
 }
+/* a button's second line: what else the tap does, in quiet sentence case under the label */
+button .button-sub { display: block; font-size: 0.8rem; font-weight: normal; text-transform: none; letter-spacing: 0; opacity: 0.8; margin-top: 0.2rem; }
 button.link { background: none; border: 0; box-shadow: none; color: var(--muted); text-decoration: underline; padding: 0.3rem; }
 
 input {
@@ -1284,7 +1286,6 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .up-next .up-next-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #7a6a55; }
 .up-next h3 { margin: 0; font-family: var(--typewriter); font-weight: normal; color: var(--ink); font-size: 1.3rem; }
 .up-next .up-next-note { color: #6b5a44; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.up-next .up-next-sting { font-family: var(--typewriter); color: #6b5a44; font-size: 0.9rem; }
 .up-next button { margin-top: 0.4rem; }
 /* the read-only task list: a number, the name, one short state; scored ones quiet, the next one gold */
 .run-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ffffff22; }
