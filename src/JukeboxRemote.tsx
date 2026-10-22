@@ -41,7 +41,7 @@ export function JukeboxRemote({ code, session }: { code: string; session: Sessio
     return (
       <section className="remote">
         <h2>Jukebox</h2>
-        <p className="muted">No music yet. On the main screen, click <strong>🎵 Choose music folder</strong> (Chrome, on the PC that has the songs).</p>
+        <p className="muted">No music yet. On the main screen, click <strong>🎵 Select asset folder</strong> (Chrome, on the PC that has the songs).</p>
       </section>
     );
   }
