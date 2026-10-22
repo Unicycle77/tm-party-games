@@ -283,6 +283,8 @@ export interface ScoreboardTask {
   song?: string;
   /** A short sting from the music folder's Transitions subfolder, by title: it plays on the big screen the moment the host starts the task. */
   transition?: string;
+  /** A picture from the music folder's Transition pictures subfolder, by file name (never uploaded): it fills the big screen while the sting plays. Only with a `transition`. */
+  transitionImage?: string;
   /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
@@ -448,6 +450,8 @@ export interface Session {
   phoneText?: { task: string; part?: number };
   /** A useless conversion the host put on the big screen. It covers whatever was there until the host takes it down or puts something else up. */
   conversion?: ShownConversion;
+  /** The task whose sting is playing after the host started it: its picture covers the big screen until the sting ends. */
+  sting?: { task: string };
   /** The ⏱ clock the host set, and maybe has on the big screen. */
   clock?: ClockState;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */

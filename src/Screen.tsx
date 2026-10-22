@@ -15,6 +15,8 @@ import { ClockStage } from "./clock/ClockStage";
 import { removeHostPin, resetController, setDisplay, setGame, showContestant } from "./session";
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
+import { StingStage } from "./StingStage";
+import { stingPictureUrl } from "./stingPictures";
 
 /** What a screen shows for a session: the active game's stage, or the lobby. */
 export function screenState(session: Session) {
@@ -49,6 +51,9 @@ export function Screen({ code, session, viewOnly = false, footer }: {
     preloadImages(photoUrls.split("\n"));
   }, [photoUrls]);
 
+  // A task's sting picture covers everything while the sting plays, then gives way to what starting the task brought up.
+  const stingImage = session.sting && stingPictureUrl(session.scoreboard?.tasks?.[session.sting.task]?.transitionImage);
+  if (stingImage) return <StingStage src={stingImage} />;
   // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // So does the ⏱ clock, when the host shows it.

@@ -13,6 +13,7 @@ import { flipchartDefaults } from "../../src/games/flipchart/data";
 import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
 import { MODES } from "../../src/light/triggers";
+import { registerStingPicture } from "../../src/stingPictures";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
@@ -185,11 +186,14 @@ function build() {
       for (const [id, e] of [["alex", "🧛"], ["greg", "🎃"], ["mei", "👻"]]) (g.photos!.media as Record<string, unknown>)[id!] = { photo: pic(e!, "#3a2a1c") };
       break;
     // Up next is a live task that opens with a sting: tasks 1 to 5 scored, the main screen's Transitions list published.
-    case "host-run-transition": {
+    case "host-run-transition": case "tv-sting": {
       picked(); set("begun", true);
       const s = { alex: 3, greg: 4, mei: 2, priya: 5, sam: 3, tom: 1 };
       for (const id of ["t1", "t2", "t3", "t4", "t5"]) Object.assign(tasks[id] as object, { scores: s });
-      tasks.t6 = { order: 6, name: "Dice tower", description: "Tallest wins. Dice are in the blue tin.", transition: "Task fanfare" };
+      tasks.t6 = { order: 6, name: "Dice tower", description: "Tallest wins. Dice are in the blue tin.", transition: "Task fanfare", transitionImage: "dice-tower.jpg" };
+      registerStingPicture("dice-tower.jpg", "/docs/guest-shots/stings/dice-tower.jpg");
+      // The host tapped Start: the scores came down and the sting's picture is up.
+      if (shot === "tv-sting") set("sting", { task: "t6" });
       session.jukebox = { tracks: ["Think music", "Eye of the Tiger"], durations: [32, 245], transitions: ["Drumroll", "Task fanfare"], transitionDurations: [5, 8], open: true, state: {} };
       break;
     }
