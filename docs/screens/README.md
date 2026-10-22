@@ -206,7 +206,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-play-a-game.jpg` | "Play a task": a task that's not on the list, the same page with no number and no points (2026-10-19, from the ABCD party) |
 | `run-of-show-host-add-game.jpg` | "+ App task" on Plan the party, "Which task?": Noisemaster, Secret Tasks, Headshot and Prize task greyed out as "on the list", Photos still offered; the live tasks named Dice tower, Five socks and Hum a theme tune (2026-10-22, from the ABCD party) |
 | `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
-| `plan-host-task-cards.jpg` | Plan the party's bottom: the "Task cards" row with Download PDF, "Include secret tasks" switched on and the "8 to cut" / "4 to fold" radio row, above Setup file (2026-10-22, from the ABCD party) |
+| `plan-host-task-cards.jpg` | Plan the party's bottom: the "Task cards" row with Download PDF, "Include secret tasks" switched on and the "8 to cut" / "4 to fold" radio row, then the "Check-in sign" row with its Download PDF, above Setup file (2026-10-22, from the ABCD party) |
+| `checkin-sign-pdf.jpg` | The check-in sign PDF from the ABCD Halloween party: HALLOWEEN PARTY, the join QR, "Players scan here", "Your time starts now." and the no-camera line (2026-10-22) |
 | `task-cards-pdf-page.jpg` | The downloaded PDF's first page: a task's Individual part, heading centred in capitals, the paragraphs, the block centred down a white Letter page (2026-10-18) |
 | `task-cards-pdf-secret-cut.jpg` | A secret sheet, "8 to cut": a 2 × 4 grid of SECRET TASK cards with faint cut lines (2026-10-18) |
 | `task-cards-pdf-secret-fold.jpg` | A secret sheet, "4 to fold": a 2 × 2 grid, each card its own envelope-sized fold, no fold lines (2026-10-18) |

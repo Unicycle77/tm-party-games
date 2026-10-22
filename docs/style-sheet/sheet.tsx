@@ -303,6 +303,14 @@ function Sheet() {
               <p>example.com/play · <strong>ABCD</strong></p>
             </div>
             <Cap><code>.corner-code</code>: the join address in the big screen's corner; while the host's "Show QR" is open, the player QR sits above it, with no caption</Cap>
+            <div style={{ justifySelf: "start", width: 170, aspectRatio: "8.5 / 11", background: "#fff", color: "#000", fontFamily: "var(--typewriter)", display: "grid", alignContent: "center", justifyItems: "center", gap: 6, textAlign: "center" }}>
+              <span style={{ fontSize: 6 }}>HALLOWEEN PARTY</span>
+              <QRCodeSVG value="https://example.com/play?code=ABCD" marginSize={0} style={{ width: 80, height: 80 }} />
+              <span style={{ fontSize: 6 }}>Players scan here</span>
+              <span style={{ fontSize: 13 }}>Your time starts now.</span>
+              <span style={{ fontSize: 4, color: "#444" }}>No camera? Go to example.com/play and enter ABCD</span>
+            </div>
+            <Cap>The printed check-in sign (Plan the party's PDF): the same join QR in black on a white Letter page, no border, with "Players scan here", then "Your time starts now." big</Cap>
             <div className="slot" style={{ gridTemplateColumns: "1fr auto", alignItems: "center" }}><h2>Your secret task</h2><button className="help-q" aria-expanded>?</button></div>
             <Cap><code>.help-q</code>: a circled ? that opens the rules in place, burgundy while open</Cap>
           </Sec>

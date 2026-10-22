@@ -9,6 +9,7 @@ import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
 import { TaskCards } from "./TaskCards";
+import { CheckinSign } from "./CheckinSign";
 import { Toggle } from "../Toggle";
 import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 
@@ -35,6 +36,7 @@ export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
       <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} />
       <Envelopes code={code} />
       <TaskCards code={code} session={session} />
+      <CheckinSign code={code} session={session} />
       <SetupFile code={code} session={session} />
     </div>
   );
