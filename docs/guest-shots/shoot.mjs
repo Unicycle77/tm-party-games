@@ -98,6 +98,7 @@ const SHOTS = {
   "run-of-show-host-play-a-game": ["host-adhoc"],
   "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
   "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
+  "task-edit-scoring": ["host-plan-edit"],
   "host-reset-scores": ["host-reset", "", async (p) => {
     await p.getByRole("button", { name: "Party settings" }).click();
     await p.getByRole("button", { name: /Reset scores/ }).click();
