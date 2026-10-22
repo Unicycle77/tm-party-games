@@ -236,10 +236,12 @@ export interface Jukebox {
    * still pick tasks' songs from it; this says how old that list is.
    */
   tracksAt?: number;
-  /** Sting titles from the music folder's Transitions subfolder (the jukebox leaves them out), published with `tracks`. */
+  /** Sting titles from the music folder's Transition music subfolder (the jukebox leaves it out), published with `tracks`. */
   transitions?: string[];
   /** Sting lengths in seconds, same order as `transitions` (0 = unknown). */
   transitionDurations?: number[];
+  /** Picture file names from the music folder's Transition pictures subfolder, published with `tracks`. */
+  transitionPictures?: string[];
   /** Video file names from the music folder's Transition videos subfolder, published with `tracks`. */
   transitionVideos?: string[];
   /** Their lengths in seconds, same order (0 = unknown). */
@@ -285,7 +287,7 @@ export interface ScoreboardTask {
   description?: string;
   /** The jukebox song the host picked for the task, by title (not by place, so new songs don't shift it). */
   song?: string;
-  /** A short sting from the music folder's Transitions subfolder, by title: it plays on the big screen the moment the host starts the task. */
+  /** A short sting from the music folder's Transition music subfolder, by title: it plays on the big screen the moment the host starts the task. */
   transition?: string;
   /** A picture from the music folder's Transition pictures subfolder, by file name (never uploaded): it fills the big screen while the sting plays. Only with a `transition`. */
   transitionImage?: string;

@@ -4,10 +4,11 @@ import { asList, asNums, fmt } from "../JukeboxRemote";
 import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
-import { editTask, editTiebreaker, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
+import { editTask, editTiebreaker, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
 import { isMeasured, overLine } from "./measured";
 import { asParts, gameName, scored, titleOf } from "./tasks";
 import { TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
+import { bare, TransitionField, type TransitionDraft } from "./TransitionField";
 
 /** A task's words are at most this many parts (what the database rules allow). */
 const MAX_PARTS = 10;
@@ -36,6 +37,14 @@ function ScoringField({ scoring, onChange }: { scoring: ScoreboardTask["scoring"
  * An optional part of a task: once it's set it's one summary line with "Change", which opens just that part in
  * place (one at a time, so the page stays short), with ✕ to clear it. Not yet set, it's a "+" chip instead.
  */
+/** "♪ Task fanfare · 0:08 · 🖼 Dice tower", or "▶ Drumroll cam · 0:12". */
+function transitionSummary(session: Session, t: TransitionDraft): string {
+  const jukebox = session.jukebox;
+  const len = (list: unknown, lengths: unknown, v: string) => { const n = asNums(lengths)[asList(list).indexOf(v)]; return n ? ` · ${fmt(n)}` : ""; };
+  if (t.video) return `▶ ${bare(t.video)}${len(jukebox?.transitionVideos, jukebox?.transitionVideoDurations, t.video)}`;
+  return [t.music && `♪ ${t.music}${len(jukebox?.transitions, jukebox?.transitionDurations, t.music)}`, t.picture && `🖼 ${bare(t.picture)}`].filter(Boolean).join(" · ");
+}
+
 function Extra({ label, summary, open, onOpen, onClose, onClear, children }: {
   label: string; summary?: ReactNode; open: boolean; onOpen: () => void; onClose: () => void; onClear: () => void; children: ReactNode;
 }) {
@@ -80,7 +89,8 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const [dqOver, setDqOver] = useState(task?.dqOver === undefined ? "" : String(task.dqOver));
   const [draw, setDraw] = useState(task?.draw ?? "");
   const [minutes, setMinutes] = useState(minutesOf(task));
-  const [open, setOpen] = useState<"text" | "song" | "unit">();
+  const [transition, setTransition] = useState<TransitionDraft>({ music: task?.transition ?? "", picture: task?.transitionImage ?? "", video: task?.transitionVideo ?? "" });
+  const [open, setOpen] = useState<"text" | "song" | "transition" | "unit">();
   if (!task) {
     return (
       <div className="box-setup scoreboard-remote plan">
@@ -105,6 +115,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
     const line = Number(dqOver.replace(",", "."));
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
     if (flip) void editFlipchart(code, id, draw, minutes);
+    void editTransition(code, id, transition);
     void editTask(code, id, name, description, song, words, saved, over ?? null).then(() => {
       // A new line, or none, applies to the readings already in.
       if (over === task.dqOver) return;
@@ -196,6 +207,13 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
           summary={song ? <>♪ Song<span className="muted small"> · {songAt < 0 ? <s>{song}</s> : song}{songAt >= 0 && ` · ${fmt(asNums(session.jukebox?.durations)[songAt])}`}</span></> : undefined}>
           <SongField session={session} song={song} onChange={setSong} />
         </Extra>
+        {!tiebreaker && task.game !== "light" && (
+          <Extra label="Transition" open={open === "transition"} onOpen={() => setOpen("transition")} onClose={() => setOpen(undefined)}
+            onClear={clear(() => setTransition({ music: "", picture: "", video: "" }))}
+            summary={transition.music || transition.picture || transition.video ? <>Transition<span className="muted small"> · {transitionSummary(session, transition)}</span></> : undefined}>
+            <TransitionField session={session} draft={transition} onChange={setTransition} />
+          </Extra>
+        )}
         {!tiebreaker && task.game !== "light" && (
           <Extra label="📏 Unit" open={open === "unit"} onOpen={() => setOpen("unit")} onClose={() => setOpen(undefined)}
             onClear={clear(() => { setUnit(draftOf(undefined)); setDqOver(""); })}
