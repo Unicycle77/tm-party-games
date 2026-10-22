@@ -25,6 +25,16 @@ await run("music+picture", { transition: "Fanfare", transitionImage: "Slide.png"
   ok("music+picture: ends itself", (await sting()) === null);
   ok("music+picture: picture gone", (await pic()) === 0);
 });
+// 1b. played again after it ended (the replay strip): starts and ends the same way
+await run("replay", { transition: "Fanfare", transitionImage: "Slide.png" }, { music: 1 }, async () => {
+  for (const round of ["first", "second"]) {
+    await p.evaluate(() => window.t.startSting("ABCD", "t1", false));
+    await p.waitForTimeout(500);
+    ok(`replay: ${round} play is on`, !!(await sting()) && (await pic()) === 1);
+    await p.waitForTimeout(1800);
+    ok(`replay: ${round} play ended`, (await sting()) === null);
+  }
+});
 // 2. picture alone: stays, until something else goes on the big screen
 await run("picture", { transitionImage: "Slide.png" }, { music: 0 }, async () => {
   await p.evaluate(() => window.t.startSting("ABCD", "t1", false));

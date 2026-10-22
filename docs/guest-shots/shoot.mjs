@@ -70,6 +70,8 @@ const SHOTS = {
   "up-next-transition-missing": ["host-run-transition-missing", "", undefined, ".up-next"],
   // the host's phone two seconds after that Start: the big-screen line names the picture, the ⏹ strip ends the transition
   "host-sting": ["host-sting"],
+  // the task's page after its transition has played: the strip to play it again, above the song's
+  "host-replay": ["host-replay"],
   // the gate after a refresh: the music folder's line, then a line for each transition folder
   "main-gate-transitions": ["tv-gate"],
   // Dice tower's ✎ page with its Transition open: music and a picture picked, the video empty

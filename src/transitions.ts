@@ -3,7 +3,7 @@ import {
   readDurations, scanFolder, subfolder,
 } from "./musicFolder";
 import { publishTransitions } from "./session";
-import { setTransitionFiles } from "./stingPictures";
+import { setTransitionFiles, warm } from "./stingPictures";
 
 const MAX_PICTURES = 60;
 const AUDIO = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)$/i;
@@ -30,7 +30,8 @@ export async function loadTransitions(code: string, music: DirHandle) {
     pictures,
   });
   await publishTransitions(code, { music: sounds.map((t) => t.title), pictures: [...pictures.keys()], videos: vids.map((t) => t.handle.name) });
-  // Lengths come once read, as the songs' do.
+  // Read into memory (lengths come out of that too), so a transition never waits on the disk when Start is tapped.
+  void warm();
   const [musicLengths, videoLengths] = await Promise.all([readDurations(sounds), readDurations(vids)]);
   await publishTransitions(code, { musicLengths, videoLengths });
 }

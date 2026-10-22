@@ -54,8 +54,9 @@ export function transitionLine(session: Session, task: ScoreboardTask): { line: 
   ).filter((p) => !!p);
   if (!pieces.length) return undefined;
   const closed = !jukebox?.open;
+  const allGone = pieces.every((p) => !p.here);
   const line = pieces.map((p, k) => (
     <span key={k}>{k > 0 && " · "}{closed || p.here ? <>{p.text}{p.length}</> : <span className="missing"><s>{p.text}</s> not found</span>}</span>
   ));
-  return { line: <>{line}{closed && " · music folder not open"}</>, problem: closed ? "music folder not open" : undefined };
+  return { line: <>{line}{closed && " · music folder not open"}</>, problem: closed ? "music folder not open" : allGone ? "not in the folder" : undefined };
 }
