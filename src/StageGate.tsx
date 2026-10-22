@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { hostUrlFor } from "./firebase";
 import { type DirHandle, folderPickerSupported, hasAccess, pickFolder, recallFolder, rememberFolder, requestAccess } from "./musicFolder";
 import type { Session } from "./types";
+import { skippedStingPictures } from "./stingPictures";
 
 /** Tells the jukebox a music folder can now be read, so it loads it. */
 export const MUSIC_READY = "taskmaster:music-ready";
@@ -94,7 +95,7 @@ export function StageGate({ code, session, onRaised, onEnd }: {
         )}
         {folder && music === "done" && transitions.map(([name, list]) => {
           const n = list ? Object.keys(list).length : 0;
-          return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || `none found (add a folder named "${name}")`}</li>;
+          return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || `none found (add a folder named "${name}")`}{name === "Transition pictures" && skippedStingPictures().length > 0 && ` · couldn't read ${skippedStingPictures().join(", ")}`}</li>;
         })}
       </ul>
       {tried && (full === "failed" || music === "failed") && (

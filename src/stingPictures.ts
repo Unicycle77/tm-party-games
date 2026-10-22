@@ -20,6 +20,11 @@ export function setTransitionFiles(next: { music: Map<string, Track["handle"]>; 
   music = wrap(next.music); videos = wrap(next.videos); pictures = next.pictures;
 }
 
+/** Pictures in the folder that couldn't be read or converted this time (the gate says so, so a missing picture isn't a mystery). */
+let skippedPictures: string[] = [];
+export const setSkippedPictures = (names: string[]) => { skippedPictures = names; };
+export const skippedStingPictures = () => skippedPictures;
+
 /** The local URL of a transition picture, if this screen read it from its folder. */
 export const stingPictureUrl = (name: string | undefined) => (name ? pictures.get(name) : undefined);
 export const hasStingMusic = (title: string | undefined) => !!title && music.has(title);
