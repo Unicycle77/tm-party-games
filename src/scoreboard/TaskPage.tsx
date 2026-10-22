@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
+import { settleOldRound } from "../games/flipchart/data";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
@@ -14,8 +15,9 @@ import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
 
 /**
  * Starts a task from Run of show or its page: the scores come down if they're up, the task before it is caught
- * up on the scoreboard (see startTask), and an app game goes on, bringing its photos if it's a photo task. A live
- * task ends any game still on, so the big screen goes back to the curtain.
+ * up on the scoreboard (see startTask), and an app game goes on, bringing its photos if it's a photo task, or settling
+ * Flipchart's round from before (see settleOldRound). A live task ends any game still on, so the big screen goes back
+ * to the curtain.
  */
 export async function beginTask(code: string, session: Session, id: string) {
   const task = session.scoreboard?.tasks?.[id];
@@ -24,6 +26,7 @@ export async function beginTask(code: string, session: Session, id: string) {
   if (task.game && task.game !== "light") {
     await startTask(code, session.scoreboard, false, id);
     if (task.game === "photos") await switchPhotosTask(code, session, id);
+    if (task.game === "flipchart") await settleOldRound(code, session);
     await setGame(code, task.game as GameId);
   } else {
     if (session.game) await setGame(code, null);

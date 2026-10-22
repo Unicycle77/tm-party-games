@@ -64,6 +64,24 @@ export function startClock(code: string, session: Session, offset: number) {
   });
 }
 
+/**
+ * Host, as Start puts Flipchart on: a round from before whose time is up (it was left while the clock ran, so nothing closed it,
+ * or it was closed). With nothing drawn it was a try-out, so it's cleared and "Your time starts now" is back; with drawings it's
+ * closed, so they stay for the reveal. Left as it was, its clock would flash up until the big screen closed it, and the round could
+ * never start. A round still running is left to run.
+ */
+export function settleOldRound(code: string, session: Session) {
+  const data = dataOf(session);
+  if (!started(session) || (!closed(session) && (data.endsAt ?? 0) > Date.now())) return Promise.resolve();
+  const drawn = Object.values(data.pages ?? {}).some((pages) => Object.values(pages ?? {}).some((p) => !!p));
+  if (drawn) return closed(session) ? Promise.resolve() : update(ref(db(), path(code)), { closed: true });
+  const patch: Record<string, null> = { startedAt: null, endsAt: null, closed: null };
+  for (const part of ["pages", "submitted", "unlocked", "shown"] as const) {
+    for (const uid of Object.keys(data[part] ?? {})) patch[`${part}/${uid}`] = null;
+  }
+  return update(ref(db(), path(code)), patch);
+}
+
 /** Host: five more minutes for everyone, while the clock runs. */
 export const addFiveMinutes = (code: string, endsAt: number) => update(ref(db(), path(code)), { endsAt: endsAt + EXTRA_MS });
 

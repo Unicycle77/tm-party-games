@@ -7,6 +7,8 @@ import { Screen } from "../../src/Screen";
 import { StingDriver } from "../../src/StingDriver";
 import { setTransitionFiles, warmFor } from "../../src/stingPictures";
 import { startSting } from "../../src/scoreboard/data";
+import { beginTask } from "../../src/scoreboard/TaskPage";
+import { startClock } from "../../src/games/flipchart/data";
 import { setDisplay } from "../../src/session";
 import type { Session } from "../../src/types";
 
@@ -51,6 +53,8 @@ Object.assign(window, {
       await warmFor({ music: ["Fanfare"], video: ["Intro.webm"] });
     },
     startSting, setDisplay,
+    begin: async (id: string) => beginTask(CODE, (await get(ref(db(), `sessions/${CODE}`))).val() as Session, id),
+    startClock: async () => startClock(CODE, (await get(ref(db(), `sessions/${CODE}`))).val() as Session, 0),
     read: async (path: string) => (await get(ref(db(), path))).val(),
   },
 });
