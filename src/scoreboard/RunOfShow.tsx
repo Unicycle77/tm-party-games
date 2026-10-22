@@ -133,7 +133,7 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
       {task.description && <p className="up-next-note">"{task.description}"</p>}
       <button className={quiet ? undefined : "big"} onClick={go}>
         {label}
-        {task.transition && !open && <span className="button-sub">♪ plays {task.transition}{stingLength ? ` · ${fmt(stingLength)}` : ""}</span>}
+        {task.transition && !open && <span className="button-sub">♪ {task.transition}{stingLength ? ` · ${fmt(stingLength)}` : ""}</span>}
       </button>
     </section>
   );
