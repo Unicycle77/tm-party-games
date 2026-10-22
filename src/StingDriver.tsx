@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { endSting, markSting } from "./session";
-import { stingMusic, stingVideo } from "./stingPictures";
+import { hasStingMusic, hasStingVideo, stingMusicFile, stingVideoFile } from "./stingPictures";
 import type { Session } from "./types";
 
 /**
@@ -31,12 +31,11 @@ export function StingDriver({ code, session }: { code: string; session: Session 
   useEffect(() => {
     const audio = audioRef.current;
     if (!on || !music || !audio) return;
-    const handle = stingMusic(music);
-    if (!handle) { void endSting(code); return; }
+    if (!hasStingMusic(music)) { void endSting(code); return; }
     let url: string | undefined;
     let cancelled = false;
-    void handle.getFile().then((file) => {
-      if (cancelled) return;
+    void stingMusicFile(music).then((file) => {
+      if (cancelled || !file) return;
       url = URL.createObjectURL(file);
       audio.src = url;
       return audio.play();
@@ -47,12 +46,11 @@ export function StingDriver({ code, session }: { code: string; session: Session 
   // The video: from its file, full screen.
   useEffect(() => {
     if (!on || !video) { setVideoUrl(undefined); return; }
-    const handle = stingVideo(video);
-    if (!handle) { void endSting(code); return; }
+    if (!hasStingVideo(video)) { void endSting(code); return; }
     let url: string | undefined;
     let cancelled = false;
-    void handle.getFile().then((file) => {
-      if (cancelled) return;
+    void stingVideoFile(video).then((file) => {
+      if (cancelled || !file) return;
       url = URL.createObjectURL(file);
       setVideoUrl(url);
     }).catch(() => { if (!cancelled) void endSting(code); });

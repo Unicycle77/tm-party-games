@@ -5,7 +5,7 @@ import "../../src/styles.css";
 import { db } from "../../src/firebase";
 import { Screen } from "../../src/Screen";
 import { StingDriver } from "../../src/StingDriver";
-import { setTransitionFiles } from "../../src/stingPictures";
+import { setTransitionFiles, warm } from "../../src/stingPictures";
 import { startSting } from "../../src/scoreboard/data";
 import { setDisplay } from "../../src/session";
 import type { Session } from "../../src/types";
@@ -42,11 +42,14 @@ function Live() {
 Object.assign(window, {
   t: {
     seed: (tree: unknown) => seed(tree as Record<string, unknown>),
-    files: async (opts: { music?: number; video?: number }) => setTransitionFiles({
-      music: new Map(opts.music ? [["Fanfare", handle("Fanfare.wav", wav(opts.music))]] : []),
-      videos: new Map(opts.video ? [["Intro.webm", handle("Intro.webm", await webm(opts.video))]] : []),
-      pictures: new Map([["Slide.png", await png()]]),
-    }),
+    files: async (opts: { music?: number; video?: number }) => {
+      setTransitionFiles({
+        music: new Map(opts.music ? [["Fanfare", handle("Fanfare.wav", wav(opts.music))]] : []),
+        videos: new Map(opts.video ? [["Intro.webm", handle("Intro.webm", await webm(opts.video))]] : []),
+        pictures: new Map([["Slide.png", await png()]]),
+      });
+      await warm();
+    },
     startSting, setDisplay,
     read: async (path: string) => (await get(ref(db(), path))).val(),
   },

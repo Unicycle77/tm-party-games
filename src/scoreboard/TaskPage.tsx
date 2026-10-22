@@ -5,6 +5,7 @@ import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
+import { ReplayStrip } from "./ReplayStrip";
 import type { GameId, Session } from "../types";
 import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
 import { Points } from "./Points";
@@ -131,6 +132,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       <LowerIfUp code={code} session={session} />
       {secret ? parts.length > 1 && <ShowTask code={code} session={session} task={id} part={1} gold={false} onShown={() => setTextSeen(true)} />
         : task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
+      <ReplayStrip code={code} session={session} id={id} task={task} />
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
