@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
-import { settleOldRound } from "../games/flipchart/data";
+import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
@@ -26,7 +26,7 @@ export async function beginTask(code: string, session: Session, id: string) {
   if (task.game && task.game !== "light") {
     await startTask(code, session.scoreboard, false, id);
     if (task.game === "photos") await switchPhotosTask(code, session, id);
-    if (task.game === "flipchart") await settleOldRound(code, session);
+    if (task.game === "flipchart") await settleOldRound(code, session, !wipeDrawings(session));
     await setGame(code, task.game as GameId);
   } else {
     if (session.game) await setGame(code, null);
@@ -37,6 +37,13 @@ export async function beginTask(code: string, session: Session, id: string) {
   if ((task.transition || task.transitionImage || task.transitionVideo) && session.jukebox?.open) {
     await startSting(code, id, session.jukebox.state?.playing === true);
   }
+}
+
+/** Flipchart's Start, over a round from before with drawings in it: asks before they're wiped (Cancel keeps them for the reveal). */
+function wipeDrawings(session: Session) {
+  const names = drewIn(session).map((uid) => session.players?.[uid]?.name).filter((n): n is string => !!n);
+  if (!roundOver(session) || !names.length) return false;
+  return confirm(`Start Flipchart fresh? ${list(names)} drew in the last round. ${names.length === 1 ? "Their drawing" : "Their drawings"} will be wiped.`);
 }
 
 /** "Show the task": gold, since putting the words up is usually what comes next. Pressed in while they're up; tapping again lowers the curtain. */

@@ -30,10 +30,18 @@ ok("try-out left running: Your time starts now puts the clock up", (await p.loca
 ok("try-out closed: no clock flash", !(await start({ ...old, closed: true, submitted: { u1: true } })));
 const blank = await round();
 ok("try-out closed: cleared", !blank?.startedAt && !blank?.closed && !blank?.submitted?.u1);
-// 3. left while the clock ran, with drawings: closed at once, drawings kept
-ok("drawn left running: no clock flash", !(await start({ ...old, pages: { u2: { p1: "x" } } })));
-const drawn = await round();
-ok("drawn left running: closed, pages kept", drawn?.closed === true && drawn?.pages?.u2?.p1 === "x");
+// 3. left while the clock ran, with drawings: Start asks first, naming who drew; Cancel closes it at once, drawings kept
+let asked;
+p.once("dialog", (d) => { asked = d.message(); void d.dismiss(); });
+ok("drawn, Cancel: no clock flash", !(await start({ ...old, pages: { u2: { p1: "x" } } })));
+ok("drawn: asks first, naming who drew", asked === "Start Flipchart fresh? Greg drew in the last round. Their drawing will be wiped.");
+const kept = await round();
+ok("drawn, Cancel: closed, pages kept", kept?.closed === true && kept?.pages?.u2?.p1 === "x");
+// 3b. the same, OK: wiped and fresh
+p.once("dialog", (d) => void d.accept());
+ok("drawn, OK: no clock flash", !(await start({ ...old, closed: true, pages: { u1: { p1: "x" }, u2: { p1: "y" } }, submitted: { u1: true, u2: true } })));
+const wiped = await round();
+ok("drawn, OK: cleared", !wiped?.startedAt && !wiped?.closed && !wiped?.pages?.u1 && !wiped?.submitted?.u2);
 // 4. still running: carries on
 ok("still running: clock up", await start({ startedAt: now - 60_000, endsAt: now + 60_000 }));
 ok("still running: untouched", (await round())?.closed === undefined);

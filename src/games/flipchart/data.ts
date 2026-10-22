@@ -64,17 +64,23 @@ export function startClock(code: string, session: Session, offset: number) {
   });
 }
 
+/** Guests who drew anything, in a round from before. */
+export const drewIn = (session: Session) =>
+  Object.entries(dataOf(session).pages ?? {}).filter(([, pages]) => Object.values(pages ?? {}).some((p) => !!p)).map(([uid]) => uid);
+
+/** A round from before whose time is up: left while the clock ran (so nothing closed it), or closed. A round still running isn't. */
+export const roundOver = (session: Session) =>
+  started(session) && (closed(session) || (dataOf(session).endsAt ?? 0) <= Date.now());
+
 /**
- * Host, as Start puts Flipchart on: a round from before whose time is up (it was left while the clock ran, so nothing closed it,
- * or it was closed). With nothing drawn it was a try-out, so it's cleared and "Your time starts now" is back; with drawings it's
- * closed, so they stay for the reveal. Left as it was, its clock would flash up until the big screen closed it, and the round could
- * never start. A round still running is left to run.
+ * Host, as Start puts Flipchart on: a round from before whose time is up is cleared, so "Your time starts now" is back, unless
+ * there are drawings in it and the host chose to keep them (`keep`): then it's closed, so they stay for the reveal. Left as it
+ * was, its clock would flash up until the big screen closed it, and the round could never start. A round still running is left to run.
  */
-export function settleOldRound(code: string, session: Session) {
+export function settleOldRound(code: string, session: Session, keep: boolean) {
+  if (!roundOver(session)) return Promise.resolve();
+  if (keep && drewIn(session).length) return closed(session) ? Promise.resolve() : update(ref(db(), path(code)), { closed: true });
   const data = dataOf(session);
-  if (!started(session) || (!closed(session) && (data.endsAt ?? 0) > Date.now())) return Promise.resolve();
-  const drawn = Object.values(data.pages ?? {}).some((pages) => Object.values(pages ?? {}).some((p) => !!p));
-  if (drawn) return closed(session) ? Promise.resolve() : update(ref(db(), path(code)), { closed: true });
   const patch: Record<string, null> = { startedAt: null, endsAt: null, closed: null };
   for (const part of ["pages", "submitted", "unlocked", "shown"] as const) {
     for (const uid of Object.keys(data[part] ?? {})) patch[`${part}/${uid}`] = null;
