@@ -2,6 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type ReactNode } from "react";
 import { ClockStrip } from "./clock/ClockStrip";
 import { asList, asNums, fmt } from "./JukeboxRemote";
+import { stingFiles } from "./sting";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
@@ -23,9 +24,10 @@ export function onScreenLine(session: Session): string {
   const board = session.scoreboard;
   const game = activeGame(session);
   if (noBigScreen(session)) return "not connected yet";
-  const sting = session.sting && board?.tasks?.[session.sting.task];
-  if (sting?.transitionVideo) return `${titleOf(sting)}'s transition video`;
-  if (sting?.transitionImage) return `${titleOf(sting)}'s transition picture`;
+  const sting = stingFiles(session);
+  const stingTask = sting && board?.tasks?.[sting.task];
+  if (stingTask && sting.video) return `${titleOf(stingTask)}'s transition video`;
+  if (stingTask && sting?.picture) return `${titleOf(stingTask)}'s transition picture`;
   if (session.conversion) return "a useless conversion";
   if (session.clock?.shown) return "the clock";
   if (display.step === "scoreboard") {
@@ -76,21 +78,21 @@ export function OnScreen({ code, session, chip, noClock }: { code: string; sessi
  */
 function TransitionStrip({ code, session }: { code: string; session: Session }) {
   const sting = session.sting;
-  const task = sting && session.scoreboard?.tasks?.[sting.task];
+  const files = stingFiles(session);
   const [, tick] = useState(0);
-  const timed = !!task && !!(task.transitionVideo || task.transition);
+  const timed = !!files && !!(files.video || files.music);
   useEffect(() => {
     if (!timed) return;
     const t = window.setInterval(() => tick((n) => n + 1), 1000);
     return () => window.clearInterval(t);
   }, [timed]);
-  if (!task) return null;
+  if (!files || !sting) return null;
   const jukebox = session.jukebox;
-  const [name, length] = task.transitionVideo
-    ? [task.transitionVideo.replace(/\.[^.]+$/, ""), asNums(jukebox?.transitionVideoDurations)[asList(jukebox?.transitionVideos).indexOf(task.transitionVideo)]]
-    : task.transition
-      ? [task.transition, asNums(jukebox?.transitionDurations)[asList(jukebox?.transitions).indexOf(task.transition)]]
-      : [`${(task.transitionImage ?? "").replace(/\.[^.]+$/, "")} picture`, undefined];
+  const [name, length] = files.video
+    ? [files.video.replace(/\.[^.]+$/, ""), asNums(jukebox?.transitionVideoDurations)[asList(jukebox?.transitionVideos).indexOf(files.video)]]
+    : files.music
+      ? [files.music, asNums(jukebox?.transitionDurations)[asList(jukebox?.transitions).indexOf(files.music)]]
+      : [`${(files.picture ?? "").replace(/\.[^.]+$/, "")} picture`, undefined];
   const left = length && sting.at ? Math.max(1, Math.round(length - (Date.now() - sting.at) / 1000)) : undefined;
   return (
     <button className="sb-song now-playing-strip" aria-label={`End ${name}`} onClick={() => void endSting(code)}>

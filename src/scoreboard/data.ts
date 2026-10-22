@@ -266,8 +266,11 @@ export const setTiebreakerWinner = (code: string, contestant: string | null) =>
   set(at(code, "tiebreaker/winner"), contestant);
 
 /** Host: starts a task's transition on the big screen. The jukebox stops, so a song never plays under it. */
-export const startSting = (code: string, task: string, stopJukebox: boolean) =>
-  update(ref(db(), `sessions/${code}`), { sting: { task }, ...(stopJukebox && { "jukebox/state/playing": false }) });
+export const startSting = (code: string, task: string, stopJukebox: boolean, draft?: { music: string; picture: string; video: string }) =>
+  update(ref(db(), `sessions/${code}`), {
+    sting: { task, ...(draft && { draft: { music: draft.music || null, picture: draft.picture || null, video: draft.video || null } }) },
+    ...(stopJukebox && { "jukebox/state/playing": false }),
+  });
 
 /** A task's transition: music and/or a picture, or a video on its own. Empty ones are removed. */
 export const editTransition = (code: string, id: string, t: { music: string; picture: string; video: string }) =>

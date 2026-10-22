@@ -35,6 +35,17 @@ await run("replay", { transition: "Fanfare", transitionImage: "Slide.png" }, { m
     ok(`replay: ${round} play ended`, (await sting()) === null);
   }
 });
+// 1c. "Try it" in ✎: a draft that isn't saved on the task plays instead of what the task has
+await run("draft", { transition: "Gone" }, { music: 1 }, async () => {
+  await p.evaluate(() => window.t.startSting("ABCD", "t1", false, { music: "Fanfare", picture: "Slide.png", video: "" }));
+  await p.waitForTimeout(500);
+  ok("draft: plays the picked music over the saved one", !!(await sting()) && (await pic()) === 1);
+  await p.waitForTimeout(1800);
+  ok("draft: ends itself", (await sting()) === null);
+  await p.evaluate(() => window.t.startSting("ABCD", "t1", false, { music: "", picture: "Slide.png", video: "" }));
+  await p.waitForTimeout(800);
+  ok("draft: a lone picture stays up", !!(await sting()) && (await pic()) === 1);
+});
 // 2. picture alone: stays, until something else goes on the big screen
 await run("picture", { transitionImage: "Slide.png" }, { music: 0 }, async () => {
   await p.evaluate(() => window.t.startSting("ABCD", "t1", false));

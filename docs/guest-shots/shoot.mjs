@@ -76,6 +76,8 @@ const SHOTS = {
   "main-gate-transitions": ["tv-gate"],
   // Dice tower's ✎ page with its Transition open: music and a picture picked, the video empty
   "task-edit-transition": ["host-edit-transition", "", async (p) => { await p.locator(".summary-line", { hasText: "Transition" }).getByRole("button", { name: "Change" }).click(); }],
+  // the same part while "Try it" is playing what's picked: pressed in, "⏹ Stop"
+  "task-edit-transition-try": ["host-edit-transition-try", "", async (p) => { await p.locator(".summary-line", { hasText: "Transition" }).getByRole("button", { name: "Change" }).click(); }],
   "points-host-given": ["host-points"],
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],
