@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
+import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
@@ -14,8 +15,9 @@ import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
 
 /**
  * Starts a task from Run of show or its page: the scores come down if they're up, the task before it is caught
- * up on the scoreboard (see startTask), and an app game goes on, bringing its photos if it's a photo task. A live
- * task ends any game still on, so the big screen goes back to the curtain.
+ * up on the scoreboard (see startTask), and an app game goes on, bringing its photos if it's a photo task, or settling
+ * Flipchart's round from before (see settleOldRound). A live task ends any game still on, so the big screen goes back
+ * to the curtain.
  */
 export async function beginTask(code: string, session: Session, id: string) {
   const task = session.scoreboard?.tasks?.[id];
@@ -24,6 +26,7 @@ export async function beginTask(code: string, session: Session, id: string) {
   if (task.game && task.game !== "light") {
     await startTask(code, session.scoreboard, false, id);
     if (task.game === "photos") await switchPhotosTask(code, session, id);
+    if (task.game === "flipchart") await settleOldRound(code, session, !wipeDrawings(session));
     await setGame(code, task.game as GameId);
   } else {
     if (session.game) await setGame(code, null);
@@ -34,6 +37,13 @@ export async function beginTask(code: string, session: Session, id: string) {
   if ((task.transition || task.transitionImage || task.transitionVideo) && session.jukebox?.open) {
     await startSting(code, id, session.jukebox.state?.playing === true);
   }
+}
+
+/** Flipchart's Start, over a round from before with drawings in it: asks before they're wiped (Cancel keeps them for the reveal). */
+function wipeDrawings(session: Session) {
+  const names = drewIn(session).map((uid) => session.players?.[uid]?.name).filter((n): n is string => !!n);
+  if (!roundOver(session) || !names.length) return false;
+  return confirm(`Start Flipchart fresh? ${list(names)} drew in the last round. ${names.length === 1 ? "Their drawing" : "Their drawings"} will be wiped.`);
 }
 
 /** "Show the task": gold, since putting the words up is usually what comes next. Pressed in while they're up; tapping again lowers the curtain. */
