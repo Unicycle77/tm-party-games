@@ -197,6 +197,7 @@ input::placeholder { color: #8b7a63; }
 .gate-checks li { display: flex; gap: 0.6rem; align-items: baseline; }
 .gate-checks li.done { color: var(--gold-bright); }
 .gate-checks li.failed { color: var(--muted); }
+.gate-checks li.gate-sub { font-size: 0.95rem; padding-left: 1.6rem; }
 .gate .host-qr { justify-items: center; }
 .gate-quiet { margin: 0; }
 /* the lobby's hidden menu (setup hints, End session): a paper button in the top-left corner, invisible until the

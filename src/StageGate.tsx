@@ -23,6 +23,12 @@ export function StageGate({ code, session, onRaised, onEnd }: {
   const [full, setFull] = useState<Check>("todo");
   const [music, setMusic] = useState<Check>("todo");
   const songs = session.jukebox?.tracks?.length ?? 0;
+  // Each transition folder on its own line, so it's plain which ones loaded.
+  const transitions = [
+    ["Transition music", session.jukebox?.transitions],
+    ["Transition pictures", session.jukebox?.transitionPictures],
+    ["Transition videos", session.jukebox?.transitionVideos],
+  ] as const;
 
   useEffect(() => {
     if (!folderPickerSupported()) { setFolder(null); return; }
@@ -86,6 +92,10 @@ export function StageGate({ code, session, onRaised, onEnd }: {
             {music === "failed" && folder && <button className="link" onClick={() => void connect(folder).then(setMusic)}>Reconnect</button>}
           </li>
         )}
+        {folder && music === "done" && transitions.map(([name, list]) => {
+          const n = list ? Object.keys(list).length : 0;
+          return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || "none found"}</li>;
+        })}
       </ul>
       {tried && (full === "failed" || music === "failed") && (
         <button className="link" onClick={onRaised}>Raise it anyway</button>

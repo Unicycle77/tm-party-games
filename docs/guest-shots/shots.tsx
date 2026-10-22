@@ -14,6 +14,7 @@ import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
 import { MODES } from "../../src/light/triggers";
 import { registerStingPicture } from "../../src/stingPictures";
+import { StageGate } from "../../src/StageGate";
 
 const CODE = "ABCD";
 const q = new URLSearchParams(location.search);
@@ -186,6 +187,24 @@ function build() {
       for (const [id, e] of [["alex", "🧛"], ["greg", "🎃"], ["mei", "👻"]]) (g.photos!.media as Record<string, unknown>)[id!] = { photo: pic(e!, "#3a2a1c") };
       break;
     // Up next is a live task that opens with a sting: tasks 1 to 5 scored, the main screen's Transitions list published.
+    // The gate after a refresh mid-party, the music folder (Party) already allowed: songs and each transition folder counted.
+    case "tv-gate": {
+      picked(); set("begun", true); set("controllerUid", "host");
+      const dir = { kind: "directory", name: "Party", values: async function* () {}, queryPermission: async () => "granted" };
+      if (!("showDirectoryPicker" in window)) (window as unknown as Record<string, unknown>).showDirectoryPicker = () => Promise.resolve(dir);
+      const get = IDBObjectStore.prototype.get;
+      IDBObjectStore.prototype.get = function (this: IDBObjectStore, key: IDBValidKey) {
+        if (key !== "musicFolder") return get.call(this, key);
+        const req = { result: dir } as unknown as IDBRequest;
+        window.setTimeout(() => (req.onsuccess as (() => void) | null)?.());
+        return req;
+      } as typeof get;
+      session.jukebox = {
+        tracks: Array.from({ length: 42 }, (_, i) => `Song ${i + 1}`), transitions: ["Drumroll", "Task fanfare", "Whoosh"],
+        transitionPictures: ["Dice tower.jpg", "Halloween title.png", "Sock puppets.jpg"], transitionVideos: ["Drumroll cam.mp4", "Spooky intro.mp4"], open: true, state: {},
+      };
+      break;
+    }
     case "host-run-transition": case "tv-sting": case "host-sting": case "host-edit-transition": {
       picked(); set("begun", true);
       const s = { alex: 3, greg: 4, mei: 2, priya: 5, sam: 3, tom: 1 };
@@ -345,5 +364,5 @@ const root = createRoot(document.getElementById("root")!);
 const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot === "start-host" ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot === "tv-gate" ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot === "start-host" ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);
