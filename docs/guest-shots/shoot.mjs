@@ -66,6 +66,8 @@ const SHOTS = {
   "up-next-transition": ["host-run-transition", "", undefined, ".up-next"],
   // the big screen just after that Start: the task's sting picture, whole, while the sting plays
   "main-sting": ["tv-sting"],
+  // the host's phone two seconds after that Start: the big-screen line names the picture, the ⏹ strip ends the transition
+  "host-sting": ["host-sting"],
   "points-host-given": ["host-points"],
   "main-secret-sealed": ["tv-secret-sealed"],
   "haul-main-winner": ["tv-haul"],

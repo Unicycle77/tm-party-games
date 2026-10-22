@@ -186,7 +186,7 @@ function build() {
       for (const [id, e] of [["alex", "🧛"], ["greg", "🎃"], ["mei", "👻"]]) (g.photos!.media as Record<string, unknown>)[id!] = { photo: pic(e!, "#3a2a1c") };
       break;
     // Up next is a live task that opens with a sting: tasks 1 to 5 scored, the main screen's Transitions list published.
-    case "host-run-transition": case "tv-sting": {
+    case "host-run-transition": case "tv-sting": case "host-sting": {
       picked(); set("begun", true);
       const s = { alex: 3, greg: 4, mei: 2, priya: 5, sam: 3, tom: 1 };
       for (const id of ["t1", "t2", "t3", "t4", "t5"]) Object.assign(tasks[id] as object, { scores: s });
@@ -194,6 +194,8 @@ function build() {
       registerStingPicture("dice-tower.jpg", "/docs/guest-shots/stings/dice-tower.jpg");
       // The host tapped Start: the scores came down and the sting's picture is up.
       if (shot === "tv-sting") set("sting", { task: "t6" });
+      // On the host's phone, two seconds into the sting: Dice tower's page, the scores down.
+      if (shot === "host-sting") { set("sting", { task: "t6", at: Date.now() - 2000 }); set("display", { step: "curtain" }); }
       session.jukebox = { tracks: ["Think music", "Eye of the Tiger"], durations: [32, 245], transitions: ["Drumroll", "Task fanfare"], transitionDurations: [5, 8], open: true, state: {} };
       break;
     }
@@ -320,7 +322,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" || shot === "host-light-change" ? { view: "light" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" ? { view: "task", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" || shot === "host-light-change" ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
   localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : { view: "clock" }));

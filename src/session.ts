@@ -443,6 +443,9 @@ export const showConversion = (code: string, conversion: ShownConversion | null)
   update(ref(db(), `sessions/${code}`), { conversion, ...(conversion ? { "clock/shown": null } : {}) });
 
 /** Host remote: opens or closes the join QR, on the host's phone and above the big screen's corner code. */
+/** Host: ends a task's transition at once (its music, picture or video); the big screen goes to what starting the task brought up. */
+export const endSting = (code: string) => set(ref(db(), `sessions/${code}/sting`), null);
+
 export const setShowQr = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showQr`), show ? true : null);
 

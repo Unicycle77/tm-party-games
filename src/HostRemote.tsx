@@ -6,7 +6,7 @@ import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
-import { noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
+import { endSting, noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
@@ -23,6 +23,9 @@ export function onScreenLine(session: Session): string {
   const board = session.scoreboard;
   const game = activeGame(session);
   if (noBigScreen(session)) return "not connected yet";
+  const sting = session.sting && board?.tasks?.[session.sting.task];
+  if (sting?.transitionVideo) return `${titleOf(sting)}'s transition video`;
+  if (sting?.transitionImage) return `${titleOf(sting)}'s transition picture`;
   if (session.conversion) return "a useless conversion";
   if (session.clock?.shown) return "the clock";
   if (display.step === "scoreboard") {
@@ -61,8 +64,39 @@ export function OnScreen({ code, session, chip, noClock }: { code: string; sessi
       <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
       {chip}
       {!noClock && <ClockStrip code={code} session={session} />}
+      <TransitionStrip code={code} session={session} />
       <NowPlaying code={code} session={session} />
     </>
+  );
+}
+
+/**
+ * While a task's transition is on: the now-playing strip's shape, "⏹ Task fanfare" and the time left (none for a picture on its own).
+ * One tap ends it, never pauses it: a half-played sting is never wanted back.
+ */
+function TransitionStrip({ code, session }: { code: string; session: Session }) {
+  const sting = session.sting;
+  const task = sting && session.scoreboard?.tasks?.[sting.task];
+  const [, tick] = useState(0);
+  const timed = !!task && !!(task.transitionVideo || task.transition);
+  useEffect(() => {
+    if (!timed) return;
+    const t = window.setInterval(() => tick((n) => n + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [timed]);
+  if (!task) return null;
+  const jukebox = session.jukebox;
+  const [name, length] = task.transitionVideo
+    ? [task.transitionVideo.replace(/\.[^.]+$/, ""), asNums(jukebox?.transitionVideoDurations)[asList(jukebox?.transitionVideos).indexOf(task.transitionVideo)]]
+    : task.transition
+      ? [task.transition, asNums(jukebox?.transitionDurations)[asList(jukebox?.transitions).indexOf(task.transition)]]
+      : [`${(task.transitionImage ?? "").replace(/\.[^.]+$/, "")} picture`, undefined];
+  const left = length && sting.at ? Math.max(1, Math.round(length - (Date.now() - sting.at) / 1000)) : undefined;
+  return (
+    <button className="sb-song now-playing-strip" aria-label={`End ${name}`} onClick={() => void endSting(code)}>
+      <span className="title">⏹ {name}</span>
+      {left && <span className="dur">{fmt(left)} left</span>}
+    </button>
   );
 }
 
