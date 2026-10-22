@@ -216,7 +216,7 @@ function build() {
       // The sting's file was renamed since the task was planned: the picture is there, the music isn't.
       if (shot === "host-run-transition-missing") Object.assign(tasks.t6 as object, { transition: "Fanfare (old)" });
       // On the host's phone, two seconds into the sting: Dice tower's page, the scores down.
-      if (shot === "host-sting") { set("sting", { task: "t6", at: Date.now() - 2000 }); set("display", { step: "curtain" }); }
+      if (shot === "host-sting") { set("sting", { task: "t6", at: Date.now() - 2000 }); set("display", { step: "curtain" }); Object.assign(tasks.t6 as object, { song: "Eye of the Tiger" }); }
       session.jukebox = { tracks: ["Think music", "Eye of the Tiger"], durations: [32, 245], transitions: ["Drumroll", "Task fanfare", "Whoosh"], transitionDurations: [5, 8, 2], transitionPictures: ["Dice tower.jpg", "Halloween title.png", "Sock puppets.jpg"], transitionVideos: ["Drumroll cam.mp4", "Spooky intro.mp4"], transitionVideoDurations: [12, 9], tracksAt: new Date(2026, 9, 21).getTime(), open: true, state: {} };
       break;
     }

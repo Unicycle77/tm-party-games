@@ -109,7 +109,7 @@ Lists of people, tasks and photos on the host remote use the same handful of sta
 | On the big screen now (a photo) | Gold ring: `--gold-edge` border and a `--gold-bright` glow | Prize task's previews |
 | The chosen one | A small gold `★` disc in the corner; `☆` on the others moves it | Prize photos (the one the haul shows) |
 | Already used | Disabled, with a small uppercase "on the list" label inside | "+ App task" choices |
-| Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder") | A task's song strip |
+| Can't play | Disabled, with the reason in words where the song's length goes ("music folder not open", "not in the music folder", "after the transition" while a task's transition sound plays) | A task's song strip |
 | Playing | Pressed in (`.pressed-in`: down 2px, inset shadow, paper `#e6d6b0`, bold), ▶ becomes ⏸. Never gold: gold stays on the next thing to do | A task's song strip, the jukebox's current song |
 | Disqualified | DQ chip pressed in; what they'd have had struck through and faded (`.was`), never removed | The points page |
 | Over a dB task's line | The same DQ, with "over 60" under the 0 instead of "DQ" | The points page |
