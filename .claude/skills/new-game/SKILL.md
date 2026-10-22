@@ -63,6 +63,7 @@ comments, and no new abstractions when an existing helper fits (`Framed`, `SafeI
 ## 3. Verify
 
 - Run `npm run typecheck`. `Record<GameId, Game>` makes a missing registration a type error.
+- Run `npm run check:rules`. It fails if the new id is missing from the `game` `.validate` list or has no `games/<id>` block (Flipchart once shipped without the first, and Start bounced back). It also runs before every commit and every build, so a commit or deploy that skips step 2.3 stops there.
 - Run it with the `run` skill or `npm run dev`. Check the full loop with the main screen (`/`), one or two phones (`/play`) and the host remote (`/host`): pick the game, play a round, go back to "← Games", switch games and come back (nothing should be lost), remove a player, and check `/screen` (view-only, with no writes).
 - Rules changes only take effect once deployed (`firebase deploy --only database,storage`). Tell the user this, and don't deploy without asking.
 

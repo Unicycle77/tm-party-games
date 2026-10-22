@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run check:rules && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
+    "check:rules": "node scripts/check-rules.mjs",
+    "prepare": "git config core.hooksPath .githooks || true",
     "deploy": "npm run build && firebase deploy"
   },
   "dependencies": {
