@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { endSting, markSting } from "./session";
+import { endSting, markSting, publishVideoLength } from "./session";
 import { stingFiles } from "./sting";
-import { hasStingMusic, hasStingVideo, stingMusicFile, stingVideoFile } from "./stingPictures";
+import { hasStingMusic, hasStingVideo, stingMusicFile, stingVideoFile, warmFor } from "./stingPictures";
+import { asList } from "./JukeboxRemote";
+import { sorted, upNextOf } from "./scoreboard/tasks";
 import type { Session } from "./types";
 
 /**
@@ -18,6 +20,25 @@ export function StingDriver({ code, session }: { code: string; session: Session 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [videoUrl, setVideoUrl] = useState<string>();
   const on = !!sting;
+
+  // Ahead of Start: the next two tasks' music and video are read into memory, after the stage has had a few seconds to load.
+  const board = session.scoreboard;
+  const next = upNextOf(board)?.id;
+  const ahead = sorted(board?.tasks).map(([id, t]) => ({ id, t })).filter((_, i, all) => { const at = all.findIndex((x) => x.id === next); return at >= 0 && i >= at && i < at + 2; });
+  const wantedMusic = ahead.map(({ t }) => (t.transitionVideo ? undefined : t.transition)).filter((m): m is string => !!m);
+  const wantedVideo = ahead.map(({ t }) => t.transitionVideo).filter((v): v is string => !!v);
+  const wanted = JSON.stringify([wantedMusic, wantedVideo, session.jukebox?.tracksAt]);
+  const videoList = asList(session.jukebox?.transitionVideos).join("\n");
+  useEffect(() => {
+    const [m, v] = JSON.parse(wanted) as [string[], string[]];
+    const timer = window.setTimeout(() => {
+      void warmFor({ music: m, video: v }, (name, seconds) => {
+        const i = videoList.split("\n").indexOf(name);
+        if (i >= 0) void publishVideoLength(code, i, seconds);
+      });
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [wanted, videoList, code]);
 
   // What the big screen showed when the transition began: any change ends it.
   const here = JSON.stringify([session.display, session.conversion, session.clock?.shown, session.game]);

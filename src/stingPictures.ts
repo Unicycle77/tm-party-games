@@ -1,12 +1,12 @@
-import type { Track } from "./musicFolder";
+import { type Track, readDurations } from "./musicFolder";
 
 /**
  * A task's transition files live on the main-screen PC only, in subfolders of the music folder apart from the songs
  * (see transitions.ts). This is what the main screen found there, by file name: the music and the video as files to read
  * when they play, and each picture as a local URL, ready to show. Nothing is uploaded, so other screens never have them.
  *
- * A file that lives in OneDrive can take seconds to come down the first time it's read, so `warm` reads each into memory
- * as soon as the folder is read, and playing then never waits on the disk.
+ * A file that lives in OneDrive can take seconds to come down the first time it's read, so `warmFor` reads the ones the next
+ * tasks want into memory ahead of Start, and playing then never waits on the disk.
  */
 interface Stored { handle: Track["handle"]; blob?: Blob }
 let music = new Map<string, Stored>();
@@ -30,28 +30,36 @@ const read = async (s: Stored | undefined): Promise<Blob | undefined> => s && (s
 export const stingMusicFile = (title: string | undefined) => read(title ? music.get(title) : undefined);
 export const stingVideoFile = (name: string | undefined) => read(videos.get(name ?? ""));
 
-const MAX_VIDEO = 200 * 1024 * 1024;
-const MAX_VIDEOS_TOTAL = 600 * 1024 * 1024;
+const MAX_VIDEO = 150 * 1024 * 1024;
+const MAX_MUSIC = 30 * 1024 * 1024;
 
 /**
- * Reads every transition file into memory, music first: it's short and the one most often wanted at once. Videos too, up to a size
- * (the rest are read when they play). A file that can't be read is left to play from disk.
+ * Reads the files the next tasks will want into memory, and lets go of the rest. Only those: a OneDrive file comes down in full the
+ * first time it's read, so reading every transition when the folder is read would fill the connection and the stage's own pictures
+ * would wait behind it. One file at a time, music first. Resolves with each video's length in seconds as it's read (for the host's lists).
+ * A file that can't be read, or is too big, plays from disk when it's wanted.
  */
-export async function warm() {
+export async function warmFor(wanted: { music: string[]; video: string[] }, onVideoLength?: (name: string, seconds: number) => void) {
   const mine = { music, videos };
   const stale = () => mine.music !== music || mine.videos !== videos;
+  for (const [name, s] of music) if (!wanted.music.includes(name)) delete s.blob;
+  for (const [name, s] of videos) if (!wanted.video.includes(name)) delete s.blob;
   const load = async (s: Stored, cap: number) => {
+    if (s.blob) return false;
     try {
       const file = await s.handle.getFile();
-      if (file.size <= cap) s.blob = new Blob([await file.arrayBuffer()], { type: file.type });
+      if (file.size <= cap) { s.blob = new Blob([await file.arrayBuffer()], { type: file.type }); return true; }
     } catch { /* left to play from disk */ }
+    return false;
   };
-  for (const s of music.values()) { if (stale()) return; await load(s, MAX_VIDEO); }
-  let total = 0;
-  for (const s of videos.values()) {
+  for (const name of wanted.music) { if (stale()) return; const s = music.get(name); if (s) await load(s, MAX_MUSIC); }
+  for (const name of wanted.video) {
     if (stale()) return;
-    await load(s, Math.min(MAX_VIDEO, MAX_VIDEOS_TOTAL - total));
-    total += s.blob?.size ?? 0;
+    const s = videos.get(name);
+    if (s && (await load(s, MAX_VIDEO)) && s.blob && onVideoLength) {
+      const seconds = (await readDurations([{ title: name, handle: s.handle }]))[0];
+      if (seconds) onVideoLength(name, seconds);
+    }
   }
 }
 

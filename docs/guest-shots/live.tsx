@@ -5,7 +5,7 @@ import "../../src/styles.css";
 import { db } from "../../src/firebase";
 import { Screen } from "../../src/Screen";
 import { StingDriver } from "../../src/StingDriver";
-import { setTransitionFiles, warm } from "../../src/stingPictures";
+import { setTransitionFiles, warmFor } from "../../src/stingPictures";
 import { startSting } from "../../src/scoreboard/data";
 import { setDisplay } from "../../src/session";
 import type { Session } from "../../src/types";
@@ -48,7 +48,7 @@ Object.assign(window, {
         videos: new Map(opts.video ? [["Intro.webm", handle("Intro.webm", await webm(opts.video))]] : []),
         pictures: new Map([["Slide.png", await png()]]),
       });
-      await warm();
+      await warmFor({ music: ["Fanfare"], video: ["Intro.webm"] });
     },
     startSting, setDisplay,
     read: async (path: string) => (await get(ref(db(), path))).val(),
