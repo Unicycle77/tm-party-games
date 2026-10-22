@@ -139,7 +139,7 @@ export function Jukebox({ code, jukebox, duck, showUi }: { code: string; jukebox
         <div className="jukebox-chip">
           {library.length === 0 ? (
             <button onClick={() => void (saved ? reconnect() : choose())}>
-              🎵 {saved ? `Reconnect music folder (${saved.name})` : "Choose music folder"}
+              🎵 {saved ? `Reconnect asset folder (${saved.name})` : "Select asset folder"}
             </button>
           ) : (
             <span>

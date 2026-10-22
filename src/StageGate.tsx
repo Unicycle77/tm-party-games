@@ -108,7 +108,7 @@ export function StageGate({ code, session, onRaised, onEnd }: {
       )}
       <p className="gate-quiet muted small">
         Party <strong>{code}</strong>
-        {folderPickerSupported() && <> · <button className="link" onClick={() => void chooseFolder()}>{folder ? "Change music folder" : "Choose music folder"}</button></>}
+        {folderPickerSupported() && <> · <button className="link" onClick={() => void chooseFolder()}>{folder ? "Change asset folder" : "Select asset folder"}</button></>}
         {" · "}<button className="link" onClick={onEnd}>End session</button>
       </p>
     </main>
