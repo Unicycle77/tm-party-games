@@ -1,6 +1,7 @@
 import { FolderPick } from "../SongStrip";
-import type { Session } from "../types";
-import { asList, asNums } from "../JukeboxRemote";
+import type { ReactNode } from "react";
+import type { ScoreboardTask, Session } from "../types";
+import { asList, asNums, fmt } from "../JukeboxRemote";
 
 export interface TransitionDraft { music: string; picture: string; video: string }
 
@@ -32,4 +33,29 @@ export function TransitionField({ session, draft, onChange }: { session: Session
       <p className="muted small">{draft.video ? "A video has its own sound, so it plays on its own." : draft.picture && !draft.music ? "A picture on its own stays up until you put something else on the big screen." : draft.picture ? "The picture comes down when the music ends." : ""}</p>
     </>
   );
+}
+
+/**
+ * The Start button's second line for a task's transition: "♪ Task fanfare · 0:08 · 🖼 Dice tower", or "▶ Drumroll cam · 0:12".
+ * A piece no longer in its folder is struck through and greyed, "not found" after it; with the music folder closed the whole
+ * line is greyed, the reason at its end. Start still works and skips what it can't play.
+ */
+export function transitionLine(session: Session, task: ScoreboardTask): { line: ReactNode; problem?: string } | undefined {
+  const jukebox = session.jukebox;
+  const piece = (glyph: string, file: string | undefined, list: unknown, lengths?: unknown, name = (f: string) => f) => {
+    if (!file) return undefined;
+    const i = asList(list).indexOf(file);
+    const n = lengths ? asNums(lengths)[i] : 0;
+    return { here: i >= 0, text: `${glyph} ${name(file)}`, length: i >= 0 && n ? ` · ${fmt(n)}` : "" };
+  };
+  const pieces = (task.transitionVideo
+    ? [piece("▶", task.transitionVideo, jukebox?.transitionVideos, jukebox?.transitionVideoDurations, bare)]
+    : [piece("♪", task.transition, jukebox?.transitions, jukebox?.transitionDurations), piece("🖼", task.transitionImage, jukebox?.transitionPictures, undefined, bare)]
+  ).filter((p) => !!p);
+  if (!pieces.length) return undefined;
+  const closed = !jukebox?.open;
+  const line = pieces.map((p, k) => (
+    <span key={k}>{k > 0 && " · "}{closed || p.here ? <>{p.text}{p.length}</> : <span className="missing"><s>{p.text}</s> not found</span>}</span>
+  ));
+  return { line: <>{line}{closed && " · music folder not open"}</>, problem: closed ? "music folder not open" : undefined };
 }

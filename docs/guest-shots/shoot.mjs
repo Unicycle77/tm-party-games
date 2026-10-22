@@ -66,6 +66,8 @@ const SHOTS = {
   "up-next-transition": ["host-run-transition", "", undefined, ".up-next"],
   // the big screen just after that Start: the task's sting picture, whole, while the sting plays
   "main-sting": ["tv-sting"],
+  // the same card when the sting's file has gone from Transition music: struck through, "not in the folder", Start still gold
+  "up-next-transition-missing": ["host-run-transition-missing", "", undefined, ".up-next"],
   // the host's phone two seconds after that Start: the big-screen line names the picture, the ⏹ strip ends the transition
   "host-sting": ["host-sting"],
   // the gate after a refresh: the music folder's line, then a line for each transition folder
