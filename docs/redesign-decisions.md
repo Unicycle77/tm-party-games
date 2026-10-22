@@ -474,6 +474,25 @@ The useless converter on its own, at `/convert`, so it can be used anywhere with
 | Switching mid-result | The result stays: what was typed stays as typed (1 ft 2 in folds into 1.17 ft), the answer keeps its unit, and only the working line changes system. | Clearing the result: it loses the laugh just got. |
 | The way in | `/convert`, to bookmark on a phone's home screen, and a quiet link under the host remote's recent parties. | |
 
+## Task transitions
+
+Something plays on the big screen the moment the host taps Start, before the task envelope is handed out. Optional, set per task, none by default. Designed one step at a time with Jeffrey. Scenarios, in the agreed order: playing it on the night, picking it while planning, the folders, a transition that can't play, and a transition with a song.
+
+| Decision | What we chose | What we rejected |
+|---|---|---|
+| What it can be | Music, a picture, music and a picture, or a video (which carries its own sound, so it stands alone). One choice per task. | A same-name picture beside the sting: Jeffrey wants to pick the picture per task, so one sting can carry different pictures. |
+| Where the files are | Three subfolders of the music folder, next to Noisemaster's: `Transition music`, `Transition pictures`, `Transition videos`. Read from disk on the main-screen PC, never uploaded; the jukebox skips them. Names and lengths are published, so ✎ works with the PC off. | Uploading the pictures: Jeffrey prefers them local. One `Transitions` folder for everything. |
+| When it fires | On a real Start only ("Start task 4", "▶ Start Noisemaster"), never "Open task 4 →", so it can't replay by accident. No automatic tap, no extra button. | A separate play button on the card: Start is the tap that plays it. |
+| Before the tap | The Start button's second line, "♪ Task fanfare · 0:08 · 🖼 Dice tower" or "▶ Drumroll cam · 0:12": no verb, the ♪ is enough. Only on a task with a transition, only when the button says Start. | A line on the card outside the button (it describes what the tap does, so it belongs on the button). "♪" on every Start button. The word "plays". |
+| On the big screen | Sound, and the picture edge to edge on black, shown whole (letterboxed, never cropped), no gold frame, no corner code. The jukebox stops when Start is tapped, so a song never plays under it. | Cropping the picture to fill the screen: it could cut text off the host's own slide. |
+| How it ends | Music plays once, then silence (the between-tasks song does not resume). A picture alongside music comes down when the music ends. A video ends when it finishes. A picture on its own stays until the host puts anything else on the big screen. | Resuming the song: the room should be quiet for the reading. A timeout for a lone picture: it could vanish mid-handover. |
+| Noisemaster | The sting finishes before the board takes over: while it plays, the big screen shows the curtain. | Cutting the sting off when the board comes up. |
+| On the host's phone | The status line names it ("Dice tower's transition picture") and a strip in the now-playing strip's shape carries it: "⏹ Task fanfare · 0:06 left", or "⏹ Dice tower picture" with no time. One tap ends it (never pauses: a half-played sting is never wanted back). | Pause on the strip, as for songs. |
+| Picking it | ✎ gains a "+ Transition" chip beside "+ Song": one list of three pickers (Music, Picture, "Or a video, on its own") built from the song picker. A video clears the other two, and either of them clears the video. One line under them says what will happen. Summary line: "Transition · ♪ Task fanfare · 0:08 · 🖼 Dice tower". Not on the tiebreaker or the light (no Start). | Two chips to choose Music/Picture or Video first: more taps for the usual case. |
+| The gate | Under "✓ Music: Party (42 songs)", a smaller line per transition folder ("✓ Transition music: 3", …; "○ … none found" when empty), so it's plain which ones loaded. | One combined count: it hides which folder didn't load. |
+| Can't play on the night | Start always works and skips what it can't play. The Start button's second line warns beforehand: a file gone from its folder is struck through and greyed, "not found", the rest as normal; with the music folder closed the whole line is greyed, "· music folder not open". No earlier warning on Run of show. | Greying the whole line for one missing piece (it suggested the picture failed too). |
+| With a song | The task's song strip is disabled ("after the transition") while a transition's music or video plays; a lone picture doesn't hold it back. | Tapping the song ending the transition early. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

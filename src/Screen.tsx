@@ -52,8 +52,11 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   }, [photoUrls]);
 
   // A task's sting picture covers everything while the sting plays, then gives way to what starting the task brought up.
-  const stingImage = session.sting && stingPictureUrl(session.scoreboard?.tasks?.[session.sting.task]?.transitionImage);
+  const stingTask = session.sting && session.scoreboard?.tasks?.[session.sting.task];
+  const stingImage = stingTask && !stingTask.transitionVideo && stingPictureUrl(stingTask.transitionImage);
   if (stingImage) return <StingStage src={stingImage} />;
+  // Music alone, or a video (the main screen plays it over everything): the curtain, so a game's board waits for the sting to end.
+  if (!viewOnly && stingTask && (stingTask.transition || stingTask.transitionVideo)) return <Curtain code={code} session={session}>{null}</Curtain>;
   // A useless conversion covers whatever is on, until the host takes it down or puts something else up.
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // So does the ⏱ clock, when the host shows it.

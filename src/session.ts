@@ -446,6 +446,9 @@ export const showConversion = (code: string, conversion: ShownConversion | null)
 /** Host: ends a task's transition at once (its music, picture or video); the big screen goes to what starting the task brought up. */
 export const endSting = (code: string) => set(ref(db(), `sessions/${code}/sting`), null);
 
+/** Main screen: the transition's sound began just now (the host's strip counts down from it). */
+export const markSting = (code: string, at: number) => set(ref(db(), `sessions/${code}/sting/at`), at);
+
 export const setShowQr = (code: string, show: boolean) =>
   set(ref(db(), `sessions/${code}/showQr`), show ? true : null);
 
@@ -457,6 +460,21 @@ export async function publishTracks(code: string, titles: string[]) {
   const open = ref(db(), `sessions/${code}/jukebox/open`);
   await update(ref(db(), `sessions/${code}/jukebox`), { tracks: titles, tracksAt: Date.now(), open: titles.length ? true : null });
   if (titles.length) await onDisconnect(open).remove();
+}
+
+/**
+ * Main screen: publishes the transition files it found in the music folder's three transition subfolders (names), and
+ * later their lengths in seconds (same order). Each call writes only what it's given; an empty list clears it.
+ */
+export function publishTransitions(code: string, t: { music?: string[]; pictures?: string[]; videos?: string[]; musicLengths?: number[]; videoLengths?: number[] }) {
+  const empty = (l: unknown[] | undefined) => (l && l.length ? l : null);
+  const patch: Record<string, unknown> = {};
+  if (t.music) patch.transitions = empty(t.music);
+  if (t.pictures) patch.transitionPictures = empty(t.pictures);
+  if (t.videos) patch.transitionVideos = empty(t.videos);
+  if (t.musicLengths) patch.transitionDurations = empty(t.musicLengths);
+  if (t.videoLengths) patch.transitionVideoDurations = empty(t.videoLengths);
+  return update(ref(db(), `sessions/${code}/jukebox`), patch);
 }
 
 /** Main screen: publishes song lengths in seconds (same order as the titles); null clears them. */
