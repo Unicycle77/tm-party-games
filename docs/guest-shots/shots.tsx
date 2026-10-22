@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import "../../src/styles.css";
 import { Play } from "../../src/Play";
 import { HostPage } from "../../src/HostPage";
+import { ConverterPage } from "../../src/conversions/ConverterPage";
 import { Screen } from "../../src/Screen";
 import type { Session } from "../../src/types";
 import { seed } from "./fake-database";
@@ -312,6 +313,9 @@ if (/^host-(cd|sw)-/.test(shot)) {
   localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : { view: "clock" }));
   localStorage.setItem("ba.hostBack", JSON.stringify({ view: "task", task: shot.startsWith("host-sw") ? "t7" : shot === "host-cd-flipchart" ? "t9" : "t6" }));
 }
+// 📏 on its own at /convert, in US units; the host remote's start page, with the party in its recent list.
+if (shot === "alone-convert") localStorage.setItem("ba.convertSystem", "imperial");
+if (shot === "start-host") localStorage.setItem("ba.recentRemote", JSON.stringify([{ code: CODE, at: Date.now() - 2 * 86400000, name: "Halloween party" }]));
 seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } }, boxSecrets: { [CODE]: { inBox: "R" } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
@@ -326,4 +330,5 @@ const root = createRoot(document.getElementById("root")!);
 const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") ? <HostPage /> : <Play />);
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot === "start-host" ? <HostPage /> :
+  shot === "alone-convert" ? <ConverterPage /> : <Play />);

@@ -8,9 +8,12 @@ const MainScreen = lazy(() => import("./MainScreen").then((m) => ({ default: m.M
 const HostPage = lazy(() => import("./HostPage").then((m) => ({ default: m.HostPage })));
 const LightPage = lazy(() => import("./light/LightPage").then((m) => ({ default: m.LightPage })));
 const Play = lazy(() => import("./Play").then((m) => ({ default: m.Play })));
+const ConverterPage = lazy(() => import("./conversions/ConverterPage").then((m) => ({ default: m.ConverterPage })));
 const ViewScreen = lazy(() => import("./ViewScreen").then((m) => ({ default: m.ViewScreen })));
 
 function Root() {
+  // "/convert" is 📏 on its own, without a party, so it works even without Firebase set up.
+  if (window.location.pathname.startsWith("/convert")) return <ConverterPage />;
   if (!isFirebaseConfigured) {
     return <main className="center"><h1>Firebase not configured</h1><p>Copy <code>.env.example</code> to <code>.env</code> and fill in your project's values.</p></main>;
   }

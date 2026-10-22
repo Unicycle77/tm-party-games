@@ -117,6 +117,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-main-updating.jpg` | Main screen: the scores ticking up after "Update the scores" |
 | `scoreboard-main-after.jpg` | Main screen: re-sorted, the leader scaled up |
 | `scoreboard-host-start-party.jpg` | Host remote's connect page: "Start a new party", recent parties by name |
+| `host-start-convert.jpg` | The same page from the ABCD party (2026-10-22): Halloween party ABCD in the recent list, and under it the quiet "📏 Useless conversions, no party needed" link to `/convert` |
 | `main-recent-sessions.jpg` | Main screen's start page: "Recent sessions" chips with the party name over the code (a party from before names has the code alone) |
 | `scoreboard-host-name-party.jpg` | "Name this party" before starting one from the iPad |
 | `scoreboard-host-new-party.jpg` | 🏆 on a new party: not connected yet, the starter Headshot and Prize tasks |
@@ -183,6 +184,8 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `converter-host-pounds-ounces.jpg` | 1 lb 8 oz: "1 lb 8 oz is / 1.82 pounds of gold" and the label-style "24 oz (1 lb 8 oz) · a pound of gold is 13 ¼ oz" (2026-10-18) |
 | `converter-host-find-thing.jpg` | "a thing ▴" open under the units (2026-10-21): "Find a thing…" with "eif" typed, leaving Eiffel Tower · 330 m |
 | `converter-host-thing.jpg` | The Eiffel Tower picked as the starting thing, "How much?" a count (1), and Jimothy picked from "Or pick one ▾": "The Eiffel Tower is / about 2,165 Jimothys" and "1 Eiffel Tower = 330 m · Jimothy is about 15.24 cm" (2026-10-21) |
+| `converter-alone-open.jpg` | 📏 on its own at `/convert` (2026-10-22): no header and no party, opening on a US phone on Height, ft and its two boxes, "US units (ft, lb, cups)" switched on at the bottom |
+| `converter-alone-result.jpg` | The same, a sandwich: Length, 1 ft 2 in, Jimothy picked: "1 ft 2 in long is / about 1 Jimothy / Seattle's famously round raccoon, nose to rump", the switch under the card |
 | `converter-host-pick-one.jpg` | "Or pick one ▴" under "Surprise me", before any result (2026-10-21): the find box with "jim" typed, leaving Jimothy · about 15.24 cm |
 | `converter-host-flipped.jpg` | After "⇄ Flip it" (2026-10-21): "Jimothy is / about 1/2,165 the height of the Eiffel Tower / with its antennas", "1 Jimothy = about 15.24 cm · the Eiffel Tower is 330 m", the chip now "Jimothy ▾" |
 | `converter-host-dice-imperial.jpg` | A task's unit at an imperial party: "39 dice tall is / 5.11 soda cans" and "39 dice = 2 ft ½ in · a soda can is 4 ¾ in" (2026-10-18) |
