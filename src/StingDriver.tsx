@@ -68,12 +68,13 @@ export function StingDriver({ code, session }: { code: string; session: Session 
     return () => { cancelled = true; audio.pause(); audio.removeAttribute("src"); if (url) URL.revokeObjectURL(url); };
   }, [on, music, code]);
 
-  // Played again over its own last frame: back to the start.
+  // Played again over its own last frame: back to the start. A replay is a fresh `sting` (no `at` yet); a hold that was refused and
+  // rolled back still has its `at`, and must not start the video over.
   useEffect(() => {
     const was = wasHeld.current;
     wasHeld.current = held;
     const el = videoRef.current;
-    if (was && !held && on && el) { el.currentTime = 0; void el.play().catch(() => void endSting(code)); }
+    if (was && !held && on && el && !sting?.at) { el.currentTime = 0; void el.play().catch(() => void endSting(code)); }
   }, [held, on, code]);
 
   // The video: from its file, full screen.
