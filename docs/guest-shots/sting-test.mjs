@@ -67,7 +67,16 @@ await run("video", { transitionVideo: "Intro.webm" }, { video: 1 }, async () => 
   await p.waitForTimeout(500);
   ok("video: on screen", (await vid()) === 1);
   await p.waitForTimeout(3000);
-  ok("video: ends itself", (await sting()) === null && (await vid()) === 0);
+  const held = await sting();
+  ok("video: holds its last frame when it ends", held?.held === true && (await vid()) === 1);
+  await p.evaluate(() => window.t.startSting("ABCD", "t1", false));
+  await p.waitForTimeout(500);
+  ok("video: replay plays it again over the frame", (await sting())?.held !== true && (await vid()) === 1);
+  await p.waitForTimeout(3000);
+  ok("video: held again", (await sting())?.held === true);
+  await p.evaluate(() => window.t.setDisplay("ABCD", { step: "tasktext", task: "t1" }));
+  await p.waitForTimeout(500);
+  ok("video: putting something else up takes the held frame down", (await sting()) === null && (await vid()) === 0);
 });
 // 5. ending it by hand (the host's strip) stops it
 await run("end", { transition: "Fanfare" }, { music: 5 }, async () => {

@@ -5,13 +5,14 @@ import type { ScoreboardTask, Session } from "../types";
 
 /**
  * A task's transition on its page, always there, played or not: the song strip's shape. One tap plays it again on the big screen
- * (a transition that went wrong, or that the host wants a second time), pressed in while it's on, and tapping then ends it. Disabled, with
+ * (a transition that went wrong, or that the host wants a second time), pressed in while it's on, and tapping then ends it. A video that
+ * has ended and holds its last frame is not on: ▶ plays it again from the start over that frame. Disabled, with
  * the reason, while the main screen's music folder isn't open or none of its files are in the folder any more.
  */
 export function ReplayStrip({ code, session, id, task }: { code: string; session: Session; id: string; task: ScoreboardTask }) {
   const info = transitionLine(session, task);
   if (!info) return null;
-  const on = session.sting?.task === id;
+  const on = session.sting?.task === id && !session.sting.held;
   const play = () => void startSting(code, id, session.jukebox?.state?.playing === true);
   return (
     <button className={`sb-song${on ? " pressed-in" : ""}`} disabled={!!info.problem} onClick={on ? () => void end(code) : play}

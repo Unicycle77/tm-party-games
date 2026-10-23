@@ -8,7 +8,7 @@ import type { Session } from "./types";
  * A task's song, on its run-of-show row and its page: a small remote for the jukebox. One tap plays it on
  * the big screen (once: Repeat goes off), another pauses it. It is pressed in while it plays (never gold: gold stays on
  * the next thing to do), whoever started it. Disabled, with the reason, while the main screen's music folder isn't open or the song isn't in it,
- * and while a task's transition sound (music or video) plays: the song waits for it to finish.
+ * and while a task's transition sound (music or video) plays: the song waits for it to finish. A video's held last frame has no sound, so it doesn't wait.
  */
 export function SongStrip({ code, session, song }: { code: string; session: Session; song: string }) {
   const jukebox = session.jukebox;
@@ -17,7 +17,7 @@ export function SongStrip({ code, session, song }: { code: string; session: Sess
   const state = jukebox?.state ?? {};
   const playing = i >= 0 && state.current === i && state.playing === true;
   const sting = stingFiles(session);
-  const stingSounds = !!sting && !!(sting.music || sting.video);
+  const stingSounds = !!sting && !!(sting.music || (sting.video && !session.sting?.held));
   const problem = !jukebox?.open ? "music folder not open" : i < 0 ? "not in the music folder" : stingSounds ? "after the transition" : undefined;
   const toggle = () => void setJukeboxState(code, playing ? { playing: false } : { current: i, playing: true, repeat: false });
   return (

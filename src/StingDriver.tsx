@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { endSting, markSting, publishVideoLength } from "./session";
+import { endSting, holdSting, markSting, publishVideoLength } from "./session";
 import { stingFiles } from "./sting";
 import { hasStingMusic, hasStingVideo, stingMusicFile, stingVideoFile, warmFor } from "./stingPictures";
 import { asList } from "./JukeboxRemote";
@@ -9,7 +9,7 @@ import type { Session } from "./types";
 /**
  * Main screen only (it has the files): plays a task's transition when the host's Start writes `sting`. Its music plays through an
  * audio element of its own (Start has already stopped the jukebox), its video fills the screen with its own sound, and either ends
- * the transition when it finishes. A picture is Screen's to show. A picture on its own has no sound to end it: it goes the moment
+ * the transition when it finishes (a video holds its last frame instead, until the host puts anything else up or taps the strip). A picture is Screen's to show. A picture on its own has no sound to end it: it goes the moment
  * the host puts anything else on the big screen. Anything the PC can't play ends the transition at once, so Start never hangs.
  */
 export function StingDriver({ code, session }: { code: string; session: Session }) {
@@ -20,6 +20,9 @@ export function StingDriver({ code, session }: { code: string; session: Session 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [videoUrl, setVideoUrl] = useState<string>();
   const on = !!sting;
+  const held = !!sting?.held;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const wasHeld = useRef(false);
 
   // Ahead of Start: the next two tasks' music and video are read into memory, after the stage has had a few seconds to load.
   const board = session.scoreboard;
@@ -65,6 +68,14 @@ export function StingDriver({ code, session }: { code: string; session: Session 
     return () => { cancelled = true; audio.pause(); audio.removeAttribute("src"); if (url) URL.revokeObjectURL(url); };
   }, [on, music, code]);
 
+  // Played again over its own last frame: back to the start.
+  useEffect(() => {
+    const was = wasHeld.current;
+    wasHeld.current = held;
+    const el = videoRef.current;
+    if (was && !held && on && el) { el.currentTime = 0; void el.play().catch(() => void endSting(code)); }
+  }, [held, on, code]);
+
   // The video: from its file, full screen.
   useEffect(() => {
     if (!on || !video) { setVideoUrl(undefined); return; }
@@ -83,7 +94,7 @@ export function StingDriver({ code, session }: { code: string; session: Session 
     <>
       <audio ref={audioRef} onPlaying={() => void markSting(code, Date.now())} onEnded={() => void endSting(code)} onError={() => { if (audioRef.current?.getAttribute("src")) void endSting(code); }} />
       {videoUrl && (
-        <video className="sting-video" src={videoUrl} autoPlay onPlaying={() => void markSting(code, Date.now())} onEnded={() => void endSting(code)} onError={() => void endSting(code)} />
+        <video ref={videoRef} className="sting-video" src={videoUrl} autoPlay onPlaying={() => void markSting(code, Date.now())} onEnded={() => void holdSting(code)} onError={() => void endSting(code)} />
       )}
     </>
   );
