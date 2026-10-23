@@ -236,7 +236,7 @@ export async function buildPdf(face: Face, pages: Page[], secrets: string[], lay
 
 /**
  * The check-in sign: one Letter page to tape by the door. The party's name small on top, the join QR (`modules`,
- * its dark squares, about 3¾ in) with "Players scan here", "Your time starts now." big, and the address and code
+ * its dark squares, about 3¾ in) with "Contestants scan here", "Your time starts now." big, and the address and code
  * small at the bottom for a phone that can't scan.
  */
 export async function buildSignPdf(face: Face, sign: { party?: string; modules: boolean[][]; fallback: string }): Promise<Uint8Array> {
@@ -253,7 +253,7 @@ export async function buildSignPdf(face: Face, sign: { party?: string; modules: 
   squares.push("f");
   const placed = [
     ...(sign.party ? [centred(sign.party.toUpperCase(), 16, qrTop + 0.55 * PT)] : []),
-    centred("Players scan here", 16, qrTop - side - 0.35 * PT),
+    centred("Contestants scan here", 16, qrTop - side - 0.35 * PT),
     centred("Your time starts now.", 40, qrTop - side - 1.45 * PT),
     centred(sign.fallback, 11, qrTop - side - 2.25 * PT, 0.27),
   ];
