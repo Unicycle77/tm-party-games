@@ -317,6 +317,7 @@
           ".validate": "newData.hasChild('task')",
           "task": { ".validate": "newData.isString() && newData.val().length <= 40" },
           "at": { ".validate": "newData.isNumber()" },
+          "held": { ".validate": "newData.isBoolean()" },
           "draft": {
             "music": { ".validate": "newData.isString() && newData.val().length <= 300" },
             "picture": { ".validate": "newData.isString() && newData.val().length <= 300" },
