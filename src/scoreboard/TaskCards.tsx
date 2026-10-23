@@ -7,7 +7,7 @@ import type { Scoreboard, Session } from "../types";
 import { setupFileName } from "../setupFile";
 import { sorted } from "./tasks";
 import { headingOf, partsOf, tiebreakerWords } from "./TaskText";
-import { buildPdf, faceOf, sfntOfWoff, type Page, type SecretLayout } from "./taskCardsPdf";
+import { buildPdf, faceOf, sfntOfWoff, type Face, type Page, type SecretLayout } from "./taskCardsPdf";
 
 /** A page per task with words (and per part of one), the tiebreaker last; a task with no words has none. */
 export function pagesOf(board: Scoreboard | undefined): Page[] {
@@ -16,6 +16,22 @@ export function pagesOf(board: Scoreboard | undefined): Page[] {
     heading: headingOf(p.type),
     paragraphs: p.text.split("\n").map((l) => l.trim()).filter(Boolean),
   })));
+}
+
+/** The Veteran Typewriter face, read from the app's own font file, for a PDF. */
+export async function typewriter(): Promise<Face> {
+  return faceOf(await sfntOfWoff(await (await fetch(fontUrl)).arrayBuffer()));
+}
+
+/** "Halloween party task cards.pdf": the setup file's name with `what` in place of its ending. */
+export const pdfName = (session: Session, code: string, what: string) => setupFileName(session, code).replace(/\.taskmaster\.json$/, ` ${what}.pdf`);
+
+/** The PDF in `tab`, opened while the tap still counted; where the browser wouldn't open one, it downloads instead. */
+export function showPdf(pdf: Uint8Array, tab: Window | null, name: string) {
+  const url = URL.createObjectURL(new Blob([pdf as BlobPart], { type: "application/pdf" }));
+  if (tab) tab.location.href = url;
+  else Object.assign(document.createElement("a"), { href: url, download: name }).click();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 /**
@@ -37,16 +53,8 @@ export function TaskCards({ code, session }: { code: string; session: Session })
       const secrets = Object.values(pool).filter((t) => t.trim());
       const pages = pagesOf(session.scoreboard);
       if (!pages.length && !secrets.length) { tab?.close(); setNote("No task has any text yet."); return; }
-      const face = faceOf(await sfntOfWoff(await (await fetch(fontUrl)).arrayBuffer()));
-      const pdf = await buildPdf(face, pages, secrets, layout);
-      const url = URL.createObjectURL(new Blob([pdf as BlobPart], { type: "application/pdf" }));
-      if (tab) tab.location.href = url;
-      else {
-        // The browser wouldn't open a tab, so it downloads instead.
-        const a = Object.assign(document.createElement("a"), { href: url, download: setupFileName(session, code).replace(/\.taskmaster\.json$/, " task cards.pdf") });
-        a.click();
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      const pdf = await buildPdf(await typewriter(), pages, secrets, layout);
+      showPdf(pdf, tab, pdfName(session, code, "task cards"));
     } catch { tab?.close(); setNote("Couldn't make the PDF. Try again."); }
     finally { setBusy(false); }
   }

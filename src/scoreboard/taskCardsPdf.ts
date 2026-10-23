@@ -3,6 +3,7 @@
  * black text on white Letter pages, 12 pt, nothing of the card's parchment, edges or seal. A page per task, or per
  * part of one, text centred down the page; then, if asked, the secret tasks as cards: eight to a sheet (2 × 4, to
  * cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with faint cut lines and no fold lines.
+ * The check-in sign for the door is built here too, the same way.
  */
 
 export type Page = { heading: string; paragraphs: string[] };
@@ -158,7 +159,8 @@ function wrap(face: Face, text: string, size: number, max: number): number[][] {
   return lines;
 }
 
-interface Placed { x: number; y: number; codes: number[]; size: number }
+/** A line of text where it goes; `grey` (0 black … 1 white) for a quieter line. */
+interface Placed { x: number; y: number; codes: number[]; size: number; grey?: number }
 
 /**
  * One card's text laid out inside a box: the heading centred in capitals, then a paragraph a line, the block centred
@@ -198,8 +200,8 @@ const num = (n: number) => String(Math.round(n * 100) / 100);
 
 function stream(placed: Placed[], lines: string[] = []): string {
   const ops = [...lines];
-  ops.push("0 g", "BT");
-  for (const t of placed) ops.push(`/F1 ${num(t.size)} Tf 1 0 0 1 ${num(t.x)} ${num(t.y)} Tm ${hex(t.codes)} Tj`);
+  ops.push("BT");
+  for (const t of placed) ops.push(`${num(t.grey ?? 0)} g /F1 ${num(t.size)} Tf 1 0 0 1 ${num(t.x)} ${num(t.y)} Tm ${hex(t.codes)} Tj`);
   ops.push("ET");
   return ops.join("\n");
 }
@@ -229,7 +231,37 @@ export async function buildPdf(face: Face, pages: Page[], secrets: string[], lay
     content.push(stream(placed, cutLines(cols, rows)));
   }
   if (!content.length) throw new Error("No task text to print");
+  return writePdf(face, content);
+}
 
+/**
+ * The check-in sign: one Letter page to tape by the door. The party's name small on top, the join QR (`modules`,
+ * its dark squares, about 3¾ in) with "Players scan here", "Your time starts now." big, and the address and code
+ * small at the bottom for a phone that can't scan.
+ */
+export async function buildSignPdf(face: Face, sign: { party?: string; modules: boolean[][]; fallback: string }): Promise<Uint8Array> {
+  const centred = (text: string, size: number, y: number, grey?: number): Placed => {
+    const codes = codesOf(face, text);
+    return { x: (PAGE_W - widthOf(face, codes, size)) / 2, y, codes, size, grey };
+  };
+  const side = 3.75 * PT, cell = side / sign.modules.length;
+  const qrTop = PAGE_H / 2 + 2.7 * PT, left = (PAGE_W - side) / 2;
+  const squares: string[] = ["0 g"];
+  sign.modules.forEach((row, r) => row.forEach((dark, c) => {
+    if (dark) squares.push(`${num(left + c * cell)} ${num(qrTop - (r + 1) * cell)} ${num(cell)} ${num(cell)} re`);
+  }));
+  squares.push("f");
+  const placed = [
+    ...(sign.party ? [centred(sign.party.toUpperCase(), 16, qrTop + 0.55 * PT)] : []),
+    centred("Players scan here", 16, qrTop - side - 0.35 * PT),
+    centred("Your time starts now.", 40, qrTop - side - 1.45 * PT),
+    centred(sign.fallback, 11, qrTop - side - 2.25 * PT, 0.27),
+  ];
+  return writePdf(face, [stream(placed, squares)]);
+}
+
+/** The PDF file around `content`, a content stream a page, with the face embedded once as F1. */
+async function writePdf(face: Face, content: string[]): Promise<Uint8Array> {
   const enc = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [];
