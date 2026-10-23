@@ -17,7 +17,7 @@ export const bare = (file: string) => file.replace(/\.[^.]+$/, "");
 export function TransitionField({ code, id, session, draft, onChange }: { code: string; id: string; session: Session; draft: TransitionDraft; onChange: (d: TransitionDraft) => void }) {
   const jukebox = session.jukebox;
   const picked = !!(draft.music || draft.picture || draft.video);
-  const trying = !!session.sting?.draft && session.sting.task === id;
+  const trying = !!session.sting?.draft && session.sting.task === id && !session.sting.held;
   const at = jukebox?.tracksAt;
   return (
     <>

@@ -463,7 +463,7 @@ export interface Session {
    * `at` is when the main screen started it. Music (with or without a picture) and a video end it themselves; a picture on
    * its own stays until the host puts something else up. The host's strip ends it at once. `draft` is a "Try it" in ✎: what's picked there, not yet saved, plays instead of the task's own.
    */
-  sting?: { task: string; at?: number; draft?: { music?: string; picture?: string; video?: string } };
+  sting?: { task: string; at?: number; held?: boolean; draft?: { music?: string; picture?: string; video?: string } };
   /** The ⏱ clock the host set, and maybe has on the big screen. */
   clock?: ClockState;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */

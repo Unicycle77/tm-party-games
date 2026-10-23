@@ -74,7 +74,8 @@ export function OnScreen({ code, session, chip, noClock }: { code: string; sessi
 
 /**
  * While a task's transition is on: the now-playing strip's shape, "⏹ Task fanfare" and the time left (none for a picture on its own).
- * One tap ends it, never pauses it: a half-played sting is never wanted back.
+ * One tap ends it, never pauses it: a half-played sting is never wanted back. A video that has finished holds its last frame on the
+ * big screen, and the strip says "last frame" until the host puts something else up or taps it.
  */
 function TransitionStrip({ code, session }: { code: string; session: Session }) {
   const sting = session.sting;
@@ -97,7 +98,7 @@ function TransitionStrip({ code, session }: { code: string; session: Session }) 
   return (
     <button className="sb-song now-playing-strip" aria-label={`End ${name}`} onClick={() => void endSting(code)}>
       <span className="title">⏹ {name}</span>
-      {left && <span className="dur">{fmt(left)} left</span>}
+      {sting.held ? <span className="dur">last frame</span> : left && <span className="dur">{fmt(left)} left</span>}
     </button>
   );
 }

@@ -446,6 +446,9 @@ export const showConversion = (code: string, conversion: ShownConversion | null)
 /** Host: ends a task's transition at once (its music, picture or video); the big screen goes to what starting the task brought up. */
 export const endSting = (code: string) => set(ref(db(), `sessions/${code}/sting`), null);
 
+/** Main screen: a transition's video reached its end. Its last frame stays on the big screen until the host puts something else up or ends it. */
+export const holdSting = (code: string) => set(ref(db(), `sessions/${code}/sting/held`), true);
+
 /** Main screen: the transition's sound began just now (the host's strip counts down from it). */
 export const markSting = (code: string, at: number) => set(ref(db(), `sessions/${code}/sting/at`), at);
 
