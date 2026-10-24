@@ -277,6 +277,8 @@ Host pin (taken on 2026-10-13, from the real components with a made-up party):
 | `host-party-settings-pin-add.jpg` | The same with no pin yet: "Host pin" under the portrait, "4 to 6 digits…", Save (2026-10-18) |
 | `main-pin-open.jpg` | The big screen opening a pinned party: the same pin step at TV size, gold "Open the party", "📺 Show it here too" needing no pin |
 | `main-hidden-menu-pin.jpg` | The ☰ Menu with "🔑 Host pin on: a new phone needs it to connect. Remove the pin" |
+| `host-pin-send-link.jpg` | Plan the party's party line opened, the pin set, and "📤 Send yourself the host link" under it: the way onto the remote from another of the host's phones with no big screen to scan (2026-10-24) |
+| `host-taken-over.jpg` | The host remote's start page on the phone the remote was taken from: "Another phone took over Halloween party · ABCD." and gold "Take it back" above "Start a new party" (2026-10-24) |
 
 Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up party and a 2½-minute test video):
 

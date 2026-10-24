@@ -48,7 +48,7 @@ const icons: [string, string][] = [
   ["☰", "Hidden menu"], ["📺", "Screen"], ["📷", "Scan a QR"], ["◫", "Side by side"], ["▶ ⏸ ↺", "Play, pause, restart"],
   ["←", "Back"], ["→", "Next thing"], ["✕ ×", "Close, remove"], ["✎", "Fix in place"], ["+", "Add"], ["≡", "Drag to reorder"],
   ["★ ☆", "Chosen photo"], ["✓", "Done"], ["🔒 🔓", "Locked, may resubmit"], ["🔇", "Sound blocked"], ["👁", "Show the pin"],
-  ["🔑", "Host pin"], ["▾ ▸", "Folded section"], ["?", "The rules"], ["||||", "Tally points"], ["…", "In progress"],
+  ["🔑", "Host pin"], ["📤", "Send to yourself"], ["▾ ▸", "Folded section"], ["?", "The rules"], ["||||", "Tally points"], ["…", "In progress"],
 ];
 
 function Sheet() {

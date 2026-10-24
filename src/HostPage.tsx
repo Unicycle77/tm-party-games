@@ -26,6 +26,14 @@ import type { Session } from "./types";
 const KEY = "ba.remoteCode";
 const VIEW_KEY = "ba.hostTab";
 const BACK_KEY = "ba.hostBack";
+/** The party another phone took this one's remote from, so the start page can say so (JSON `TakenOver`). */
+const TAKEN_KEY = "ba.remoteTakenOver";
+interface TakenOver { code: string; name?: string }
+
+function loadTakenOver(): TakenOver | undefined {
+  try { return (JSON.parse(store.get(TAKEN_KEY)) as TakenOver | null) ?? undefined; }
+  catch { return undefined; }
+}
 /** Run of show (home), a task's page, Plan the party, a task's ✎ page, and the side jobs in the header. */
 type View = "show" | "task" | "plan" | "edit" | "crop" | "music" | "light" | "tasks" | "convert" | "clock";
 /** Where the host is: a view, and for a task's page which task (a task's id, "adhoc" or "tiebreaker"). */
@@ -70,14 +78,20 @@ export function HostPage() {
     if (connected) saveRecent(REMOTE_KEY, withRecent(loadRecent(REMOTE_KEY), code, session?.name));
   }, [connected, code, session?.name]);
 
-  // Session gone, or the main screen reset our remote → back to code entry.
+  const [takenOver, setTakenOver] = useState(loadTakenOver);
+  const noteTakenOver = (t: TakenOver | undefined) => { store.set(TAKEN_KEY, t ? JSON.stringify(t) : ""); setTakenOver(t); };
+
+  // Session gone, or the main screen reset our remote → back to code entry. Another phone holding the remote
+  // (one that knew the pin) is worth saying, since nobody here asked for it.
   useEffect(() => {
     if (!uid || session === undefined) return;
+    if (session?.controllerUid && session.controllerUid !== uid) noteTakenOver({ code, ...(session.name ? { name: session.name } : {}) });
     if (session === null || session.controllerUid !== uid) disconnect();
   }, [uid, session]);
 
   if (!code) {
-    return <Connect onConnected={(c, created) => {
+    return <Connect takenOver={takenOver} onConnected={(c, created) => {
+      noteTakenOver(undefined);
       store.set(KEY, c);
       setCode(c);
       // Every party opens on the run of show.
@@ -268,7 +282,7 @@ function ResetScores({ code, session }: { code: string; session: Session }) {
   );
 }
 
-function Connect({ onConnected }: { onConnected: (code: string, created?: boolean) => void }) {
+function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnected: (code: string, created?: boolean) => void }) {
   const [code, setCode] = useState(() => (new URLSearchParams(location.search).get("code") ?? "").toUpperCase().slice(0, 4));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -355,6 +369,13 @@ function Connect({ onConnected }: { onConnected: (code: string, created?: boolea
   return (
     <main className="join">
       <h1>Host remote</h1>
+      {/* Bumped by another phone: say so, and the one thing to do about it is the gold button. */}
+      {takenOver && (
+        <>
+          <p>Another phone took over {takenOver.name ? <><strong>{takenOver.name}</strong> · </> : "party "}<strong>{takenOver.code}</strong>.</p>
+          <button className="big" disabled={busy} onClick={() => void connect(takenOver.code)}>{busy ? "Connecting…" : "Take it back"}</button>
+        </>
+      )}
       {/* Start and Connect weigh the same (days ahead you start one, on the night you connect), so both are paper. */}
       <button onClick={() => { setNaming(""); setError(undefined); }}>Start a new party</button>
       <form onSubmit={submit}>
