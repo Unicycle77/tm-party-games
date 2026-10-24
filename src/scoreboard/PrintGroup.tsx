@@ -120,21 +120,24 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
         <Toggle label={<>Taskmaster rules<span className="muted small"> · 5 rules</span></>} on={picks.rules} onChange={(rules) => setPicks({ rules })} />
       </div>
       {picks.rules && picks.sign && (
-        <div className="choices marks" role="radiogroup" aria-label="Rules page">
-          <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Own page</button>
-          <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>Landscape with sign</button>
+        <div className="toggle-options">
+          <div className="choices marks" role="radiogroup" aria-label="Rules page">
+            <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Own page</button>
+            <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>Landscape with sign</button>
+          </div>
         </div>
       )}
       <div className="toggles">
         <Toggle label="Task pages" on={picks.pages} onChange={(pages) => setPicks({ pages })} />
       </div>
-      {picks.pages && !picking && (
+      {picks.pages && <div className="toggle-options">
+      {!picking && (
         <div className="summary-line">
           <span className="muted small">{!n ? "No task has task text yet" : picked.length === n ? `All ${n} with task text` : `${picked.length} of ${n} with task text`}</span>
           {n > 0 && <button type="button" className="link" onClick={() => setPicking(true)}>Change</button>}
         </div>
       )}
-      {picks.pages && picking && (
+      {picking && (
         <section className="extra-open">
           <span className="muted small">{picked.length} of {n} with task text</span>
           <div className="choices two marks">
@@ -151,13 +154,16 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
           <div className="row"><button type="button" onClick={() => setPicking(false)}>Done</button></div>
         </section>
       )}
+      </div>}
       <div className="toggles">
         <Toggle label={<>Secret tasks<span className="muted small"> · {pile ?? "…"} in the pile</span></>} on={picks.secret} onChange={(secret) => setPicks({ secret })} />
       </div>
       {picks.secret && (
-        <div className="choices marks" role="radiogroup" aria-label="Secret task sheets">
-          <button type="button" role="radio" aria-checked={picks.layout === "cut"} onClick={() => setPicks({ layout: "cut" })}>8 to cut</button>
-          <button type="button" role="radio" aria-checked={picks.layout === "fold"} onClick={() => setPicks({ layout: "fold" })}>4 to fold</button>
+        <div className="toggle-options">
+          <div className="choices marks" role="radiogroup" aria-label="Secret task sheets">
+            <button type="button" role="radio" aria-checked={picks.layout === "cut"} onClick={() => setPicks({ layout: "cut" })}>8 to cut</button>
+            <button type="button" role="radio" aria-checked={picks.layout === "fold"} onClick={() => setPicks({ layout: "fold" })}>4 to fold</button>
+          </div>
         </div>
       )}
     </section>
