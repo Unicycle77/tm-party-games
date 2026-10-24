@@ -1,7 +1,7 @@
 import { get, ref } from "firebase/database";
 import { db } from "./firebase";
 import { asParts, sorted } from "./scoreboard/tasks";
-import type { ScoreboardTask, Session, TaskGame, TaskPart, TaskUnit } from "./types";
+import type { PartyRules, ScoreboardTask, Session, TaskGame, TaskPart, TaskUnit } from "./types";
 
 /** What a party's setup file says it is, so the importer can tell it from any other JSON. */
 export const SETUP_FORMAT = "taskmaster-party-setup";
@@ -45,6 +45,8 @@ export interface Setup {
   secretTasks?: string[];
   /** The light's trigger and mode. Never whether it's switched on: a new party's light starts off. */
   light?: { trigger?: string; mode?: "smiles" | "all" };
+  /** The Taskmaster rules, only where they differ from the standard words (`{}` is the standard rules; "" is none). */
+  rules?: PartyRules;
 }
 
 const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
@@ -81,6 +83,7 @@ export function buildSetup(session: Session, secretTasks: string[]): Setup {
     ...(tiebreaker && Object.keys(tiebreaker).length > 0 && { tiebreaker }),
     ...(secretTasks.length > 0 && { secretTasks }),
     ...((trigger || mode) && { light: { ...(trigger && { trigger }), ...(mode && { mode }) } }),
+    rules: { ...session.rules },
   };
 }
 

@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { activeGame } from "./games";
 import { presentedOf, prizePhotos, prizePlanned } from "./games/prize/data";
 import { PrizeArea } from "./games/prize/PlayerView";
+import { rulesOf } from "./rules";
 import { RulesCard } from "./scoreboard/RulesSetup";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
@@ -68,7 +69,7 @@ export function Play() {
 
 /**
  * A guest's phone once they're in the party. Checking in comes first, one step at a time ("Checking in ·
- * step 2 of 3"): their headshot if none is on file, then their secret envelope. After that the phone is
+ * step 2 of 3"): the Taskmaster rules, their headshot if none is on file, then their secret envelope. After that the phone is
  * their to-do list: the envelope, then the prize question, each taking the "To do now" card in turn, and
  * a task that's on outranks them all (players only ever see the game the host has made active). With
  * nothing left, no card and no gold: "Put your phone away", under their own name tag.
@@ -84,6 +85,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const prizeOn = !!id && prizePlanned(session);
   const saved = id ? prizePhotos(session)[id] ?? [] : [];
   const presented = !!id && !!presentedOf(session)[id];
+  const rules = rulesOf(session);
 
   const [checkin, setCheckin] = useState(() => readCheckIn(code));
   // Just finished checking in: the status line says so once.
@@ -95,12 +97,13 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   useEffect(() => { setOpen(undefined); setJustIn(false); }, [session.game]);
 
   const needsHeadshot = !!guest && !guest[1].photo;
-  const rulesToDo = !!checkin?.rules;
+  // The rules, first: every guest agrees to them, unless the host has taken them all away since.
+  const rulesToDo = !!checkin?.rules && !!rules;
   const checkingIn = !!checkin && (rulesToDo || needsHeadshot || (checkin.envelope && typeof task !== "string"));
   // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
   useEffect(() => {
     if (checkin || !needsHeadshot) return;
-    const c = { code, confirmed: false, headshot: true, envelope: planned && typeof task !== "string" };
+    const c = { code, confirmed: false, rules: !!rules, headshot: true, envelope: planned && typeof task !== "string" };
     saveCheckIn(c);
     setCheckin(c);
   }, [checkin, needsHeadshot]);
@@ -124,7 +127,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const waiting = !game && !checkingIn && !showPrize && !showEnvelope && !envelopeCard;
 
   const partyLine = `${session.name ?? "Party"} · ${code}`;
-  const rulesStep = checkin && "rules" in checkin ? 1 : 0;
+  const rulesStep = checkin?.rules !== undefined && rules ? 1 : 0;
   const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) : 0;
   const step = rulesToDo ? Number(!!checkin?.confirmed) + 1 : needsHeadshot ? Number(!!checkin?.confirmed) + rulesStep + 1 : steps;
   const now = (line: string) => justIn ? `You're in! ${line}` : line;
@@ -147,8 +150,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   const rows: TodoRow[] = [];
   if (id && !checkingIn) {
-    // Draft: every party has the standard rules until they're saved per party.
-    rows.push({ id: "rules", icon: "✓", label: "Taskmaster rules", state: "agreed", tone: "done", onOpen: () => setOpen("rules") });
+    if (rules) rows.push({ id: "rules", icon: "✓", label: "Taskmaster rules", state: "agreed", tone: "done", onOpen: () => setOpen("rules") });
     rows.push({ id: "headshot", icon: "✓", label: "Headshot", state: "done", tone: "done" });
     if (planned && task !== undefined) {
       rows.push(task ? { id: "envelope", icon: "✓", label: "Secret envelope", state: "picked", tone: "done", onOpen: () => setOpen("envelope") }
@@ -178,7 +180,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
         {phoneWords && !checkingIn && <TaskTextCard key="phone-words" type={phoneWords.type} text={phoneWords.text} />}
         {checkingIn && rulesToDo && (
           <>
-            <RulesCard small />
+            <RulesCard rules={rules!} small />
             <button className="big" onClick={() => { const c = { ...checkin!, rules: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
           </>
         )}
@@ -200,7 +202,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
             onLater={() => { store.set(`${LATER_KEY}.${code}`, "1"); setLater(true); setOpen(undefined); }}
             onSent={() => setOpen("prize")} />
         )}
-        {open === "rules" && <RulesCard key="rules" small />}
+        {open === "rules" && rules && <RulesCard key="rules" rules={rules} small />}
         {open && !prizeBusy && <button key="back" className="link back" onClick={() => setOpen(undefined)}>← Back</button>}
         <TodoList rows={rows} />
         {/* Disconnects this phone only, back to the join screen to pick a name or a different code: the player's tile and entries stay. Only the host removes players. */}
@@ -257,9 +259,8 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
     try {
       const c = await joinAsContestant(code, id);
       store.set(NAME_KEY, guestName);
-      // This guest's own steps, counted once: "You're Sam?" (just done), the headshot if none is on file, the envelope if Secret Tasks is planned.
-      // Draft: every party has the standard rules until they're saved per party.
-      saveCheckIn({ code: c, confirmed: true, rules: true, headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party) });
+      // This guest's own steps, counted once: "You're Sam?" (just done), the rules if the party has them, the headshot if none is on file, the envelope if Secret Tasks is planned.
+      saveCheckIn({ code: c, confirmed: true, rules: !!party && !!rulesOf(party), headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party) });
       onJoined(c);
     } catch (err) {
       // Checked in on another phone: maybe theirs, so ask the host to move them here.
@@ -384,7 +385,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
 function ConfirmGuest({ guest, session, party, code, busy, error, onYes, onNo }: {
   guest: ScoreboardContestant; session: Session | null | undefined; party?: string; code: string; busy: boolean; error?: string; onYes: () => void; onNo: () => void;
 }) {
-  const steps = 1 + Number(!guest.photo) + Number(!!session && secretTasksPlanned(session));
+  const steps = 1 + Number(!!session && !!rulesOf(session)) + Number(!guest.photo) + Number(!!session && secretTasksPlanned(session));
   return (
     <main className="phone guest">
       <GuestHead title="Taskmaster" line={`Joining ${party ?? "party"} · ${code}`} />

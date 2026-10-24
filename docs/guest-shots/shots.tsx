@@ -380,7 +380,7 @@ if (shot.includes("send")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "16
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
 if (joined && shot.startsWith("checkin")) {
-  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, ...(shot === "checkin-house-rules" && { rules: true }), headshot: shot === "checkin-headshot", envelope: true }));
+  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true }));
   (session.players as Record<string, unknown>)[who] = { name: people[who], joinedAt: 9, contestant: who };
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }

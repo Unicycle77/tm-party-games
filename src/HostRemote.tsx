@@ -2,6 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type ReactNode } from "react";
 import { ClockStrip } from "./clock/ClockStrip";
 import { asList, asNums, fmt } from "./JukeboxRemote";
+import { rulesOf } from "./rules";
 import { stingFiles } from "./sting";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
@@ -35,6 +36,7 @@ export function onScreenLine(session: Session): string {
     return pending.length ? `the scores, before ${list(pending)}` : "the scores";
   }
   if (display.step === "haul") return "the prize haul";
+  if (display.step === "rules") return rulesOf(session) ? "the Taskmaster rules" : "the curtain";
   if (display.step === "tasktext") return partsOf(wordsOfTask(board, display.task)).length > 1 ? `the task, part ${(display.part ?? 0) + 1}` : "the task";
   if (!game) return display.step === "curtain" || session.begun ? "the curtain" : "the welcome";
   const players = Object.keys(session.players ?? {});

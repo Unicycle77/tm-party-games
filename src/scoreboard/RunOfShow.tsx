@@ -2,17 +2,18 @@ import type { ReactNode } from "react";
 import { JoinQr, OnScreen } from "../HostRemote";
 import { activeGame } from "../games";
 import { prizesIn, showHaul, standing } from "../games/prize/data";
+import { rulesOf } from "../rules";
 import { noBigScreen } from "../session";
 import type { Session } from "../types";
 import { cropFill } from "./crop";
-import { declareWinner, lowerCurtain, showScoreboard, updateScores } from "./data";
+import { declareWinner, lowerCurtain, showRules, showScoreboard, updateScores } from "./data";
 import { beginTask } from "./TaskPage";
 import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upNextOf } from "./tasks";
 import { transitionLine } from "./TransitionField";
 
 /**
  * The host remote's home: the party line with a small "Show QR" chip, one line saying what's on the big screen with
- * a small "Show scores" chip under it, then the one next thing in gold (the scoreboard's next step while it's up, or else the
+ * small "Show scores" and "Show rules" chips under it, then the one next thing in gold (the scoreboard's next step while it's up, or else the
  * "Up next" card), and the task list to see where the night is. Tapping a task opens its page. Building the party is
  * behind "Plan the party".
  */
@@ -67,6 +68,10 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
     </>
   ) : up ? <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button> : undefined;
 
+  // Side actions on the big screen, each gone while what it shows is up.
+  const scoresChip = !up && !haulUp && !winner;
+  const rulesChip = !!rulesOf(session) && session.display?.step !== "rules";
+
   return (
     <div className="box-setup scoreboard-remote run-of-show">
       <h2>Run of show</h2>
@@ -74,12 +79,12 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
         <JoinQr code={code} session={session} />
       </div>
-      <OnScreen code={code} session={session} chip={
+      <OnScreen code={code} session={session} chip={(scoresChip || rulesChip) && (
         <div className="line-chips under">
-          {!up && !haulUp && !winner && <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button>}
-          {/* Draft: not wired yet. */}
-          <button className="line-chip-button" onClick={() => undefined}>Show rules</button>
-        </div>} />
+          {scoresChip && <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button>}
+          {rulesChip && <button className="line-chip-button" onClick={() => void showRules(code)}>Show rules</button>}
+        </div>
+      )} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
       {!haulUp && unscored.length > 0 && (final ? (

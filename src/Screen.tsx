@@ -18,6 +18,7 @@ import type { Player, Session } from "./types";
 import { stingFiles } from "./sting";
 import { lightOf } from "./light/data";
 import { StingStage } from "./StingStage";
+import { rulesOf } from "./rules";
 import { RulesStage } from "./scoreboard/RulesSetup";
 import { stingPictureUrl } from "./stingPictures";
 
@@ -25,11 +26,12 @@ import { stingPictureUrl } from "./stingPictures";
 export function screenState(session: Session) {
   const game = activeGame(session);
   const shown = session.display ?? { step: "list" as const };
-  // A task's text taken away while it was up leaves the curtain.
-  const display = shown.step === "tasktext" && !textUp(session.scoreboard, shown.task, shown.part) ? { step: "curtain" as const } : shown;
+  // A task's text (or the rules) taken away while it was up leaves the curtain.
+  const display = shown.step === "tasktext" && !textUp(session.scoreboard, shown.task, shown.part)
+    || shown.step === "rules" && !rulesOf(session) ? { step: "curtain" as const } : shown;
   const videoPlaying = display.step === "video" && display.playing !== false;
   // A step without a player shows everyone; one with a player needs them to still be here and to have sent something.
-  const onStage = display.step === "scoreboard" || display.step === "haul" || display.step === "tasktext" || !!game && display.step !== "list" && display.step !== "curtain"
+  const onStage = display.step === "scoreboard" || display.step === "haul" || display.step === "tasktext" || display.step === "rules" || !!game && display.step !== "list" && display.step !== "curtain"
     && (!display.uid || (!!session.players?.[display.uid] && game.status?.(session, display.uid) !== "waiting"));
   return { game, display, videoPlaying, onStage };
 }
@@ -71,8 +73,9 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   // And a task's text, when the host puts it up.
   const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task, display.part) : undefined;
   if (words) return <TaskTextStage {...words} />;
-  // Draft: the party's Taskmaster rules (the standard ones until they're saved).
-  if (display.step === "rules") return <RulesStage />;
+  // And the party's Taskmaster rules, when the host shows them.
+  const rules = display.step === "rules" && rulesOf(session);
+  if (rules) return <RulesStage rules={rules} />;
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");

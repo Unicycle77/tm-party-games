@@ -6,6 +6,7 @@ import { flushSync } from "react-dom";
 import fontUrl from "../assets/veteran_typewriter-webfont.woff?url";
 import { PUBLIC_URL, db, joinUrlFor } from "../firebase";
 import { usePileCount } from "../games/secretTasks/TaskPile";
+import { rulesCount, rulesOf } from "../rules";
 import { setupFileName } from "../setupFile";
 import { store } from "../store";
 import { Toggle } from "../Toggle";
@@ -54,7 +55,7 @@ export function qrModules(value: string): boolean[][] {
   return rows;
 }
 
-/** What's switched on and which tasks are unticked (by id, so a task added later starts ticked). */
+/** What's switched on and which tasks are unticked (by id, so a task added later starts ticked). `together`: the sign and the rules on one landscape page. */
 interface Picks { sign: boolean; rules: boolean; together: boolean; pages: boolean; secret: boolean; layout: SecretLayout; left: string[] }
 const ALL: Picks = { sign: true, rules: true, together: false, pages: true, secret: true, layout: "cut", left: [] };
 const picksKey = (code: string) => `ba.print.${code}`;
@@ -66,8 +67,9 @@ function keptPicks(code: string): Picks {
 
 /**
  * "Print" on Plan the party: one PDF of everything printed before the night. A switch per item, in the order the
- * PDF prints them (the check-in sign, the task pages, the secret tasks), each item's options under its switch, and
- * one Download PDF for whatever is on. The picks are kept on this phone for the party.
+ * PDF prints them (the check-in sign, the Taskmaster rules, the task pages, the secret tasks), each item's options
+ * hanging off its switch, and one Download PDF for whatever is on. The sign and the rules print on two pages or
+ * together on one landscape page. The picks are kept on this phone for the party.
  */
 export function PrintGroup({ code, session }: { code: string; session: Session }) {
   const [picks, setPicksState] = useState(() => keptPicks(code));
@@ -78,7 +80,8 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
   const worded = wordedTasks(session.scoreboard);
   const n = worded.length;
   const picked = worded.filter(({ id }) => !picks.left.includes(id));
-  const anything = picks.sign || picks.pages || picks.secret;
+  const rules = rulesOf(session);
+  const anything = picks.sign || (picks.rules && !!rules) || picks.pages || picks.secret;
 
   const setPicks = (p: Partial<Picks>) => {
     const next = { ...picks, ...p };
@@ -101,8 +104,9 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
       const sign = picks.sign
         ? { party: session.name, modules: qrModules(joinUrlFor(code)), fallback: `No camera? Go to ${site}/play and enter ${code}` }
         : undefined;
-      if (!sign && !pages.length && !secrets.length) { tab?.close(); setNote("Nothing to print yet: no task text or secret tasks."); return; }
-      const pdf = await buildPrintPdf(await typewriter(), { sign, pages, secrets, layout: picks.layout });
+      const rulesPage = picks.rules ? rules : undefined;
+      if (!sign && !rulesPage && !pages.length && !secrets.length) { tab?.close(); setNote("Nothing to print yet: no task text or secret tasks."); return; }
+      const pdf = await buildPrintPdf(await typewriter(), { sign, rules: rulesPage, together: picks.together, pages, secrets, layout: picks.layout });
       showPdf(pdf, tab, setupFileName(session, code).replace(/\.taskmaster\.json$/, " print.pdf"));
     } catch { tab?.close(); setNote("Couldn't make the PDF. Try again."); }
     finally { setBusy(false); }
@@ -117,9 +121,10 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
       <p className="muted small">{note ?? (anything ? "Opens in a new tab: one PDF of what's on, in this order, to print." : "Turn something on to print.")}</p>
       <div className="toggles">
         <Toggle label="Check-in sign" on={picks.sign} onChange={(sign) => setPicks({ sign })} />
-        <Toggle label={<>Taskmaster rules<span className="muted small"> · 5 rules</span></>} on={picks.rules} onChange={(rules) => setPicks({ rules })} />
+        <Toggle label={<>Taskmaster rules<span className="muted small"> · {rulesCount(session)}</span></>} on={picks.rules && !!rules} disabled={!rules}
+          onChange={(on) => setPicks({ rules: on })} />
       </div>
-      {picks.rules && picks.sign && (
+      {picks.rules && rules && picks.sign && (
         <div className="toggle-options">
           <span className="muted small">The sign and the rules print on</span>
           <div className="choices marks" role="radiogroup" aria-label="The sign and the rules print on">

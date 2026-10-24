@@ -32,7 +32,7 @@ export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
       <button className="link back" onClick={onBack}>← Run of show</button>
       <h2>Plan the party</h2>
       <PartySummary code={code} session={session} />
-      <RulesSetup />
+      <RulesSetup code={code} session={session} />
       <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} />
       <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} />
       <Envelopes code={code} />

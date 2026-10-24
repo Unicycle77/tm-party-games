@@ -1,10 +1,13 @@
 /**
  * The PDF from Print on Plan the party, built here (no library) so the Veteran Typewriter font goes in as it is:
  * plain black text on white Letter pages, 12 pt, nothing of the card's parchment, edges or seal. The check-in sign
- * for the door first; then a page per task, or per part of one, text centred down the page; then the secret tasks
- * as cards: eight to a sheet (2 × 4, to cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with
- * faint cut lines and no fold lines. Any of the three can be left out.
+ * and the Taskmaster rules for the door first (two pages, or one landscape page with the rules on the left); then a
+ * page per task, or per part of one, text centred down the page; then the secret tasks as cards: eight to a sheet
+ * (2 × 4, to cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with faint cut lines and no fold
+ * lines. Any of them can be left out.
  */
+
+import type { Rules } from "../rules";
 
 export type Page = { heading: string; paragraphs: string[] };
 export type SecretLayout = "cut" | "fold";
@@ -274,14 +277,12 @@ function signAndRulesPage(face: Face, sign: Sign, r: Rules): string {
   return rulesPage(face, r, { x: 0, y: 0, w: half, h: PAGE_W }, 0.8, true) + "\n" + signPage(face, sign, { x: half, y: 0, w: half, h: PAGE_W }, 0.7);
 }
 
-export interface Rules { rules: string[]; last: string; signOff: string }
-
 /**
  * The Taskmaster rules: one Letter page for the door. TASKMASTER RULES big on top, the rules numbered with the
  * number hanging in the margin, the last paragraph, and the sign-off on the right with room under it for a real wax
  * seal (no seal is printed: a real one is in colour). Long rules are set a little smaller until they fit.
  */
-export function rulesPage(face: Face, r: Rules, box: Box = FULL, k = 1, centre = false): string {
+function rulesPage(face: Face, r: Rules, box: Box = FULL, k = 1, centre = false): string {
   const m = MARGIN * k, left = box.x + m, w = box.w - 2 * m, hang = 0.45 * PT * k;
   for (let size = 18 * k; ; size -= 0.5) {
     const lead = size * LEADING, gap = size * 0.9;
@@ -311,8 +312,9 @@ export function rulesPage(face: Face, r: Rules, box: Box = FULL, k = 1, centre =
 }
 
 /**
- * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign (when there is one), a
- * page per entry of `pages`, then `secrets` as sheets in `layout`. Each starts on its own page.
+ * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign and the rules (when there
+ * are any; `together` puts both on one landscape page), a page per entry of `pages`, then `secrets` as sheets in
+ * `layout`. Each starts on its own page.
  */
 export async function buildPrintPdf(face: Face, what: { sign?: Sign; rules?: Rules; together?: boolean; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
   const together = what.together && what.sign && what.rules;
