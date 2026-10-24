@@ -84,9 +84,10 @@ const SHOTS = {
   "haul-main-winner": ["tv-haul"],
   "haul-host-up": ["host-haul"],
   // a task with two parts (Individual, then Team)
-  "plan-host-task-cards": ["host-plan", "", async (p) => { await p.getByRole("switch", { name: /secret tasks/ }).check(); }],
-  "print-group-sketch": ["host-plan-pile", "", undefined, "section.task-cards"],
-  "print-group-pick-sketch": ["host-plan-pile", "", async (p) => { const s = p.locator("section.task-cards"); await s.getByRole("button", { name: "Change" }).click(); await s.locator(".choices.two button").nth(1).click(); await s.locator(".choices.two button").nth(3).click(); }, "section.task-cards"],
+  // Plan the party's Print group: everything on, all tasks ticked
+  "plan-host-print": ["host-plan-pile", "", undefined, "section.print"],
+  // the same with Change open under Task pages and two tasks unticked
+  "plan-host-print-pick": ["host-plan-pile", "", async (p) => { const s = p.locator("section.print"); await s.getByRole("button", { name: "Change" }).click(); await s.locator(".choices.two button").nth(1).click(); await s.locator(".choices.two button").nth(3).click(); }, "section.print"],
   "task-page-host-live": ["host-onepart"],
   "task-page-host-live-up": ["host-onepart-up"],
   "task-parts-host": ["host-parts"],

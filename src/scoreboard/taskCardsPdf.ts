@@ -1,9 +1,9 @@
 /**
- * The party's task cards as a PDF, built here (no library) so the Veteran Typewriter font goes in as it is: plain
- * black text on white Letter pages, 12 pt, nothing of the card's parchment, edges or seal. A page per task, or per
- * part of one, text centred down the page; then, if asked, the secret tasks as cards: eight to a sheet (2 × 4, to
- * cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with faint cut lines and no fold lines.
- * The check-in sign for the door is built here too, the same way.
+ * The PDF from Print on Plan the party, built here (no library) so the Veteran Typewriter font goes in as it is:
+ * plain black text on white Letter pages, 12 pt, nothing of the card's parchment, edges or seal. The check-in sign
+ * for the door first; then a page per task, or per part of one, text centred down the page; then the secret tasks
+ * as cards: eight to a sheet (2 × 4, to cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with
+ * faint cut lines and no fold lines. Any of the three can be left out.
  */
 
 export type Page = { heading: string; paragraphs: string[] };
@@ -214,12 +214,14 @@ function cutLines(cols: number, rows: number): string[] {
   return ops;
 }
 
-/** The PDF: a page per entry of `pages`, then `secrets` as sheets of cards in `layout`. */
-export async function buildPdf(face: Face, pages: Page[], secrets: string[], layout: SecretLayout): Promise<Uint8Array> {
+/** A page per entry of `pages`: the task's words, heading centred in capitals, the block centred down the page. */
+function taskPages(face: Face, pages: Page[]): string[] {
+  return pages.map((p) => stream(layCard(face, p, { x: 0, y: 0, w: PAGE_W, h: PAGE_H }, MARGIN)));
+}
+
+/** `secrets` as sheets of cards headed SECRET TASK, 8 (2 × 4) to cut or 4 (2 × 2) to fold a sheet. */
+function secretSheets(face: Face, secrets: string[], layout: SecretLayout): string[] {
   const content: string[] = [];
-  for (const p of pages) {
-    content.push(stream(layCard(face, p, { x: 0, y: 0, w: PAGE_W, h: PAGE_H }, MARGIN)));
-  }
   const cols = 2, rows = layout === "cut" ? 4 : 2, per = cols * rows;
   const w = PAGE_W / cols, h = PAGE_H / rows;
   for (let i = 0; i < secrets.length; i += per) {
@@ -230,16 +232,17 @@ export async function buildPdf(face: Face, pages: Page[], secrets: string[], lay
     });
     content.push(stream(placed, cutLines(cols, rows)));
   }
-  if (!content.length) throw new Error("No task text to print");
-  return writePdf(face, content);
+  return content;
 }
+
+export interface Sign { party?: string; modules: boolean[][]; fallback: string }
 
 /**
  * The check-in sign: one Letter page to tape by the door. The party's name small on top, the join QR (`modules`,
  * its dark squares, about 3¾ in) with "Contestants scan here", "Your time starts now." big, and the address and code
  * small at the bottom for a phone that can't scan.
  */
-export async function buildSignPdf(face: Face, sign: { party?: string; modules: boolean[][]; fallback: string }): Promise<Uint8Array> {
+function signPage(face: Face, sign: Sign): string {
   const centred = (text: string, size: number, y: number, grey?: number): Placed => {
     const codes = codesOf(face, text);
     return { x: (PAGE_W - widthOf(face, codes, size)) / 2, y, codes, size, grey };
@@ -257,7 +260,17 @@ export async function buildSignPdf(face: Face, sign: { party?: string; modules: 
     centred("Your time starts now.", 40, qrTop - side - 1.45 * PT),
     centred(sign.fallback, 11, qrTop - side - 2.25 * PT, 0.27),
   ];
-  return writePdf(face, [stream(placed, squares)]);
+  return stream(placed, squares);
+}
+
+/**
+ * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign (when there is one), a
+ * page per entry of `pages`, then `secrets` as sheets in `layout`. Each starts on its own page.
+ */
+export async function buildPrintPdf(face: Face, what: { sign?: Sign; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
+  const content = [...(what.sign ? [signPage(face, what.sign)] : []), ...taskPages(face, what.pages), ...secretSheets(face, what.secrets, what.layout)];
+  if (!content.length) throw new Error("Nothing to print");
+  return writePdf(face, content);
 }
 
 /** The PDF file around `content`, a content stream a page, with the face embedded once as F1. */
