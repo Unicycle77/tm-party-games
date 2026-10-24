@@ -1318,6 +1318,8 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 /* ---- Plan the party, and a task's ✎ page ---- */
 /* a summary line: what's set, with "Change" to open just that part in place */
 .summary-line { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; padding: 0.6rem 0; border-top: 1px solid #ffffff22; font-family: var(--typewriter); }
+/* Print on Plan the party: the task count under the Task pages switch belongs to it, so no rule above it */
+.print > .summary-line:not(:first-child) { border-top: 0; padding: 0 0 0.2rem; }
 .summary-line > span { min-width: 0; overflow-wrap: anywhere; }
 .summary-line .link { flex: none; }
 .summary-links { display: flex; gap: 1.2rem; flex: none; }
