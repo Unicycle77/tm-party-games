@@ -87,6 +87,7 @@ Recovery is mostly copy. The one real design is moving a guest to a new phone, w
 | Host unlocks a resubmit | A line on the card: "🔓 The host has let you submit again." | Buttons silently reappearing (today). |
 | Leaving the app | Only the host can remove a player. Leaving the app isn't leaving the party, so the player's tile and entries stay. The bottom link becomes "Not Alex? Not the right party?", which only disconnects this phone and goes back to the join screen, where the guest can tap their name or enter a different code. | "Leave party" removing the player and deleting their entries (today). A confirm before deleting: players shouldn't be able to delete at all. "Not Alex? Switch player": it didn't say the same link fixes joining the wrong party. |
 | Removed, or party ended | The join form opens with "You were removed from the party." or "That party has ended." | A silent drop to the join form (today). |
+| Scanning another party's QR | A guest phone still in another party (last month's, or one that has ended) that scans a party's QR goes to that party's join screen, the same one a fresh phone gets. The scan always wins, even mid-game in a live party. The old party keeps the guest's tile and entries, and scanning its QR again gets them back. Scanning the same party's QR changes nothing. | Opening the saved party and ignoring the QR (before). A "Switch from Summer party?" confirm: the scan already says where they want to be, and the way back is the same scan. |
 
 ## Main stage
 
