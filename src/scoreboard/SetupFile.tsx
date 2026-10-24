@@ -7,7 +7,7 @@ import type { SecretTasks, Session } from "../types";
 import { list, plural } from "./tasks";
 
 /**
- * "Setup file" on Plan the party: Export hands over the party's tasks, tiebreaker, secret tasks and light as a file;
+ * "Setup file" on Plan the party: Export hands over the party's tasks, tiebreaker, secret tasks, light and Taskmaster rules as a file;
  * Import reads one and, after showing what would change, makes the party match it. Nothing the night produced is in the file.
  */
 export function SetupFile({ code, session }: { code: string; session: Session }) {
@@ -46,7 +46,7 @@ export function SetupFile({ code, session }: { code: string; session: Session })
       </div>
       <input ref={picker} type="file" accept=".json,application/json" hidden
         onChange={(e) => { void read(e.target.files?.[0]); e.target.value = ""; }} />
-      <p className="muted small">{note ?? "Tasks, tiebreaker, secret tasks and the light. Not guests or points."}</p>
+      <p className="muted small">{note ?? "Tasks, tiebreaker, secret tasks, the light and the Taskmaster rules. Not guests or points."}</p>
       {check && ("error" in check ? (
         <div className="sb-add">
           <p>{check.error}</p>
@@ -78,6 +78,7 @@ export function ImportCheck({ plan, busy, onImport, onCancel }: { plan: ImportPl
         </p>
       )}
       {plan.light && <p className="small">The light: <span className="muted">{plan.light}</span></p>}
+      {plan.rules && <p className="small">Taskmaster rules: <span className="muted">{plan.rules}</span></p>}
       {plan.missingSongs.length > 0 && <p className="small">Not in this party's music folder: <span className="muted">{plan.missingSongs.join(", ")}. They'll show as missing until the folder has them.</span></p>}
       {plan.warnings.map((w) => <p key={w} className="small muted">{w}</p>)}
       <button className="big" disabled={busy || setup.tasks.length === 0} onClick={onImport}>{busy ? "Importing…" : `Import ${plural(setup.tasks.length, "task")}`}</button>

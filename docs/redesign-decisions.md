@@ -497,6 +497,22 @@ Something plays on the big screen the moment the host taps Start, before the tas
 | Starting at once | Once the curtain is up, the main screen reads the next two tasks' music and video into memory (a video up to 150 MB), after a few seconds and one file at a time, and lets go of the rest, so Start never waits on OneDrive. A video's length is read then too. | Reading the file on Start: a file only in the cloud could take seconds. Reading every transition when the folder is read (first version): it brought every video down from OneDrive at once, filled the connection and left the stage with only the curtain. |
 | With a song | The task's song strip is disabled ("after the transition") while a transition's music or video plays; a lone picture doesn't hold it back. | Tapping the song ending the transition early. |
 
+## Taskmaster rules
+
+A party's house rules: a numbered list, a last paragraph and a sign-off, shown in four places, worked out one scenario at a time (2026-10-24).
+
+| Decision | What we agreed | What we turned down, and why |
+|---|---|---|
+| Where they appear | Ranked: printed by the door, on the big screen, at check-in on the phone, rereadable on the phone. | One place only: the shoes rule needs the door, the opening needs the room. |
+| The words | A new party has Jeffrey's rules (`src/rules.ts`), stored as nothing so it follows them; the host changes them on Plan the party. Emptying the rules and the last paragraph means none, and every place goes quiet. | Starting empty: every party Jeffrey runs uses them. |
+| Editing | Its own summary line on Plan the party under the party line, Change opening three boxes: Rules (a rule a line, numbered for you), Last paragraph ("Back to the standard words" once changed), Sign-off. | A box per rule with ✕ and "+ Add a rule": more taps, and a pasted list wouldn't split. Editing inside Print: three of the four places aren't printing. |
+| Printing | A fourth item in Print, after the check-in sign. "The sign and the rules print on" One page / Two pages (two to start), hanging off the rules switch, shown while both are on. One page: landscape, rules left, sign right, both centred down the page. | A second switch for the layout: it read as another thing to print. "Own page" / "Landscape with sign": named only the rules' side. |
+| Options under a switch | Every switch's options hang off it (`.toggle-options`: indented, a `--gold-dark` rule), in all of Print. | Boxing each item in a panel: heavy, and the dashed box already means "open to edit". |
+| The seal on paper | None printed: room under the sign-off for a real wax seal in colour. | An outlined ring: Jeffrey would rather press a real one. A red one: colour ink, and the PDF is black on white. |
+| Big screen | A "Show rules" line chip beside "Show scores", all night (late arrivals); the rules on the task card, the seal under TASKMASTER; anything else put up replaces them. | A step in the running order: can't be skipped or brought back. The seal in its corner: it landed on the sign-off. |
+| Check-in | A required step after "You're Sam?", before the headshot and envelope: the rules card and gold "Got it →". | Skippable: everyone acknowledges the rules. "I serve the Taskmaster": a second voice next to "Got it: pick an envelope →". |
+| Rereading | "✓ Taskmaster rules · agreed" first in the guest's to-do list, opening the card with ← Back. | Anything new: the to-do row already does this for the envelope. |
+
 ## Notes for building
 
 - **Box:** the host's phone opens the boxes but must never show where the object is.

@@ -11,7 +11,7 @@ export type TaskGame = GameId | "light";
  * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on. Nor does "tasktext":
  * a task's text on the paper task card (`task` says which).
  */
-export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits";
+export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "rules" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits";
 
 export interface Display {
   uid?: string;
@@ -443,6 +443,9 @@ export interface Scoreboard {
   tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; limit?: number; parts?: TaskPart[]; winner?: string };
 }
 
+/** The Taskmaster rules: a rule a line, the last paragraph and the sign-off. */
+export interface PartyRules { text?: string; last?: string; signOff?: string }
+
 export interface Session {
   /**
    * The main screen. A party created on the host remote (days ahead, with no big screen) starts with the
@@ -509,6 +512,8 @@ export interface Session {
   clock?: ClockState;
   /** How the 📏 converter explains a result: metric (the default) or imperial, in feet and inches. */
   units?: "metric" | "imperial";
+  /** The party's Taskmaster rules, only where the host changed the standard words (`src/rules.ts`); an empty string is none. */
+  rules?: PartyRules;
   jukebox?: Jukebox;
   scoreboard?: Scoreboard;
   /** The computer running the light (claimed via /light). It, the host phone and the main screen can drive the light. */

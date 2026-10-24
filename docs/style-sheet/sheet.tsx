@@ -6,6 +6,7 @@ import "../../src/styles.css";
 import "./sheet.css";
 import { Toggle } from "../../src/Toggle";
 import { TaskCard } from "../../src/TaskCard";
+import { RulesCard } from "../../src/scoreboard/RulesSetup";
 import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
@@ -94,8 +95,12 @@ function Sheet() {
               <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Lower the curtain</button></Item>
               <Item cap={<><code>.active</code>: what's on screen now</>}><button className="active">Before</button></Item>
             </div>
-            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show scores" under the big-screen line)</>}>
-              <div className="line-chip"><p className="muted small party-line">Halloween party · ABCD</p><button className="line-chip-button">Show QR</button></div>
+            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show scores" and "Show rules" side by side under the big-screen line in <code>.line-chips.under</code>)</>}>
+              <div style={{ display: "grid", gap: "0.8rem" }}>
+                <div className="line-chip"><p className="muted small party-line">Halloween party · ABCD</p><button className="line-chip-button">Show QR</button></div>
+                <p className="on-screen" style={{ margin: 0 }}>On the big screen: the curtain</p>
+                <div className="line-chips under"><button className="line-chip-button">Show scores</button><button className="line-chip-button">Show rules</button></div>
+              </div>
             </Item>
             <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
             <Item cap={<><code>.big.pressed</code>: a gold button whose thing is on the big screen now; tap again to take it down</>}><button className="big pressed" aria-pressed>Show the task</button></Item>
@@ -128,7 +133,16 @@ function Sheet() {
           </Sec>
           <Sec title="Toggles &amp; inputs">
             <div className="pair">
-              <Item cap={<><code>&lt;Toggle&gt;</code> in a <code>.toggles</code> list</>}><div className="toggles"><Toggle label="🔁 Repeat" on onChange={noop} /><Toggle label="Light on" on={false} onChange={noop} /></div></Item>
+              <Item cap={<><code>&lt;Toggle&gt;</code> in a <code>.toggles</code> list; a switch's own options hang off it in <code>.toggle-options</code></>}>
+                <div>
+                  <div className="toggles"><Toggle label="🔁 Repeat" on onChange={noop} /><Toggle label="Taskmaster rules" on onChange={noop} /></div>
+                  <div className="toggle-options">
+                    <span className="muted small">The sign and the rules print on</span>
+                    <div className="choices marks" role="radiogroup"><button role="radio" aria-checked={false}>One page</button><button role="radio" aria-checked>Two pages</button></div>
+                  </div>
+                  <div className="toggles"><Toggle label="Light on" on={false} onChange={noop} /></div>
+                </div>
+              </Item>
               <div className="toggles" style={{ alignContent: "start" }}><label style={{ display: "grid", gap: 4 }}><span className="muted">Party name</span><input defaultValue="Halloween party" /></label><Cap>Inputs: paper, in a <code>&lt;label&gt;</code></Cap></div>
             </div>
             <div className="pair">
@@ -248,6 +262,9 @@ function Sheet() {
             <TaskCard small lines={["Task 2 · Build the tallest tower", "Build the tallest tower you can out of dry spaghetti and marshmallows.", "Fastest wins. You have ten minutes. Your time starts now."]} />
             <Item cap={<><code>.task-card.centred.reading</code>: a task's text, its type centred, a step bigger for reading aloud</>}>
               <TaskCard small centred className="reading" lines={["Individual task", "Deep in the forest lives a creature nobody has ever seen up close.", "It has the body of a teapot and far too many knees."]} />
+            </Item>
+            <Item cap={<><code>RulesCard</code> (<code>.task-card.rules</code>): the Taskmaster rules, numbers hanging, the seal under the sign-off</>}>
+              <RulesCard small rules={{ rules: ["You must remove your shoes before entering.", "You must not break the law.", "THE TASKMASTER'S WORD IS FINAL."], last: "And remember... THE TASKMASTER IS ALWAYS RIGHT.", signOff: "TASKMASTER" }} />
             </Item>
             <Item cap={<><code>.sb-won-bar</code>: the tiebreaker's "Tap who won.", fixed to the bottom of the phone</>}>
               <div className="sb-won-bar" style={{ position: "static" }}>

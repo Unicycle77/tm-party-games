@@ -3,9 +3,10 @@ import { db } from "./firebase";
 import { GAMES } from "./games";
 import { same } from "./games/secretTasks/data";
 import { MODES, TRIGGERS, findMode, findTrigger } from "./light/triggers";
+import { rulesCount } from "./rules";
 import { asParts, titleOf } from "./scoreboard/tasks";
 import { SETUP_FORMAT, SETUP_VERSION, type Setup, type SetupTask } from "./setupFile";
-import type { ScoreboardTask, SecretTasks, Session, TaskGame, TaskPart, TaskUnit } from "./types";
+import type { PartyRules, ScoreboardTask, SecretTasks, Session, TaskGame, TaskPart, TaskUnit } from "./types";
 
 export const NOT_A_SETUP = "That file isn't a party setup.";
 export const TOO_NEW = "That setup was made by a newer version of the app.";
@@ -83,6 +84,12 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
     for (const t of raw.secretTasks) { const s = str(t, 300); if (s && !pool.some((p) => same(p, s))) pool.push(s); }
     setup.secretTasks = pool;
   }
+  if (obj(raw.rules)) {
+    // Kept as written, an empty string too: that's a party with no rules (or no last paragraph, or no sign-off).
+    const r = raw.rules, rules: PartyRules = {};
+    for (const [k, max] of [["text", 3000], ["last", 1000], ["signOff", 40]] as const) if (typeof r[k] === "string") rules[k] = r[k].slice(0, max);
+    setup.rules = rules;
+  }
   if (obj(raw.light)) {
     const l = raw.light;
     const trigger = TRIGGERS.some((t) => t.id === l.trigger) ? (l.trigger as string) : undefined;
@@ -107,6 +114,8 @@ export interface ImportPlan {
   /** The secret pool the file brings, and the players whose dealt task isn't in it (they get it back to pick again). */
   secret?: { count: number; takenBack: string[] };
   light?: string;
+  /** The rules the file brings, counted ("5 rules", "no rules"). */
+  rules?: string;
   /** Songs the tasks name that aren't in this party's music folder. Absent until the main screen has read a folder. */
   missingSongs: string[];
 }
@@ -162,6 +171,7 @@ export function planImport(setup: Setup, warnings: string[], session: Session, s
     ...(setup.tiebreaker && { tiebreaker: setup.tiebreaker.name || "Tiebreaker task" }),
     ...(pool && { secret: { count: pool.length, takenBack } }),
     ...(light && { light }),
+    ...(setup.rules && { rules: rulesCount({ ...session, rules: setup.rules }) }),
     missingSongs: tracks ? [...new Set(songs.filter((s) => !tracks.includes(s)))] : [],
   };
 }
@@ -205,13 +215,14 @@ export function importWrites(setup: Setup, session: Session, secret: SecretTasks
       if (!setup.secretTasks.some((p) => same(p, text))) { secretPatch[`assigned/${uid}`] = null; secretPatch[`seen/${uid}`] = null; }
     }
   }
-  return { board, light, secret: secretPatch };
+  const rules = setup.rules && { text: setup.rules.text ?? null, last: setup.rules.last ?? null, signOff: setup.rules.signOff ?? null };
+  return { board, light, rules, secret: secretPatch };
 }
 
 /**
  * Host: makes the party match the file. The task list is the file's, in its order: matched tasks are updated in place and keep their
- * points, new ones are added, the rest go unless something was scored on them (those stay at the end). The tiebreaker, secret pool and
- * light are replaced when the file has them; a dealt secret task that isn't in the new pool goes back to its player to pick again.
+ * points, new ones are added, the rest go unless something was scored on them (those stay at the end). The tiebreaker, secret pool,
+ * light and Taskmaster rules are replaced when the file has them; a dealt secret task that isn't in the new pool goes back to its player to pick again.
  */
 export async function applyImport(code: string, session: Session, setup: Setup): Promise<void> {
   const secretRef = ref(db(), `secretTasks/${code}`);
@@ -220,5 +231,6 @@ export async function applyImport(code: string, session: Session, setup: Setup):
   const writes = importWrites(setup, session, secret, () => push(tasksRef).key!);
   await update(ref(db(), `sessions/${code}/scoreboard`), writes.board);
   if (writes.light) await update(ref(db(), `sessions/${code}/light`), writes.light);
+  if (writes.rules) await update(ref(db(), `sessions/${code}/rules`), writes.rules);
   if (writes.secret) await update(secretRef, writes.secret);
 }

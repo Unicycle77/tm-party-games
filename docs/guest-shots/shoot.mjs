@@ -8,6 +8,7 @@ const SHOTS = {
   "guest-checkin-list": ["checkin-list"],
   "guest-checkin-confirm": ["checkin-confirm", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).click(); }],
   "guest-checkin-headshot": ["checkin-headshot"],
+  "guest-checkin-house-rules": ["checkin-house-rules"],
   "guest-checkin-rules": ["checkin-rules"],
   "guest-checkin-envelopes": ["checkin-pile", "", async (p) => { await p.getByRole("button", { name: /Got it/ }).click(); }],
   "guest-home-todo": ["home-todo-envelope"],
@@ -25,6 +26,7 @@ const SHOTS = {
   "guest-noisemaster-watch": ["noisemaster-watch"],
   // the big screen, 1600x900: same party as the check-in shots
   "main-welcome": ["tv-welcome"],
+  "rules-main": ["tv-rules"],
   "main-noisemaster": ["tv-noisemaster"],
   "main-noisemaster-done": ["tv-noisemaster-done"],
   "main-secret-tasks": ["tv-secret"],
@@ -94,6 +96,8 @@ const SHOTS = {
   "haul-host-up": ["host-haul"],
   // a task with two parts (Individual, then Team)
   // Plan the party's Print group: everything on, all tasks ticked
+  "plan-host-rules": ["host-plan-pile", "", async (p) => { await p.locator("section.rules-setup").getByRole("button", { name: "Change" }).click(); }, "section.rules-setup"],
+  "host-setup-file": ["host-plan-pile", "", undefined, "section.setup-file"],
   "plan-host-print": ["host-plan-pile", "", undefined, "section.print"],
   // the same with Change open under Task pages and two tasks unticked
   "plan-host-print-pick": ["host-plan-pile", "", async (p) => { const s = p.locator("section.print"); await s.getByRole("button", { name: "Change" }).click(); await s.locator(".choices.two button").nth(1).click(); await s.locator(".choices.two button").nth(3).click(); }, "section.print"],

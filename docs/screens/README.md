@@ -13,13 +13,14 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | File | What it shows |
 |---|---|
 | `guest-checkin-list.jpg` | Tap your name: "HELLO my name is" tags scattered on the curtain, everyone but Sam faded with "✓ here", status line "Find your name tag and tap it" |
-| `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 2" |
+| `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 3" (2026-10-24: the rules step counts) |
 | `guest-checkin-headshot.jpg` | No headshot on file: "To do now · Add your headshot", the same frame, the Headshot task's words, two paper buttons |
+| `guest-checkin-house-rules.jpg` | The Taskmaster rules at check-in, "Checking in · step 2 of 3": the rules card (numbered rules, the last paragraph, TASKMASTER with the seal under it) and gold "Got it →" (2026-10-24, ABCD party) |
 | `guest-checkin-rules.jpg` | Secret Tasks at check-in, moment one: the whole rules card and gold "Got it: pick an envelope →" |
 | `guest-checkin-envelopes.jpg` | Moment two: "Pick an envelope ?" over the pile on the curtain |
 | `guest-home-todo.jpg` | Home with something to do: "1 thing left to do", the "To do now" card for the secret envelope, "Your to-do list" below |
 | `guest-home-prize-ask.jpg` | The prize question: the prize task's words in quotes, gold "Yes, add photos →", paper "Not now" |
-| `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with the prize "optional" |
+| `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with "✓ Taskmaster rules · agreed" first and the prize "optional" (2026-10-24) |
 | `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
@@ -52,7 +53,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `main-gate-transitions.jpg` | The gate after a refresh: under "✓ Music: Party (42 songs)", a smaller line for each transition folder, "✓ Transition music: 3", "✓ Transition pictures: 3", and "○ Transition videos: none found (add a folder named "Transition videos")" for a folder that's missing or empty (muted) (2026-10-22) |
 | `noisemaster-host-round.jpg` | The host phone's Noisemaster page mid-go, whole page: "Sam at the soundboard", the clock, the board with its words, Restart and Next round, Points below (2026-10-21) |
 | `noisemaster-host-setup.jpg` | The host phone's Noisemaster page before a go, whole page: Sam picked, "I am the Noisemaster" typed as the phrase, twelve decoys, "16 different words." and the gold Start Noisemaster (no sound files, so the main screen says the words) (2026-10-21) |
-| `run-of-show-host.jpg` | Host phone: the Run of show, "Show QR" by the code, "Show scores" under the big-screen line, the "Up next" card with the gold Start button and "app task" on the card, and all eight tasks (party ABCD, 2026-10-19) |
+| `run-of-show-host.jpg` | Host phone: the Run of show, "Show QR" by the code, "Show scores" and "Show rules" under the big-screen line, the "Up next" card with the gold Start button and "app task" on the card, and all eight tasks (party ABCD, 2026-10-19) |
 | `points-host-given.jpg` | Host phone on the Prize task: Sam's prize on the big screen and the Points rows, four guests already scored (taken 2026-10-18 from the ABCD party) |
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
 | `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
@@ -94,6 +95,7 @@ Main screen (`/`, 1600×900):
 
 | File | What it shows |
 |---|---|
+| `rules-main.jpg` | The Taskmaster rules on the big screen (Run of show's "Show rules"): the task card on the curtain, TASKMASTER RULES centred, the five rules numbered, the last paragraph, TASKMASTER with the red TM seal under it (2026-10-24, ABCD party) |
 | `main-welcome.jpg` | The welcome: join QR, code ABCD, contestants (the five who are in, Sam still to come), the same party as the check-in phones below (2026-10-18) |
 | `main-collecting-entries.jpg` | Before & After task card while entries come in |
 | `converter-main-whole.jpg` | A useless conversion on the big screen (2026-10-15): "39 dice tall is / 65 LEGO bricks / a 2×4 brick, without its studs" on a paper card |
@@ -162,7 +164,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `headshot-task-main.jpg` | Main screen: one headshot in the gold frame |
 | `headshot-task-main-everyone.jpg` | Main screen: everyone's headshots |
 | `host-party-settings-name.jpg` | Plan the party with the party line opened by "Change": renaming the party, with the portrait and the host pin under it (2026-10-18) |
-| `run-of-show-host.jpg` | The remote's home: the party line "Halloween party · ABCD" with a small "Show QR" chip at its right, "On the big screen: the soundboard" with a small "Show scores" chip under it, the "Up next" card with gold "▶ Start Headshot", the read-only task list with one state each, and "Play a task that's not on the list", "Plan the party", "Party settings" at the bottom (party ABCD, 2026-10-19) |
+| `run-of-show-host.jpg` | The remote's home: the party line "Halloween party · ABCD" with a small "Show QR" chip at its right, "On the big screen: the soundboard" with small "Show scores" and "Show rules" chips under it (2026-10-24), the "Up next" card with gold "▶ Start Headshot", the read-only task list with one state each, and "Play a task that's not on the list", "Plan the party", "Party settings" at the bottom (party ABCD, 2026-10-19) |
 | `up-next-transition.jpg` | The Up next card for Dice tower, a live task with a transition: gold "Start task 6 →" with "♪ Task fanfare · 0:08 · 🖼 Dice tower" as its second line (party ABCD, tasks 1 to 5 scored, 2026-10-22) |
 | `up-next-transition-missing.jpg` | The same card when the music has gone from Transition music: "♪ Fanfare (old)" struck through and greyed, "not found", the picture still there, Start still gold (2026-10-22) |
 | `host-sting.jpg` | Dice tower's page two seconds after Start: "On the big screen: Dice tower's transition picture" and the "⏹ Task fanfare · 0:06 left" strip, one tap ends it; the task's song strip disabled, "after the transition" (2026-10-22) |
@@ -209,9 +211,12 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-playing.jpg` | The run of show during a game: "Now playing: Photos: best costume · Open →" |
 | `run-of-show-host-play-a-game.jpg` | "Play a task": a task that's not on the list, the same page with no number and no points (2026-10-19, from the ABCD party) |
 | `run-of-show-host-add-game.jpg` | "+ App task" on Plan the party, "Which task?": Noisemaster, Secret Tasks, Headshot and Prize task greyed out as "on the list", Photos still offered; the live tasks named Dice tower, Five socks and Hum a theme tune (2026-10-22, from the ABCD party) |
-| `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks and the light. Not guests or points." under it (2026-10-18). Rendered from the real row's markup |
-| `plan-host-print.jpg` | Plan the party's Print group: "Print" with Download PDF, then the Check-in sign, Task pages ("All 5 with task text" · Change) and Secret tasks ("10 in the pile", 8 to cut picked) switches, all on (2026-10-24, from the ABCD party) |
+| `host-setup-file.jpg` | The "Setup file" row at the bottom of Plan the party: Import and Export links on the right and "Tasks, tiebreaker, secret tasks, the light and the Taskmaster rules. Not guests or points." under it (2026-10-24, ABCD party) |
+| `plan-host-rules.jpg` | Plan the party's "Taskmaster rules · 5 rules" opened: the Rules box (a rule a line), the Last paragraph ("The standard words.") and the Sign-off (2026-10-24, ABCD party) |
+| `plan-host-print.jpg` | Plan the party's Print group: "Print" with Download PDF, then the Check-in sign, Taskmaster rules ("5 rules"; hanging off it, "The sign and the rules print on" One page / Two pages, Two pages picked), Task pages ("All 5 with task text" · Change) and Secret tasks ("10 in the pile", 8 to cut picked) switches, all on, each switch's options on a gold rule under it (2026-10-24, from the ABCD party) |
 | `plan-host-print-pick.jpg` | The same with Change open under Task pages: a chip per task with task text, Photos and Dice tower unticked, "3 of 5 with task text", Done (2026-10-24, from the ABCD party) |
+| `rules-pdf.jpg` | The Taskmaster rules page of the print PDF: TASKMASTER RULES, the five standard rules numbered, the last paragraph, TASKMASTER on the right with room under it for a real seal (2026-10-24, ABCD party) |
+| `rules-pdf-one-page.jpg` | "One page": a landscape sheet with the rules on the left and the check-in sign on the right, both centred down the page (2026-10-24, ABCD party) |
 | `checkin-sign-pdf.jpg` | The check-in sign PDF from the ABCD Halloween party: HALLOWEEN PARTY, the join QR, "Contestants scan here", "Your time starts now." and the no-camera line (2026-10-23) |
 | `task-cards-pdf-page.jpg` | The downloaded PDF's first page: a task's Individual part, heading centred in capitals, the paragraphs, the block centred down a white Letter page (2026-10-18) |
 | `task-cards-pdf-secret-cut.jpg` | A secret sheet, "8 to cut": a 2 × 4 grid of SECRET TASK cards with faint cut lines (2026-10-18) |
@@ -239,7 +244,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `run-of-show-host-haul-up.jpg` | The haul on the big screen: gold "Lower the curtain", "Back to the scoreboard" as a link (2026-10-18) |
 | `run-of-show-host-haul-waiting.jpg` | The scoreboard up with a task still without points: "The prize haul comes once every task has points. Still none for Prize task." under gold "Lower the curtain", and the "Up next" card's button paper (2026-10-18) |
 | `main-prize-haul-winner-only.jpg` | The prize haul when no prize has photos: "Prize Haul" and the winner's headshot alone, "Priya is the winner!" |
-| `run-of-show-host-arrivals.jpg` | Run of show before the first task: "Show QR" by the code and "Show scores" under the big-screen line, then "Here so far · 5 of 6" in guest-list order with headshots and "checked in" or "not yet" (dimmed), then the Up next card with gold "▶ Start Headshot" (party ABCD, 2026-10-19) |
+| `run-of-show-host-arrivals.jpg` | Run of show before the first task: "Show QR" by the code and "Show scores" and "Show rules" under the big-screen line, then "Here so far · 5 of 6" in guest-list order with headshots and "checked in" or "not yet" (dimmed), then the Up next card with gold "▶ Start Headshot" (party ABCD, 2026-10-19) |
 | `host-new-guest.jpg` | A guest who isn't on the scoreboard comes as a card at the top of the page: "Riley joined, but isn't on the scoreboard. Add them if they're playing." with "Add Riley" and "Not playing" (2026-10-18) |
 | `host-new-guest-late.jpg` | The same card on a task page, mid-show: it appears on whatever page the host is on (2026-10-18) |
 | `scoreboard-host-not-playing.jpg` | Plan the party after "Not playing": Riley stays under "Here, but not on the scoreboard" marked "not playing", with "+ Add" if they change their mind (2026-10-18) |

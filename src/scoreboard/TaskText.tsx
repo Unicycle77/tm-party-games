@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { TaskCard } from "../TaskCard";
 import type { Scoreboard, TaskGame } from "../types";
 import { asParts } from "./tasks";
@@ -85,6 +85,15 @@ export const TaskTextCard = ({ type, text }: { type: string; text: string }) =>
  * text fits, so the screen never scrolls; short text keeps the card's usual size.
  */
 export function TaskTextStage({ type, text }: { type: string; text: string }) {
+  return (
+    <FitStage fitKey={`${type}\n${text}`}>
+      <TaskCard lines={[headingOf(type), ...linesOf(text)]} centred />
+    </FitStage>
+  );
+}
+
+/** A paper card centred on the curtain, its type shrunk until it fits the screen (`fitKey` changes when its words do). */
+export function FitStage({ fitKey, className, children }: { fitKey: string; className?: string; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(3);
   useLayoutEffect(() => {
@@ -104,10 +113,10 @@ export function TaskTextStage({ type, text }: { type: string; text: string }) {
     void document.fonts?.ready.then(fit);
     addEventListener("resize", fit);
     return () => removeEventListener("resize", fit);
-  }, [type, text]);
+  }, [fitKey]);
   return (
-    <div className="stage task-text-stage" ref={box} style={{ "--text-size": `${size}vh` } as CSSProperties}>
-      <TaskCard lines={[headingOf(type), ...linesOf(text)]} centred />
+    <div className={["stage task-text-stage", className].filter(Boolean).join(" ")} ref={box} style={{ "--text-size": `${size}vh` } as CSSProperties}>
+      {children}
     </div>
   );
 }

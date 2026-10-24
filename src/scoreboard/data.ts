@@ -241,6 +241,9 @@ export const startTask = (code: string, board: Scoreboard | undefined, onScreen:
 /** Puts the scoreboard on the big screen, at the totals last shown. */
 export const showScoreboard = (code: string) => setDisplay(code, { step: "scoreboard" });
 
+/** The party's Taskmaster rules on the big screen, until the host puts something else up. */
+export const showRules = (code: string) => setDisplay(code, { step: "rules" });
+
 /** The big screen ticks up to every point given so far: they become the totals shown. */
 export const updateScores = (code: string, board: Scoreboard | undefined) => {
   const now = Object.fromEntries(Object.entries(currentPoints(board)).filter(([, s]) => s && Object.keys(s).length));

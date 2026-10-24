@@ -1,13 +1,17 @@
 /**
  * The PDF from Print on Plan the party, built here (no library) so the Veteran Typewriter font goes in as it is:
  * plain black text on white Letter pages, 12 pt, nothing of the card's parchment, edges or seal. The check-in sign
- * for the door first; then a page per task, or per part of one, text centred down the page; then the secret tasks
- * as cards: eight to a sheet (2 × 4, to cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with
- * faint cut lines and no fold lines. Any of the three can be left out.
+ * and the Taskmaster rules for the door first (two pages, or one landscape page with the rules on the left); then a
+ * page per task, or per part of one, text centred down the page; then the secret tasks as cards: eight to a sheet
+ * (2 × 4, to cut) or four (2 × 2, to fold into envelopes), each headed SECRET TASK, with faint cut lines and no fold
+ * lines. Any of them can be left out.
  */
+
+import type { Rules } from "../rules";
 
 export type Page = { heading: string; paragraphs: string[] };
 export type SecretLayout = "cut" | "fold";
+interface Box { x: number; y: number; w: number; h: number }
 
 const PT = 72;
 const PAGE_W = 8.5 * PT;
@@ -16,6 +20,7 @@ const SIZE = 12;
 const LEADING = 1.35;
 const GAP = 1.1; // between paragraphs, in lines
 const MARGIN = 1 * PT;
+const FULL = { x: 0, y: 0, w: PAGE_W, h: PAGE_H };
 
 /** What the font gives the layout: advance widths (per 1000 em) for the characters a PDF text string can hold. */
 export interface Face {
@@ -242,39 +247,86 @@ export interface Sign { party?: string; modules: boolean[][]; fallback: string }
  * its dark squares, about 3¾ in) with "Contestants scan here", "Your time starts now." big, and the address and code
  * small at the bottom for a phone that can't scan.
  */
-function signPage(face: Face, sign: Sign): string {
+function signPage(face: Face, sign: Sign, box: Box = FULL, k = 1): string {
+  const mid = box.x + box.w / 2;
   const centred = (text: string, size: number, y: number, grey?: number): Placed => {
     const codes = codesOf(face, text);
-    return { x: (PAGE_W - widthOf(face, codes, size)) / 2, y, codes, size, grey };
+    return { x: mid - widthOf(face, codes, size) / 2, y, codes, size, grey };
   };
-  const side = 3.75 * PT, cell = side / sign.modules.length;
-  const qrTop = PAGE_H / 2 + 2.7 * PT, left = (PAGE_W - side) / 2;
+  const side = Math.min(3.75 * PT, box.w - 2 * PT), cell = side / sign.modules.length;
+  // The block, from the party's name to the no-camera line, centred down the box.
+  const above = (sign.party ? 0.55 * PT + 16 * 0.7 : 0) * k, below = side + 2.25 * PT * k;
+  const qrTop = box.y + box.h / 2 + (below - above) / 2, left = mid - side / 2;
   const squares: string[] = ["0 g"];
   sign.modules.forEach((row, r) => row.forEach((dark, c) => {
     if (dark) squares.push(`${num(left + c * cell)} ${num(qrTop - (r + 1) * cell)} ${num(cell)} ${num(cell)} re`);
   }));
   squares.push("f");
   const placed = [
-    ...(sign.party ? [centred(sign.party.toUpperCase(), 16, qrTop + 0.55 * PT)] : []),
-    centred("Contestants scan here", 16, qrTop - side - 0.35 * PT),
-    centred("Your time starts now.", 40, qrTop - side - 1.45 * PT),
-    centred(sign.fallback, 11, qrTop - side - 2.25 * PT, 0.27),
+    ...(sign.party ? [centred(sign.party.toUpperCase(), 16 * k, qrTop + 0.55 * PT * k)] : []),
+    centred("Contestants scan here", 16 * k, qrTop - side - 0.35 * PT * k),
+    centred("Your time starts now.", 40 * k, qrTop - side - 1.45 * PT * k),
+    centred(sign.fallback, Math.max(9, 11 * k), qrTop - side - 2.25 * PT * k, 0.27),
   ];
   return stream(placed, squares);
 }
 
-/**
- * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign (when there is one), a
- * page per entry of `pages`, then `secrets` as sheets in `layout`. Each starts on its own page.
- */
-export async function buildPrintPdf(face: Face, what: { sign?: Sign; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
-  const content = [...(what.sign ? [signPage(face, what.sign)] : []), ...taskPages(face, what.pages), ...secretSheets(face, what.secrets, what.layout)];
-  if (!content.length) throw new Error("Nothing to print");
-  return writePdf(face, content);
+/** A landscape Letter page: the rules on the left half, the check-in sign on the right, for one sheet by the door. */
+function signAndRulesPage(face: Face, sign: Sign, r: Rules): string {
+  const half = PAGE_H / 2;
+  return rulesPage(face, r, { x: 0, y: 0, w: half, h: PAGE_W }, 0.8, true) + "\n" + signPage(face, sign, { x: half, y: 0, w: half, h: PAGE_W }, 0.7);
 }
 
-/** The PDF file around `content`, a content stream a page, with the face embedded once as F1. */
-async function writePdf(face: Face, content: string[]): Promise<Uint8Array> {
+/**
+ * The Taskmaster rules: one Letter page for the door. TASKMASTER RULES big on top, the rules numbered with the
+ * number hanging in the margin, the last paragraph, and the sign-off on the right with room under it for a real wax
+ * seal (no seal is printed: a real one is in colour). Long rules are set a little smaller until they fit.
+ */
+function rulesPage(face: Face, r: Rules, box: Box = FULL, k = 1, centre = false): string {
+  const m = MARGIN * k, left = box.x + m, w = box.w - 2 * m, hang = 0.45 * PT * k;
+  for (let size = 18 * k; ; size -= 0.5) {
+    const lead = size * LEADING, gap = size * 0.9;
+    const placed: Placed[] = [];
+    const title = codesOf(face, "TASKMASTER RULES");
+    const tsize = 32 * k;
+    let y = box.y + box.h - m - tsize;
+    placed.push({ x: box.x + (box.w - widthOf(face, title, tsize)) / 2, y, codes: title, size: tsize });
+    y -= tsize * 1.6;
+    r.rules.forEach((rule, i) => {
+      placed.push({ x: left, y, codes: codesOf(face, `${i + 1}.`), size });
+      for (const codes of wrap(face, rule, size, w - hang)) { placed.push({ x: left + hang, y, codes, size }); y -= lead; }
+      y -= gap;
+    });
+    y -= gap;
+    for (const codes of wrap(face, r.last, size, w)) { placed.push({ x: left, y, codes, size }); y -= lead; }
+    // Room under the sign-off for a real wax seal (about 1¼ in), pressed on by hand: no seal is printed.
+    const sy = y - 0.7 * PT * k;
+    if (sy - 1.25 * PT < box.y + m && size > 8) continue;
+    const sign = codesOf(face, r.signOff.toUpperCase());
+    placed.push({ x: box.x + box.w - m - widthOf(face, sign, 22 * k), y: sy, codes: sign, size: 22 * k });
+    // Centred down the box beside the sign: the printed lines, from the title's top to the sign-off (the seal's room
+    // under it fits in the margin).
+    const drop = centre ? (box.y + box.h - m + sy) / 2 - (box.y + box.h / 2) : 0;
+    return stream(placed.map((t) => ({ ...t, y: t.y - drop })));
+  }
+}
+
+/**
+ * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign and the rules (when there
+ * are any; `together` puts both on one landscape page), a page per entry of `pages`, then `secrets` as sheets in
+ * `layout`. Each starts on its own page.
+ */
+export async function buildPrintPdf(face: Face, what: { sign?: Sign; rules?: Rules; together?: boolean; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
+  const together = what.together && what.sign && what.rules;
+  const door = together ? [signAndRulesPage(face, what.sign!, what.rules!)]
+    : [...(what.sign ? [signPage(face, what.sign)] : []), ...(what.rules ? [rulesPage(face, what.rules)] : [])];
+  const content = [...door, ...taskPages(face, what.pages), ...secretSheets(face, what.secrets, what.layout)];
+  if (!content.length) throw new Error("Nothing to print");
+  return writePdf(face, content, together ? 1 : 0);
+}
+
+/** The PDF file around `content`, a content stream a page (the first `landscape` of them turned sideways), with the face embedded once as F1. */
+async function writePdf(face: Face, content: string[], landscape = 0): Promise<Uint8Array> {
   const enc = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [];
@@ -299,7 +351,7 @@ async function writePdf(face: Face, content: string[]): Promise<Uint8Array> {
   obj(5, [`<< /Length ${font.length} /Length1 ${face.sfnt.length} /Filter /FlateDecode >>\nstream\n`, font, "\nendstream"]);
   content.forEach((c, i) => {
     const bytes = enc.encode(c);
-    obj(6 + i * 2, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${7 + i * 2} 0 R >>`);
+    obj(6 + i * 2, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${i < landscape ? PAGE_H : PAGE_W} ${i < landscape ? PAGE_W : PAGE_H}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${7 + i * 2} 0 R >>`);
     obj(7 + i * 2, [`<< /Length ${bytes.length} >>\nstream\n`, bytes, "\nendstream"]);
   });
   const count = 6 + content.length * 2;
