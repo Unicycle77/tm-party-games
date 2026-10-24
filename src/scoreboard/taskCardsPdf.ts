@@ -266,10 +266,10 @@ function signPage(face: Face, sign: Sign, box: Box = FULL, k = 1): string {
   return stream(placed, squares);
 }
 
-/** A landscape Letter page: the check-in sign on the left half, the rules on the right, for one sheet by the door. */
+/** A landscape Letter page: the rules on the left half, the check-in sign on the right, for one sheet by the door. */
 function signAndRulesPage(face: Face, sign: Sign, r: Rules): string {
   const half = PAGE_H / 2;
-  return signPage(face, sign, { x: 0, y: 0, w: half, h: PAGE_W }, 0.7) + "\n" + rulesPage(face, r, { x: half, y: 0, w: half, h: PAGE_W }, 0.8, true);
+  return rulesPage(face, r, { x: 0, y: 0, w: half, h: PAGE_W }, 0.8, true) + "\n" + signPage(face, sign, { x: half, y: 0, w: half, h: PAGE_W }, 0.7);
 }
 
 export interface Rules { rules: string[]; last: string; signOff: string }
