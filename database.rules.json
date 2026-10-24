@@ -487,11 +487,13 @@
               "transitionVideo": { ".validate": "newData.isString() && newData.val().length <= 300" },
               "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
               "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+              "limit": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 59999000" },
               "parts": {
                 "$i": {
                   ".validate": "$i.matches(/^[0-9]$/)",
                   "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
                   "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+                  "limit": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 59999000" },
                       "$other": { ".validate": false }
                 }
               },
@@ -527,11 +529,13 @@
             "song": { ".validate": "newData.isString() && newData.val().length <= 300" },
             "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
             "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+            "limit": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 59999000" },
             "parts": {
               "$i": {
                 ".validate": "$i.matches(/^[0-9]$/)",
                 "type": { ".validate": "newData.isString() && newData.val().length <= 30" },
                 "text": { ".validate": "newData.isString() && newData.val().length <= 5000" },
+                "limit": { ".validate": "newData.isNumber() && newData.val() >= 1000 && newData.val() <= 59999000" },
                 "$other": { ".validate": false }
             }
             },

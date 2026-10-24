@@ -38,6 +38,9 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
 | `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |
 | `clock-host-task.jpg` | The task page while the clock counts: the clock strip under "On the big screen", and the ⏸ beside it (2026-10-21) |
+| `time-limit-host-edit.jpg` | Dice tower's ✎ with Task text open: "Time limit (optional)" under each part, 4 min set on part 1 ("⏱ offers 4 min for part 1."), part 2 empty with its words' 2 min greyed ("Empty, so ⏱ reads it from the words…") (2026-10-24) |
+| `time-limit-host-summary.jpg` | The same ✎ with Task text closed: "Task text · 2 parts · INDIVIDUAL, TEAM · ⏱ 4 min, 2 min" (2026-10-24) |
+| `time-limit-host-clock.jpg` | ⏱ set from it: "4 min · part 1" (set in ✎, no quote) and "2 min · part 2, “You have 2 minutes.”" from the words (2026-10-24) |
 | `clock-host-stopwatch.jpg` | The stopwatch: contestant chips (Alex timed, Greg going), "Times go into task 7, Five socks · lowest wins", the face with tenths (2026-10-21) |
 | `clock-host-flipchart.jpg` | ⏱ while Flipchart's clock runs: the one clock in the party, read-only, "Run it from the task" (2026-10-21) |
 | `clock-main-countdown.jpg` | The big screen with the clock shown: the show's clock alone, over whatever was up (2026-10-21) |

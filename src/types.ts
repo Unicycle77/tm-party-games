@@ -308,7 +308,12 @@ export interface ScoreboardContestant {
 }
 
 /** One more part of a task's words after the first: its own type (so its own heading) and the text the host reads out. */
-export interface TaskPart { type?: string; text: string }
+export interface TaskPart {
+  type?: string;
+  text: string;
+  /** The part's time limit in ms, set in its ✎: the ⏱ clock offers it instead of any time its words give. */
+  limit?: number;
+}
 
 /** A task on the party's scoreboard: a live task the host names, or an app game. Never tied to a game's own data. */
 export interface ScoreboardTask {
@@ -333,6 +338,8 @@ export interface ScoreboardTask {
   text?: string;
   /** Parts 2, 3… of the words, each with its own type. `type` and `text` above are part 1. Only live tasks and the tiebreaker have them; only the host remote ever says "part". */
   parts?: TaskPart[];
+  /** Part 1's time limit in ms (see `TaskPart.limit`). */
+  limit?: number;
   /**
    * Points by contestant id: what counts, worked out from `given`, `results` and `dq` by `workOut`, plus any `bonus`, and
    * saved with them. A contestant with none gets nothing for this task.
@@ -433,7 +440,7 @@ export interface Scoreboard {
    * host turns it off in Plan the party (false); the photos themselves are never changed.
    */
   pixelate?: false;
-  tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; parts?: TaskPart[]; winner?: string };
+  tiebreaker?: { name?: string; description?: string; song?: string; type?: string; text?: string; limit?: number; parts?: TaskPart[]; winner?: string };
 }
 
 export interface Session {

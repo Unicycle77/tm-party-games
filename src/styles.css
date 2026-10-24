@@ -1237,9 +1237,12 @@ button.help-q:active { transform: none; box-shadow: none; }
 .converter .choices.units button { flex-basis: 3rem; white-space: nowrap; }
 .converter .choices.units button.thing { flex-basis: 100%; }
 .converter .find-thing { display: grid; gap: 0.5rem; }
-.converter .feet-in { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 0.8rem; }
-.converter .feet-in > span { grid-column: 1 / -1; color: var(--muted); }
-.converter .feet-in label { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: center; }
+.converter .feet-in, .time-limit { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem 0.8rem; }
+.converter .feet-in > span, .time-limit > span { grid-column: 1 / -1; color: var(--muted); }
+.converter .feet-in label, .time-limit label { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: center; }
+/* a part's time limit in ✎: labelled like the task text above it, its line under both boxes */
+.time-limit > span { color: inherit; }
+.time-limit > p { grid-column: 1 / -1; margin: 0; }
 .slot.conversion p { margin: 0; color: #6b5a44; }
 .slot.conversion .lead { font-family: var(--typewriter); color: #1f1a14; font-size: 1.05rem; }
 .slot.conversion .main { font-family: var(--typewriter); color: var(--burgundy); font-size: 2rem; line-height: 1.1; }

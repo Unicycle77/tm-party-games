@@ -19,10 +19,13 @@ const obj = (v: unknown): v is Record<string, unknown> => typeof v === "object" 
 /** A string at most `max` long (what the database rules allow), or nothing. */
 const str = (v: unknown, max: number) => typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined;
 
-/** The parts after a task's first: each with text, and its type if it has one, at most as many as the database rules allow. */
+/** A time limit in ms the database rules allow (a second to 999:59), else none. */
+const limit = (v: unknown) => typeof v === "number" && v >= 1000 && v <= 59_999_000 ? Math.round(v) : undefined;
+
+/** The parts after a task's first: each with text, and its type and time limit if it has them, at most as many as the database rules allow. */
 const MAX_PARTS = 9;
 const partsOf = (v: unknown): TaskPart[] => Array.isArray(v)
-  ? v.filter(obj).flatMap((p) => str(p.text, 5000) ? [{ ...(str(p.type, 30) && { type: str(p.type, 30) }), text: str(p.text, 5000)! }] : []).slice(0, MAX_PARTS)
+  ? v.filter(obj).flatMap((p) => str(p.text, 5000) ? [{ ...(str(p.type, 30) && { type: str(p.type, 30) }), text: str(p.text, 5000)!, ...(limit(p.limit) && { limit: limit(p.limit) }) }] : []).slice(0, MAX_PARTS)
   : [];
 
 /** The words a task or the tiebreaker carries, kept to the lengths the database rules allow. */
@@ -31,6 +34,7 @@ function wordsOf(raw: Record<string, unknown>) {
     ...(str(raw.name, 80) && { name: str(raw.name, 80) }),
     ...(str(raw.type, 30) && { type: str(raw.type, 30) }),
     ...(str(raw.text, 5000) && { text: str(raw.text, 5000) }),
+    ...(limit(raw.limit) && { limit: limit(raw.limit) }),
     ...(partsOf(raw.parts).length > 0 && { parts: partsOf(raw.parts) }),
     ...(str(raw.note, 600) && { note: str(raw.note, 600) }),
     ...(str(raw.song, 300) && { song: str(raw.song, 300) }),
@@ -110,9 +114,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "parts", "description", "song", "transition", "transitionImage", "transitionVideo", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
+const FIELDS = ["name", "game", "type", "text", "limit", "parts", "description", "song", "transition", "transitionImage", "transitionVideo", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, parts: t.parts, description: t.note, song: t.song, transition: t.transition, transitionImage: t.transitionImage, transitionVideo: t.transitionVideo, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
+  name: t.name, game: t.game, type: t.type, text: t.text, limit: t.limit, parts: t.parts, description: t.note, song: t.song, transition: t.transition, transitionImage: t.transitionImage, transitionVideo: t.transitionVideo, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
@@ -185,6 +189,7 @@ export function importWrites(setup: Setup, session: Session, secret: SecretTasks
     board["tiebreaker/song"] = tb.song ?? null;
     board["tiebreaker/type"] = tb.type ?? null;
     board["tiebreaker/text"] = tb.text ?? null;
+    board["tiebreaker/limit"] = tb.limit ?? null;
     board["tiebreaker/parts"] = tb.parts ?? null;
   }
   const light = setup.light && { trigger: setup.light.trigger ?? null, mode: setup.light.mode ?? null };
