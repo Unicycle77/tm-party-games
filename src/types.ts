@@ -11,7 +11,7 @@ export type TaskGame = GameId | "light";
  * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on. Nor does "tasktext":
  * a task's text on the paper task card (`task` says which).
  */
-export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits";
+export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "rules" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits";
 
 export interface Display {
   uid?: string;

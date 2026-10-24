@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { TaskCard } from "../TaskCard";
+import { FitStage } from "./TaskText";
 
 /** What a new party starts with. */
 export const STANDARD_RULES = [
@@ -49,5 +51,21 @@ export function RulesSetup() {
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * The rules on the big screen: the task card on the curtain, TASKMASTER RULES centred on top, the rules numbered
+ * with the number hanging, the last paragraph, and the sign-off on the right with the TM seal under it.
+ */
+export function RulesStage({ rules = STANDARD_RULES, last = STANDARD_LAST, signOff = STANDARD_SIGN_OFF }: { rules?: string[]; last?: string; signOff?: string }) {
+  return (
+    <FitStage fitKey={[...rules, last, signOff].join("\n")} className="rules-stage">
+      <TaskCard lines={["Taskmaster rules"]} centred>
+        <ol>{rules.map((r, i) => <li key={i}>{r}</li>)}</ol>
+        {last && <p>{last}</p>}
+        {signOff && <p className="sign-off">{signOff}</p>}
+      </TaskCard>
+    </FitStage>
   );
 }

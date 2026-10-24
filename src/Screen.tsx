@@ -18,6 +18,7 @@ import type { Player, Session } from "./types";
 import { stingFiles } from "./sting";
 import { lightOf } from "./light/data";
 import { StingStage } from "./StingStage";
+import { RulesStage } from "./scoreboard/RulesSetup";
 import { stingPictureUrl } from "./stingPictures";
 
 /** What a screen shows for a session: the active game's stage, or the lobby. */
@@ -70,6 +71,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   // And a task's text, when the host puts it up.
   const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task, display.part) : undefined;
   if (words) return <TaskTextStage {...words} />;
+  // Draft: the party's Taskmaster rules (the standard ones until they're saved).
+  if (display.step === "rules") return <RulesStage />;
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");
