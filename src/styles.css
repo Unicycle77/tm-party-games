@@ -1374,6 +1374,8 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .line-chip .party-line { text-align: left; }
 .line-chip-button { flex: none; padding: 0.3rem 0.65rem; font-size: 0.85rem; line-height: 1.2; }
 .line-chip-button.under { justify-self: start; margin-top: -0.4rem; }
+/* side-by-side line chips under their line ("Show scores", "Show rules") */
+.line-chips.under { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-self: start; margin-top: -0.4rem; }
 .list-label { margin: 0.4rem 0 0; font-family: var(--typewriter); color: var(--gold); font-size: 1.1rem; }
 .run-list .row-line { display: grid; grid-template-columns: 1.6rem 1fr auto; gap: 0.6rem; align-items: baseline; padding: 0.65rem 0.2rem; font-family: var(--typewriter); color: var(--fg); }
 .run-list li.done .row-line { color: var(--muted); }

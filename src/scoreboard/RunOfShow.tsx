@@ -74,8 +74,12 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
         <JoinQr code={code} session={session} />
       </div>
-      <OnScreen code={code} session={session} chip={!up && !haulUp && !winner
-        ? <button className="line-chip-button under" onClick={() => void showScoreboard(code)}>Show scores</button> : undefined} />
+      <OnScreen code={code} session={session} chip={
+        <div className="line-chips under">
+          {!up && !haulUp && !winner && <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button>}
+          {/* Draft: not wired yet. */}
+          <button className="line-chip-button" onClick={() => undefined}>Show rules</button>
+        </div>} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
       {!haulUp && unscored.length > 0 && (final ? (
