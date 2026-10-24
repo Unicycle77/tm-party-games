@@ -263,12 +263,55 @@ function signPage(face: Face, sign: Sign): string {
   return stream(placed, squares);
 }
 
+export interface Rules { rules: string[]; last: string; signOff: string }
+
+/**
+ * The Taskmaster rules: one Letter page for the door. TASKMASTER RULES big on top, the rules numbered with the
+ * number hanging in the margin, the last paragraph, and the sign-off on the right beside the TM seal drawn as an
+ * outlined stamp (a ring and TM, no fill, so it costs no ink). Long rules are set a little smaller until they fit.
+ */
+export function rulesPage(face: Face, r: Rules): string {
+  const left = MARGIN, w = PAGE_W - 2 * MARGIN, hang = 0.45 * PT;
+  for (let size = 18; ; size -= 0.5) {
+    const lead = size * LEADING, gap = size * 0.9;
+    const placed: Placed[] = [];
+    const title = codesOf(face, "TASKMASTER RULES");
+    let y = PAGE_H - MARGIN - 32;
+    placed.push({ x: (PAGE_W - widthOf(face, title, 32)) / 2, y, codes: title, size: 32 });
+    y -= 32 * 1.6;
+    r.rules.forEach((rule, i) => {
+      placed.push({ x: left, y, codes: codesOf(face, `${i + 1}.`), size });
+      for (const codes of wrap(face, rule, size, w - hang)) { placed.push({ x: left + hang, y, codes, size }); y -= lead; }
+      y -= gap;
+    });
+    y -= gap;
+    for (const codes of wrap(face, r.last, size, w)) { placed.push({ x: left, y, codes, size }); y -= lead; }
+    const seal = 0.42 * PT;
+    const sy = y - 1.1 * PT;
+    if (sy - seal < MARGIN && size > 9) continue;
+    const sign = codesOf(face, r.signOff.toUpperCase());
+    const cx = PAGE_W - MARGIN - seal;
+    placed.push({ x: cx - seal - 0.2 * PT - widthOf(face, sign, 22), y: sy - 8, codes: sign, size: 22 });
+    const tm = codesOf(face, "TM");
+    placed.push({ x: cx - widthOf(face, tm, 20) / 2, y: sy - 7, codes: tm, size: 20 });
+    // the seal: a ring drawn as four Bézier quarters
+    const k = 0.5523 * seal, c = (n: number) => num(n);
+    const ring = ["0 G", "2 w",
+      `${c(cx + seal)} ${c(sy)} m`,
+      `${c(cx + seal)} ${c(sy + k)} ${c(cx + k)} ${c(sy + seal)} ${c(cx)} ${c(sy + seal)} c`,
+      `${c(cx - k)} ${c(sy + seal)} ${c(cx - seal)} ${c(sy + k)} ${c(cx - seal)} ${c(sy)} c`,
+      `${c(cx - seal)} ${c(sy - k)} ${c(cx - k)} ${c(sy - seal)} ${c(cx)} ${c(sy - seal)} c`,
+      `${c(cx + k)} ${c(sy - seal)} ${c(cx + seal)} ${c(sy - k)} ${c(cx + seal)} ${c(sy)} c`, "S"];
+    return stream(placed, ring);
+  }
+}
+
 /**
  * The one PDF from Print on Plan the party, in the order it lists them: the check-in sign (when there is one), a
  * page per entry of `pages`, then `secrets` as sheets in `layout`. Each starts on its own page.
  */
-export async function buildPrintPdf(face: Face, what: { sign?: Sign; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
-  const content = [...(what.sign ? [signPage(face, what.sign)] : []), ...taskPages(face, what.pages), ...secretSheets(face, what.secrets, what.layout)];
+export async function buildPrintPdf(face: Face, what: { sign?: Sign; rules?: Rules; pages: Page[]; secrets: string[]; layout: SecretLayout }): Promise<Uint8Array> {
+  const content = [...(what.sign ? [signPage(face, what.sign)] : []), ...(what.rules ? [rulesPage(face, what.rules)] : []), ...taskPages(face, what.pages), ...secretSheets(face, what.secrets, what.layout)];
   if (!content.length) throw new Error("Nothing to print");
   return writePdf(face, content);
 }
