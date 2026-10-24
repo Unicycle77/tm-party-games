@@ -58,6 +58,8 @@ ok("ready: camera off while the light is off", await until(async () => (await re
 // 5. On, and a flash: the lamp goes red, the 💡 pulses, the main screen still shows nothing
 await phone.getByRole("switch").click();
 ok("on: armed", await until(async () => (await read("light/armed")) === true));
+// The camera starting up again holds the page for a while (loading the models), so flash once it's watching.
+ok("on: camera watching", await until(async () => (await read("light/camera"))?.people !== undefined, 45000));
 const mark = (await p.evaluate(() => window.t.hueLog.length));
 await p.evaluate(() => window.t.flash());
 ok("flash: 💡 pulses", await until(async () => (await phone.locator(".head-icon.flash").count()) === 1, 3000));
@@ -65,6 +67,24 @@ ok("flash: lamp on in red", await until(async () => (await p.evaluate(() => wind
 // (Generous: the camera starting up again can hold the page for a few seconds.)
 ok("flash: pulse ends", await until(async () => (await phone.locator(".head-icon.flash").count()) === 0, 10000));
 ok("flash: nothing visible on the main screen", await p.locator("#tv").evaluate((el) => [...el.querySelectorAll("*")].every((e) => e.matches("video.light-camera"))));
+
+// 5b. The lamp drops mid-game: the alert dot, the line saying what to do, and its link to the lamp step, with no test while it's on
+await p.evaluate(() => window.t.bridgeDown(true));
+await p.waitForTimeout(600);
+await p.evaluate(() => window.t.flash());
+ok("lamp down: 💡 alert dot", await until(async () => (await phone.locator(".head-icon.alert").count()) === 1, 8000));
+ok("lamp down: says what to do", await phone.getByText(/The Hue lamp isn't responding: couldn't reach the bridge\. Check the lamp/).isVisible());
+await p.waitForTimeout(1500);
+ok("lamp down: still says so once the flash is over", await phone.getByText(/The Hue lamp isn't responding/).isVisible());
+await phone.getByRole("button", { name: "fix it here" }).click();
+ok("lamp down: opens on the lamp step", await until(async () => (await phone.getByRole("button", { name: "Living room (red)" }).count()) === 1));
+ok("lamp down: no test while the light is on", (await phone.getByRole("button", { name: "Flash the lamp" }).count()) === 0
+  && await phone.getByText(/Switch the light off to test the lamp/).isVisible());
+await p.evaluate(() => window.t.bridgeDown(false));
+await phone.getByRole("button", { name: "Done: the light is ready" }).click();
+ok("lamp down: back to the evening page", await until(async () => !(await read("light/setup"))));
+ok("lamp back: asked again, the alert goes", await until(async () => (await phone.locator(".head-icon.alert").count()) === 0
+  && (await phone.getByText(/The Hue lamp isn't responding/).count()) === 0, 8000));
 
 // 6. Stopped from party settings: the main screen lets go and doesn't take it back
 await p.evaluate(() => window.t.stop());

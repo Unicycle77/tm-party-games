@@ -314,4 +314,6 @@ The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`,
 | `light-host-lamp.jpg` | The lamp step: the bridge at 192.168.1.50, Living room picked of three lamps, gold "Flash the lamp", paper "Done: the light is ready" (2026-10-24) |
 | `light-host-ready.jpg` | Ready: the "Light on" switch (off), "Off. The camera isn't watching.", "Ready on the big screen's computer: Logitech C920 · Hue lamp: Living room · Set up", the secret and Got it (2026-10-24) |
 | `light-host-flash.jpg` | The host's header during a flash: 💡 filled and glowing red for the second the lamp is on (2026-10-24) |
+| `light-host-trouble.jpg` | The lamp dropped mid-game, light on: 💡 with the alert dot, "The Hue lamp isn't responding: couldn't reach the bridge. Check the lamp is switched on at the wall, then fix it here.", Sam 1st and Priya 2nd still on Got it (2026-10-24) |
+| `light-host-trouble-fix.jpg` | "fix it here" opened: the lamp step with "○ Hue lamp: Living room, not responding", "Switch the light off to test the lamp…" instead of Flash the lamp, and the bridge's error (2026-10-24) |
 | `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |

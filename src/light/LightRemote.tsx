@@ -8,7 +8,7 @@ import {
   DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, markGot, modeOf, moveGot, releaseLight, setArmed,
   setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot,
 } from "./data";
-import { ReadyLine, StageSetup } from "./StageSetup";
+import { ReadyLine, type SetupStep, StageSetup, TroubleLine } from "./StageSetup";
 import { MODES, TRIGGERS } from "./triggers";
 
 /**
@@ -44,13 +44,16 @@ export function LightRemote({ code, session }: { code: string; session: Session 
   const [changing, setChanging] = useState(false);
 
   const onStage = light.onStage === true;
+  // Which part of the big screen's checklist opens: the camera, or straight to the lamp to fix it.
+  const [setupStep, setSetupStep] = useState<SetupStep>("camera");
+  const openSetup = (step: SetupStep) => { setSetupStep(step); void setSetup(code, true); };
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");
   // Started on the big screen, with the phone's checklist open: just the checklist.
   if (running && onStage && light.setup) {
     return (
       <section className="remote light-remote">
         <h2>💡 The light</h2>
-        <StageSetup code={code} session={session} />
+        <StageSetup code={code} session={session} start={setupStep} />
       </section>
     );
   }
@@ -79,7 +82,8 @@ export function LightRemote({ code, session }: { code: string; session: Session 
             <Toggle label="Light on" on={armed} onChange={(on) => void setArmed(code, on)} />
           </div>
           <p>{cameraText(session)}</p>
-          {onStage && <ReadyLine session={session} onSetUp={() => void setSetup(code, true)} />}
+          {onStage && <TroubleLine session={session} onFix={openSetup} />}
+          {onStage && <ReadyLine session={session} onSetUp={() => openSetup("camera")} />}
         </>
       )}
 

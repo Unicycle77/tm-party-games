@@ -32,8 +32,9 @@ export function StageLight({ code, session }: { code: string; session: Session }
 function Running({ code, session }: { code: string; session: Session }) {
   const light = lightOf(session);
   const [hue, setHue] = useState<HueConfig | undefined>(loadHue);
-  const { armed, hueError, onTrigger } = useLightDriver(code, light, hue);
   const setup = light.setup === true;
+  // Each time the phone opens the checklist (to fix the lamp, say), the lamps are asked again.
+  const { armed, hueError, onTrigger } = useLightDriver(code, light, hue, setup);
   // Off means the camera is off too; it runs only while the light is on, or while the phone sets it up.
   const cameraOn = armed || setup;
   useEffect(() => { if (!cameraOn) void setCamera(code, { off: true }).catch(() => {}); }, [cameraOn, code]);

@@ -12,7 +12,7 @@ import { useHueLamps } from "./HueSetup";
  * (unless it's off). `onTrigger` is for the camera. If the page closes, the host phone stops showing what
  * the camera saw.
  */
-export function useLightDriver(code: string, light: LightState, hue: HueConfig | undefined) {
+export function useLightDriver(code: string, light: LightState, hue: HueConfig | undefined, recheck?: unknown) {
   const armed = isArmed(light);
   const mode = modeOf(light);
   // One secret: the red bulb. All at once: a bulb per trigger, in its colour.
@@ -26,7 +26,7 @@ export function useLightDriver(code: string, light: LightState, hue: HueConfig |
   const lampColour = flash === ONE ? RED
     : spinBulb !== undefined ? mode?.bulbs[spinBulb]?.colour
     : mode?.bulbs.find((b) => b.trigger.id === flash)?.colour;
-  const hueError = useHueLamps(hue, lampColour);
+  const hueError = useHueLamps(hue, lampColour, recheck);
 
   // Each time someone does a trigger, its light goes on a little later (unless it's off).
   const armedNow = useRef(armed);
