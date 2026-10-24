@@ -251,7 +251,9 @@ function signPage(face: Face, sign: Sign, box: Box = FULL, k = 1): string {
     return { x: mid - widthOf(face, codes, size) / 2, y, codes, size, grey };
   };
   const side = Math.min(3.75 * PT, box.w - 2 * PT), cell = side / sign.modules.length;
-  const qrTop = box.y + box.h / 2 + 2.7 * PT * k + (3.75 * PT - side) / 2 * k, left = mid - side / 2;
+  // The block, from the party's name to the no-camera line, centred down the box.
+  const above = (sign.party ? 0.55 * PT + 16 * 0.7 : 0) * k, below = side + 2.25 * PT * k;
+  const qrTop = box.y + box.h / 2 + (below - above) / 2, left = mid - side / 2;
   const squares: string[] = ["0 g"];
   sign.modules.forEach((row, r) => row.forEach((dark, c) => {
     if (dark) squares.push(`${num(left + c * cell)} ${num(qrTop - (r + 1) * cell)} ${num(cell)} ${num(cell)} re`);
@@ -301,8 +303,9 @@ export function rulesPage(face: Face, r: Rules, box: Box = FULL, k = 1, centre =
     if (sy - 1.25 * PT < box.y + m && size > 8) continue;
     const sign = codesOf(face, r.signOff.toUpperCase());
     placed.push({ x: box.x + box.w - m - widthOf(face, sign, 22 * k), y: sy, codes: sign, size: 22 * k });
-    // Centred down the box (beside the sign), counting the seal's room as part of the block.
-    const drop = centre ? (sy - 1.25 * PT - (box.y + m)) / 2 : 0;
+    // Centred down the box beside the sign: the printed lines, from the title's top to the sign-off (the seal's room
+    // under it fits in the margin).
+    const drop = centre ? (box.y + box.h - m + sy) / 2 - (box.y + box.h / 2) : 0;
     return stream(placed.map((t) => ({ ...t, y: t.y - drop })));
   }
 }
