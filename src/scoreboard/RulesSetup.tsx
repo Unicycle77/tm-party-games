@@ -55,17 +55,24 @@ export function RulesSetup() {
 }
 
 /**
- * The rules on the big screen: the task card on the curtain, TASKMASTER RULES centred on top, the rules numbered
- * with the number hanging, the last paragraph, and the sign-off on the right with the TM seal under it.
+ * The rules on paper: the task card with TASKMASTER RULES centred on top, the rules numbered with the number
+ * hanging, the last paragraph, and the sign-off on the right with the TM seal under it. `small` on a phone.
  */
-export function RulesStage({ rules = STANDARD_RULES, last = STANDARD_LAST, signOff = STANDARD_SIGN_OFF }: { rules?: string[]; last?: string; signOff?: string }) {
+export function RulesCard({ rules = STANDARD_RULES, last = STANDARD_LAST, signOff = STANDARD_SIGN_OFF, small = false }: { rules?: string[]; last?: string; signOff?: string; small?: boolean }) {
   return (
-    <FitStage fitKey={[...rules, last, signOff].join("\n")} className="rules-stage">
-      <TaskCard lines={["Taskmaster rules"]} centred>
-        <ol>{rules.map((r, i) => <li key={i}>{r}</li>)}</ol>
-        {last && <p>{last}</p>}
-        {signOff && <p className="sign-off">{signOff}</p>}
-      </TaskCard>
+    <TaskCard lines={["Taskmaster rules"]} centred small={small} className="rules">
+      <ol>{rules.map((r, i) => <li key={i}>{r}</li>)}</ol>
+      {last && <p>{last}</p>}
+      {signOff && <p className="sign-off">{signOff}</p>}
+    </TaskCard>
+  );
+}
+
+/** The rules on the big screen: the card on the curtain, shrunk to fit like a task's text. */
+export function RulesStage() {
+  return (
+    <FitStage fitKey={[...STANDARD_RULES, STANDARD_LAST, STANDARD_SIGN_OFF].join("\n")}>
+      <RulesCard />
     </FitStage>
   );
 }

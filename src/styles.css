@@ -1510,9 +1510,11 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .rules-setup input { font: inherit; padding: 0.6rem 0.7rem; border-radius: 6px; border: 2px solid var(--gold-dark); background: var(--paper); color: var(--ink); }
 .rules-setup .sb-task-text .link { justify-self: start; }
 /* the rules on the big screen: numbers hang, the sign-off sits right over the seal */
-.rules-stage .task-card .task-label { font-size: 1.4em; letter-spacing: 0.04em; }
-.rules-stage .task-card ol { margin: 0 0 1em; padding-left: 2.2em; }
-.rules-stage .task-card li { margin: 0 0 0.45em; padding-left: 0.3em; }
-.rules-stage .task-card .sign-off { align-self: flex-end; margin: 0; }
-.rules-stage .task-card { display: flex; flex-direction: column; padding-bottom: 5vh; }
-.rules-stage .task-card .wax-seal { position: static; order: 1; align-self: flex-end; flex: none; margin-top: 1.5vh; }
+.task-card.rules .task-label { font-size: 1.4em; letter-spacing: 0.04em; }
+.task-card.rules ol { margin: 0 0 1em; padding-left: 2.2em; }
+.task-card.rules li { margin: 0 0 0.45em; padding-left: 0.3em; }
+.task-card.rules .sign-off { align-self: flex-end; margin: 0; }
+.task-card.rules { display: flex; flex-direction: column; padding-bottom: 5vh; }
+.task-card.rules .wax-seal { position: static; order: 1; align-self: flex-end; flex: none; margin-top: 1.5vh; }
+.task-card.small.rules { padding-bottom: 1.3rem; }
+.task-card.small.rules .wax-seal { margin-top: 0.6rem; }

@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { activeGame } from "./games";
 import { presentedOf, prizePhotos, prizePlanned } from "./games/prize/data";
 import { PrizeArea } from "./games/prize/PlayerView";
+import { RulesCard } from "./scoreboard/RulesSetup";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
 import { TaskTextCard } from "./scoreboard/TaskText";
@@ -21,7 +22,7 @@ const CHECKIN_KEY = "ba.checkin";
 /** "Not now" to the prize question, per party: the prize is then an optional row. */
 const LATER_KEY = "ba.prizeLater";
 
-interface CheckIn { code: string; confirmed: boolean; headshot: boolean; envelope: boolean }
+interface CheckIn { code: string; confirmed: boolean; rules?: boolean; headshot: boolean; envelope: boolean }
 function readCheckIn(code: string): CheckIn | undefined {
   try {
     const c = JSON.parse(store.get(CHECKIN_KEY) || "null") as CheckIn | null;
@@ -94,7 +95,8 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   useEffect(() => { setOpen(undefined); setJustIn(false); }, [session.game]);
 
   const needsHeadshot = !!guest && !guest[1].photo;
-  const checkingIn = !!checkin && (needsHeadshot || (checkin.envelope && typeof task !== "string"));
+  const rulesToDo = !!checkin?.rules;
+  const checkingIn = !!checkin && (rulesToDo || needsHeadshot || (checkin.envelope && typeof task !== "string"));
   // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
   useEffect(() => {
     if (checkin || !needsHeadshot) return;
@@ -115,15 +117,16 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   // What takes the card: a check-in step, photos being sent, a row the guest opened, the task that's on, then the to-dos in order.
   const showPrize = !checkingIn && (prizeBusy || open === "prize" || (!game && !open && !envelopeToDo && prizeAsk));
-  const showEnvelope = checkingIn ? !needsHeadshot : !prizeBusy && open === "envelope";
+  const showEnvelope = checkingIn ? !rulesToDo && !needsHeadshot : !prizeBusy && open === "envelope";
   const envelopeCard = !checkingIn && !prizeBusy && !open && !game && envelopeToDo;
   const showGame = !!game && !checkingIn && !prizeBusy && !open;
   const watching = !id && !!me.notPlaying;
   const waiting = !game && !checkingIn && !showPrize && !showEnvelope && !envelopeCard;
 
   const partyLine = `${session.name ?? "Party"} · ${code}`;
-  const steps = checkin ? Number(checkin.confirmed) + Number(checkin.headshot) + Number(checkin.envelope) : 0;
-  const step = needsHeadshot ? Number(!!checkin?.confirmed) + 1 : steps;
+  const rulesStep = checkin && "rules" in checkin ? 1 : 0;
+  const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) : 0;
+  const step = rulesToDo ? Number(!!checkin?.confirmed) + 1 : needsHeadshot ? Number(!!checkin?.confirmed) + rulesStep + 1 : steps;
   const now = (line: string) => justIn ? `You're in! ${line}` : line;
 
   const phoneWords = phoneWordsOf(session);
@@ -171,7 +174,13 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
         {status}
         {/* The same paper task card as on the host's phone: its own heading, the words as written, no name. */}
         {phoneWords && !checkingIn && <TaskTextCard key="phone-words" type={phoneWords.type} text={phoneWords.text} />}
-        {checkingIn && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
+        {checkingIn && rulesToDo && (
+          <>
+            <RulesCard small />
+            <button className="big" onClick={() => { const c = { ...checkin!, rules: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
+          </>
+        )}
+        {checkingIn && !rulesToDo && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
         {/* Kept mounted while a row is open, so a photo on its way up isn't dropped. */}
         {game && !watching && (
           <div key="game" className="game-slot" hidden={!showGame}>
@@ -246,7 +255,8 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       const c = await joinAsContestant(code, id);
       store.set(NAME_KEY, guestName);
       // This guest's own steps, counted once: "You're Sam?" (just done), the headshot if none is on file, the envelope if Secret Tasks is planned.
-      saveCheckIn({ code: c, confirmed: true, headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party) });
+      // Draft: every party has the standard rules until they're saved per party.
+      saveCheckIn({ code: c, confirmed: true, rules: true, headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party) });
       onJoined(c);
     } catch (err) {
       // Checked in on another phone: maybe theirs, so ask the host to move them here.
