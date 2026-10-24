@@ -1,19 +1,21 @@
 import { useState } from "react";
 import type { Session } from "../types";
-import { askStage, lightOf, setSetup } from "./data";
+import { askStage, isArmed, lightOf, setSetup } from "./data";
+
+export type SetupStep = "camera" | "lamp";
 
 /**
  * The host phone's checklist for the light running on the big screen: the camera (which one, and the heads
  * it finds, drawn on an empty frame: the picture never leaves that computer), then the Hue lamp (which lamps,
- * and a test flash). The camera and the bridge's key are kept in the big screen's browser, so each change is
+ * and a test flash, only while the light is off). The camera and the bridge's key are kept in the big screen's browser, so each change is
  * asked of it (see `askStage`). Nothing shows on the TV.
  */
-export function StageSetup({ code, session }: { code: string; session: Session }) {
+export function StageSetup({ code, session, start = "camera" }: { code: string; session: Session; start?: SetupStep }) {
   const light = lightOf(session);
   const stage = light.stage ?? {};
   const camera = light.camera;
   const hue = stage.hue ?? {};
-  const [step, setStep] = useState<"camera" | "lamp">("camera");
+  const [step, setStep] = useState<SetupStep>(start);
   const [host, setHost] = useState("");
 
   const cameraOk = !!camera && !camera.error && !camera.starting && !camera.off && camera.people !== undefined;
@@ -30,7 +32,9 @@ export function StageSetup({ code, session }: { code: string; session: Session }
           {cameraOk ? "✓" : "○"} Camera: {camera?.error ?? (cameraOk ? `${label ?? "on"}, sees ${people} ${people === 1 ? "person" : "people"}` : "starting…")}
           {step === "lamp" && <button className="link" onClick={() => setStep("camera")}>Change</button>}
         </li>
-        <li className={lampNames ? "done" : "todo"}>{lampNames ? `✓ Hue lamp: ${lampNames}` : "○ Hue lamp"}</li>
+        <li className={lampNames && !hue.error ? "done" : lampNames ? "failed" : "todo"}>
+          {!lampNames ? "○ Hue lamp" : hue.error ? `○ Hue lamp: ${lampNames}, not responding` : `✓ Hue lamp: ${lampNames}`}
+        </li>
       </ul>
 
       {step === "camera" ? (
@@ -75,9 +79,16 @@ export function StageSetup({ code, session }: { code: string; session: Session }
                 onClick={() => void askStage(code, "lamp", l.id)}>{l.name}{l.color ? " (red)" : ""}</button>
             ))}
           </div>
-          <button className="big" disabled={!chosen.length || !!hue.busy} onClick={() => void askStage(code, "test")}>{hue.busy ?? "Flash the lamp"}</button>
-          <p className="muted small">Flashes the lamp for a second, then puts it back as it was. Nothing shows on the TV.</p>
-          {hue.error && <p className="hue-error">{hue.error}</p>}
+          {/* No test while the light is on: a flash in front of the guests would look like a clue. */}
+          {isArmed(light) ? (
+            <p className="muted small">Switch the light off to test the lamp: a flash now would look like a clue.</p>
+          ) : (
+            <>
+              <button className="big" disabled={!chosen.length || !!hue.busy} onClick={() => void askStage(code, "test")}>{hue.busy ?? "Flash the lamp"}</button>
+              <p className="muted small">Flashes the lamp for a second, then puts it back as it was. Nothing shows on the TV.</p>
+            </>
+          )}
+          {hue.error && <p className="error">{hue.error}</p>}
           <button onClick={done}>{chosen.length ? "Done: the light is ready" : "Done, no lamp tonight"}</button>
         </>
       ) : (
@@ -100,7 +111,7 @@ export function StageSetup({ code, session }: { code: string; session: Session }
           <button className="big" disabled={!host.trim() || !!hue.busy} onClick={() => void askStage(code, "connect", host.trim())}>{hue.busy ?? "Connect"}</button>
           {hue.error && (
             <>
-              <p className="hue-error">{hue.error}</p>
+              <p className="error">{hue.error}</p>
               {hue.error.startsWith("Couldn't reach") && (
                 <p className="muted small">
                   The big screen's computer has to be on the same network as the bridge. If Chrome there asked about devices
@@ -133,4 +144,27 @@ export function ReadyLine({ session, onSetUp }: { session: Session; onSetUp: () 
 function cameraLabel(session: Session): string | undefined {
   const stage = lightOf(session).stage;
   return stage?.cameras?.find((c) => c.id === stage.cameraId)?.label;
+}
+
+/**
+ * On the 💡 page when the light on the big screen needs the host: which part, what happened and what to do,
+ * with a link to that part of the checklist. (A big screen that stopped answering is in the status line:
+ * reopening it is the fix.)
+ */
+export function TroubleLine({ session, onFix }: { session: Session; onFix: (step: SetupStep) => void }) {
+  const light = lightOf(session);
+  const lamp = light.stage?.hue?.error;
+  const camera = isArmed(light) ? light.camera?.error : undefined;
+  if (!lamp && !camera) return null;
+  const what = (e: string) => e.charAt(0).toLowerCase() + e.slice(1).replace(/\.$/, "");
+  return lamp ? (
+    <p className="error">
+      The Hue lamp isn't responding: {what(lamp)}. Check the lamp is switched on at the wall,
+      then <button className="link" onClick={() => onFix("lamp")}>fix it here</button>.
+    </p>
+  ) : (
+    <p className="error">
+      The camera stopped: {what(camera!)}. <button className="link" onClick={() => onFix("camera")}>Fix it here</button>.
+    </p>
+  );
 }

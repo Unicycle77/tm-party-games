@@ -333,18 +333,21 @@ function build() {
       set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
       break;
     // The light run by the big screen, set up from the host's 💡 page: not started, the camera and lamp checklist, then ready.
-    case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash":
+    case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash": case "host-light-trouble": case "host-light-trouble-fix":
       picked(); set("begun", true);
       if (shot === "host-light-start") break;
+      const trouble = shot.startsWith("host-light-trouble");
       set("lightUid", "owner");
       set("light", {
-        onStage: true, trigger: "stop-smiling", ...(shot === "host-light-flash" && { armed: true }),
-        ...((shot === "host-light-camera" || shot === "host-light-lamp") && { setup: true }),
-        camera: shot === "host-light-ready" ? { off: true } : shot === "host-light-flash" ? { people: 6, each: { "stop-smiling": 1 } } : { people: 1, each: { "stop-smiling": 0 } },
+        onStage: true, trigger: "stop-smiling", ...((shot === "host-light-flash" || trouble) && { armed: true }),
+        ...((shot === "host-light-camera" || shot === "host-light-lamp" || shot === "host-light-trouble-fix") && { setup: true }),
+        // Mid-game, the lamp dropped: Sam and Priya already got it, as on the light's other shots.
+        ...(trouble && { got: { sam: 1, priya: 2 } }),
+        camera: shot === "host-light-ready" ? { off: true } : shot === "host-light-flash" || trouble ? { people: 6, each: { "stop-smiling": 1 } } : { people: 1, each: { "stop-smiling": 0 } },
         stage: {
           cameras: [{ id: "c920", label: "Logitech C920" }, { id: "facetime", label: "FaceTime HD Camera" }], cameraId: "c920",
           ...(shot === "host-light-camera" && { heads: [{ x: 0.44, y: 0.22, w: 0.11, h: 0.24, read: true }] }),
-          hue: { bridge: "192.168.1.50", lamps: [{ id: "1", name: "Living room", color: true }, { id: "2", name: "Hallway", color: false }, { id: "3", name: "Kitchen strip", color: true }], chosen: { 1: true } },
+          hue: { bridge: "192.168.1.50", lamps: [{ id: "1", name: "Living room", color: true }, { id: "2", name: "Hallway", color: false }, { id: "3", name: "Kitchen strip", color: true }], chosen: { 1: true }, ...(trouble && { error: "Couldn't reach the bridge." }) },
         },
       });
       break;

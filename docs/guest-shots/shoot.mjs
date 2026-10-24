@@ -60,6 +60,9 @@ const SHOTS = {
   "light-host-lamp": ["host-light-lamp", "", async (p) => { await p.getByRole("button", { name: "Next: the Hue lamp" }).click(); }],
   "light-host-ready": ["host-light-ready"],
   "light-host-flash": ["host-light-flash", "", async (p) => { await p.waitForSelector(".head-icon.flash"); }, ".host-head"],
+  // the lamp dropped mid-game: the alert dot and the line saying what to do; then its link, on the lamp step with no test while the light is on
+  "light-host-trouble": ["host-light-trouble"],
+  "light-host-trouble-fix": ["host-light-trouble-fix", "", async (p) => { await p.getByRole("button", { name: "Next: the Hue lamp" }).click(); }],
   "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
     await p.getByRole("button", { name: "Sam", exact: true }).click();
     await p.getByPlaceholder(/quick brown fox/).fill("I am the Noisemaster");

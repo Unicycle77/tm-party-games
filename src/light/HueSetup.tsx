@@ -7,9 +7,9 @@ import { HueError, type HueConfig, type HueLight, type LampState, findBridges, l
  * just changes the lamp; when it goes off, puts each lamp back as it was. Otherwise the lamps are left
  * alone. Commands go one at a time, and while one is on its way only the latest wish is kept, so a fast
  * rainbow spin never builds up a backlog: the lamp shows the newest colour as soon as the bridge can.
- * Returns what went wrong last, if anything.
+ * Returns what went wrong last, if anything (until a command goes through, or `recheck` finds the lamps).
  */
-export function useHueLamps(config: HueConfig | undefined, colour: string | undefined): string | undefined {
+export function useHueLamps(config: HueConfig | undefined, colour: string | undefined, recheck?: unknown): string | undefined {
   const [error, setError] = useState<string>();
   const saved = useRef<Record<string, LampState>>();
   const latest = useRef({ config, colour });
@@ -26,9 +26,9 @@ export function useHueLamps(config: HueConfig | undefined, colour: string | unde
         const { config: c, colour: want } = latest.current;
         if (!c?.lights.length) break;
         try {
-          if (want) { saved.current ??= await readLamps(c); await lampsOn(c, want); }
-          else if (saved.current) { const was = saved.current; saved.current = undefined; await restoreLamps(c, was); }
-          setError(undefined);
+          // Only a command that went through clears the last error (going off after a failed flash sends nothing).
+          if (want) { saved.current ??= await readLamps(c); await lampsOn(c, want); setError(undefined); }
+          else if (saved.current) { const was = saved.current; saved.current = undefined; await restoreLamps(c, was); setError(undefined); }
         } catch (e) {
           setError(e instanceof HueError ? e.message : "The Hue lamp didn't respond.");
         }
@@ -43,6 +43,12 @@ export function useHueLamps(config: HueConfig | undefined, colour: string | unde
     if (!config?.lights.length) { setError(undefined); return; }
     void run.current();
   }, [config, colour]);
+  // When `recheck` changes (the phone opening the setup to fix it), asks the lamps again, so a lamp that's
+  // back loses its error without waiting for the next flash.
+  useEffect(() => {
+    if (recheck === undefined || !config?.lights.length) return;
+    readLamps(config).then(() => setError(undefined), (e: unknown) => setError(e instanceof HueError ? e.message : "The Hue lamp didn't respond."));
+  }, [recheck]);
   return error;
 }
 

@@ -15,6 +15,8 @@ const CODE = "ABCD";
 
 // The pretend bridge: every lamp change is logged, so the test can see the flash.
 const hueLog: { method: string; path: string; body?: unknown }[] = [];
+// The bridge unplugged mid-party.
+const bridge = { down: false };
 const real = window.fetch.bind(window);
 window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = String(input);
@@ -22,6 +24,7 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url === "https://discovery.meethue.com/") return json([{ id: "b1", internalipaddress: "192.168.1.50" }]);
   const m = url.match(/^https:\/\/192\.168\.1\.50\/api(.*)$/);
   if (!m) return real(input, init);
+  if (bridge.down) throw new TypeError("Failed to fetch");
   const path = m[1]!;
   const method = init?.method ?? "GET";
   hueLog.push({ method, path, body: init?.body ? JSON.parse(String(init.body)) : undefined });
@@ -51,6 +54,7 @@ Object.assign(window, {
     flash: () => lightNow(CODE),
     stop: () => releaseLight(CODE),
     hueLog,
+    bridgeDown: (down: boolean) => { bridge.down = down; },
   },
 });
 // The party, there before the phone looks for it (Alex, Greg, Priya, Sam and Tom are in).
