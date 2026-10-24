@@ -98,4 +98,13 @@ await p.evaluate(() => window.t.restart({ onStage: true, armed: true }));
 ok("reload: the main screen picks the light back up", await until(async () => (await read("lightUid")) === "tv"));
 ok("reload: camera running again", await until(async () => (await p.locator("#tv video").count()) === 1));
 
+// 8. Left over from a /light page that closed without Stop: the phone offers to move it to the big screen
+await p.evaluate(() => window.t.stop());
+await p.waitForTimeout(500);
+await p.evaluate(() => window.t.leftOver());
+ok("left over: says the /light page closed", await until(async () => (await phone.getByText("The /light page that was running the light has closed.").count()) === 1));
+await phone.getByRole("button", { name: "Run it on the big screen instead" }).click();
+ok("left over: the main screen takes it", await until(async () => (await read("lightUid")) === "tv" && (await read("light/onStage")) === true));
+ok("left over: checklist open", await until(async () => (await phone.getByRole("button", { name: "Next: the Hue lamp" }).count()) === 1));
+
 await b.close();

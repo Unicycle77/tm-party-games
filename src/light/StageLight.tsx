@@ -125,7 +125,8 @@ function Running({ code, session }: { code: string; session: Session }) {
   // What this browser has, for the phone's checklist (only written when it changes).
   const info: StageLightInfo = {
     ...(cameras?.length && { cameras }),
-    ...(feed.stream?.getVideoTracks()[0]?.getSettings().deviceId && { cameraId: feed.stream.getVideoTracks()[0]!.getSettings().deviceId }),
+    // The camera in use, or (while it's off) the one picked, so its name shows before the light first goes on.
+    ...((feed.stream?.getVideoTracks()[0]?.getSettings().deviceId ?? settings.deviceId) && { cameraId: feed.stream?.getVideoTracks()[0]?.getSettings().deviceId ?? settings.deviceId }),
     ...((settings.processor === "cpu" || feed.runsOn === "CPU") && { cpu: true }),
     ...(setup && heads.length && { heads }),
     hue: {

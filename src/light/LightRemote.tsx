@@ -5,7 +5,7 @@ import { ordinal, pointsForPlace, workOut } from "../scoreboard/measured";
 import type { Session } from "../types";
 import { PUBLIC_URL } from "../firebase";
 import {
-  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, markGot, modeOf, moveGot, releaseLight, setArmed,
+  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, lightPageGone, markGot, modeOf, moveGot, moveToStage, releaseLight, setArmed,
   setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot,
 } from "./data";
 import { ReadyLine, type SetupStep, StageSetup, TroubleLine } from "./StageSetup";
@@ -44,6 +44,8 @@ export function LightRemote({ code, session }: { code: string; session: Session 
   const [changing, setChanging] = useState(false);
 
   const onStage = light.onStage === true;
+  // Nothing is running it, so no switch or test until it moves to the big screen (or /light opens again).
+  const gone = lightPageGone(session);
   // Which part of the big screen's checklist opens: the camera, or straight to the lamp to fix it.
   const [setupStep, setSetupStep] = useState<SetupStep>("camera");
   const openSetup = (step: SetupStep) => { setSetupStep(step); void setSetup(code, true); };
@@ -71,17 +73,26 @@ export function LightRemote({ code, session }: { code: string; session: Session 
           // Not started: where it runs, then the one thing to do. The switch comes once there's something to switch.
           <>
             <p>Not started. It runs on the big screen's computer, out of sight: its webcam watches the room and the Hue lamp flashes. Nothing shows on the TV.</p>
-            <button className="big" onClick={() => void startOnStage(code)}>Start the light</button>
+            <button className="big" onClick={() => { setSetupStep("camera"); void startOnStage(code); }}>Start the light</button>
             <p className="muted small">Webcam on another computer? Open <strong>{site}/light</strong> there instead.</p>
           </>
         )
       ) : (
         <>
           {/* On or off, and what the camera sees: what the host checks during the evening. Off means the camera is off too. */}
-          <div className="toggles">
-            <Toggle label="Light on" on={armed} onChange={(on) => void setArmed(code, on)} />
-          </div>
+          {!gone && (
+            <div className="toggles">
+              <Toggle label="Light on" on={armed} onChange={(on) => void setArmed(code, on)} />
+            </div>
+          )}
           <p>{cameraText(session)}</p>
+          {/* The light was last run from /light, and that page is gone: the big screen can take it over. */}
+          {gone && (
+            <>
+              <button className="big" onClick={() => { setSetupStep("camera"); void moveToStage(code); }}>Run it on the big screen instead</button>
+              <p className="muted small">Or open <strong>{site}/light</strong> on that computer again.</p>
+            </>
+          )}
           {onStage && <TroubleLine session={session} onFix={openSetup} />}
           {onStage && <ReadyLine session={session} onSetUp={() => openSetup("camera")} />}
         </>
@@ -146,7 +157,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
       <GotIt code={code} session={session} />
 
       {/* Safe only while guests aren't watching: a test mid-game would throw off their guesses. */}
-      {running && !onStage && !armed && <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
+      {running && !onStage && !gone && !armed && <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
     </section>
   );
 }

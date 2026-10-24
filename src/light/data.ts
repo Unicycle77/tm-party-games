@@ -107,6 +107,16 @@ export const releaseLight = (code: string) => update(ref(db(), `sessions/${code}
 
 /** The host phone starting the light on the main screen, with the setup checklist open. */
 export const startOnStage = (code: string) => update(ref(db(), `sessions/${code}/light`), { onStage: true, setup: true });
+/**
+ * The host moving the light to the main screen when the /light computer running it has gone (its page closed
+ * without "Stop the light"): its slot is freed and the main screen starts it, with the setup checklist open.
+ */
+export const moveToStage = (code: string) => update(ref(db(), `sessions/${code}`), {
+  lightUid: null, "light/camera": null, "light/onStage": true, "light/setup": true,
+});
+/** A /light computer holds the light's slot, but its page has closed (the camera's status went with it). */
+export const lightPageGone = (session: Session) => !!session.lightUid && lightOf(session).onStage !== true && !lightOf(session).camera;
+
 /** The phone's setup checklist opening or closing (the main screen then sends where it finds heads, or stops). */
 export const setSetup = (code: string, open: boolean) => set(path(code, "setup"), open || null);
 /** Asks the main screen to change its camera or Hue lamp (kept in its browser), or to flash the lamp. */
@@ -199,7 +209,7 @@ export function cameraText(session: Session): string {
   const light = lightOf(session);
   const camera = light.camera;
   if (!session.lightUid) return `Not running. Open ${PUBLIC_URL.replace(/^https?:\/\//, "")}/light on the computer with the webcam.`;
-  if (!camera) return runsOnStage(session) ? "The big screen isn't responding. Check that it's still open." : "The light computer isn't responding. Check that its /light page is still open.";
+  if (!camera) return runsOnStage(session) ? "The big screen isn't responding. Check that it's still open." : "The /light page that was running the light has closed.";
   if (!isArmed(light)) return "Off. The camera isn't watching.";
   if (camera.error) return `Camera: ${camera.error}`;
   if (camera.starting || camera.off) return "Camera starting…";

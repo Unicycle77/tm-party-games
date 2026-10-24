@@ -130,14 +130,18 @@ export function StageSetup({ code, session, start = "camera" }: { code: string; 
 
 /** Under the light's switch, once it runs on the big screen: what it's using, and the way back to the checklist. */
 export function ReadyLine({ session, onSetUp }: { session: Session; onSetUp: () => void }) {
-  const hue = lightOf(session).stage?.hue;
-  const lamps = (hue?.lamps ?? []).filter((l) => hue?.chosen?.[l.id]).map((l) => l.name).join(", ");
-  const parts = [cameraLabel(session), lamps ? `Hue lamp: ${lamps}` : "no Hue lamp"].filter(Boolean);
   return (
     <p className="muted small">
-      Ready on the big screen's computer: {parts.join(" · ")} · <button className="link" onClick={onSetUp}>Set up</button>
+      Ready on the big screen's computer: {stageParts(session).join(" · ")} · <button className="link" onClick={onSetUp}>Set up</button>
     </p>
   );
+}
+
+/** What the big screen is running the light with: its camera's name (once it has said) and its Hue lamps. */
+export function stageParts(session: Session): string[] {
+  const hue = lightOf(session).stage?.hue;
+  const lamps = (hue?.lamps ?? []).filter((l) => hue?.chosen?.[l.id]).map((l) => l.name).join(", ");
+  return [cameraLabel(session), lamps ? `Hue lamp: ${lamps}` : "no Hue lamp"].filter((p): p is string => !!p);
 }
 
 /** The name of the camera the big screen is using, once it has said. */
