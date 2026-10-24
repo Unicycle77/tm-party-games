@@ -391,7 +391,7 @@ function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnecte
       </form>
       <RecentList recent={recent} busy={busy} onPick={(c) => void connect(c)} />
       {/* 📏 works without a party too: quiet, under the parties, since it's not why anyone opens the host remote. */}
-      <button className="link" onClick={() => window.location.assign("/convert")}>📏 Useless conversions, no party needed</button>
+      <button className="link" onClick={() => window.location.assign("/convert")}><span className="link-icon">📏</span>Useless conversions, no party needed</button>
       {scanning && <QrScannerModal onClose={() => setScanning(false)} onScan={(t) => {
         setScanning(false);
         const c = extractCode(t);

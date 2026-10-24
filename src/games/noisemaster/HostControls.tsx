@@ -113,7 +113,7 @@ function Setup({ code, session }: { code: string; session: Session }) {
     <div className="box-setup">
       <div className="remote-head">
         <h3>1. Who plays?</h3>
-        <button className="link" disabled={players.length === 0} onClick={pickRandom}>🎲 Pick at random</button>
+        <button className="link" disabled={players.length === 0} onClick={pickRandom}><span className="link-icon">🎲</span>Pick at random</button>
       </div>
       {players.length === 0 && <p className="muted small">Waiting for contestants to join…</p>}
       <div className="choices two">

@@ -113,7 +113,7 @@ export function HostPinRow({ saved, onSave, onRemove, onSendLink, linkNote }: {
         {saved ? "Type a new one to change it. Other phones will need the new pin."
           : "4 to 6 digits. Any other phone needs it to open the host remote. This phone won't."}
       </p>
-      {saved && onSendLink && <button type="button" className="link" onClick={onSendLink}>📤 Send yourself the host link</button>}
+      {saved && onSendLink && <button type="button" className="link" onClick={onSendLink}><span className="link-icon">📤</span>Send yourself the host link</button>}
       {linkNote && <p className="muted small">{linkNote}</p>}
     </form>
   );
