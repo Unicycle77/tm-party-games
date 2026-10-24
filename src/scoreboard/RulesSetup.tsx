@@ -4,7 +4,7 @@ import { useState } from "react";
 export const STANDARD_RULES = [
   "You must read out all task instructions clearly and immediately.",
   "You must not discuss the tasks with any of your fellow competitors.",
-  "You must remove your shoes when entering.",
+  "You must remove your shoes before entering.",
   "You must not break the law.",
   "THE TASKMASTER'S WORD IS FINAL.",
 ];
