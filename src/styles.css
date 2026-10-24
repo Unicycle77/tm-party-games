@@ -1502,3 +1502,8 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .clock-hold { flex: none; padding: 0.45rem 0.9rem; }
 .clock-who { display: flex; justify-content: space-between; align-items: baseline; gap: 0.8rem; }
 .clock-chips button.timed { opacity: 0.8; }
+/* Taskmaster rules on Plan the party */
+.rules-setup .party-settings { padding: 0.5rem 0 0.8rem; }
+.rules-setup .sb-task-text { justify-self: stretch; display: grid; gap: 0.3rem; }
+.rules-setup input { font: inherit; padding: 0.6rem 0.7rem; border-radius: 6px; border: 2px solid var(--gold-dark); background: var(--paper); color: var(--ink); }
+.rules-setup .sb-task-text .link { justify-self: start; }

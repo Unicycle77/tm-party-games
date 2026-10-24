@@ -123,8 +123,8 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
         <div className="toggle-options">
           <span className="muted small">The sign and the rules print on</span>
           <div className="choices marks" role="radiogroup" aria-label="The sign and the rules print on">
+            <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>One page</button>
             <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Two pages</button>
-            <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>One landscape page</button>
           </div>
         </div>
       )}
