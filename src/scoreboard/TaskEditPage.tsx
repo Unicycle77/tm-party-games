@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { limitIn, timeLabel } from "../clock/timesIn";
 import { endSting } from "../session";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 import { asList, asNums, fmt } from "../JukeboxRemote";
@@ -29,6 +30,38 @@ function ScoringField({ scoring, onChange }: { scoring: ScoreboardTask["scoring"
       <p className="muted small">
         {scoring ? `Type each result on the task's page: 5 for the ${scoring === "highest" ? "most" : "least"}, then 4, 3, 2, and 1 for everyone else. DQ gets 0.`
           : "Tap each contestant's points on the task's page. DQ gets 0."}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * "Time limit (optional)" under a part's words: minutes and seconds, as ⏱'s "Your own". Empty, the boxes show the
+ * time the words give (greyed) and the line says ⏱ reads it from them; set, it wins, and the line says what ⏱ offers.
+ * `part` is the part's place when there are several.
+ */
+function TimeLimitField({ limit, text, part, onChange }: { limit?: number; text: string; part?: number; onChange: (limit: number | undefined) => void }) {
+  const [min, setMin] = useState(limit ? String(Math.floor(limit / 60_000)) : "");
+  const [sec, setSec] = useState(limit && limit % 60_000 ? String(Math.round((limit % 60_000) / 1000)) : "");
+  const typed = (m: string, s: string) => {
+    setMin(m); setSec(s);
+    const ms = (Number(m || 0) * 60 + Number(s || 0)) * 1000;
+    onChange(ms >= 1000 ? ms : undefined);
+  };
+  const found = limitIn(text);
+  const s = found && Math.round(found.ms / 1000);
+  const which = part ? `part ${part}` : "this task";
+  return (
+    <div className="time-limit">
+      <span>Time limit (optional)</span>
+      <label><input inputMode="numeric" placeholder={s ? String(Math.floor(s / 60)) : "0"} aria-label="Time limit, minutes" value={min}
+        onChange={(e) => typed(e.target.value.replace(/\D/g, "").slice(0, 3), sec)} /> min</label>
+      <label><input inputMode="numeric" placeholder={s ? String(s % 60) : "0"} aria-label="Time limit, seconds" value={sec}
+        onChange={(e) => typed(min, e.target.value.replace(/\D/g, "").slice(0, 2))} /> sec</label>
+      <p className="muted small">
+        {limit ? `⏱ offers ${timeLabel(limit)} for ${which}.`
+          : found ? `Empty, so ⏱ reads it from the words: ${timeLabel(found.ms)}, “${found.said}”`
+          : `Empty: ⏱ offers no time for ${which}.`}
       </p>
     </div>
   );
@@ -75,15 +108,16 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const board = session.scoreboard;
   const tiebreaker = id === "tiebreaker";
   const task: ScoreboardTask | undefined = tiebreaker
-    ? { order: 0, name: board?.tiebreaker?.name ?? "Tiebreaker task", description: board?.tiebreaker?.description, song: board?.tiebreaker?.song, type: board?.tiebreaker?.type, text: board?.tiebreaker?.text, parts: board?.tiebreaker?.parts }
+    ? { order: 0, name: board?.tiebreaker?.name ?? "Tiebreaker task", description: board?.tiebreaker?.description, song: board?.tiebreaker?.song, type: board?.tiebreaker?.type, text: board?.tiebreaker?.text, limit: board?.tiebreaker?.limit, parts: board?.tiebreaker?.parts }
     : board?.tasks?.[id];
   const [name, setName] = useState(task?.name ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
   const [song, setSong] = useState(task?.song ?? "");
   const [type, setType] = useState(task?.type ?? "");
   const [text, setText] = useState(task?.text ?? "");
+  const [limit, setLimit] = useState(task?.limit);
   // Parts 2, 3…: each with a key of its own, so removing one in the middle doesn't hand its boxes to the next.
-  const [parts, setParts] = useState(() => asParts(task?.parts).map((p, k) => ({ k, type: p.type ?? "", text: p.text })));
+  const [parts, setParts] = useState(() => asParts(task?.parts).map((p, k) => ({ k, type: p.type ?? "", text: p.text, limit: p.limit })));
   const nextKey = useRef(parts.length);
   const [unit, setUnit] = useState(() => draftOf(task?.unit));
   const [scoring, setScoringDraft] = useState(task?.scoring);
@@ -110,7 +144,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const flip = task.game === "flipchart";
   // The words follow what they draw, until the host has written their own.
   const flipText = flip && text.trim() === flipchartWords(drawOf(task)) ? flipchartWords(draw) : text;
-  const words = { type, text: flip ? flipText : text, parts: parts.map(({ type, text }) => ({ type, text })) };
+  const words = { type, text: flip ? flipText : text, limit, parts: parts.map(({ type, text, limit }) => ({ type, text, limit })) };
   const save = () => {
     if (tiebreaker) { void editTiebreaker(code, name, description, song, words); onBack(); return; }
     const rescored = !task.game && scoring !== task.scoring;
@@ -150,6 +184,9 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const typed = parts.filter((p) => p.text.trim());
   const count = (text.trim() ? 1 : 0) + typed.length;
   const headings = [...(text.trim() ? [heading] : []), ...typed.map((p) => p.type.trim().toUpperCase())].filter(Boolean);
+  // What ⏱ will offer, a part each: the limit set on it, else the one its words give.
+  const times = [{ text, limit }, ...typed].filter((p) => p.text.trim()).flatMap((p) => { const ms = p.limit ?? limitIn(p.text)?.ms; return ms ? [timeLabel(ms)] : []; });
+  const timed = !flip && times.length > 0 && <span className="nowrap"> · ⏱ {times.join(", ")}</span>;
   const clear = (f: () => void) => () => { f(); setOpen(undefined); };
 
   return (
@@ -186,26 +223,29 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
 
       <div className="extras">
         <Extra label="Task text" open={open === "text"} onOpen={() => setOpen("text")} onClose={() => setOpen(undefined)}
-          onClear={clear(() => { setText(""); setType(""); setParts([]); })}
+          onClear={clear(() => { setText(""); setType(""); setLimit(undefined); setParts([]); })}
           summary={count > 1
-            ? <>Task text<span className="muted small"> · {count} parts · {headings.join(", ") || "no headings"}</span></>
-            : text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}</span></> : undefined}>
+            ? <>Task text<span className="muted small"> · {count} parts · {headings.join(", ") || "no headings"}{timed}</span></>
+            : text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}{timed}</span></> : undefined}>
           <div className="sb-part">
             {parts.length > 0 && <p className="part-label">Part 1</p>}
             <TaskTypeField type={type} fallback={(tiebreaker ? TIEBREAKER_TYPE : typeOf({ game: task.game })) || undefined} onChange={setType} />
             <TaskTextField text={text} onChange={setText} />
+            {/* Flipchart's clock is its own (its time limit above). */}
+            {!flip && <TimeLimitField limit={limit} text={text} part={parts.length > 0 ? 1 : undefined} onChange={setLimit} />}
           </div>
           {parts.map((p, i) => (
             <div className="sb-part" key={p.k}>
               <p className="part-label">Part {i + 2}</p>
               <TaskTypeField type={p.type} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, type: t } : x))} />
               <TaskTextField text={p.text} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, text: t } : x))} />
+              <TimeLimitField limit={p.limit} text={p.text} part={i + 2} onChange={(l) => setParts(parts.map((x) => x.k === p.k ? { ...x, limit: l } : x))} />
               <button type="button" className="link" onClick={() => setParts(parts.filter((x) => x.k !== p.k))}><span className="link-icon">✕</span>Remove this part</button>
             </div>
           ))}
           {/* App tasks have one part, except Secret Tasks: the rules, then the reveal. */}
           {(task.game === "secretTasks" ? parts.length === 0 : parts.length + 1 < MAX_PARTS && !task.game) && (
-            <button type="button" className="link" onClick={() => setParts([...parts, { k: nextKey.current++, type: "", text: "" }])}>+ Add a part</button>
+            <button type="button" className="link" onClick={() => setParts([...parts, { k: nextKey.current++, type: "", text: "", limit: undefined }])}>+ Add a part</button>
           )}
         </Extra>
         <Extra label="Song" open={open === "song"} onOpen={() => setOpen("song")} onClose={() => setOpen(undefined)} onClear={clear(() => setSong(""))}

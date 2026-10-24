@@ -117,14 +117,14 @@ export async function addKeptGame(code: string, session: Session, game: "light" 
 }
 
 /** What a task's ✎ saves as its words: its type and the text the host reads out, then the parts after the first. Empty removes them. */
-export interface TaskWords { type: string; text: string; parts?: { type: string; text: string }[] }
-function wordsOf({ type, text, parts = [] }: TaskWords) {
-  // A part with no text is no part; if the first has none, the next one is the first.
-  const all = [{ type, text }, ...parts].map((p) => ({ type: p.type.trim(), text: p.text.trim() })).filter((p) => p.text);
+export interface TaskWords { type: string; text: string; limit?: number; parts?: { type: string; text: string; limit?: number }[] }
+function wordsOf({ type, text, limit, parts = [] }: TaskWords) {
+  // A part with no text is no part (its time limit goes with it); if the first has none, the next one is the first.
+  const all = [{ type, text, limit }, ...parts].map((p) => ({ type: p.type.trim(), text: p.text.trim(), limit: p.limit })).filter((p) => p.text);
   const [first, ...rest] = all;
   return {
-    type: first?.type || null, text: first?.text || null,
-    parts: rest.length ? rest.map((p) => ({ ...(p.type && { type: p.type }), text: p.text })) : null,
+    type: first?.type || null, text: first?.text || null, limit: first?.limit || null,
+    parts: rest.length ? rest.map((p) => ({ ...(p.type && { type: p.type }), text: p.text, ...(p.limit && { limit: p.limit }) })) : null,
   };
 }
 

@@ -15,7 +15,9 @@ export interface SetupTask {
   game?: TaskGame;
   type?: string;
   text?: string;
-  /** Parts 2, 3… of the words; `type` and `text` are part 1. */
+  /** Part 1's time limit in ms, which the ⏱ clock offers. */
+  limit?: number;
+  /** Parts 2, 3… of the words, each with its own time limit if it has one; `type`, `text` and `limit` are part 1. */
   parts?: TaskPart[];
   note?: string;
   song?: string;
@@ -50,6 +52,7 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(t.game && { game: t.game }),
   ...(t.type && { type: t.type }),
   ...(t.text && { text: t.text }),
+  ...(t.limit && { limit: t.limit }),
   ...(asParts(t.parts).length > 0 && { parts: asParts(t.parts) }),
   ...(t.description && { note: t.description }),
   ...(t.song && { song: t.song }),
@@ -68,7 +71,7 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
 export function buildSetup(session: Session, secretTasks: string[]): Setup {
   const board = session.scoreboard;
   const tb = board?.tiebreaker;
-  const tiebreaker = tb && taskOf({ order: 0, name: tb.name, description: tb.description, song: tb.song, type: tb.type, text: tb.text, parts: tb.parts });
+  const tiebreaker = tb && taskOf({ order: 0, name: tb.name, description: tb.description, song: tb.song, type: tb.type, text: tb.text, limit: tb.limit, parts: tb.parts });
   const { trigger, mode } = session.light ?? {};
   return {
     format: SETUP_FORMAT,

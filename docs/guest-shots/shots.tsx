@@ -264,6 +264,8 @@ function build() {
     }
     // The ⏱ clock: set from a task's time limit (Dice tower, part 1 on the big screen), with a song that ends on 0:00, counting, on the task page
     // with its strip, beside Flipchart's own clock; and as a stopwatch (Five socks, Alex timed, Greg going); and on the big screen.
+    // The limit shots: part 1's words give no time, so the host set 4 minutes on it in ✎ (open, then closed); ⏱ offers it.
+    case "host-cd-limit-edit": case "host-cd-limit-summary": case "host-cd-limit-set":
     case "host-cd-set": case "host-cd-song": case "host-cd-running": case "host-cd-task": case "host-cd-flipchart": case "host-sw-running": case "tv-cd": case "tv-sw": {
       picked(); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true]));
@@ -273,6 +275,7 @@ function build() {
         text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins.",
         parts: [{ type: "Team", text: "Now join forces.\n\nBuild one tower together from every die you have. You have 2 minutes." }],
       };
+      if (shot.startsWith("host-cd-limit")) Object.assign(tasks.t6 as object, { text: "Build the tallest tower out of dice.\n\nYour time starts now. Tallest standing tower wins.", limit: 240_000 });
       tasks.t7 = { order: 7, name: "Five socks", type: "Individual", text: "Put on five socks, a sock at a time, as fast as you can. Fastest wins.", scoring: "lowest", results: { alex: 41.3 } };
       session.jukebox = {
         tracks: ["Think music", "Eye of the Tiger", "Final countdown"], durations: [32, 245, 190], open: true, state: {},
@@ -281,6 +284,7 @@ function build() {
       if (stopwatch) set("display", { step: "list" });
       else if (shot !== "host-cd-flipchart") set("display", { step: "tasktext", task: "t6", part: 0 });
       if (shot === "host-cd-set") set("clock", { set: 180_000, ms: 180_000, task: "t6" });
+      if (shot === "host-cd-limit-set") set("clock", { set: 240_000, ms: 240_000, task: "t6" });
       if (shot === "host-cd-song") set("clock", { set: 180_000, ms: 180_000, task: "t6", song: "Think music" });
       if (shot === "host-cd-running" || shot === "host-cd-task") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000 });
       if (shot === "tv-cd") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000, shown: true });
@@ -383,7 +387,7 @@ if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem(
 if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
-  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : { view: "clock" }));
+  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));
   localStorage.setItem("ba.hostBack", JSON.stringify({ view: "task", task: shot.startsWith("host-sw") ? "t7" : shot === "host-cd-flipchart" ? "t9" : "t6" }));
 }
 // 📏 on its own at /convert, in US units; the host remote's start page, with the party in its recent list.

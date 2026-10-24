@@ -22,9 +22,9 @@ export const typeOf = (task: { type?: string; game?: TaskGame }) => task.type ||
 const linesOf = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
 /** The task's words, a part each: its own type and text, for the parts that have any. A task with no parts has one. */
-export function partsOf(t: { type?: string; game?: TaskGame; text?: string; parts?: unknown } | undefined): { type: string; text: string }[] {
+export function partsOf(t: { type?: string; game?: TaskGame; text?: string; limit?: number; parts?: unknown } | undefined): { type: string; text: string; limit?: number }[] {
   if (!t) return [];
-  return [{ type: typeOf(t), text: t.text ?? "" }, ...asParts(t.parts).map((p) => ({ type: p.type ?? "", text: p.text }))].filter((p) => p.text.trim());
+  return [{ type: typeOf(t), text: t.text ?? "", limit: t.limit }, ...asParts(t.parts).map((p) => ({ type: p.type ?? "", text: p.text, limit: p.limit }))].filter((p) => p.text.trim());
 }
 
 /** The tiebreaker's words as a task's: its type is "Tiebreaker" unless the host gave it one. */

@@ -113,7 +113,7 @@ function Countdown({ code, session, state, locked, limits, source }: {
             {limits.map((l) => (
               <button key={l.part} className={chosen(l.ms) && state?.task === source.id ? "active" : ""} aria-pressed={chosen(l.ms)} disabled={locked}
                 onClick={() => { setMin(""); setSec(""); void setTime(code, l.ms, source.id); }}>
-                {timeLabel(l.ms)} <span className="muted">· {l.of > 1 ? `part ${l.part}, ` : ""}“{l.said.length > 44 ? `${l.said.slice(0, 42).trim()}…` : l.said}”</span>
+                {timeLabel(l.ms)} {(l.of > 1 || l.said) && <span className="muted">· {l.of > 1 && `part ${l.part}`}{l.of > 1 && l.said && ", "}{l.said && `“${l.said.length > 44 ? `${l.said.slice(0, 42).trim()}…` : l.said}”`}</span>}
               </button>
             ))}
           </div>

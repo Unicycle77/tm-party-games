@@ -141,6 +141,10 @@ const SHOTS = {
   "clock-host-task": ["host-cd-task"],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
+  // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it
+  "time-limit-host-edit": ["host-cd-limit-edit", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); await p.evaluate(() => window.scrollTo(0, 0)); }],
+  "time-limit-host-summary": ["host-cd-limit-summary"],
+  "time-limit-host-clock": ["host-cd-limit-set"],
   "clock-main-countdown": ["tv-cd"],
   "clock-main-stopwatch": ["tv-sw"],
   "guest-join-code": ["join-code"],

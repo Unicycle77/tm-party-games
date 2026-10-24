@@ -9,8 +9,8 @@ const NUMBER = `\\d+(?:\\.\\d+)?|${Object.keys(WORDS).join("|")}`;
 /** "3 minutes", "90 seconds", "a minute", "five mins". */
 const LIMIT = new RegExp(`\\b(${NUMBER})\\s*(minutes?|mins?|seconds?|secs?)\\b`, "i");
 
-/** A time limit a task's words give, in ms ("You have exactly 3 minutes" is 180000), and the sentence it's in. */
-export interface Limit { ms: number; said: string }
+/** A time limit a task's words give, in ms ("You have exactly 3 minutes" is 180000), and the sentence it's in. No `said`: the host set it in ✎. */
+export interface Limit { ms: number; said?: string }
 
 /** The first time limit in some words, if any. */
 export function limitIn(text: string): Limit | undefined {
@@ -24,11 +24,14 @@ export function limitIn(text: string): Limit | undefined {
   return undefined;
 }
 
-/** A task's time limits, a part each (the part's place, 1 to N, and how many parts there are), in the order they're read. */
+/**
+ * A task's time limits, a part each (the part's place, 1 to N, and how many parts there are), in the order they're read.
+ * A limit the host set on a part wins; else the one its words give.
+ */
 export function limitsOf(task: ScoreboardTask | undefined): (Limit & { part: number; of: number })[] {
   const parts = partsOf(task);
   return parts.flatMap((p, i) => {
-    const limit = limitIn(p.text);
+    const limit = p.limit ? { ms: p.limit } : limitIn(p.text);
     return limit ? [{ ...limit, part: i + 1, of: parts.length }] : [];
   });
 }
