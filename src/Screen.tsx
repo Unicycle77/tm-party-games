@@ -16,6 +16,7 @@ import { removeHostPin, resetController, setDisplay, setGame, showContestant } f
 import type { SubmissionStatus } from "./submission";
 import type { Player, Session } from "./types";
 import { stingFiles } from "./sting";
+import { lightOf } from "./light/data";
 import { StingStage } from "./StingStage";
 import { stingPictureUrl } from "./stingPictures";
 
@@ -95,8 +96,8 @@ export function Screen({ code, session, viewOnly = false, footer }: {
       </p>
       <p className="muted small">
         {session.lightUid
-          ? "💡 The light is running."
-          : <>💡 To run the light, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> on a computer with a webcam that can see everyone.</>}
+          ? "💡 The light is running" + (lightOf(session).onStage ? " here, out of sight." : ".")
+          : <>💡 The light starts from the host phone's 💡, using this computer's webcam. For a webcam on another computer, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> there.</>}
       </p>
       {game && <button className="link" onClick={() => void setGame(code, null)}>← Between tasks</button>}
       {footer}

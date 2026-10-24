@@ -391,6 +391,57 @@
             "error": { ".validate": "newData.isString() && newData.val().length <= 200" },
             "$other": { ".validate": false }
           },
+          "onStage": { ".validate": "newData.isBoolean()" },
+          "setup": { ".validate": "newData.isBoolean()" },
+          "stage": {
+            "cameras": {
+              "$i": {
+                "id": { ".validate": "newData.isString() && newData.val().length <= 300" },
+                "label": { ".validate": "newData.isString() && newData.val().length <= 200" },
+                "$other": { ".validate": false }
+              }
+            },
+            "cameraId": { ".validate": "newData.isString() && newData.val().length <= 300" },
+            "cpu": { ".validate": "newData.isBoolean()" },
+            "heads": {
+              "$i": {
+                "x": { ".validate": "newData.isNumber()" },
+                "y": { ".validate": "newData.isNumber()" },
+                "w": { ".validate": "newData.isNumber()" },
+                "h": { ".validate": "newData.isNumber()" },
+                "read": { ".validate": "newData.isBoolean()" },
+                "$other": { ".validate": false }
+              }
+            },
+            "hue": {
+              "bridge": { ".validate": "newData.isString() && newData.val().length <= 200" },
+              "lamps": {
+                "$i": {
+                  "id": { ".validate": "newData.isString() && newData.val().length <= 40" },
+                  "name": { ".validate": "newData.isString() && newData.val().length <= 100" },
+                  "color": { ".validate": "newData.isBoolean()" },
+                  "$other": { ".validate": false }
+                }
+              },
+              "chosen": {
+                "$lamp": { ".validate": "$lamp.length <= 40 && newData.isBoolean()" }
+              },
+              "found": {
+                "$i": { ".validate": "newData.isString() && newData.val().length <= 200" }
+              },
+              "busy": { ".validate": "newData.isString() && newData.val().length <= 100" },
+              "error": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "$other": { ".validate": false }
+            },
+            "$other": { ".validate": false }
+          },
+          "ask": {
+            ".validate": "newData.hasChildren(['id', 'kind'])",
+            "id": { ".validate": "newData.isNumber()" },
+            "kind": { ".validate": "newData.val() === 'camera' || newData.val() === 'processor' || newData.val() === 'find' || newData.val() === 'connect' || newData.val() === 'lamp' || newData.val() === 'test'" },
+            "value": { ".validate": "newData.isString() && newData.val().length <= 300" },
+            "$other": { ".validate": false }
+          },
           "$other": { ".validate": false }
         },
         "moves": {

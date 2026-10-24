@@ -138,12 +138,12 @@ function Sheet() {
             <Item cap={<><code>.feet-in</code>: two boxes for ft and in (or lb and oz) at an imperial party, the number pad kept</>}><div className="converter"><div className="feet-in"><span>How much?</span><label><input inputMode="decimal" defaultValue="5" /> ft</label><label><input inputMode="decimal" defaultValue="11" /> in</label></div></div></Item>
             <Item cap={<>A find box (<code>.clearable</code>): × empties it, the list under it filters as you type; here "a thing ▾" (<code>.choices.units .thing</code>) open</>}><div className="converter"><div className="choices units"><button>m</button><button>ft</button><button className="thing" aria-expanded>a thing ▴</button></div><div className="find-thing"><div className="clearable"><input defaultValue="eif" aria-label="Find a thing" /><button type="button" aria-label="Clear find a thing">×</button></div><ul className="tracklist"><li><button><span className="title">Eiffel Tower</span><span className="dur">330 m</span></button></li></ul></div></div></Item>
           </Sec>
-          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you) · stays at the top on its band">
+          <Sec title="Host header" note="idle · lit (running) · open · alert (needs you) · flash (💡 for the second the light is on, in its colour) · stays at the top on its band">
             <div className="mini-phone phone host" style={{ padding: 0, margin: 0 }}>
               <header className="host-head" style={{ position: "static", margin: 0 }}>
                 <button className="head-icon open lit" aria-label="Music">🎵▶</button>
                 <button className="head-icon alert" aria-label="Secret Tasks">✉</button>
-                <button className="head-icon" aria-label="Light">💡</button>
+                <button className="head-icon flash" aria-label="Light (flashing)">💡</button>
                 <button className="head-icon" aria-label="Useless conversions">📏</button>
                 <button className="head-icon lit" aria-label="The clock (running)">⏱</button>
               </header>

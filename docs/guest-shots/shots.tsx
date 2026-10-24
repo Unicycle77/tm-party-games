@@ -13,6 +13,7 @@ import { flipchartDefaults } from "../../src/games/flipchart/data";
 import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
 import { MODES } from "../../src/light/triggers";
+import { lightNow } from "../../src/light/data";
 import { registerStingPicture } from "../../src/stingPictures";
 import { StageGate } from "../../src/StageGate";
 
@@ -331,6 +332,22 @@ function build() {
       set("lightUid", "light-pc");
       set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
       break;
+    // The light run by the big screen, set up from the host's 💡 page: not started, the camera and lamp checklist, then ready.
+    case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash":
+      picked(); set("begun", true);
+      if (shot === "host-light-start") break;
+      set("lightUid", "owner");
+      set("light", {
+        onStage: true, trigger: "stop-smiling", ...(shot === "host-light-flash" && { armed: true }),
+        ...((shot === "host-light-camera" || shot === "host-light-lamp") && { setup: true }),
+        camera: shot === "host-light-ready" ? { off: true } : shot === "host-light-flash" ? { people: 6, each: { "stop-smiling": 1 } } : { people: 1, each: { "stop-smiling": 0 } },
+        stage: {
+          cameras: [{ id: "c920", label: "Logitech C920" }, { id: "facetime", label: "FaceTime HD Camera" }], cameraId: "c920",
+          ...(shot === "host-light-camera" && { heads: [{ x: 0.44, y: 0.22, w: 0.11, h: 0.24, read: true }] }),
+          hue: { bridge: "192.168.1.50", lamps: [{ id: "1", name: "Living room", color: true }, { id: "2", name: "Hallway", color: false }, { id: "3", name: "Kitchen strip", color: true }], chosen: { 1: true } },
+        },
+      });
+      break;
     case "checkin-rules": case "checkin-pile": break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
@@ -340,7 +357,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box", "host-light", "host-light-change"].includes(shot)) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 // Loading the pile before the night: nobody has an envelope yet, and the pile holds the six that get picked plus four more.
 if (shot === "host-plan-pile") {
   secret.assigned = {}; secret.seen = {};
@@ -360,7 +377,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light" || shot === "host-light-change" ? { view: "light" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
   localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : { view: "clock" }));
@@ -383,6 +400,8 @@ const root = createRoot(document.getElementById("root")!);
 };
 // "All at once": every trigger's bulb in its own colour, two of them just gone on.
 const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
+// The 💡 pulse: a flash a moment after the page is up (one already there when it opens is old).
+if (shot === "host-light-flash") window.setTimeout(() => void lightNow(CODE), 1200);
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
     {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot === "tv-gate" ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :

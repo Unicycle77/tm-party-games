@@ -4,6 +4,7 @@ import { Jukebox } from "./Jukebox";
 import { StingDriver } from "./StingDriver";
 import { HOSTED_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { Screen, screenState } from "./Screen";
+import { StageLight } from "./light/StageLight";
 import { StageGate } from "./StageGate";
 import { PinStep } from "./HostPin";
 import { JoinError, PinNeededError, checkResume, createSession, ensureSignedIn, migrateLegacySession, resumeSession, resumeWithPin, store, useSession, useUid, watchHost } from "./session";
@@ -171,6 +172,8 @@ export function MainScreen() {
         : <StageGate code={code} session={session} onRaised={() => setRaised(true)} onEnd={end} />}
       {raised && <ClockSongStarter code={code} session={session} />}
       {raised && <StingDriver code={code} session={session} />}
+      {/* The light, when the host starts it here: out of sight, whatever is on screen. */}
+      <StageLight code={code} session={session} />
       <Jukebox code={code} jukebox={session.jukebox} duck={videoPlaying || display.step === "soundboard"} showUi={raised && !onStage} />
     </>
   );

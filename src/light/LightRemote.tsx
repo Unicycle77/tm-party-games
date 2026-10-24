@@ -3,15 +3,19 @@ import { Toggle } from "../Toggle";
 import { addKeptGame, taskFor } from "../scoreboard/data";
 import { ordinal, pointsForPlace, workOut } from "../scoreboard/measured";
 import type { Session } from "../types";
+import { PUBLIC_URL } from "../firebase";
 import {
-  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, markGot, modeOf, moveGot, setArmed,
-  setMode, setTrigger, triggerOf, unmarkGot,
+  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, markGot, modeOf, moveGot, releaseLight, setArmed,
+  setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot,
 } from "./data";
+import { ReadyLine, StageSetup } from "./StageSetup";
 import { MODES, TRIGGERS } from "./triggers";
 
 /**
- * The host phone's light controls: on or off (off stops the camera too), what the camera sees, a manual
- * light for someone the camera missed, and the secret (or mode) behind "Change". Tests only while it's off.
+ * The host phone's light controls: starting it on the big screen (then its setup checklist, see StageSetup),
+ * on or off (off stops the camera too), what the camera sees, a manual light for someone the camera missed,
+ * and the secret (or mode) behind "Change". A /light computer can be tested while it's off; the big screen's
+ * lamp is tested in its checklist.
  */
 export function LightRemote({ code, session }: { code: string; session: Session }) {
   const light = lightOf(session);
@@ -39,14 +43,45 @@ export function LightRemote({ code, session }: { code: string; session: Session 
   // The mode and the secret are set before switching on, so they sit behind "Change".
   const [changing, setChanging] = useState(false);
 
+  const onStage = light.onStage === true;
+  const site = PUBLIC_URL.replace(/^https?:\/\//, "");
+  // Started on the big screen, with the phone's checklist open: just the checklist.
+  if (running && onStage && light.setup) {
+    return (
+      <section className="remote light-remote">
+        <h2>💡 The light</h2>
+        <StageSetup code={code} session={session} />
+      </section>
+    );
+  }
+
   return (
     <section className="remote light-remote">
       <h2>💡 The light</h2>
-      {/* On or off, and what the camera sees: what the host checks during the evening. Off means the camera is off too. */}
-      <div className="toggles">
-        <Toggle label="Light on" on={armed} disabled={!running} onChange={(on) => void setArmed(code, on)} />
-      </div>
-      <p>{cameraText(session)}</p>
+      {!running ? (
+        onStage ? (
+          <>
+            <p>Starting on the big screen… Check that it's open.</p>
+            <button className="link" onClick={() => void releaseLight(code)}>Cancel</button>
+          </>
+        ) : (
+          // Not started: where it runs, then the one thing to do. The switch comes once there's something to switch.
+          <>
+            <p>Not started. It runs on the big screen's computer, out of sight: its webcam watches the room and the Hue lamp flashes. Nothing shows on the TV.</p>
+            <button className="big" onClick={() => void startOnStage(code)}>Start the light</button>
+            <p className="muted small">Webcam on another computer? Open <strong>{site}/light</strong> there instead.</p>
+          </>
+        )
+      ) : (
+        <>
+          {/* On or off, and what the camera sees: what the host checks during the evening. Off means the camera is off too. */}
+          <div className="toggles">
+            <Toggle label="Light on" on={armed} onChange={(on) => void setArmed(code, on)} />
+          </div>
+          <p>{cameraText(session)}</p>
+          {onStage && <ReadyLine session={session} onSetUp={() => void setSetup(code, true)} />}
+        </>
+      )}
 
       {armed && (mode ? (
         <>
@@ -107,7 +142,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
       <GotIt code={code} session={session} />
 
       {/* Safe only while guests aren't watching: a test mid-game would throw off their guesses. */}
-      {!armed && <button disabled={!running} onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
+      {running && !onStage && !armed && <button onClick={() => mode ? lightAllNow(code, mode) : void lightNow(code)}>Test the light</button>}
     </section>
   );
 }

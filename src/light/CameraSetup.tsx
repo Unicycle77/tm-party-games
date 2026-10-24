@@ -23,7 +23,7 @@ export const isVirtualCamera = (label: string) => NOT_A_WEBCAM.test(label);
 export function loadCameraSettings(): CameraSettings {
   try { return (JSON.parse(store.get(KEY)) as CameraSettings) || {}; } catch { return {}; }
 }
-const saveCameraSettings = (settings: CameraSettings) => store.set(KEY, JSON.stringify(settings));
+export const saveCameraSettings = (settings: CameraSettings) => store.set(KEY, JSON.stringify(settings));
 
 /**
  * The /light page's camera settings: which camera, and graphics card or processor, with a live preview
