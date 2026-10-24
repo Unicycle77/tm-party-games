@@ -4,6 +4,8 @@ import { hostUrlFor } from "./firebase";
 import { type DirHandle, folderPickerSupported, hasAccess, pickFolder, recallFolder, rememberFolder, requestAccess } from "./musicFolder";
 import type { Session } from "./types";
 import { skippedStingPictures } from "./stingPictures";
+import { isArmed, lightOf, lightPageGone, runsOnStage } from "./light/data";
+import { stageParts } from "./light/StageSetup";
 
 /** Tells the jukebox a music folder can now be read, so it loads it. */
 export const MUSIC_READY = "taskmaster:music-ready";
@@ -97,6 +99,7 @@ export function StageGate({ code, session, onRaised, onEnd }: {
           const n = list ? Object.keys(list).length : 0;
           return <li key={name} className={`gate-sub ${n ? "done" : "failed"}`}>{n ? "✓" : "○"} {name}: {n || `none found (add a folder named "${name}")`}{name === "Transition pictures" && skippedStingPictures().length > 0 && ` · couldn't read ${skippedStingPictures().join(", ")}`}</li>;
         })}
+        <LightCheck session={session} />
       </ul>
       {tried && (full === "failed" || music === "failed") && (
         <button className="link" onClick={onRaised}>Raise it anyway</button>
@@ -114,4 +117,22 @@ export function StageGate({ code, session, onRaised, onEnd }: {
       </p>
     </main>
   );
+}
+
+/**
+ * The light, on the main screen's checklist: running here out of sight (and with what), on a /light computer,
+ * in trouble, or not started yet, at every party. It never holds up raising the curtain: it starts from the
+ * host phone's 💡.
+ */
+function LightCheck({ session }: { session: Session }) {
+  const light = lightOf(session);
+  if (!session.lightUid) return <li className="todo">○ The light: not started. Start it from 💡 on the host phone.</li>;
+  if (!runsOnStage(session)) {
+    return lightPageGone(session)
+      ? <li className="failed">○ The light: its /light page has closed. Run it here from 💡 on the host phone.</li>
+      : <li className="done">✓ The light: on another computer</li>;
+  }
+  if (light.stage?.hue?.error) return <li className="failed">○ The light: the Hue lamp isn't responding. Fix it from 💡 on the host phone.</li>;
+  if (isArmed(light) && light.camera?.error) return <li className="failed">○ The light: camera: {light.camera.error}</li>;
+  return <li className="done">✓ The light: running here, out of sight · {stageParts(session).join(" · ")}</li>;
 }

@@ -197,8 +197,13 @@ function build() {
       break;
     // Up next is a live task that opens with a sting: tasks 1 to 5 scored, the main screen's Transitions list published.
     // The gate after a refresh mid-party, the music folder (Party) already allowed: songs and each transition folder counted.
-    case "tv-gate": {
+    case "tv-gate": case "tv-gate-light": {
       picked(); set("begun", true); set("controllerUid", "host");
+      // The light started from the phone earlier, so the gate says it's running here.
+      if (shot === "tv-gate-light") {
+        set("lightUid", "owner");
+        set("light", { onStage: true, camera: { off: true }, stage: { cameras: [{ id: "c920", label: "Logitech C920" }], cameraId: "c920", hue: { bridge: "192.168.1.50", lamps: [{ id: "1", name: "Living room", color: true }], chosen: { 1: true } } } });
+      }
       const dir = { kind: "directory", name: "Party", values: async function* () {}, queryPermission: async () => "granted" };
       if (!("showDirectoryPicker" in window)) (window as unknown as Record<string, unknown>).showDirectoryPicker = () => Promise.resolve(dir);
       const get = IDBObjectStore.prototype.get;
@@ -338,9 +343,11 @@ function build() {
       set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
       break;
     // The light run by the big screen, set up from the host's 💡 page: not started, the camera and lamp checklist, then ready.
-    case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash": case "host-light-trouble": case "host-light-trouble-fix":
+    case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash": case "host-light-trouble": case "host-light-trouble-fix": case "host-light-left-over":
       picked(); set("begun", true);
       if (shot === "host-light-start") break;
+      // A /light page ran the light earlier and was closed without Stop: its slot is left, with no camera status.
+      if (shot === "host-light-left-over") { set("lightUid", "old-pc"); set("light", { trigger: "stop-smiling" }); break; }
       const trouble = shot.startsWith("host-light-trouble");
       set("lightUid", "owner");
       set("light", {
@@ -412,5 +419,5 @@ const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 if (shot === "host-light-flash") window.setTimeout(() => void lightNow(CODE), 1200);
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot === "tv-gate" ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);

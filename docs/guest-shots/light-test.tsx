@@ -54,6 +54,8 @@ Object.assign(window, {
     flash: () => lightNow(CODE),
     stop: () => releaseLight(CODE),
     hueLog,
+    // A /light computer's slot, its page long closed (no camera status).
+    leftOver: () => set(ref(db(), `sessions/${CODE}/lightUid`), "old-pc"),
     bridgeDown: (down: boolean) => { bridge.down = down; },
   },
 });

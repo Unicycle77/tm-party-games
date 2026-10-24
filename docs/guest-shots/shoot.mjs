@@ -63,6 +63,8 @@ const SHOTS = {
   "light-host-ready": ["host-light-ready"],
   "light-host-flash": ["host-light-flash", "", async (p) => { await p.waitForSelector(".head-icon.flash"); }, ".host-head"],
   // the lamp dropped mid-game: the alert dot and the line saying what to do; then its link, on the lamp step with no test while the light is on
+  // a /light page left holding the light: the phone offers to move it to the big screen
+  "light-host-left-over": ["host-light-left-over"],
   "light-host-trouble": ["host-light-trouble"],
   "light-host-trouble-fix": ["host-light-trouble-fix", "", async (p) => { await p.getByRole("button", { name: "Next: the Hue lamp" }).click(); }],
   "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
@@ -86,6 +88,8 @@ const SHOTS = {
   "host-replay": ["host-replay"],
   // the gate after a refresh: the music folder's line, then a line for each transition folder
   "main-gate-transitions": ["tv-gate"],
+  // the same with the light started from the host phone: "✓ The light: running here, out of sight · …"
+  "main-gate-light": ["tv-gate-light"],
   // Dice tower's ✎ page with its Transition open: music and a picture picked, the video empty
   "task-edit-transition": ["host-edit-transition", "", async (p) => { await p.locator(".summary-line", { hasText: "Transition" }).getByRole("button", { name: "Change" }).click(); }],
   // the same part while "Try it" is playing what's picked: pressed in, "⏹ Stop"
