@@ -85,6 +85,7 @@ const SHOTS = {
   "haul-host-up": ["host-haul"],
   // a task with two parts (Individual, then Team)
   "plan-host-task-cards": ["host-plan", "", async (p) => { await p.getByRole("switch", { name: /secret tasks/ }).check(); }],
+  "print-group-sketch": ["host-plan-pile", "", undefined, "section.task-cards"],
   "task-page-host-live": ["host-onepart"],
   "task-page-host-live-up": ["host-onepart-up"],
   "task-parts-host": ["host-parts"],
