@@ -267,8 +267,8 @@ export interface Rules { rules: string[]; last: string; signOff: string }
 
 /**
  * The Taskmaster rules: one Letter page for the door. TASKMASTER RULES big on top, the rules numbered with the
- * number hanging in the margin, the last paragraph, and the sign-off on the right beside the TM seal drawn as an
- * outlined stamp (a ring and TM, no fill, so it costs no ink). Long rules are set a little smaller until they fit.
+ * number hanging in the margin, the last paragraph, and the sign-off on the right with room under it for a real wax
+ * seal (no seal is printed: a real one is in colour). Long rules are set a little smaller until they fit.
  */
 export function rulesPage(face: Face, r: Rules): string {
   const left = MARGIN, w = PAGE_W - 2 * MARGIN, hang = 0.45 * PT;
@@ -286,23 +286,12 @@ export function rulesPage(face: Face, r: Rules): string {
     });
     y -= gap;
     for (const codes of wrap(face, r.last, size, w)) { placed.push({ x: left, y, codes, size }); y -= lead; }
-    const seal = 0.42 * PT;
-    const sy = y - 1.1 * PT;
-    if (sy - seal < MARGIN && size > 9) continue;
+    // Room under the sign-off for a real wax seal (about 1¼ in), pressed on by hand: no seal is printed.
+    const sy = y - 0.7 * PT;
+    if (sy - 1.25 * PT < MARGIN && size > 9) continue;
     const sign = codesOf(face, r.signOff.toUpperCase());
-    const cx = PAGE_W - MARGIN - seal;
-    placed.push({ x: cx - seal - 0.2 * PT - widthOf(face, sign, 22), y: sy - 8, codes: sign, size: 22 });
-    const tm = codesOf(face, "TM");
-    placed.push({ x: cx - widthOf(face, tm, 20) / 2, y: sy - 7, codes: tm, size: 20 });
-    // the seal: a ring drawn as four Bézier quarters
-    const k = 0.5523 * seal, c = (n: number) => num(n);
-    const ring = ["0 G", "2 w",
-      `${c(cx + seal)} ${c(sy)} m`,
-      `${c(cx + seal)} ${c(sy + k)} ${c(cx + k)} ${c(sy + seal)} ${c(cx)} ${c(sy + seal)} c`,
-      `${c(cx - k)} ${c(sy + seal)} ${c(cx - seal)} ${c(sy + k)} ${c(cx - seal)} ${c(sy)} c`,
-      `${c(cx - seal)} ${c(sy - k)} ${c(cx - k)} ${c(sy - seal)} ${c(cx)} ${c(sy - seal)} c`,
-      `${c(cx + k)} ${c(sy - seal)} ${c(cx + seal)} ${c(sy - k)} ${c(cx + seal)} ${c(sy)} c`, "S"];
-    return stream(placed, ring);
+    placed.push({ x: PAGE_W - MARGIN - widthOf(face, sign, 22), y: sy, codes: sign, size: 22 });
+    return stream(placed);
   }
 }
 

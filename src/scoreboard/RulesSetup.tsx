@@ -44,7 +44,7 @@ export function RulesSetup() {
           </label>
           <label className="sb-task-text">Sign-off
             <input value={signOff} maxLength={40} onChange={(e) => setSignOff(e.target.value)} />
-            <span className="muted small">Under the rules, beside the TM seal.</span>
+            <span className="muted small">Under the rules, with the TM seal under it on screen. The printed page leaves room for a real one.</span>
           </label>
         </div>
       )}
