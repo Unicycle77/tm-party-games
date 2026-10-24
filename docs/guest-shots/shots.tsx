@@ -187,6 +187,7 @@ function build() {
     case "task-parts-phone": picked(); q.set("later", "1"); set("phoneText", { task: "t6", part: 1 }); set("begun", true); break;
     // A live task with one part: the same two rows, "The task" in place of Part 1.
     case "host-plan": case "host-plan-crop": case "host-plan-cropped": case "host-crop": case "host-plan-add": case "host-plan-ipad": case "host-plan-edit": case "host-plan-pile": case "host-adhoc": set("begun", true); break;
+    case "host-plan-pin": set("hostPin", true); break;
     // Photos: best costume is on, and three entries are in.
     case "host-app-game":
       picked(); task("photos"); g.photos!.task = "t2"; set("begun", true);
@@ -367,8 +368,10 @@ if (/^host-(cd|sw)-/.test(shot)) {
 }
 // 📏 on its own at /convert, in US units; the host remote's start page, with the party in its recent list.
 if (shot === "alone-convert") localStorage.setItem("ba.convertSystem", "imperial");
-if (shot === "start-host") localStorage.setItem("ba.recentRemote", JSON.stringify([{ code: CODE, at: Date.now() - 2 * 86400000, name: "Halloween party" }]));
-seed({ sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } }, boxSecrets: { [CODE]: { inBox: "R" } } });
+if (shot.startsWith("start-host")) localStorage.setItem("ba.recentRemote", JSON.stringify([{ code: CODE, at: Date.now() - 2 * 86400000, name: "Halloween party" }]));
+// The iPad at home after the host's iPhone took the remote, in the car, with the pin.
+if (shot === "start-host-taken") localStorage.setItem("ba.remoteTakenOver", JSON.stringify({ code: CODE, name: "Halloween party" }));
+seed({ ...(shot === "host-plan-pin" ? { pins: { [CODE]: "4821" } } : {}), sessions: { [CODE]: session }, secretTasks: { [CODE]: secret }, noisemasterSecrets: { [CODE]: { board: BOARD } }, boxSecrets: { [CODE]: { inBox: "R" } } });
 if (shot === "checkin-list" || shot === "checkin-confirm") history.replaceState(null, "", `?code=${CODE}&shot=${shot}`);
 
 const root = createRoot(document.getElementById("root")!);
@@ -382,5 +385,5 @@ const root = createRoot(document.getElementById("root")!);
 const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot === "tv-gate" ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot === "start-host" ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot === "tv-gate" ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);

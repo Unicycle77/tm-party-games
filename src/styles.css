@@ -85,6 +85,8 @@ button.big {
 button .button-sub { display: block; font-size: 0.8rem; font-weight: normal; text-transform: none; letter-spacing: 0; opacity: 0.8; margin-top: 0.2rem; }
 button .button-sub.missing, button .button-sub .missing { opacity: 0.55; }
 button.link { background: none; border: 0; box-shadow: none; color: var(--muted); text-decoration: underline; padding: 0.3rem; }
+/* A quiet link's icon isn't underlined: only the words are (an inline-block doesn't take its parent's underline). */
+.link-icon { display: inline-block; margin-right: 0.35em; }
 
 input {
   font: inherit;

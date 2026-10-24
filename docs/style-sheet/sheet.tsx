@@ -48,7 +48,7 @@ const icons: [string, string][] = [
   ["☰", "Hidden menu"], ["📺", "Screen"], ["📷", "Scan a QR"], ["◫", "Side by side"], ["▶ ⏸ ↺", "Play, pause, restart"],
   ["←", "Back"], ["→", "Next thing"], ["✕ ×", "Close, remove"], ["✎", "Fix in place"], ["+", "Add"], ["≡", "Drag to reorder"],
   ["★ ☆", "Chosen photo"], ["✓", "Done"], ["🔒 🔓", "Locked, may resubmit"], ["🔇", "Sound blocked"], ["👁", "Show the pin"],
-  ["🔑", "Host pin"], ["▾ ▸", "Folded section"], ["?", "The rules"], ["||||", "Tally points"], ["…", "In progress"],
+  ["🔑", "Host pin"], ["📤", "Send to yourself"], ["▾ ▸", "Folded section"], ["?", "The rules"], ["||||", "Tally points"], ["…", "In progress"],
 ];
 
 function Sheet() {
@@ -122,7 +122,7 @@ function Sheet() {
               <div className="sb-override sb-lo"><div className="choices marks sb-chips"><button>LO</button></div><span className="muted small">The meter shows LO: quieter than it can read. Everyone on LO ties.</span></div>
             </Item>
             <div className="pair">
-              <Item cap={<><code>.link</code>: quiet exits</>}><div><button className="link">Lower the curtain</button> <button className="link">Party settings</button></div></Item>
+              <Item cap={<><code>.link</code>: quiet exits; an icon in <code>.link-icon</code> isn't underlined</>}><div><button className="link">Lower the curtain</button> <button className="link"><span className="link-icon">📤</span>Send yourself the host link</button></div></Item>
               <Item cap="Icon buttons: aria-label always"><ul className="picker"><li><button>Sam</button><button className="x" aria-label="Fix">✎</button><button className="x" aria-label="Remove">×</button></li></ul></Item>
             </div>
           </Sec>
@@ -172,7 +172,7 @@ function Sheet() {
               <div className="summary-line"><span>Halloween party<span className="muted small"> · portrait set · pin set</span></span><button className="link">Change</button></div>
               <div className="summary-line"><span>♪ Song<span className="muted small"> · Eye of the Tiger · 4:05</span></span><button className="link">Change</button></div>
               <div className="extras"><button className="chip-add">+ Task text</button><button className="chip-add">+ 📏 Unit</button></div>
-              <section className="extra-open"><span>Song (optional)</span><div className="row"><button>Done</button><button className="link">✕ Remove song</button></div></section>
+              <section className="extra-open"><span>Song (optional)</span><div className="row"><button>Done</button><button className="link"><span className="link-icon">✕</span>Remove song</button></div></section>
             </div>
             <Cap>Summary lines (<code>.summary-line</code>): what's set, with "Change" to open just that part; what isn't is a "+" chip (<code>.chip-add</code>); one part open at a time (<code>.extra-open</code>)</Cap>
             <div className="mini-phone" style={{ width: "100%", display: "grid", gap: 8, marginTop: 12 }}>
