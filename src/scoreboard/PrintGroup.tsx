@@ -121,9 +121,10 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
       </div>
       {picks.rules && picks.sign && (
         <div className="toggle-options">
-          <div className="choices marks" role="radiogroup" aria-label="Rules page">
-            <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Own page</button>
-            <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>Landscape with sign</button>
+          <span className="muted small">The sign and the rules print on</span>
+          <div className="choices marks" role="radiogroup" aria-label="The sign and the rules print on">
+            <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Two pages</button>
+            <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>One landscape page</button>
           </div>
         </div>
       )}
