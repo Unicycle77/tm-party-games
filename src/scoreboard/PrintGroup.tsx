@@ -55,8 +55,8 @@ export function qrModules(value: string): boolean[][] {
 }
 
 /** What's switched on and which tasks are unticked (by id, so a task added later starts ticked). */
-interface Picks { sign: boolean; pages: boolean; secret: boolean; layout: SecretLayout; left: string[] }
-const ALL: Picks = { sign: true, pages: true, secret: true, layout: "cut", left: [] };
+interface Picks { sign: boolean; rules: boolean; together: boolean; pages: boolean; secret: boolean; layout: SecretLayout; left: string[] }
+const ALL: Picks = { sign: true, rules: true, together: false, pages: true, secret: true, layout: "cut", left: [] };
 const picksKey = (code: string) => `ba.print.${code}`;
 
 /** This phone's last picks for the party, or everything on. */
@@ -117,6 +117,15 @@ export function PrintGroup({ code, session }: { code: string; session: Session }
       <p className="muted small">{note ?? (anything ? "Opens in a new tab: one PDF of what's on, in this order, to print." : "Turn something on to print.")}</p>
       <div className="toggles">
         <Toggle label="Check-in sign" on={picks.sign} onChange={(sign) => setPicks({ sign })} />
+        <Toggle label={<>Taskmaster rules<span className="muted small"> · 5 rules</span></>} on={picks.rules} onChange={(rules) => setPicks({ rules })} />
+      </div>
+      {picks.rules && picks.sign && (
+        <div className="choices marks" role="radiogroup" aria-label="Rules page">
+          <button type="button" role="radio" aria-checked={!picks.together} onClick={() => setPicks({ together: false })}>Own page</button>
+          <button type="button" role="radio" aria-checked={picks.together} onClick={() => setPicks({ together: true })}>Landscape with sign</button>
+        </div>
+      )}
+      <div className="toggles">
         <Toggle label="Task pages" on={picks.pages} onChange={(pages) => setPicks({ pages })} />
       </div>
       {picks.pages && !picking && (
