@@ -802,6 +802,8 @@ body.idle-cursor .stage { cursor: none; }
 .party-line { margin: -0.4rem 0 0; }
 .head-icon { padding: 0.35rem 0.6rem; font-size: 1.2rem; line-height: 1; filter: grayscale(0.7); opacity: 0.75; }
 .head-icon.lit { filter: none; opacity: 1; box-shadow: 0 3px 0 var(--gold-dark), 0 0 12px var(--gold-bright); }
+/* 💡 for the second the light flashes (the big screen shows nothing): filled and glowing in the bulb's colour */
+.head-icon.flash { filter: none; opacity: 1; background: color-mix(in srgb, var(--bulb, var(--bulb-red)) 35%, var(--paper)); box-shadow: 0 3px 0 var(--gold-dark), 0 0 18px 6px var(--bulb, var(--bulb-red)); }
 .head-icon.open { outline: 3px solid var(--gold-bright); outline-offset: 2px; }
 .phone.host .link.back { justify-self: start; }
 /* host phone: what the big screen shows right now, in one line */

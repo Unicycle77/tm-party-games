@@ -4,7 +4,7 @@ import { JukeboxRemote } from "./JukeboxRemote";
 import { ClockRemote } from "./clock/ClockRemote";
 import { ClockIcon, OpenClock } from "./clock/ClockStrip";
 import { ConverterRemote } from "./conversions/ConverterRemote";
-import { isArmed, lightOf, releaseLight } from "./light/data";
+import { flashColour, isArmed, lightOf, lightTrouble, releaseLight, runsOnStage, useFlash } from "./light/data";
 import { secretTasksPlanned, useDealer, useRecordLeftovers, useSecretTasks } from "./games/secretTasks/data";
 import { TaskPile } from "./games/secretTasks/TaskPile";
 import { LightRemote } from "./light/LightRemote";
@@ -59,6 +59,7 @@ export function HostPage() {
   const uid = useUid();
   const [code, setCode] = useState(() => store.get(KEY));
   const session = useSession(code || undefined);
+  const lightFlash = useFlash(session?.light ?? {});
   // This phone remembers where the host was, so a refresh mid-game lands there; and, on a side page, where "Back" goes.
   const [place, setPlaceState] = useState<Place>(() => loadPlace(VIEW_KEY) ?? HOME);
   const [back, setBackState] = useState<Place>(() => loadPlace(BACK_KEY) ?? HOME);
@@ -100,12 +101,16 @@ export function HostPage() {
   }
   if (!session || session.controllerUid !== uid) return <main className="center"><p>Connecting…</p></main>;
 
+  // The 💡 icon pulses in the bulb's colour for each flash, since the big screen shows nothing.
+  const lightPulse = flashColour(lightOf(session), lightFlash);
   const playing = session.jukebox?.state?.playing === true;
-  const lightOn = isArmed(lightOf(session));
+  const light = lightOf(session);
+  const lightOn = isArmed(light);
   // An older phone's "the game": the game in progress's task page.
   const task = place.task === "game" ? activeTaskId(session) ?? "adhoc" : place.task;
-  const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false) => (
-    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${place.view === v ? " open" : ""}`} aria-label={label} aria-pressed={place.view === v}
+  const icon = (v: View, label: string, glyph: string, lit: boolean, alert = false, pulse?: string) => (
+    <button className={`head-icon${lit ? " lit" : ""}${alert ? " alert" : ""}${pulse ? " flash" : ""}${place.view === v ? " open" : ""}`} aria-label={label} aria-pressed={place.view === v}
+      style={pulse ? { "--bulb": pulse } as React.CSSProperties : undefined}
       onClick={() => go(place.view === v && v !== "show" ? back : { view: v })}>{glyph}</button>
   );
   const settings = <PartySettings code={code} session={session} onDisconnect={() => { void releaseController(code); disconnect(); }} />;
@@ -117,7 +122,7 @@ export function HostPage() {
       <header className="host-head">
         {icon("music", playing ? "Music (playing)" : "Music", playing ? "🎵▶" : "🎵", playing)}
         <TasksIcon code={code} session={session} icon={icon} />
-        {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn)}
+        {icon("light", lightOn ? "The light (on)" : "The light (off)", "💡", lightOn, lightTrouble(session), lightPulse)}
         {icon("convert", session.conversion ? "Useless conversions (on the big screen)" : "Useless conversions", "📏", !!session.conversion)}
         <ClockIcon session={session} icon={icon} />
       </header>
@@ -223,11 +228,15 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>
-      {session.lightUid && (
+      {session.lightUid && (runsOnStage(session) ? (
+        <button className="link" onClick={() => { if (confirm("Stop the light? The big screen turns its camera off, and the light can start again from 💡.")) void releaseLight(code); }}>
+          Stop the light on the big screen
+        </button>
+      ) : (
         <button className="link" onClick={() => { if (confirm("Reset the light? The computer running it stops, and another one can take over.")) void releaseLight(code); }}>
           Reset the light computer
         </button>
-      )}
+      ))}
       <ResetScores code={code} session={session} />
       <button className="link" onClick={onDisconnect}>Disconnect this phone</button>
     </section>

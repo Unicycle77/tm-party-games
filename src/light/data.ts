@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { PUBLIC_URL, db } from "../firebase";
 import { JoinError, ensureSignedIn } from "../session";
 import { enterPoints, lightPlaces, taskFor } from "../scoreboard/data";
-import type { LightState, Session } from "../types";
+import type { LightState, Session, StageLightAsk, StageLightInfo } from "../types";
 import { type Mode, type Trigger, findMode, findTrigger } from "./triggers";
 
 /** How long after someone does the trigger the light goes on, and for how long. */
@@ -101,7 +101,31 @@ export async function claimLight(rawCode: string): Promise<string> {
  * The light page giving up its slot, or the host resetting it so another computer can take over.
  * Clears what the camera saw in the same write (the page can't once it has given up the slot).
  */
-export const releaseLight = (code: string) => update(ref(db(), `sessions/${code}`), { lightUid: null, "light/camera": null });
+export const releaseLight = (code: string) => update(ref(db(), `sessions/${code}`), {
+  lightUid: null, "light/camera": null, "light/onStage": null, "light/stage": null, "light/setup": null, "light/ask": null,
+});
+
+/** The host phone starting the light on the main screen, with the setup checklist open. */
+export const startOnStage = (code: string) => update(ref(db(), `sessions/${code}/light`), { onStage: true, setup: true });
+/** The phone's setup checklist opening or closing (the main screen then sends where it finds heads, or stops). */
+export const setSetup = (code: string, open: boolean) => set(path(code, "setup"), open || null);
+/** Asks the main screen to change its camera or Hue lamp (kept in its browser), or to flash the lamp. */
+export const askStage = (code: string, kind: StageLightAsk["kind"], value?: string) =>
+  set(path(code, "ask"), { id: Date.now(), kind, ...(value !== undefined && { value }) });
+/** The main screen doing what the phone asked, or giving up on it. */
+export const clearAsk = (code: string) => set(path(code, "ask"), null);
+export const setStageInfo = (code: string, info: StageLightInfo | null) => set(path(code, "stage"), info);
+
+/** The light is running on the main screen (not on a computer at /light). */
+export const runsOnStage = (session: Session) => !!session.lightUid && lightOf(session).onStage === true;
+/**
+ * The light on the main screen needs the host: its Hue lamp isn't responding, or its camera failed while on.
+ * With nothing on the big screen, the lamp is the only light.
+ */
+export function lightTrouble(session: Session): boolean {
+  const light = lightOf(session);
+  return runsOnStage(session) && (!!light.stage?.hue?.error || (isArmed(light) && !!light.camera?.error));
+}
 
 /** The light never changes (on, off, or to another colour) more often than this. */
 export const MIN_CHANGE_MS = 500;
@@ -175,7 +199,7 @@ export function cameraText(session: Session): string {
   const light = lightOf(session);
   const camera = light.camera;
   if (!session.lightUid) return `Not running. Open ${PUBLIC_URL.replace(/^https?:\/\//, "")}/light on the computer with the webcam.`;
-  if (!camera) return "The light computer isn't responding. Check that its /light page is still open.";
+  if (!camera) return runsOnStage(session) ? "The big screen isn't responding. Check that it's still open." : "The light computer isn't responding. Check that its /light page is still open.";
   if (!isArmed(light)) return "Off. The camera isn't watching.";
   if (camera.error) return `Camera: ${camera.error}`;
   if (camera.starting || camera.off) return "Camera starting…";
@@ -186,4 +210,12 @@ export function cameraText(session: Session): string {
   for (const t of watchedTriggers(light)) states.set(t.state, camera.each?.[t.id] ?? 0);
   if (!modeOf(light)) return `${seen}, ${[...states.values()][0] ?? 0} ${triggerOf(light).state}.`;
   return `${seen}: ${[...states].map(([state, n]) => `${n} ${state}`).join(", ")}.`;
+}
+
+/** The colour a flash shows in (a rainbow spin: its first bulb's), for the host phone's 💡 pulse. */
+export function flashColour(light: LightState, flash: string | undefined): string | undefined {
+  if (!flash) return undefined;
+  const mode = modeOf(light);
+  if (!mode) return flash === ONE ? "var(--bulb-red)" : undefined;
+  return (mode.bulbs.find((b) => b.trigger.id === flash) ?? (mode.spins?.some((t) => t.id === flash) ? mode.bulbs[0] : undefined))?.colour;
 }

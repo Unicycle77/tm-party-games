@@ -54,6 +54,12 @@ const SHOTS = {
   "light-host-got-it": ["host-light"],
   "light-main-all": ["tv-light-all", "", async (p) => { await p.waitForTimeout(3000); }],
   "light-host-change": ["host-light-change", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
+  // the light run by the big screen, set up from the phone: not started, the camera check, the lamp check, ready, and the 💡 pulsing for a flash
+  "light-host-start": ["host-light-start"],
+  "light-host-camera": ["host-light-camera"],
+  "light-host-lamp": ["host-light-lamp", "", async (p) => { await p.getByRole("button", { name: "Next: the Hue lamp" }).click(); }],
+  "light-host-ready": ["host-light-ready"],
+  "light-host-flash": ["host-light-flash", "", async (p) => { await p.waitForSelector(".head-icon.flash"); }, ".host-head"],
   "noisemaster-host-setup": ["host-noisemaster-setup", "", async (p) => {
     await p.getByRole("button", { name: "Sam", exact: true }).click();
     await p.getByPlaceholder(/quick brown fox/).fill("I am the Noisemaster");

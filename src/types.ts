@@ -204,6 +204,40 @@ export interface LightState {
    * it (the smallest got it first). Only the order counts, so taking someone off leaves a gap, not a renumbering.
    */
   got?: Record<string, number>;
+  /**
+   * The host started the light on the main screen (from the phone): the main screen's browser runs the
+   * camera and the Hue lamp out of sight, instead of a computer at /light. Cleared when it stops.
+   */
+  onStage?: boolean;
+  /** The host phone has the setup checklist open: the main screen sends where it finds heads, and runs the camera even while it's off. */
+  setup?: boolean;
+  /** What the main screen running the light has (its cameras and Hue lamps), for the host phone's setup checklist. */
+  stage?: StageLightInfo;
+  /** The host phone asking the main screen to change its camera or Hue lamp (they're kept in that browser); it clears this once done. */
+  ask?: StageLightAsk;
+}
+
+/** A head the main screen's camera finds, as a share (0 to 1) of the picture, and whether its face is read. */
+export interface StageHead { x: number; y: number; w: number; h: number; read: boolean }
+
+export interface StageLightInfo {
+  /** The cameras that browser can use, and the one it's using. */
+  cameras?: { id: string; label: string }[];
+  cameraId?: string;
+  /** Whether the detection runs on the processor (picked, or because the graphics card didn't start). */
+  cpu?: boolean;
+  /** Where the camera finds heads, only while the phone's checklist is open. Never the picture. */
+  heads?: StageHead[];
+  /** The Hue Bridge it's paired with, its lamps, which of them flash, and how the last ask went. The bridge's key stays in that browser. */
+  hue?: { bridge?: string; lamps?: { id: string; name: string; color: boolean }[]; chosen?: Record<string, boolean>; found?: string[]; busy?: string; error?: string };
+}
+
+export interface StageLightAsk {
+  /** A new number for each ask, so the same ask twice runs twice. */
+  id: number;
+  kind: "camera" | "processor" | "find" | "connect" | "lamp" | "test";
+  /** The camera's id, "cpu" or "gpu", the bridge's address, or a lamp's id. */
+  value?: string;
 }
 
 /**
