@@ -89,7 +89,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   // Just finished checking in: the status line says so once.
   const [justIn, setJustIn] = useState(false);
   // A row the guest tapped, shown in the card's place. A task starting closes it.
-  const [open, setOpen] = useState<"envelope" | "prize">();
+  const [open, setOpen] = useState<"envelope" | "prize" | "rules">();
   const [prizeBusy, setPrizeBusy] = useState(false);
   const [later, setLater] = useState(() => store.get(`${LATER_KEY}.${code}`) === "1");
   useEffect(() => { setOpen(undefined); setJustIn(false); }, [session.game]);
@@ -147,6 +147,8 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   const rows: TodoRow[] = [];
   if (id && !checkingIn) {
+    // Draft: every party has the standard rules until they're saved per party.
+    rows.push({ id: "rules", icon: "✓", label: "Taskmaster rules", state: "agreed", tone: "done", onOpen: () => setOpen("rules") });
     rows.push({ id: "headshot", icon: "✓", label: "Headshot", state: "done", tone: "done" });
     if (planned && task !== undefined) {
       rows.push(task ? { id: "envelope", icon: "✓", label: "Secret envelope", state: "picked", tone: "done", onOpen: () => setOpen("envelope") }
@@ -198,6 +200,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
             onLater={() => { store.set(`${LATER_KEY}.${code}`, "1"); setLater(true); setOpen(undefined); }}
             onSent={() => setOpen("prize")} />
         )}
+        {open === "rules" && <RulesCard key="rules" small />}
         {open && !prizeBusy && <button key="back" className="link back" onClick={() => setOpen(undefined)}>← Back</button>}
         <TodoList rows={rows} />
         {/* Disconnects this phone only, back to the join screen to pick a name or a different code: the player's tile and entries stay. Only the host removes players. */}
