@@ -86,6 +86,7 @@ const SHOTS = {
   // a task with two parts (Individual, then Team)
   "plan-host-task-cards": ["host-plan", "", async (p) => { await p.getByRole("switch", { name: /secret tasks/ }).check(); }],
   "print-group-sketch": ["host-plan-pile", "", undefined, "section.task-cards"],
+  "print-group-pick-sketch": ["host-plan-pile", "", async (p) => { const s = p.locator("section.task-cards"); await s.getByRole("button", { name: "Change" }).click(); await s.locator(".choices.two button").nth(1).click(); await s.locator(".choices.two button").nth(3).click(); }, "section.task-cards"],
   "task-page-host-live": ["host-onepart"],
   "task-page-host-live-up": ["host-onepart-up"],
   "task-parts-host": ["host-parts"],
