@@ -153,7 +153,7 @@ export function MainScreen() {
         {lost && (
           <p className="error">
             Session {lost} was resumed on another screen.{" "}
-            <button className="link" onClick={() => showHere(lost)}>📺 Show it here as an extra screen</button>
+            <button className="link" onClick={() => showHere(lost)}><span className="link-icon">📺</span>Show it here as an extra screen</button>
           </p>
         )}
         {error && <p className="error">{error}</p>}

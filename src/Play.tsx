@@ -32,7 +32,14 @@ const saveCheckIn = (c: CheckIn | undefined) => store.set(CHECKIN_KEY, c ? JSON.
 
 export function Play() {
   const uid = useUid();
-  const [code, setCode] = useState(() => store.get(CODE_KEY));
+  // A QR scanned for another party wins over the one saved here: forget the old one, and the join form opens on the new code.
+  // The old party keeps this guest's tile and entries; scanning its QR again gets them back. The same party's QR changes nothing.
+  const [code, setCode] = useState(() => {
+    const saved = store.get(CODE_KEY);
+    const scanned = (new URLSearchParams(location.search).get("code") ?? "").toUpperCase().slice(0, 4);
+    if (scanned.length === 4 && saved && scanned !== saved) { store.set(CODE_KEY, ""); return ""; }
+    return saved;
+  });
   const session = useSession(code || undefined);
 
   // Why this phone was dropped back to the join form, if it didn't choose to leave.

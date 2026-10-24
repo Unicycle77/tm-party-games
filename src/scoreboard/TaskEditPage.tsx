@@ -59,7 +59,7 @@ function Extra({ label, summary, open, onOpen, onClose, onClear, children }: {
       {children}
       <div className="row">
         <button type="button" onClick={onClose}>Done</button>
-        {summary && <button type="button" className="link" onClick={onClear}>✕ Remove {label.toLowerCase()}</button>}
+        {summary && <button type="button" className="link" onClick={onClear}><span className="link-icon">✕</span>Remove {label.toLowerCase()}</button>}
       </div>
     </section>
   );
@@ -200,7 +200,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
               <p className="part-label">Part {i + 2}</p>
               <TaskTypeField type={p.type} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, type: t } : x))} />
               <TaskTextField text={p.text} onChange={(t) => setParts(parts.map((x) => x.k === p.k ? { ...x, text: t } : x))} />
-              <button type="button" className="link" onClick={() => setParts(parts.filter((x) => x.k !== p.k))}>✕ Remove this part</button>
+              <button type="button" className="link" onClick={() => setParts(parts.filter((x) => x.k !== p.k))}><span className="link-icon">✕</span>Remove this part</button>
             </div>
           ))}
           {/* App tasks have one part, except Secret Tasks: the rules, then the reveal. */}

@@ -96,7 +96,7 @@ export function PartySummary({ code, session }: { code: string; session: Session
         <div className="party-settings">
           <PartyName code={code} session={session} />
           <Portrait code={code} session={session} />
-          <HostPinSetting code={code} />
+          <HostPinSetting code={code} name={session.name ?? null} />
           <UnitsSetting code={code} session={session} />
         </div>
       )}

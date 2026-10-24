@@ -187,6 +187,10 @@ const SHOTS = {
     await p.getByRole("button", { name: /Or pick one/ }).click(); await p.getByLabel("Find a thing").fill("jim"); await p.getByRole("button", { name: /^Jimothy/ }).click();
   }],
   "host-start-convert": ["start-host"],
+  // Taking over the remote with no big screen: on Plan the party, the pin set and "📤 Send yourself the host link" under it;
+  // the phone that was bumped, back on its start page, with "Another phone took over …" and gold "Take it back"
+  "host-pin-send-link": ["host-plan-pin", "", async (p) => { await p.locator(".party-summary").getByRole("button", { name: "Change" }).click(); }, ".party-summary"],
+  "host-taken-over": ["start-host-taken"],
 };
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:
