@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
 import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
@@ -6,6 +6,7 @@ import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
+import { OpenClock } from "../clock/ClockStrip";
 import { contestantsOf, pickNext, startFromTask, takeTurns, useClock } from "../clock/data";
 import { limitsOf, timeLabel } from "../clock/timesIn";
 import { useServerOffset } from "../games/noisemaster/data";
@@ -103,13 +104,18 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
  * it in one press. Always gold: the task may be on paper, so it never waits for the words to be up. Gone while this task's clock
  * counts or is held (the strip above has it); back once it's done, or the clock was used for something else. A task in parts
  * has one under each part's card that has a time, so a part's clock (or the same one, once per player) is always one press.
+ * A live task with no time anywhere has just a quiet "⏱ Time this task" into ⏱.
  */
 function StartClock({ code, session, id, part = 1 }: { code: string; session: Session; id: string; part?: number }) {
   const view = useClock(session);
   const offset = useServerOffset();
   const task = session.scoreboard?.tasks?.[id];
+  const open = useContext(OpenClock);
   const limit = limitsOf(task).find((l) => l.part === part);
-  if (!task || task.game || !limit) return null;
+  if (!task || task.game) return null;
+  // No time in the words or ✎: a quiet way into ⏱, set up for this task. Once, under the last card.
+  if (!limit) return part === Math.max(1, partsOf(task).length) && !limitsOf(task).length
+    ? <button className="link" onClick={open}>⏱ Time this task</button> : null;
   if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
   const turns = session.clock?.turns;
   if (turns?.task === id && turns.part === part) {
