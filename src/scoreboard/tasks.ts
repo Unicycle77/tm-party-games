@@ -64,3 +64,6 @@ export const allScored = (board: Scoreboard | undefined, t: ScoreboardTask) => {
   const contestants = Object.keys(board?.contestants ?? {});
   return contestants.length > 0 && contestants.every((c) => t.scores?.[c] !== undefined || t.dq?.[c]);
 };
+
+/** The arrival task (its ✎ switch "Give it to guests at check-in"), if it has words to give: the last step of check-in. */
+export const arrivalOf = (session: Session) => Object.values(session.scoreboard?.tasks ?? {}).find((t) => t.checkin && t.text?.trim());

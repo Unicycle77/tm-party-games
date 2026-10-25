@@ -18,6 +18,7 @@ import type { Player, Session } from "./types";
 import { stingFiles } from "./sting";
 import { lightOf } from "./light/data";
 import { StingStage } from "./StingStage";
+import { StageBar } from "./StageBar";
 import { rulesOf } from "./rules";
 import { RulesStage } from "./scoreboard/RulesSetup";
 import { stingPictureUrl } from "./stingPictures";
@@ -44,6 +45,10 @@ export function screenState(session: Session) {
 export function Screen({ code, session, viewOnly = false, footer }: {
   code: string; session: Session; viewOnly?: boolean; footer?: React.ReactNode;
 }) {
+  return <StageBar code={code} session={session} enabled={!viewOnly}><ScreenStage code={code} session={session} viewOnly={viewOnly} footer={footer} /></StageBar>;
+}
+
+function ScreenStage({ code, session, viewOnly, footer }: { code: string; session: Session; viewOnly: boolean; footer?: React.ReactNode }) {
   const { game, display, onStage } = screenState(session);
   const players = Object.entries(session.players ?? {});
 

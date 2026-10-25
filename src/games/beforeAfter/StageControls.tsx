@@ -1,6 +1,7 @@
+import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { patchDisplay, setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { Display } from "../../types";
 
 type StageStep = "before" | "after" | "both" | "video";
@@ -52,7 +53,7 @@ export function StageControls({ code, display, hasVideo }: { code: string; displ
   });
 
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       {!review && available.map((s) => (
         <button key={s} className={s === step ? "active" : ""} onClick={() => go(s)} tabIndex={visible ? 0 : -1}>{LABEL[s]}</button>
       ))}
@@ -64,7 +65,6 @@ export function StageControls({ code, display, hasVideo }: { code: string; displ
           <button onClick={() => void patchDisplay(code, { playing: true, restartAt: Date.now() })} tabIndex={visible ? 0 : -1}>↺ Restart</button>
         </>
       )}
-      <button onClick={back} tabIndex={visible ? 0 : -1}>Lower the curtain</button>
-    </div>
+    </GameBar>
   );
 }

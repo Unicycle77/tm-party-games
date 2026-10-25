@@ -110,8 +110,8 @@ export interface TodoRow {
   icon: string;
   label: string;
   state: string;
-  /** done: muted; next: the one in the card, in gold. */
-  tone?: "done" | "next";
+  /** done: muted, receding; open: still to do, its state a gold tag to tap; next: the one in the card, in gold. */
+  tone?: "done" | "open" | "next";
   onOpen?: () => void;
 }
 

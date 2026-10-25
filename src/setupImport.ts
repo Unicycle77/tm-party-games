@@ -60,6 +60,8 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
     if (r.scoring === "highest" || r.scoring === "lowest") task.scoring = r.scoring;
     if (typeof r.dqOver === "number" && Number.isFinite(r.dqOver)) task.dqOver = r.dqOver;
     if (r.dqStays === true) task.dqStays = true;
+    // One arrival task at most: the first in the file.
+    if (r.checkin === true && !game && task.text && !tasks.some((t) => t.checkin)) task.checkin = true;
     if (game === "flipchart") {
       const draw = str(r.draw, 120);
       if (draw) task.draw = draw;
@@ -123,9 +125,9 @@ export interface ImportPlan {
 const hasPoints = (t: ScoreboardTask) => ["scores", "results", "given", "bonus", "dq"].some((k) => Object.keys((t as unknown as Record<string, object | undefined>)[k] ?? {}).length > 0);
 
 /** The party fields a file task sets: each is written, or cleared when the file doesn't have it. Points and results are never among them. */
-const FIELDS = ["name", "game", "type", "text", "limit", "parts", "description", "song", "transition", "transitionImage", "transitionVideo", "scoring", "unit", "dqOver", "dqStays", "draw", "minutes"] as const;
+const FIELDS = ["name", "game", "type", "text", "limit", "parts", "description", "song", "transition", "transitionImage", "transitionVideo", "scoring", "unit", "dqOver", "dqStays", "checkin", "draw", "minutes"] as const;
 const fieldsOf = (t: SetupTask): Record<(typeof FIELDS)[number], unknown> => ({
-  name: t.name, game: t.game, type: t.type, text: t.text, limit: t.limit, parts: t.parts, description: t.note, song: t.song, transition: t.transition, transitionImage: t.transitionImage, transitionVideo: t.transitionVideo, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, draw: t.draw, minutes: t.minutes,
+  name: t.name, game: t.game, type: t.type, text: t.text, limit: t.limit, parts: t.parts, description: t.note, song: t.song, transition: t.transition, transitionImage: t.transitionImage, transitionVideo: t.transitionVideo, scoring: t.scoring, unit: t.unit, dqOver: t.dqOver, dqStays: t.dqStays, checkin: t.checkin, draw: t.draw, minutes: t.minutes,
 });
 const sameValue = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 

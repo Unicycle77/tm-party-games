@@ -3,7 +3,6 @@ import { Curtain } from "../../Curtain";
 import { Framed } from "../../Framed";
 import { SafeImg } from "../../SafeImg";
 import { setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
 import type { Display, Session } from "../../types";
 import { haulWinner, prizePhotos } from "./data";
 
@@ -16,9 +15,8 @@ export function Stage({ code, session, display, viewOnly }: { code: string; sess
   return <PrizePhoto name={name} photo={photo}>{!viewOnly && <StageControls code={code} />}</PrizePhoto>;
 }
 
-/** Backup control for the main screen: the host picks every photo, so only Esc or Backspace, to lower the curtain. */
+/** Backup control for the main screen: the host picks every photo, so only Backspace (Esc too), to lower the curtain; the stage chips do the rest. */
 function StageControls({ code }: { code: string }) {
-  const visible = useStageBarVisible();
   const back = () => void setDisplay(code, { step: "curtain" });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -29,11 +27,7 @@ function StageControls({ code }: { code: string }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
-  return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
-      <button onClick={back} tabIndex={visible ? 0 : -1}>Lower the curtain</button>
-    </div>
-  );
+  return null;
 }
 
 /**

@@ -86,6 +86,7 @@ function build() {
     t5: { order: 5, game: "noisemaster" },
   };
   for (let i = 6; i <= 8; i++) tasks[`t${i}`] = { order: i, name: `Live task ${i}` };
+  if (shot.startsWith("checkin") || shot === "host-edit-arrival" || shot === "home-arrival") tasks.t0 = { order: 0, name: "Entrance", type: "Arrival", checkin: true, text: "Make the most obsequious entrance.\n\nYou must enter through the front door and greet the TASKMASTER before anyone else. You may use anything you brought with you, but nothing from inside the house.\n\nYour entrance will be judged as it happens. You only get one.\n\nYour time starts now." };
   // Plan the party shows the lineup to a friend, so its live tasks have real names: the ones played elsewhere tonight.
   if (shot.startsWith("host-plan")) {
     tasks.t6 = { order: 6, name: "Dice tower", type: "Individual", text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins." };
@@ -127,6 +128,7 @@ function build() {
     case "home-todo-envelope": delete tasks.t3; break;
     case "home-prize-ask": picked(); break;
     case "home-waiting": picked(); q.set("later", "1"); break;
+    case "home-arrival": picked(); q.set("later", "1"); break;
     case "task-photos": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; break;
     case "task-photos-sent": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; (g.photos!.media as Record<string, unknown>)[who] = { photo: pic("👑", "#3a2a1c") }; break;
     case "prize-check": picked(); q.set("pick", "1"); break;
@@ -169,6 +171,13 @@ function build() {
       if (shot === "host-points") (tasks.t3 as { scores?: Record<string, number> }).scores = { alex: 3, greg: 4, priya: 5, sam: 5 };
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true } };
       break;
+    // The prize task's page before it starts, mid-party: Sam, Priya and Greg have sent theirs; Alex, Mei and Tom haven't.
+    case "host-prize-before": {
+      picked();
+      const { sam, priya, greg } = PRIZE_PHOTOS;
+      g.prize = { photos: { sam, priya, greg } };
+      break;
+    }
     // The scoreboard on the big screen as guests arrive, before any points: Mei and Sam, not in yet, are mosaics.
     case "tv-pixel-arriving": picked(); set("display", { step: "scoreboard" }); break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
@@ -299,7 +308,10 @@ function build() {
     // with its strip, beside Flipchart's own clock; and as a stopwatch (Five socks, Alex timed, Greg going); and on the big screen.
     // The limit shots: part 1's words give no time, so the host set 4 minutes on it in ✎ (open, then closed); ⏱ offers it.
     case "host-cd-limit-edit": case "host-cd-limit-summary": case "host-cd-limit-set":
-    case "host-cd-set": case "host-cd-song": case "host-cd-running": case "host-cd-task": case "host-cd-flipchart": case "host-sw-running": case "tv-cd": case "tv-sw": {
+    // From the task page: Hum a theme tune timed one player at a time (Alex has had his minute, Greg is next, then Greg's on the big
+    // screen), Five socks (no time in its words) with its quiet way into ⏱, and ⏱ itself at 0:00.
+    case "host-cd-turns": case "tv-cd-turn": case "host-cd-untimed": case "host-cd-done":
+    case "host-cd-set": case "host-cd-song": case "host-cd-running": case "host-cd-task": case "host-cd-stuck": case "host-cd-flipchart": case "host-sw-running": case "tv-cd": case "tv-sw": {
       picked(); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true]));
       const now = Date.now();
@@ -310,6 +322,7 @@ function build() {
       };
       if (shot.startsWith("host-cd-limit")) Object.assign(tasks.t6 as object, { text: "Build the tallest tower out of dice.\n\nYour time starts now. Tallest standing tower wins.", limit: 240_000 });
       tasks.t7 = { order: 7, name: "Five socks", type: "Individual", text: "Put on five socks, a sock at a time, as fast as you can. Fastest wins.", scoring: "lowest", results: { alex: 41.3 } };
+      tasks.t8 = { order: 8, name: "Hum a theme tune", type: "Individual", text: "One at a time, hum the theme tune of a TV show for the others to guess.\n\nYou each have 1 minute. Most guessed wins." };
       session.jukebox = {
         tracks: ["Think music", "Eye of the Tiger", "Final countdown"], durations: [32, 245, 190], open: true, state: {},
       };
@@ -320,7 +333,14 @@ function build() {
       if (shot === "host-cd-limit-set") set("clock", { set: 240_000, ms: 240_000, task: "t6" });
       if (shot === "host-cd-song") set("clock", { set: 180_000, ms: 180_000, task: "t6", song: "Think music" });
       if (shot === "host-cd-running" || shot === "host-cd-task") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000 });
+      // The clock left up over the task's words (the first party's stuck clock), for the stage chips.
+      if (shot === "host-cd-stuck") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000, shown: true });
       if (shot === "tv-cd") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000, shown: true });
+      if (shot === "host-cd-done") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now - 4_000, shown: true });
+      if (shot === "host-cd-turns") set("clock", { set: 60_000, ms: 60_000, task: "t8", begun: true, at: now - 4_000, shown: true, who: "alex", turns: { task: "t8", part: 1, took: { alex: true } } });
+      if (shot === "tv-cd-turn") set("clock", { set: 60_000, ms: 60_000, task: "t8", begun: true, at: now + 47_000, shown: true, who: "greg", turns: { task: "t8", part: 1, took: { alex: true, greg: true } } });
+      if (shot === "host-cd-turns" || shot === "tv-cd-turn") set("display", { step: "tasktext", task: "t8" });
+      if (shot === "host-cd-untimed") set("display", { step: "curtain" });
       if (stopwatch) set("clock", { mode: "up", ms: 0, task: "t7", begun: true, at: now - 17_300, going: { greg: true }, shown: true });
       if (shot === "host-cd-flipchart") {
         task("flipchart"); tasks.t9 = { order: 9, game: "flipchart", ...flipchartDefaults() };
@@ -391,6 +411,7 @@ function build() {
       });
       break;
     case "checkin-rules": case "checkin-pile": case "checkin-house-rules": break;
+    case "checkin-arrival": picked(); break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
   return { session, secret };
@@ -399,7 +420,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-prize-before" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 // Loading the pile before the night: nobody has an envelope yet, and the pile holds the six that get picked plus four more.
 if (shot === "host-plan-pile") {
   secret.assigned = {}; secret.seen = {};
@@ -413,16 +434,18 @@ if (shot.includes("drawing")) localStorage.setItem(`ba.flipchart.page.${CODE}`, 
 if (shot.includes("send")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "16");
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
+// Sam has had the arrival task at the door, so it shows only behind the quiet link.
+if (shot === "home-arrival") localStorage.setItem(`ba.arrival.${CODE}`, "1");
 if (joined && shot.startsWith("checkin")) {
-  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true }));
+  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true, arrival: true }));
   (session.players as Record<string, unknown>)[who] = { name: people[who], joinedAt: 9, contestant: who };
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-edit-arrival" ? { view: "edit", task: "t0" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" || shot === "host-prize-before" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
-  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" ? { view: "task", task: "t6" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));
+  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" || shot === "host-cd-stuck" ? { view: "task", task: "t6" } : shot === "host-cd-turns" ? { view: "task", task: "t8" } : shot === "host-cd-untimed" ? { view: "task", task: "t7" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));
   localStorage.setItem("ba.hostBack", JSON.stringify({ view: "task", task: shot.startsWith("host-sw") ? "t7" : shot === "host-cd-flipchart" ? "t9" : "t6" }));
 }
 // 📏 on its own at /convert, in US units; the host remote's start page, with the party in its recent list.
@@ -446,5 +469,5 @@ const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 if (shot === "host-light-flash") window.setTimeout(() => void lightNow(CODE), 1200);
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={shot !== "tv-zip"} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={!q.get("bar") && shot !== "tv-zip"} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);

@@ -1,3 +1,4 @@
 #!/bin/sh
 # Turned on by `npm install` (the "prepare" script sets core.hooksPath to this folder).
 node scripts/check-rules.mjs
+node scripts/check-names.mjs

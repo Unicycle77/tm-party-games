@@ -95,8 +95,8 @@ export const addFiveMinutes = (code: string, endsAt: number) => update(ref(db(),
 export const endNow = (code: string, offset: number) => update(ref(db(), path(code)), { closed: true, endsAt: Date.now() + offset });
 
 /**
- * Whoever runs the big screen or the host's phone closes the round when the clock runs out, so every portrait is final
- * and the running order can start. Guests' own phones send their portrait at the same moment.
+ * The main screen closes the round when the clock runs out, so every portrait is final and the running order can start.
+ * Guests' own phones send their portrait at the same moment.
  */
 export function useCloser(code: string, session: Session, enabled: boolean) {
   const offset = useServerOffset();
@@ -108,6 +108,12 @@ export function useCloser(code: string, session: Session, enabled: boolean) {
     const timer = window.setTimeout(() => { void update(ref(db(), path(code)), { closed: true }); }, wait);
     return () => window.clearTimeout(timer);
   }, [live, endsAt, offset, code]);
+}
+
+/** Main screen: closes the round on time whatever is up, the curtain included (see `useCloser`). */
+export function FlipchartCloser({ code, session }: { code: string; session: Session }) {
+  useCloser(code, session, true);
+  return null;
 }
 
 /** Saves a task's what-they-draw and time limit (its words follow from them, see `editTask`). */

@@ -39,8 +39,8 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   const unscored = tasks.filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const final = !!board?.final;
   const adHoc = !activeTaskId(session) ? activeGame(session) : undefined;
-  // Until the first task starts (its first points, or ▶ Start) the page is about who's here.
-  const arrivals = !tasks.some(([, t]) => scored(t)) && !activeTaskId(session) && !up && !haulUp;
+  // Until the first task starts (its first points, or ▶ Start) the page is about who's here. Entrances are scored as guests arrive, so the arrival task's points don't count.
+  const arrivals = !tasks.some(([, t]) => scored(t) && !t.checkin) && !activeTaskId(session) && !up && !haulUp;
   const finale = tasks.length > 0 && unscored.length === 0 && !final && !haulUp && !winner;
 
   // The scoreboard's next step takes the top slot, so there's only ever one gold button.
@@ -68,8 +68,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
     </>
   ) : up ? <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button> : undefined;
 
-  // Side actions on the big screen, each gone while what it shows is up.
-  const scoresChip = !up && !haulUp && !winner;
+  // "Show rules", gone while they're up (the scores are a stage chip, on every page).
   const rulesChip = !!rulesOf(session) && session.display?.step !== "rules";
 
   return (
@@ -79,11 +78,8 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
         <JoinQr code={code} session={session} />
       </div>
-      <OnScreen code={code} session={session} chip={(scoresChip || rulesChip) && (
-        <div className="line-chips under">
-          {scoresChip && <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button>}
-          {rulesChip && <button className="line-chip-button" onClick={() => void showRules(code)}>Show rules</button>}
-        </div>
+      <OnScreen code={code} session={session} chip={rulesChip && (
+        <button className="line-chip-button under" onClick={() => void showRules(code)}>Show rules</button>
       )} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}

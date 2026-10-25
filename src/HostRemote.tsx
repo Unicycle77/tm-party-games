@@ -1,12 +1,14 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type ReactNode } from "react";
 import { ClockStrip } from "./clock/ClockStrip";
+import { putUpClock } from "./clock/data";
 import { asList, asNums, fmt } from "./JukeboxRemote";
 import { rulesOf } from "./rules";
 import { stingFiles } from "./sting";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
+import { showScoreboard } from "./scoreboard/data";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
 import { endSting, noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
@@ -53,24 +55,56 @@ export function onScreenLine(session: Session): string {
   const data = session.games?.[game.id];
   const shown = (data && "shown" in data && data.shown) || {};
   if (display.step === "list" && game.holdsScreen?.(session)) return "the clock";
+  if (display.step === "curtain" && game.holdsScreen?.(session)) return "the curtain, while they draw";
   if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
   if (display.step === "curtain") return `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
   return "everyone's entries";
 }
 
 /**
- * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
- * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
+ * The status line opening every page, and under it the stage chips, then, while a song plays, the "now playing" strip: one tap
+ * pauses it wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
  */
 export function OnScreen({ code, session, chip, noClock }: { code: string; session: Session; chip?: ReactNode; noClock?: boolean }) {
+  const line = onScreenLine(session);
   return (
     <>
-      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      <p className="on-screen">On the big screen: {line}</p>
+      {!noBigScreen(session) && <StageChips code={code} session={session} line={line} />}
       {chip}
       {!noClock && <ClockStrip code={code} session={session} />}
       <TransitionStrip code={code} session={session} />
       <NowPlaying code={code} session={session} />
     </>
+  );
+}
+
+/**
+ * Task · Scores · Clock · Curtain: the four things the host puts on the big screen from anywhere, one tap each, always all four in
+ * the same place. Task is the app task's own screen (the task card with who's sent, or the game's board), greyed out while no app
+ * task is on. The one up now is pressed in, read from the status line so the two always agree, and tapping it does nothing:
+ * Curtain is the way down, never a second tap (a clock that hid on one stranded a host's first party). Each ends a transition first.
+ */
+export function StageChips({ code, session, line }: { code: string; session: Session; line: string }) {
+  const game = activeGame(session);
+  const holds = !!game?.holdsScreen?.(session);
+  const step = session.display?.step ?? "list";
+  const appStep = game && (game.status ? "list" : game.firstStep);
+  // Nothing covering it (a conversion, the clock, a transition), and not a round's clock (that's Clock's).
+  const appUp = !!appStep && step === appStep && !session.conversion && !session.clock?.shown && !stingFiles(session) && !holds;
+  // A transition covers everything, so a chip ends it first (its music too: a reset is to get it off the screen).
+  const endThen = (go: () => Promise<unknown>) => (stingFiles(session) ? endSting(code) : Promise.resolve()).then(go);
+  const chip = (label: string, up: boolean, go: (() => Promise<unknown>) | undefined) => (
+    <button className={`line-chip-button${up ? " pressed-in" : ""}`} aria-pressed={up} disabled={!go} onClick={() => { if (!up && go) void endThen(go); }}>{label}</button>
+  );
+  return (
+    <div className="stage-chips" role="group" aria-label="Put on the big screen">
+      {chip("Task", appUp, appStep && (() => setDisplay(code, { step: appStep })))}
+      {chip("Scores", line.startsWith("the scores"), () => showScoreboard(code))}
+      {/* While a round holds the screen, its clock is the one to bring back. */}
+      {chip("Clock", line === "the clock", () => holds ? setDisplay(code, { step: "list" }) : putUpClock(code, session))}
+      {chip("Curtain", line.startsWith("the curtain"), () => setDisplay(code, { step: "curtain" }))}
+    </div>
   );
 }
 

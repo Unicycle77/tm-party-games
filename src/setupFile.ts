@@ -29,6 +29,8 @@ export interface SetupTask {
   unit?: TaskUnit;
   dqOver?: number;
   dqStays?: true;
+  /** The arrival task: its words are the last step of check-in. One task at most. */
+  checkin?: true;
   /** Flipchart: what the guests draw, and the minutes they get. */
   draw?: string;
   minutes?: number;
@@ -65,6 +67,7 @@ const taskOf = (t: ScoreboardTask): Omit<SetupTask, "id"> => ({
   ...(t.unit && { unit: t.unit }),
   ...(t.dqOver !== undefined && { dqOver: t.dqOver }),
   ...(t.dqStays && { dqStays: true as const }),
+  ...(t.checkin && { checkin: true as const }),
   ...(t.draw && { draw: t.draw }),
   ...(t.minutes !== undefined && { minutes: t.minutes }),
 });

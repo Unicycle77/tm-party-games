@@ -1,12 +1,13 @@
+import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { Framed } from "../../Framed";
 import { Review } from "../../Review";
 import { setDisplay, showContestant } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import { TaskCard } from "../../TaskCard";
 import type { Display, Session } from "../../types";
 import { FlipClock } from "../../clock/FlipClock";
-import { closed, drawOf, flipchartStatus, flipchartTask, flipchartWords, running, useCloser, useRemaining } from "./data";
+import { closed, drawOf, flipchartStatus, flipchartTask, flipchartWords, running, useRemaining } from "./data";
 import { Portrait } from "./Portrait";
 import { PORTRAIT_RATIO, pagesOf } from "./strokes";
 
@@ -19,9 +20,8 @@ const portraitsOf = (session: Session) =>
  * While the guests draw: the show's clock, the big screen's one focus, with the usual tally beside it (see Screen). Before the
  * clock starts and after it stops, the task's words as on every task, with the stamp once everyone's portrait is in.
  */
-export function Collecting({ code, session, viewOnly }: { code: string; session: Session; viewOnly: boolean }) {
+export function Collecting({ session }: { code: string; session: Session; viewOnly: boolean }) {
   const remaining = useRemaining(session);
-  useCloser(code, session, !viewOnly);
   if (running(session)) return <FlipClock ms={remaining} width="93vh" className="tv" />;
   const words = flipchartTask(session)?.text ?? flipchartWords(drawOf(flipchartTask(session)));
   return <TaskCard lines={["", words]}>{closed(session) && <span className="stamp all-in">✓ All submitted</span>}</TaskCard>;
@@ -90,7 +90,7 @@ function StageControls({ code, session, display }: { code: string; session: Sess
 
   const tab = visible ? 0 : -1;
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       {uid && display.step === "portrait" && (
         <>
           <button disabled={!prev} onClick={() => show(prev)} tabIndex={tab}>Previous</button>
@@ -98,7 +98,6 @@ function StageControls({ code, session, display }: { code: string; session: Sess
           <button onClick={() => void setDisplay(code, { step: "portraits" })} tabIndex={tab}>◫ Everyone</button>
         </>
       )}
-      <button onClick={back} tabIndex={tab}>Lower the curtain</button>
-    </div>
+    </GameBar>
   );
 }

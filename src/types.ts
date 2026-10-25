@@ -332,6 +332,8 @@ export interface ScoreboardTask {
   transitionImage?: string;
   /** A video from the music folder's Transition videos subfolder, by file name: it plays full screen, with its own sound, on its own (no music or picture with it). */
   transitionVideo?: string;
+  /** The arrival task: guests get its words as the last step of check-in. One task per party at most. */
+  checkin?: true;
   /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */
@@ -411,6 +413,10 @@ export interface ClockState {
   going?: Record<string, true>;
   /** A stopwatch with no task to hold them: each contestant's time. */
   times?: Record<string, number>;
+  /** A task's part the host is timing one player at a time: who's had a turn, and who the host picked to go next (else the first with none). */
+  turns?: { task: string; part: number; took?: Record<string, true>; next?: string };
+  /** Whose turn the clock is counting, named on the big screen. */
+  who?: string;
 }
 
 /** A useless conversion on the big screen: the three lines the host reads out. */
