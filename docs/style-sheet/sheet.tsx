@@ -208,8 +208,7 @@ function Sheet() {
             </div>
             <Cap>The now-playing strip (<code>.now-playing-strip</code>): under "On the big screen" on every page while a song plays; one tap pauses</Cap>
             <div className="clock-strip"><button className="sb-song"><span className="title">⏱ The clock →</span><span className="dur">2:31 left</span></button><button className="clock-hold" aria-label="Stop the clock">⏸</button></div>
-            <div className="clock-strip" style={{ marginTop: 8 }}><button className="sb-song"><span className="title">⏱ The clock →</span><span className="dur">time's up</span></button><button className="clock-hold" aria-label="Take the clock down">✕</button></div>
-            <Cap>The clock strip (<code>.clock-strip</code>): the same place and shape, on every page while the clock is set going, shown or Flipchart's. The strip opens ⏱ and never touches the room; the ⏸ beside it holds the clock (▶ carries on), and at 0:00, with the clock on the big screen, ✕ takes it down</Cap>
+            <Cap>The clock strip (<code>.clock-strip</code>): the same place and shape, on every page while the clock is set going, shown or Flipchart's. The strip opens ⏱ and never touches the room; the ⏸ beside it holds the clock (▶ carries on); at 0:00 the Curtain chip takes it down</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12, display: "grid", gap: 6 }}>
               <button className="big">▶ Start the clock · 5 min</button>
               <p className="muted small" style={{ margin: 0 }}>Puts it on the big screen. <button className="link">One player at a time?</button></p>
