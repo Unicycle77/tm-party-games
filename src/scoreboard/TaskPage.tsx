@@ -6,7 +6,7 @@ import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
-import { startFromTask, useClock } from "../clock/data";
+import { contestantsOf, pickNext, startFromTask, takeTurns, useClock } from "../clock/data";
 import { limitsOf, timeLabel } from "../clock/timesIn";
 import { useServerOffset } from "../games/noisemaster/data";
 import { ReplayStrip } from "./ReplayStrip";
@@ -111,12 +111,35 @@ function StartClock({ code, session, id, part = 1 }: { code: string; session: Se
   const limit = limitsOf(task).find((l) => l.part === part);
   if (!task || task.game || !limit) return null;
   if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
+  const turns = session.clock?.turns;
+  if (turns?.task === id && turns.part === part) {
+    const took = turns.took ?? {};
+    const people = contestantsOf(session);
+    const next = people.find((c) => c.id === turns.next) ?? people.find((c) => !took[c.id]);
+    return (
+      <>
+        {next
+          ? <button className="big" onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset, next.id)}>▶ Start {next.name}'s turn · {timeLabel(limit.ms)}</button>
+          : <p className="muted">Everyone has had a turn.</p>}
+        <span className="muted small">Who's next · tap to change</span>
+        <div className="choices clock-chips">
+          {people.map((c) => (
+            <button key={c.id} className={c.id === next?.id ? "active" : took[c.id] ? "timed" : ""} aria-pressed={c.id === next?.id}
+              onClick={() => void pickNext(code, c.id, !!took[c.id])}>
+              {c.name}{took[c.id] && <span className="muted"> · ✓</span>}
+            </button>
+          ))}
+        </div>
+        <button className="link" onClick={() => void takeTurns(code, id, part, false)}>Not taking turns</button>
+      </>
+    );
+  }
   return (
     <>
       <button className="big" onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset)}>
         ▶ Start the clock · {timeLabel(limit.ms)}
       </button>
-      <p className="muted small">Puts it on the big screen.</p>
+      <p className="muted small">Puts it on the big screen. <button className="link" onClick={() => void takeTurns(code, id, part, true)}>One player at a time?</button></p>
     </>
   );
 }

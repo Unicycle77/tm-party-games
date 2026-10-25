@@ -104,13 +104,22 @@ export function stopClock(code: string, view: ClockView, offset: number) {
  * Host, from a task's page: "Your time starts now" in one press. Whatever the clock was doing (a finished one, one set for
  * another task), it's set to this task's time, put on the big screen over the task, and started.
  */
-export function startFromTask(code: string, state: ClockState | undefined, ms: number, task: string, offset: number) {
+export function startFromTask(code: string, state: ClockState | undefined, ms: number, task: string, offset: number, who?: string) {
   return update(at(code), {
+    "clock/who": who ?? null, ...(who ? { [`clock/turns/took/${who}`]: true, "clock/turns/next": null } : {}),
     "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task, "clock/going": null,
     "clock/begun": true, "clock/at": Date.now() + offset + ms, "clock/stopped": null, "clock/shown": true, conversion: null,
     ...(state?.songOn ? { "clock/songOn": null, "jukebox/state/playing": false } : {}),
   });
 }
+
+/** Host: times a task's part one player at a time, or stops. Starting again starts afresh: nobody has had a turn. */
+export const takeTurns = (code: string, task: string, part: number, on: boolean) =>
+  update(at(code), { "clock/turns": on ? { task, part } : null, "clock/who": null });
+
+/** Host: who goes next, or (tapping one who's had a turn) takes their turn back so they go again. */
+export const pickNext = (code: string, id: string, took: boolean) =>
+  update(at(code), took ? { [`clock/turns/took/${id}`]: null, "clock/turns/next": id } : { "clock/turns/next": id });
 
 /** Host: back to the time set (or nothing, for a stopwatch), not started. The song stops. */
 export function resetClock(code: string, state: ClockState | undefined) {

@@ -411,6 +411,10 @@ export interface ClockState {
   going?: Record<string, true>;
   /** A stopwatch with no task to hold them: each contestant's time. */
   times?: Record<string, number>;
+  /** A task's part the host is timing one player at a time: who's had a turn, and who the host picked to go next (else the first with none). */
+  turns?: { task: string; part: number; took?: Record<string, true>; next?: string };
+  /** Whose turn the clock is counting, named on the big screen. */
+  who?: string;
 }
 
 /** A useless conversion on the big screen: the three lines the host reads out. */
