@@ -165,7 +165,7 @@ input::placeholder { color: #8b7a63; }
 /* the host remote's "Show QR", mirrored above the address: big enough to scan from a sofa */
 .corner-code svg { width: 24vh; height: auto; border-radius: 4px; border: 6px solid var(--gold); background: #fff; box-shadow: 0 6px 18px #000a; }
 .corner-code strong { font-family: var(--typewriter); color: var(--gold-bright); letter-spacing: 0.2em; }
-.corner-download { position: fixed; left: 1.2rem; bottom: 0.8rem; }
+.corner-download { position: fixed; left: 1.2rem; bottom: 0.8rem; z-index: 2; } /* over the scoreboard's fixed layer too */
 /* the task card: aged, torn paper in typewriter with the red TM wax seal */
 .task-card {
   position: relative; width: min(100%, 120vh); padding: 6vh 7vh 15vh;
@@ -826,6 +826,8 @@ body.idle-cursor .stage { cursor: none; }
 span.lock { padding: 0; }
 .party-settings { display: grid; gap: 0.6rem; justify-items: start; }
 .party-settings .toggles { justify-self: stretch; }
+.party-settings .download { margin-top: 0; }
+.party-settings .download p { margin: 0; }
 .party-settings .party-name { justify-self: stretch; }
 .party-settings .host-pin { display: grid; gap: 0.3rem; justify-items: start; }
 .party-settings .host-pin label { justify-self: stretch; }

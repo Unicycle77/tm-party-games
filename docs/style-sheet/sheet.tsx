@@ -43,6 +43,7 @@ const tokens: [string, string, string][] = [
   ["--muted", "#c9b48f", "secondary on curtain"], ["--stamp-red", "#a8201a", "the stamp only"],
   ["--bulb-red", "#e8412e", "the light's bulb"], ["--wood", "#9a6634", "the bulb's box"],
   ["--tm-red", "#c8102e", "Noisemaster"], ["--key", "#1e1d1c", "soundboard keys"],
+  ["pen (PDF only)", "#1f389e", "the scores PDF's marks"],
 ];
 const icons: [string, string][] = [
   ["🎮", "Host"], ["🏆", "Run of show"], ["🎵", "Jukebox"], ["✉", "Secret Tasks"], ["💡", "The light"], ["📏", "Useless conversions"], ["⏱", "The clock"], ["⏸ ▶", "Stop / start the clock"], ["🎲", "Dice preset"], ["🔊", "dB meter preset"], ["🎁", "Prizes"],

@@ -19,6 +19,7 @@ import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRece
 import { PinStep } from "./HostPin";
 import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
+import { DownloadZip } from "./DownloadZip";
 import { Toggle } from "./Toggle";
 import { resetScores } from "./reset";
 import type { Session } from "./types";
@@ -225,6 +226,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
+      <DownloadZip code={code} session={session} videos={false} />
       <div className="toggles">
         <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
       </div>

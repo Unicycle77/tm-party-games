@@ -3,7 +3,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
-import fontUrl from "../assets/veteran_typewriter-webfont.woff?url";
 import { PUBLIC_URL, db, joinUrlFor } from "../firebase";
 import { usePileCount } from "../games/secretTasks/TaskPile";
 import { rulesCount, rulesOf } from "../rules";
@@ -11,7 +10,7 @@ import { setupFileName } from "../setupFile";
 import { store } from "../store";
 import { Toggle } from "../Toggle";
 import type { Scoreboard, Session } from "../types";
-import { buildPrintPdf, faceOf, sfntOfWoff, type Face, type SecretLayout } from "./taskCardsPdf";
+import { buildPrintPdf, typewriter, type SecretLayout } from "./taskCardsPdf";
 import { sorted, titleOf } from "./tasks";
 import { headingOf, partsOf, tiebreakerWords } from "./TaskText";
 
@@ -21,11 +20,6 @@ export function wordedTasks(board: Scoreboard | undefined) {
     ...sorted(board?.tasks).map(([id, t], i) => ({ id, label: `${i + 1} ${titleOf(t)}`, t })),
     ...(board?.tiebreaker ? [{ id: "tiebreaker", label: "Tiebreaker", t: tiebreakerWords(board.tiebreaker) }] : []),
   ].filter(({ t }) => partsOf(t).length);
-}
-
-/** The Veteran Typewriter face, read from the app's own font file, for a PDF. */
-async function typewriter(): Promise<Face> {
-  return faceOf(await sfntOfWoff(await (await fetch(fontUrl)).arrayBuffer()));
 }
 
 /** The PDF in `tab`, opened while the tap still counted; where the browser wouldn't open one, it downloads instead. */

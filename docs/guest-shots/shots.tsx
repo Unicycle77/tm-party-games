@@ -181,6 +181,33 @@ function build() {
     // The scoreboard on the big screen as guests arrive, before any points: Mei and Sam, not in yet, are mosaics.
     case "tv-pixel-arriving": picked(); set("display", { step: "scoreboard" }); break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
+    // The end of the night, tied at the top: Alex and Priya on 30 after all eight tasks, and Priya won the tiebreaker.
+    // Greg has a bonus point on the dice tower and Tom a DQ on the last task. The scoreboard, then the prize haul;
+    // then the download buttons, with everyone's costume photo in and Alex's and Greg's Before & After videos.
+    case "tv-scores-tie": case "tv-haul-tie": case "tv-zip": case "host-zip": {
+      picked(); set("display", { step: shot === "tv-haul-tie" ? "haul" : "scoreboard" }); set("begun", true);
+      const ids8 = ["priya", "alex", "sam", "greg", "mei", "tom"];
+      const row = (...n: number[]) => Object.fromEntries(ids8.map((id, i) => [id, n[i]!]));
+      const scores: Record<string, Record<string, number>> = {
+        t1: row(5, 4, 3, 2, 3, 1), t2: row(2, 5, 4, 3, 2, 3), t3: row(4, 5, 5, 4, 2, 1), t4: row(5, 2, 3, 3, 4, 1),
+        t5: row(2, 3, 4, 5, 1, 3), t6: row(5, 4, 2, 4, 5, 1), t7: row(4, 2, 5, 4, 3, 2), t8: row(3, 5, 3, 2, 4, 0),
+      };
+      Object.assign(tasks.t6 as object, { name: "Dice tower", bonus: { greg: 1 } });
+      Object.assign(tasks.t7 as object, { name: "Five socks" });
+      Object.assign(tasks.t8 as object, { name: "Hum a theme tune", dq: { tom: true } });
+      for (const [id, s] of Object.entries(scores)) Object.assign(tasks[id] as object, { scores: s });
+      Object.assign(session.scoreboard as object, { shown: scores, final: true, tiebreaker: { winner: "priya" } });
+      for (const [id, src] of Object.entries({ ...PORTRAITS, tom: TOM })) contestants[id]!.photo = src;
+      g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true, alex: true, greg: true, priya: true } };
+      // Halloween night: everyone checked in from 7pm, which is the date on the scores PDF.
+      for (const [i, p] of Object.values(session.players as Record<string, { joinedAt: number }>).entries()) p.joinedAt = new Date(2026, 9, 31, 19, i * 4).getTime();
+      if (shot.endsWith("zip")) {
+        g.photos!.media = Object.fromEntries(ids8.map((id) => [id, { photo: pic("🎃", "#3a2a1c") }]));
+        g.beforeAfter = { media: { alex: { before: pic("🧹", "#3a2a1c"), after: pic("✨", "#3a2a1c"), video: "alex.mp4" }, greg: { video: "greg.mp4" } } };
+        set("showDownload", true);
+      }
+      break;
+    }
     case "tv-scores-before": case "tv-scores": case "tv-scores-cropped": case "tv-haul": case "host-haul": {
       picked(); set("display", { step: shot.endsWith("haul") ? "haul" : "scoreboard" }); set("begun", true);
       const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 };
@@ -393,7 +420,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-prize-before" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-prize-before" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 // Loading the pile before the night: nobody has an envelope yet, and the pile holds the six that get picked plus four more.
 if (shot === "host-plan-pile") {
   secret.assigned = {}; secret.seen = {};
@@ -442,5 +469,5 @@ const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 if (shot === "host-light-flash") window.setTimeout(() => void lightNow(CODE), 1200);
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={!q.get("bar")} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={!q.get("bar") && shot !== "tv-zip"} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);
