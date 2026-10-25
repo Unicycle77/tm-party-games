@@ -10,6 +10,7 @@ const SHOTS = {
   "guest-checkin-headshot": ["checkin-headshot"],
   "guest-checkin-house-rules": ["checkin-house-rules"],
   "guest-checkin-rules": ["checkin-rules"],
+  "guest-checkin-arrival": ["checkin-arrival"],
   "guest-checkin-envelopes": ["checkin-pile", "", async (p) => { await p.getByRole("button", { name: /Got it/ }).click(); }],
   "guest-home-todo": ["home-todo-envelope"],
   "guest-home-prize-ask": ["home-prize-ask"],

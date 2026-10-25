@@ -86,6 +86,7 @@ function build() {
     t5: { order: 5, game: "noisemaster" },
   };
   for (let i = 6; i <= 8; i++) tasks[`t${i}`] = { order: i, name: `Live task ${i}` };
+  if (shot.startsWith("checkin")) tasks.t0 = { order: 0, name: "Entrance", type: "Arrival", text: "Make the most obsequious entrance." };
   // Plan the party shows the lineup to a friend, so its live tasks have real names: the ones played elsewhere tonight.
   if (shot.startsWith("host-plan")) {
     tasks.t6 = { order: 6, name: "Dice tower", type: "Individual", text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins." };
@@ -364,6 +365,7 @@ function build() {
       });
       break;
     case "checkin-rules": case "checkin-pile": case "checkin-house-rules": break;
+    case "checkin-arrival": picked(); break;
     case "checkin-confirm": case "checkin-headshot": case "checkin-list": break;
   }
   return { session, secret };
@@ -387,7 +389,7 @@ if (shot.includes("send")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "16
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
 if (joined && shot.startsWith("checkin")) {
-  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true }));
+  localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true, arrival: true }));
   (session.players as Record<string, unknown>)[who] = { name: people[who], joinedAt: 9, contestant: who };
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }

@@ -23,7 +23,7 @@ const CHECKIN_KEY = "ba.checkin";
 /** "Not now" to the prize question, per party: the prize is then an optional row. */
 const LATER_KEY = "ba.prizeLater";
 
-interface CheckIn { code: string; confirmed: boolean; rules?: boolean; headshot: boolean; envelope: boolean }
+interface CheckIn { code: string; confirmed: boolean; rules?: boolean; headshot: boolean; envelope: boolean; arrival?: boolean }
 function readCheckIn(code: string): CheckIn | undefined {
   try {
     const c = JSON.parse(store.get(CHECKIN_KEY) || "null") as CheckIn | null;
@@ -99,7 +99,10 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const needsHeadshot = !!guest && !guest[1].photo;
   // The rules, first: every guest agrees to them, unless the host has taken them all away since.
   const rulesToDo = !!checkin?.rules && !!rules;
-  const checkingIn = !!checkin && (rulesToDo || needsHeadshot || (checkin.envelope && typeof task !== "string"));
+  const arrival = Object.values(session.scoreboard?.tasks ?? {}).find((t) => /^arrival/i.test(t.type ?? ""));
+  const envelopeDue = !!checkin?.envelope && typeof task !== "string";
+  const arrivalToDo = !!checkin?.arrival && !!arrival?.text;
+  const checkingIn = !!checkin && (rulesToDo || needsHeadshot || envelopeDue || arrivalToDo);
   // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
   useEffect(() => {
     if (checkin || !needsHeadshot) return;
@@ -120,7 +123,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   // What takes the card: a check-in step, photos being sent, a row the guest opened, the task that's on, then the to-dos in order.
   const showPrize = !checkingIn && (prizeBusy || open === "prize" || (!game && !open && !envelopeToDo && prizeAsk));
-  const showEnvelope = checkingIn ? !rulesToDo && !needsHeadshot : !prizeBusy && open === "envelope";
+  const showEnvelope = checkingIn ? !rulesToDo && !needsHeadshot && envelopeDue : !prizeBusy && open === "envelope";
   const envelopeCard = !checkingIn && !prizeBusy && !open && !game && envelopeToDo;
   const showGame = !!game && !checkingIn && !prizeBusy && !open;
   const watching = !id && !!me.notPlaying;
@@ -128,7 +131,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   const partyLine = `${session.name ?? "Party"} · ${code}`;
   const rulesStep = checkin?.rules !== undefined && rules ? 1 : 0;
-  const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) : 0;
+  const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) + Number(checkin.arrival !== undefined && !!arrival?.text) : 0;
   const step = rulesToDo ? Number(!!checkin?.confirmed) + 1 : needsHeadshot ? Number(!!checkin?.confirmed) + rulesStep + 1 : steps;
   const now = (line: string) => justIn ? `You're in! ${line}` : line;
 
@@ -182,6 +185,12 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
           <>
             <RulesCard rules={rules!} small />
             <button className="big" onClick={() => { const c = { ...checkin!, rules: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
+          </>
+        )}
+        {checkingIn && !rulesToDo && !needsHeadshot && !envelopeDue && arrivalToDo && (
+          <>
+            <TaskTextCard type={arrival!.type!} text={arrival!.text!} />
+            <button className="big" onClick={() => { const c = { ...checkin!, arrival: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
           </>
         )}
         {checkingIn && !rulesToDo && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
