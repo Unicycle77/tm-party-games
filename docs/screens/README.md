@@ -303,6 +303,9 @@ Host pin (taken on 2026-10-13, from the real components with a made-up party):
 | `main-hidden-menu-pin.jpg` | The ☰ Menu with "🔑 Host pin on: a new phone needs it to connect. Remove the pin" |
 | `host-pin-send-link.jpg` | Plan the party's party line opened, the pin set, and "📤 Send yourself the host link" under it: the way onto the remote from another of the host's phones with no big screen to scan (2026-10-24) |
 | `host-taken-over.jpg` | The host remote's start page on the phone the remote was taken from: "Another phone took over Halloween party · ABCD." and gold "Take it back" above "Start a new party" (2026-10-24) |
+| `host-handover-ask.jpg` | A party with no pin, its remote on the host's iPad: the iPhone reaching it gets "Halloween party · ABCD already has a host remote." and "Ask the host phone to hand over" (2026-10-25) |
+| `host-handover-waiting.jpg` | The same iPhone after asking: "Asked the host phone. Check that it shows 472", "Waiting for its OK…", Cancel (2026-10-25) |
+| `host-handover-card.jpg` | The iPad's card on Run of show: "Another phone wants the host remote. Hand over only if it shows 472", Hand over and Decline (2026-10-25) |
 
 Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up party and a 2½-minute test video):
 

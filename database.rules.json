@@ -20,7 +20,7 @@
           ".validate": "newData.val() === now"
         },
         "controllerUid": {
-          ".write": "auth != null && ((newData.val() === auth.uid && (!data.exists() || root.child('pins').child($code).exists()) && (!root.child('pins').child($code).exists() || root.child('hostTrust').child($code).child(auth.uid).val() === root.child('pins').child($code).val())) || (data.val() === auth.uid && !newData.exists()))",
+          ".write": "auth != null && ((newData.val() === auth.uid && (!data.exists() || root.child('pins').child($code).exists()) && (!root.child('pins').child($code).exists() || root.child('hostTrust').child($code).child(auth.uid).val() === root.child('pins').child($code).val())) || (data.val() === auth.uid && !newData.exists()) || (data.val() === auth.uid && newData.isString() && root.child('sessions').child($code).child('handovers').child(newData.val()).child('status').val() === 'asked'))",
           ".validate": "newData.isString()"
         },
         "players": {
@@ -450,6 +450,15 @@
             "$other": { ".validate": false }
           },
           "$other": { ".validate": false }
+        },
+        "handovers": {
+          "$uid": {
+            ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || (!data.exists() && newData.child('status').val() === 'asked' && !root.child('pins').child($code).exists()))) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            "pair": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{3}$/)" },
+            "from": { ".validate": "newData.isString()" },
+            "status": { ".validate": "newData.val() === 'asked' || newData.val() === 'declined' || newData.val() === 'handed' || newData.val() === 'elsewhere'" },
+            "$other": { ".validate": false }
+          }
         },
         "moves": {
           "$uid": {
