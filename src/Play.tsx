@@ -7,7 +7,6 @@ import { RulesCard } from "./scoreboard/RulesSetup";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
 import { TaskTextCard } from "./scoreboard/TaskText";
-import { scored } from "./scoreboard/tasks";
 import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
@@ -103,7 +102,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const arrival = Object.values(session.scoreboard?.tasks ?? {}).find((t) => t.checkin);
   const envelopeDue = !!checkin?.envelope && typeof task !== "string";
   const arrivalToDo = !!checkin?.arrival && !!arrival?.text;
-  const rereadArrival = !!id && !!arrival?.text && !scored(arrival);
+  const rereadArrival = !!id && !!arrival?.text && arrival.scores?.[id] === undefined;
   const checkingIn = !!checkin && (rulesToDo || needsHeadshot || envelopeDue || arrivalToDo);
   // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
   useEffect(() => {
