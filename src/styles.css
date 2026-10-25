@@ -535,6 +535,12 @@ body.idle-cursor .stage { cursor: none; }
 }
 .stage-controls.show { opacity: 1; pointer-events: auto; }
 .stage-controls button { padding: 0.5rem 0.9rem; }
+/* the stage chips lead the bar, at its size; a game's own controls follow, after a rule */
+.stage-controls:has(.stage-chips) { width: max-content; max-width: calc(100vw - 2rem); }
+.stage-controls .stage-chips { margin: 0; grid-template-columns: repeat(4, 7.5rem); }
+.stage-controls .stage-chips .line-chip-button { font-size: 1rem; padding: 0.5rem 0.9rem; }
+.stage-controls .game-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.stage-controls .game-bar:not(:empty) { padding-left: 0.5rem; border-left: 1px solid var(--gold-dark); }
 
 /* jukebox */
 .jukebox-chip { position: fixed; left: 1rem; bottom: 1rem; z-index: 3; display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; max-width: 60vw;
@@ -1376,10 +1382,17 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .line-chip-button.under { justify-self: start; margin-top: -0.4rem; }
 /* side-by-side line chips under their line ("Show scores", "Show rules") */
 .line-chips.under { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-self: start; margin-top: -0.4rem; }
+/* Task · Scores · Clock · Curtain under the big-screen line on every host page: four equal line chips, what's up pressed in */
+.stage-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: -0.4rem; }
+.stage-chips .line-chip-button { padding-inline: 0.2rem; }
 .list-label { margin: 0.4rem 0 0; font-family: var(--typewriter); color: var(--gold); font-size: 1.1rem; }
 .run-list .row-line { display: grid; grid-template-columns: 1.6rem 1fr auto; gap: 0.6rem; align-items: baseline; padding: 0.65rem 0.2rem; font-family: var(--typewriter); color: var(--fg); }
 .run-list li.done .row-line { color: var(--muted); }
 .run-list li.next .row-line { color: var(--gold-bright); }
+/* Lists of things to do (the guest's to-do list, the prize task's "Prizes in"): finished rows recede, rows with something left stand out with a gold tag to tap. */
+.guest .run-list li.done, .prizes-before .run-list li.done { opacity: 0.6; }
+.run-list li.open button { color: var(--paper); }
+.run-list li.open .state { color: var(--gold-bright); border: 1px solid var(--gold-edge); border-radius: 999px; padding: 0.15rem 0.6rem; background: #00000033; }
 .game-slot { display: grid; gap: 1rem; }
 .game-slot[hidden] { display: none; }
 .phone.guest > .link.back { justify-self: start; }

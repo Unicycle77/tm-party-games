@@ -10,6 +10,7 @@ const SHOTS = {
   "guest-checkin-headshot": ["checkin-headshot"],
   "guest-checkin-house-rules": ["checkin-house-rules"],
   "guest-checkin-rules": ["checkin-rules"],
+  "guest-checkin-arrival": ["checkin-arrival"],
   "guest-checkin-envelopes": ["checkin-pile", "", async (p) => { await p.getByRole("button", { name: /Got it/ }).click(); }],
   "guest-home-todo": ["home-todo-envelope"],
   "guest-home-prize-ask": ["home-prize-ask"],
@@ -20,6 +21,7 @@ const SHOTS = {
     await (await chooser).setFiles(pngs);
   }],
   "guest-home-waiting": ["home-waiting"],
+  "guest-home-arrival": ["home-arrival"],
   "guest-task-photos": ["task-photos"],
   "guest-task-photos-sent": ["task-photos-sent"],
   "guest-noisemaster-up": ["noisemaster-up"],
@@ -32,6 +34,7 @@ const SHOTS = {
   "main-secret-tasks": ["tv-secret"],
   "prize-main-photo": ["tv-prize"],
   "prize-host-up": ["host-prize"],
+  "prize-host-before": ["host-prize-before"],
   "guest-secret-open": ["home-waiting", "", async (p) => { await p.getByRole("button", { name: /Secret envelope/ }).click(); await p.getByRole("button", { name: /Open your secret task/ }).click(); await p.waitForTimeout(1500); }],
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page
@@ -120,6 +123,7 @@ const SHOTS = {
   "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
   "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
   "task-edit-scoring": ["host-plan-edit"],
+  "task-edit-arrival": ["host-edit-arrival", "", async (p) => { await p.locator(".summary-line", { hasText: "Task text" }).getByRole("button", { name: "Change" }).click(); }],
   // ✉ Secret envelopes opened with Change before the night: two more tasks typed in, the pile of ten below
   "secret-tasks-host-pile-open": ["host-plan-pile", "", async (p) => {
     await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
@@ -147,6 +151,20 @@ const SHOTS = {
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
   "clock-host-task": ["host-cd-task"],
+  // started from the task page: one player at a time (host, then the big screen), no time in the words, and ⏱ at 0:00
+  "clock-host-turns": ["host-cd-turns"],
+  "clock-main-turn": ["tv-cd-turn"],
+  "clock-host-untimed": ["host-cd-untimed"],
+  "clock-host-done": ["host-cd-done"],
+  // The clock left up over Dice tower's words: Scores · Clock · Curtain under the line, Clock pressed in
+  "stage-chips-host-clock": ["host-cd-stuck"],
+  // The big screen's backup bar, the mouse just moved: the clock up (Clock pressed in); Sam's Before & After, the game's own controls after the chips
+  "stage-bar-main-clock": ["tv-cd", "&bar=1", async (p) => { await p.mouse.move(800, 300); await p.mouse.move(820, 320); }],
+  "stage-bar-main-before-after": ["tv-beforeafter", "&bar=1", async (p) => { await p.mouse.move(800, 300); await p.mouse.move(820, 320); }],
+  // Curtain tapped while Dice tower's transition video held its last frame: it's ended, the curtain is up
+  "stage-chips-host-transition-curtain": ["host-sting-held", "", async (p) => { await p.getByRole("group", { name: "Put on the big screen" }).getByRole("button", { name: "Curtain" }).click(); }],
+  // Curtain tapped while Flipchart's guests draw: the round goes on behind it
+  "stage-chips-host-flipchart-curtain": ["host-flipchart-live", "", async (p) => { await p.getByRole("group", { name: "Put on the big screen" }).getByRole("button", { name: "Curtain" }).click(); }],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
   // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it

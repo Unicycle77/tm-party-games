@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
 import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
+import { PrizesBefore } from "../games/prize/HostControls";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
+import { OpenClock } from "../clock/ClockStrip";
+import { contestantsOf, pickNext, startFromTask, takeTurns, useClock } from "../clock/data";
+import { limitsOf, timeLabel } from "../clock/timesIn";
+import { useServerOffset } from "../games/noisemaster/data";
 import { ReplayStrip } from "./ReplayStrip";
 import type { GameId, Session } from "../types";
 import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
@@ -70,7 +75,12 @@ function PartCards({ code, session, task, parts, phones }: { code: string; sessi
         onPick={(i) => { if (i !== undefined) void showTaskText(code, task, i); else if (stage !== undefined) void lowerCurtain(code); }} />
       {phones && <PartPick label="Phones" up={phone} count={parts.length}
         onPick={(i) => void (i === undefined ? takeDownPhones(code) : showOnPhones(code, task, i))} />}
-      {parts.map((p, i) => <TaskTextCard key={i} type={p.type} text={p.text} />)}
+      {parts.map((p, i) => (
+        <Fragment key={i}>
+          <TaskTextCard type={p.type} text={p.text} />
+          <StartClock code={code} session={session} id={task} part={i + 1} />
+        </Fragment>
+      ))}
     </>
   );
 }
@@ -87,6 +97,58 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
         ))}
       </div>
     </div>
+  );
+}
+
+/**
+ * A live task with a time limit: "▶ Start the clock · 5 min" under its words, which puts the clock on the big screen and starts
+ * it in one press, whatever the clock was doing. Always gold: the task may be on paper, so it never waits for the words to be up.
+ * Gone while this task's clock counts (the strip above has it); back once it's held (someone finished early: the next press
+ * starts afresh, while the strip's ▶ carries on) or done. A task in parts has one under each part's card that has a time.
+ * "One player at a time?" makes it name whose turn it is, with the contestants as chips to pick who's next. A live task
+ * with no time anywhere has just a quiet "⏱ Time this task" into ⏱.
+ */
+function StartClock({ code, session, id, part = 1 }: { code: string; session: Session; id: string; part?: number }) {
+  const view = useClock(session);
+  const offset = useServerOffset();
+  const task = session.scoreboard?.tasks?.[id];
+  const open = useContext(OpenClock);
+  const limit = limitsOf(task).find((l) => l.part === part);
+  if (!task || task.game) return null;
+  // No time in the words or ✎: a quiet way into ⏱, set up for this task. Once, under the last card.
+  if (!limit) return part === Math.max(1, partsOf(task).length) && !limitsOf(task).length
+    ? <button className="link" onClick={open}>⏱ Time this task</button> : null;
+  if (view.owner || (session.clock?.task === id && view.phase === "running")) return null;
+  const turns = session.clock?.turns;
+  if (turns?.task === id && turns.part === part) {
+    const took = turns.took ?? {};
+    const people = contestantsOf(session);
+    const next = people.find((c) => c.id === turns.next) ?? people.find((c) => !took[c.id]);
+    return (
+      <>
+        {next
+          ? <button className="big" onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset, next.id)}>▶ Start {next.name}'s turn · {timeLabel(limit.ms)}</button>
+          : <p className="muted">Everyone has had a turn.</p>}
+        <span className="muted small">Who's next · tap to change</span>
+        <div className="choices clock-chips">
+          {people.map((c) => (
+            <button key={c.id} className={c.id === next?.id ? "active" : took[c.id] ? "timed" : ""} aria-pressed={c.id === next?.id}
+              onClick={() => void pickNext(code, c.id, !!took[c.id])}>
+              {c.name}{took[c.id] && <span className="muted"> · ✓</span>}
+            </button>
+          ))}
+        </div>
+        <button className="link" onClick={() => void takeTurns(code, id, part, false)}>Not taking turns</button>
+      </>
+    );
+  }
+  return (
+    <>
+      <button className="big" onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset)}>
+        ▶ Start the clock · {timeLabel(limit.ms)}
+      </button>
+      <p className="muted small">Puts it on the big screen. <button className="link" onClick={() => void takeTurns(code, id, part, true)}>One player at a time?</button></p>
+    </>
   );
 }
 
@@ -147,11 +209,13 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
+      {!rows && <StartClock code={code} session={session} id={id} />}
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
         </button>
       )}
+      {task.game === "prize" && !playing && <PrizesBefore code={code} session={session} />}
     </>
   );
   return (

@@ -6,10 +6,11 @@ import { asList, asNums, fmt } from "../JukeboxRemote";
 import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
-import { editTask, editTiebreaker, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
+import { editTask, editTiebreaker, setCheckinTask, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
 import { isMeasured, overLine } from "./measured";
 import { asParts, gameName, scored, titleOf } from "./tasks";
 import { TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
+import { Toggle } from "../Toggle";
 import { bare, TransitionField, type TransitionDraft } from "./TransitionField";
 
 /** A task's words are at most this many parts (what the database rules allow). */
@@ -125,6 +126,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const [draw, setDraw] = useState(task?.draw ?? "");
   const [minutes, setMinutes] = useState(minutesOf(task));
   const [transition, setTransition] = useState<TransitionDraft>({ music: task?.transition ?? "", picture: task?.transitionImage ?? "", video: task?.transitionVideo ?? "" });
+  const [checkin, setCheckin] = useState(!!task?.checkin);
   const [open, setOpen] = useState<"text" | "song" | "transition" | "unit">();
   // A "Try it" still on when the host leaves this page (Save, Cancel, ←) ends with it: a lone picture would otherwise stay on the big screen.
   const trying = useRef(false);
@@ -155,6 +157,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
     if (flip) void editFlipchart(code, id, draw, minutes);
     void editTransition(code, id, transition);
+    if (checkin !== !!task.checkin) void setCheckinTask(code, board, id, checkin && !!text.trim());
     void editTask(code, id, name, description, song, words, saved, over ?? null).then(() => {
       // A new line, or none, applies to the readings already in.
       if (over === task.dqOver) return;
@@ -187,6 +190,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   // What ⏱ will offer, a part each: the limit set on it, else the one its words give.
   const times = [{ text, limit }, ...typed].filter((p) => p.text.trim()).flatMap((p) => { const ms = p.limit ?? limitIn(p.text)?.ms; return ms ? [timeLabel(ms)] : []; });
   const timed = !flip && times.length > 0 && <span className="nowrap"> · ⏱ {times.join(", ")}</span>;
+  const atCheckin = checkin && <span className="nowrap"> · at check-in</span>;
   const clear = (f: () => void) => () => { f(); setOpen(undefined); };
 
   return (
@@ -225,8 +229,8 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
         <Extra label="Task text" open={open === "text"} onOpen={() => setOpen("text")} onClose={() => setOpen(undefined)}
           onClear={clear(() => { setText(""); setType(""); setLimit(undefined); setParts([]); })}
           summary={count > 1
-            ? <>Task text<span className="muted small"> · {count} parts · {headings.join(", ") || "no headings"}{timed}</span></>
-            : text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}{timed}</span></> : undefined}>
+            ? <>Task text<span className="muted small"> · {count} parts · {headings.join(", ") || "no headings"}{timed}{atCheckin}</span></>
+            : text.trim() ? <>Task text<span className="muted small"> · {heading || "no heading"} · {firstLine.length > 40 ? `${firstLine.slice(0, 40)}…` : firstLine}{timed}{atCheckin}</span></> : undefined}>
           <div className="sb-part">
             {parts.length > 0 && <p className="part-label">Part 1</p>}
             <TaskTypeField type={type} fallback={(tiebreaker ? TIEBREAKER_TYPE : typeOf({ game: task.game })) || undefined} onChange={setType} />
@@ -246,6 +250,13 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
           {/* App tasks have one part, except Secret Tasks: the rules, then the reveal. */}
           {(task.game === "secretTasks" ? parts.length === 0 : parts.length + 1 < MAX_PARTS && !task.game) && (
             <button type="button" className="link" onClick={() => setParts([...parts, { k: nextKey.current++, type: "", text: "", limit: undefined }])}>+ Add a part</button>
+          )}
+          {/* The arrival task: a live task's words, as the last step of check-in. */}
+          {!task.game && !tiebreaker && (
+            <div className="toggles">
+              <Toggle label="Give it to guests at check-in" on={checkin} disabled={!text.trim()} onChange={setCheckin} />
+              <p className="muted small">{checkin ? "The last step of check-in, word for word." : "Off: guests see it only when you put it up."}</p>
+            </div>
           )}
         </Extra>
         <Extra label="Song" open={open === "song"} onOpen={() => setOpen("song")} onClose={() => setOpen(undefined)} onClear={clear(() => setSong(""))}

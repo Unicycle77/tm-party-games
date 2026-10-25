@@ -107,7 +107,7 @@ function TaskList({ code, session, board, tasks, onEdit }: {
               <button className="sb-handle" aria-label={`Move ${titleOf(t)}`}
                 onPointerDown={(e) => drag.start(e, id)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>
               <button className="sb-task" disabled>
-                <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app task</span>}</span>
+                <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app task</span>}{t.checkin && <span className="muted small"> · at check-in</span>}</span>
                 {t.description && <span className="muted small sb-task-note">"{t.description}"</span>}
                 {scored(t) && <span className="muted small">{plural(Object.keys(t.scores ?? {}).length, "contestant")} scored</span>}
               </button>
