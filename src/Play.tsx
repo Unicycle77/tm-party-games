@@ -154,13 +154,14 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
     rows.push({ id: "headshot", icon: "✓", label: "Headshot", state: "done", tone: "done" });
     if (planned && task !== undefined) {
       rows.push(task ? { id: "envelope", icon: "✓", label: "Secret envelope", state: "picked", tone: "done", onOpen: () => setOpen("envelope") }
-        : { id: "envelope", icon: "✉", label: "Secret envelope", state: "to do", tone: envelopeCard || showEnvelope ? "next" : undefined, onOpen: () => setOpen("envelope") });
+        : { id: "envelope", icon: "✉", label: "Secret envelope", state: "to do", tone: envelopeCard || showEnvelope ? "next" : "open", onOpen: () => setOpen("envelope") });
     }
     if (prizeOn) {
       rows.push({
         id: "prize", icon: "🎁", label: "Prize photos",
-        state: presented ? "🔒 presented" : saved.length ? "✓ sent" : later ? "optional" : "to do",
-        tone: showPrize ? "next" : presented || saved.length || later ? "done" : undefined,
+        // After "Not now" it's still open, not grey, so the guest can find it once the prize is out.
+        state: presented ? "🔒 presented" : saved.length ? "✓ sent" : later ? "add when ready →" : "to do",
+        tone: showPrize ? "next" : presented || saved.length ? "done" : "open",
         onOpen: () => setOpen("prize"),
       });
     }

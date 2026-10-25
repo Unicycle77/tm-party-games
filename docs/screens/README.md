@@ -20,7 +20,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-checkin-envelopes.jpg` | Moment two: "Pick an envelope ?" over the pile on the curtain |
 | `guest-home-todo.jpg` | Home with something to do: "1 thing left to do", the "To do now" card for the secret envelope, "Your to-do list" below |
 | `guest-home-prize-ask.jpg` | The prize question: the prize task's words in quotes, gold "Yes, add photos →", paper "Not now" |
-| `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with "✓ Taskmaster rules · agreed" first and the prize "optional" (2026-10-24) |
+| `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with "✓ Taskmaster rules · agreed" first, the finished rows receding and the prize still open, "add when ready →" in a gold-outlined tag (re-shot 2026-10-25) |
 | `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
@@ -238,6 +238,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `prize-player-check.jpg` | Prize task: checking the picks before submitting, thumbnails with ≡ and ✕, the first photo starred ★ for the haul, "+ Add more", gold Submit (stand-in photos) |
 | `prize-player-submitted.jpg` | Prize task: the receipt after submitting, "✓ Submitted", the photos in order with ★, "Change my photos" (stand-in photos) |
 | `prize-host-picked.jpg` | Prize task on the iPad: the contestants in no set order beside Sam's prize, his photos as previews with ★, nothing on the big screen yet (stand-in photos) |
+| `prize-host-before.jpg` | The host phone's Prize task page before it starts, mid-party: "Prizes in · 3 of 6" under Start, Alex, Mei and Tom with "+ Add photos", Greg, Priya and Sam receding with "1 photo · + add", the hint that guests add their own (2026-10-25) |
 | `prize-host-up.jpg` | The host phone's Prize task page: who has photos in (Sam presenting), then Sam's three photos with the second on the big screen, Add photos, Lower the curtain, Points (re-shot 2026-10-18; the task has no words here, so no paper card) |
 | `prize-main-photo.jpg` | Main screen: one prize photo hung in the gold frame like a headshot, with the small label "PRIZE · Sam" (re-shot 2026-10-18 from the ABCD party, Sam's sock puppet) |
 | `main-prize-haul.jpg` | Main screen at the end of the party: "Prize Haul" across the top, the winner's headshot in the centre with "Priya is the winner!" and every prize's ★ photo hung around it with "from Sam" placards (stand-in photos) |
