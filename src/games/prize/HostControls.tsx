@@ -75,7 +75,7 @@ export function HostLobby({ code, session, display, head }: { code: string; sess
 }
 
 /**
- * The prize task's page before it starts: whose prizes are in, and "+ Add photos" for anyone's that isn't, so the
+ * The prize task's page before it starts: whose prizes are in, and "+ Add photos" for anyone's that isn't (or "+ add" for another), so the
  * host can photograph a prize handed over mid-party without starting the task (which puts it on the big screen) or
  * presenting it (which locks the guest's phone). New photos join the end, as while presenting.
  */
@@ -111,14 +111,12 @@ export function PrizesBefore({ code, session }: { code: string; session: Session
           const busy = sending?.id === id;
           return (
             <li key={id} className={count ? "done" : "open"}>
-              {count ? (
-                <span className="row-line"><span>✓</span><span>{c.name}</span><span className="state">{count} {count === 1 ? "photo" : "photos"}</span></span>
-              ) : (
-                <button disabled={!!sending} onClick={() => { setAdding(id); input.current?.click(); }}>
-                  <span>🎁</span><span>{c.name}</span>
-                  <span className="state">{busy ? `sending… ${Math.round(sending!.sent.reduce((a, b) => a + b, 0) / sending!.sent.length * 100)}%` : "+ Add photos"}</span>
-                </button>
-              )}
+              {/* A prize already in stays tappable, for another photo. */}
+              <button disabled={!!sending} onClick={() => { setAdding(id); input.current?.click(); }}>
+                <span>{count ? "✓" : "🎁"}</span><span>{c.name}</span>
+                <span className="state">{busy ? `sending… ${Math.round(sending!.sent.reduce((a, b) => a + b, 0) / sending!.sent.length * 100)}%`
+                  : count ? `${count} ${count === 1 ? "photo" : "photos"} · + add` : "+ Add photos"}</span>
+              </button>
             </li>
           );
         })}
