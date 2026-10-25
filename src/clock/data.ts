@@ -64,9 +64,19 @@ const at = (code: string) => ref(db(), `sessions/${code}`);
 export const showClock = (code: string, state: ClockState | undefined, on: boolean) =>
   update(at(code), on ? { "clock/shown": true, ...(state ? {} : { "clock/ms": 0 }), conversion: null } : { "clock/shown": null });
 
-/** Host: sets a countdown's time (before it starts), and the task it came from. Switches a stopwatch back to a countdown. */
+/**
+ * Host: sets a countdown's time (before it starts, or once it's done, which makes it as good as new), and the task it came from.
+ * Switches a stopwatch back to a countdown.
+ */
 export const setTime = (code: string, ms: number, task?: string) =>
-  update(at(code), { "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task ?? null, "clock/going": null });
+  update(at(code), {
+    "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task ?? null, "clock/going": null,
+    "clock/begun": null, "clock/at": null, "clock/stopped": null, "clock/songOn": null, "clock/who": null,
+  });
+
+/** Host: ⏱'s "▶ Start again" at 0:00: the same time, from the top, where it is (on the big screen or not). */
+export const startAgain = (code: string, state: ClockState, offset: number) =>
+  update(at(code), { "clock/ms": state.set ?? 0, "clock/begun": true, "clock/at": Date.now() + offset + (state.set ?? 0), "clock/stopped": null, "clock/songOn": null, "clock/who": null });
 
 /** Host: switches between a countdown and a stopwatch (only before it starts). A stopwatch starts at nothing. */
 export const setMode = (code: string, state: ClockState | undefined, up: boolean, task?: string) =>
