@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { useServerOffset } from "../games/noisemaster/data";
 import type { Session } from "../types";
-import { clockText, startClock, stopClock, useClock, watchLabel } from "./data";
+import { clockText, showClock, startClock, stopClock, useClock, watchLabel } from "./data";
 
 /** How a page opens ⏱ (the host's phone provides it): the strip below opens it from anywhere. */
 export const OpenClock = createContext<() => void>(() => {});
@@ -9,7 +9,8 @@ export const OpenClock = createContext<() => void>(() => {});
 /**
  * The clock's strip under "On the big screen", on every page while it's set going, shown or Flipchart's: the same shape and
  * place as the song strip. Tapping the strip opens ⏱ (it never changes what the room sees); the ⏸ beside it, a separate
- * button, holds the clock and ▶ carries on.
+ * button, holds the clock and ▶ carries on. At 0:00, while it's on the big screen, that button is ✕: it takes the clock down, so
+ * whatever was up before it comes back.
  */
 export function ClockStrip({ code, session }: { code: string; session: Session }) {
   const view = useClock(session);
@@ -25,6 +26,7 @@ export function ClockStrip({ code, session }: { code: string; session: Session }
     : view.up ? face : `${face} left`;
   const hold = view.phase === "running" && !view.owner;
   const carryOn = view.phase === "held" && !state?.stopped && !view.owner;
+  const takeDown = view.phase === "done" && view.shown && !view.owner;
   return (
     <div className="clock-strip">
       <button className="sb-song" onClick={open}>
@@ -33,6 +35,7 @@ export function ClockStrip({ code, session }: { code: string; session: Session }
       </button>
       {hold && <button className="clock-hold" aria-label="Stop the clock" onClick={() => void stopClock(code, view, offset)}>⏸</button>}
       {carryOn && <button className="clock-hold" aria-label="Start the clock" onClick={() => void startClock(code, view, offset)}>▶</button>}
+      {takeDown && <button className="clock-hold" aria-label="Take the clock down" onClick={() => void showClock(code, state, false)}>✕</button>}
     </div>
   );
 }
