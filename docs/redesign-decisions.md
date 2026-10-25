@@ -526,6 +526,7 @@ At the first party the clock stayed on the TV: whether it's up is saved on the p
 | Pressed in | What's up is pressed in, read from the status line, and a second tap does nothing: Curtain is the way down. | Toggles (tap again to take down): the exact trap of the first party. |
 | Clock with nothing set | The current task's time limit (the part on the big screen) when it has one, else 0:00; up ready, not started (Jeffrey). | Always 0:00. |
 | Curtain mid-Flipchart | It just lowers the curtain; the round goes on ("the curtain, while they draw"), Clock brings Flipchart's clock back, and the main screen still closes the round at 0:00 (Jeffrey). | Blocking Curtain with an explanation (breaks one tap, whatever's up); a confirm (an extra tap in a panic, for nothing lost). |
+| A transition on the TV | Every chip ends it first (its music too), then does its thing; none is pressed in while one is on (Jeffrey). | Only Curtain ending it (Scores mid-transition would change nothing on the TV, the same trap); a fifth chip (the transition strip is right below). |
 | ⏱'s "Show the clock" | Gone: the Clock chip sits right above it and does the same job (Jeffrey). | Keeping it with an inert second tap (two buttons for one thing); "Hide the clock" (a second way down besides Curtain). |
 
 ## Notes for building
