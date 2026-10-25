@@ -95,10 +95,10 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
 
 /**
  * A live task with a time limit: "▶ Start the clock · 5 min" under its words, which puts the clock on the big screen and starts
- * it in one press. Gold once the words have been up (reading them out is done; this is next). Gone while this task's clock
+ * it in one press. Always gold: the task may be on paper, so it never waits for the words to be up. Gone while this task's clock
  * counts or is held (the strip above has it); back once it's done, or the clock was used for something else.
  */
-function StartClock({ code, session, id, gold }: { code: string; session: Session; id: string; gold: boolean }) {
+function StartClock({ code, session, id }: { code: string; session: Session; id: string }) {
   const view = useClock(session);
   const offset = useServerOffset();
   const task = session.scoreboard?.tasks?.[id];
@@ -107,10 +107,10 @@ function StartClock({ code, session, id, gold }: { code: string; session: Sessio
   if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
   return (
     <>
-      <button className={gold ? "big" : undefined} onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset)}>
+      <button className="big" onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset)}>
         ▶ Start the clock · {timeLabel(limit.ms)}
       </button>
-      <p className="muted small">Puts it on the big screen, over the task.</p>
+      <p className="muted small">Puts it on the big screen.</p>
     </>
   );
 }
@@ -172,7 +172,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
-      <StartClock code={code} session={session} id={id} gold={textOn || textSeen} />
+      <StartClock code={code} session={session} id={id} />
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
