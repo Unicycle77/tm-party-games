@@ -16,11 +16,13 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `guest-checkin-confirm.jpg` | "You're Sam?" on the card: the host's headshot in a gold frame, the Headshot task's words under it, gold "That's me", "Checking in · step 1 of 3" (2026-10-24: the rules step counts) |
 | `guest-checkin-headshot.jpg` | No headshot on file: "To do now · Add your headshot", the same frame, the Headshot task's words, two paper buttons |
 | `guest-checkin-house-rules.jpg` | The Taskmaster rules at check-in, "Checking in · step 2 of 3": the rules card (numbered rules, the last paragraph, TASKMASTER with the seal under it) and gold "Got it →" (2026-10-24, ABCD party) |
+| `guest-checkin-arrival.jpg` | The arrival task, the last step of check-in, "Checking in · step 4 of 4": the task card (ARRIVAL TASK, "Make the most obsequious entrance." and three more paragraphs) and gold "Got it: make my entrance →" (2026-10-25, ABCD party) |
 | `guest-checkin-rules.jpg` | Secret Tasks at check-in, moment one: the whole rules card and gold "Got it: pick an envelope →" |
 | `guest-checkin-envelopes.jpg` | Moment two: "Pick an envelope ?" over the pile on the curtain |
 | `guest-home-todo.jpg` | Home with something to do: "1 thing left to do", the "To do now" card for the secret envelope, "Your to-do list" below |
 | `guest-home-prize-ask.jpg` | The prize question: the prize task's words in quotes, gold "Yes, add photos →", paper "Not now" |
 | `guest-home-waiting.jpg` | Nothing left to do: Sam's own name tag, "Put your phone away. People are starting to stare.", the to-do list with "✓ Taskmaster rules · agreed" first and the prize "optional" (2026-10-24) |
+| `guest-home-arrival.jpg` | Nothing left to do, entrance not yet scored: the to-do list unchanged, and the quiet link "Read the arrival task again" above "Not Sam? Not the right party?" (2026-10-25, ABCD party) |
 | `guest-task-photos.jpg` | A task on: "Task 2 of 8 · Photos", the task's words, the photo controls inside the card, "It's task time. Send your photo." |
 | `guest-task-photos-sent.jpg` | The receipt after sending: "✓ Submitted", the photo, the 🔒 line, "Photo sent. Put your phone away…" |
 | `guest-prize-photos.jpg` | "Your prize photos": the prize words, thumbnails with ≡ ✕ ★, the ★ line, gold "Submit 3 photos" |
@@ -137,6 +139,7 @@ Scoreboard (taken on 2026-10-12, from the real components with made-up sessions;
 | `scoreboard-host-points-measured-ipad.jpg` | The measured page on an iPad in landscape: DQ right after "Priya now 24", the box keeps its width, "+1" right after the points (2026-10-17) |
 | `scoreboard-host-points-noisemaster.jpg` | Noisemaster's points: the soundboard's times, still whole with the +1 column, "↺ 2" restarts, "Fastest wins", Alex DQ'd for giving up, Jo's bonus, Tom "not played" (2026-10-17) |
 | `task-edit-scoring.jpg` | A task's ✎ page, on the live task "Hum a theme tune": its own page with "← Plan the party", the name, the note and "Scoring" always there, then "+ Task text", "+ Song", "+ Transition" and "+ 📏 Unit" for what's not set yet, gold Save, Cancel, "Remove this task" (2026-10-22, from the ABCD party) |
+| `task-edit-arrival.jpg` | The ✎ page of the arrival task "Entrance": Task text open with type Other… "Arrival", the entrance text, and the "Give it to guests at check-in" switch on, "The last step of check-in, word for word." (2026-10-25, ABCD party) |
 | `task-edit-db-meter.jpg` | "+ 📏 Unit" opened on a task with none: 🔊 dB meter beside 🎲 Dice under "Measured in", one open at a time with Done (2026-10-18) |
 | `task-edit-db-meter-on.jpg` | A dB task's ✎ page with its unit section open: 🔊 dB meter pressed, "🔇 DQ if louder than" set to 90 dB, Done and "✕ Remove unit"; the song above it is one summary line (2026-10-18) |
 | `scoreboard-host-points-db-dq.jpg` | A dB task, highest wins without going over 100: Priya's 101.2 struck through with "over 100" under her 0, the others moved up, "over 100 dB is a DQ" in the status line, gold "Done: back to Run of show →" (2026-10-18) |

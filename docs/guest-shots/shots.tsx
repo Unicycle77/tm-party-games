@@ -389,6 +389,8 @@ if (shot.includes("drawing")) localStorage.setItem(`ba.flipchart.page.${CODE}`, 
 if (shot.includes("send")) localStorage.setItem(`ba.flipchart.page.${CODE}`, "16");
 if (q.get("later")) localStorage.setItem(`ba.prizeLater.${CODE}`, "1");
 if (joined) localStorage.setItem("ba.playCode", CODE);
+// Sam has had the arrival task at the door, so it shows only behind the quiet link.
+if (shot === "home-arrival") localStorage.setItem(`ba.arrival.${CODE}`, "1");
 if (joined && shot.startsWith("checkin")) {
   localStorage.setItem("ba.checkin", JSON.stringify({ code: CODE, confirmed: true, rules: shot === "checkin-house-rules", headshot: shot === "checkin-headshot", envelope: true, arrival: true }));
   (session.players as Record<string, unknown>)[who] = { name: people[who], joinedAt: 9, contestant: who };
