@@ -159,8 +159,9 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
     if (prizeOn) {
       rows.push({
         id: "prize", icon: "🎁", label: "Prize photos",
-        state: presented ? "🔒 presented" : saved.length ? "✓ sent" : later ? "optional" : "to do",
-        tone: showPrize ? "next" : presented || saved.length || later ? "done" : undefined,
+        // After "Not now" the row still reads as something to do (not grey), so the guest can find it when the prize is out.
+        state: presented ? "🔒 presented" : saved.length ? "✓ sent" : later ? "add when ready →" : "to do",
+        tone: showPrize ? "next" : presented || saved.length ? "done" : undefined,
         onOpen: () => setOpen("prize"),
       });
     }
