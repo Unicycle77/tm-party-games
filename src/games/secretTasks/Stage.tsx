@@ -1,3 +1,4 @@
+import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { setDisplay } from "../../session";
 import { useStageBarVisible } from "../../stageBar";
@@ -140,8 +141,8 @@ function StageControls({ code }: { code: string }) {
     return () => window.removeEventListener("keydown", onKey);
   });
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       <button onClick={back} tabIndex={visible ? 0 : -1}>← Players</button>
-    </div>
+    </GameBar>
   );
 }

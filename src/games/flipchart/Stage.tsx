@@ -1,3 +1,4 @@
+import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { Framed } from "../../Framed";
 import { Review } from "../../Review";
@@ -89,7 +90,7 @@ function StageControls({ code, session, display }: { code: string; session: Sess
 
   const tab = visible ? 0 : -1;
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       {uid && display.step === "portrait" && (
         <>
           <button disabled={!prev} onClick={() => show(prev)} tabIndex={tab}>Previous</button>
@@ -97,7 +98,6 @@ function StageControls({ code, session, display }: { code: string; session: Sess
           <button onClick={() => void setDisplay(code, { step: "portraits" })} tabIndex={tab}>◫ Everyone</button>
         </>
       )}
-      <button onClick={back} tabIndex={tab}>Lower the curtain</button>
-    </div>
+    </GameBar>
   );
 }

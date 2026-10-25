@@ -39,6 +39,8 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
 | `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |
 | `stage-chips-host-clock.jpg` | The clock left up over Dice tower's words: "On the big screen: the clock", and under it Task · Scores · Clock · Curtain with Clock pressed in (Task greyed: Dice tower is a live task), one tap from Curtain (party ABCD, 2026-10-25) |
+| `stage-bar-main-clock.jpg` | The big screen with the clock up, the mouse just moved: the backup bar top centre with Task · Scores · Clock · Curtain, Clock pressed in (party ABCD, 2026-10-25) |
+| `stage-bar-main-before-after.jpg` | Sam's Before & After side by side, the mouse just moved: the four chips, then after a thin rule the game's own Before · After · ◫ Side by side (party ABCD, 2026-10-25) |
 | `stage-chips-host-transition-curtain.jpg` | Curtain tapped while Dice tower's "Spooky intro" held its last frame: the transition is ended and "On the big screen: the curtain", Curtain pressed in (party ABCD, 2026-10-25) |
 | `stage-chips-host-flipchart-curtain.jpg` | Curtain tapped mid-Flipchart: "On the big screen: the curtain, while they draw", Curtain pressed in, Clock to bring Flipchart's clock back (party ABCD, 2026-10-25) |
 | `clock-host-task.jpg` | The task page while the clock counts: the clock strip under "On the big screen", and the ⏸ beside it (2026-10-21) |

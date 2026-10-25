@@ -103,6 +103,12 @@ function Sheet() {
                 <button className="line-chip-button" style={{ justifySelf: "start" }}>Show rules</button>
               </div>
             </Item>
+            <Item cap={<>The big screen's backup bar (<code>.stage-controls</code>, shown while the mouse moves): the stage chips first, at the bar's size, then a game's own controls after a rule (<code>.game-bar</code>). Esc lowers the curtain from anywhere</>}>
+              <div className="stage-controls show" style={{ position: "static", transform: "none", width: "max-content" }}>
+                <div className="stage-chips"><button className="line-chip-button">Task</button><button className="line-chip-button">Scores</button><button className="line-chip-button">Clock</button><button className="line-chip-button">Curtain</button></div>
+                <span className="game-bar"><button>Before</button><button>After</button><button className="active">◫ Side by side</button></span>
+              </div>
+            </Item>
             <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
             <Item cap={<><code>.big.pressed</code>: a gold button whose thing is on the big screen now; tap again to take it down</>}><button className="big pressed" aria-pressed>Show the task</button></Item>
             <Item cap={<><code>.button-sub</code>: a second line saying what else the tap does, only when there's something to say</>}><button className="big">Start task 6 →<span className="button-sub">♪ Task fanfare · 0:08</span></button></Item>

@@ -527,6 +527,7 @@ At the first party the clock stayed on the TV: whether it's up is saved on the p
 | Clock with nothing set | The current task's time limit (the part on the big screen) when it has one, else 0:00; up ready, not started (Jeffrey). | Always 0:00. |
 | Curtain mid-Flipchart | It just lowers the curtain; the round goes on ("the curtain, while they draw"), Clock brings Flipchart's clock back, and the main screen still closes the round at 0:00 (Jeffrey). | Blocking Curtain with an explanation (breaks one tap, whatever's up); a confirm (an extra tap in a panic, for nothing lost). |
 | A transition on the TV | Every chip ends it first (its music too), then does its thing; none is pressed in while one is on (Jeffrey). | Only Curtain ending it (Scores mid-transition would change nothing on the TV, the same trap); a fifth chip (the transition strip is right below). |
+| At the TV | Esc lowers the curtain from anywhere (the games' key already). Moving the mouse shows the same four chips in the existing backup bar, top centre, at its button size; a game's own controls follow them in the same strip (Jeffrey). | A separate bar at the bottom (the bar already lives at the top); the chips apart from the game's controls. |
 | ⏱'s "Show the clock" | Gone: the Clock chip sits right above it and does the same job (Jeffrey). | Keeping it with an inert second tap (two buttons for one thing); "Hide the clock" (a second way down besides Curtain). |
 
 ## Notes for building

@@ -1,3 +1,4 @@
+import { GameBar } from "../../StageBar";
 import { onChildAdded, ref } from "firebase/database";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Curtain } from "../../Curtain";
@@ -171,9 +172,9 @@ function StageControls({ code, round }: { code: string; round: NoisemasterRound 
 
   const tab = visible ? 0 : -1;
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       {round && <button onClick={restart} tabIndex={tab}>↺ Restart</button>}
       <button onClick={back} tabIndex={tab}>← Players</button>
-    </div>
+    </GameBar>
   );
 }

@@ -85,7 +85,7 @@ export function OnScreen({ code, session, chip, noClock }: { code: string; sessi
  * task is on. The one up now is pressed in, read from the status line so the two always agree, and tapping it does nothing:
  * Curtain is the way down, never a second tap (a clock that hid on one stranded a host's first party). Each ends a transition first.
  */
-function StageChips({ code, session, line }: { code: string; session: Session; line: string }) {
+export function StageChips({ code, session, line }: { code: string; session: Session; line: string }) {
   const game = activeGame(session);
   const holds = !!game?.holdsScreen?.(session);
   const step = session.display?.step ?? "list";

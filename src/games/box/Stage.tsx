@@ -1,3 +1,4 @@
+import { GameBar } from "../../StageBar";
 import { useEffect, useState } from "react";
 import { Curtain } from "../../Curtain";
 import { setDisplay } from "../../session";
@@ -126,11 +127,11 @@ function StageControls({ code, round, nameOf }: { code: string; round: BoxRound 
 
   const tab = visible ? 0 : -1;
   return (
-    <div className={visible ? "stage-controls show" : "stage-controls"} aria-hidden={!visible}>
+    <GameBar>
       {round && keys.map((key) => (
         <button key={key} disabled={!canOpen(key)} onClick={() => open(key)} tabIndex={tab}>Open {nameOf(holderOf(round, key))}'s box</button>
       ))}
       <button onClick={back} tabIndex={tab}>← Players</button>
-    </div>
+    </GameBar>
   );
 }
