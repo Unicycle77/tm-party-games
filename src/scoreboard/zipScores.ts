@@ -28,7 +28,7 @@ export function scoreFiles(session: Session): { name: string; render: () => Prom
   const date = nightOf(session);
   const heading = session.name?.trim() || "Taskmaster party";
   const subtitle = winner ? ["Scores by task", date].filter(Boolean).join(" · ") : `Scores so far · after ${shown} of ${all} tasks`;
-  const pdf = async () => new Blob([(await buildScoresPdf(board, heading, subtitle)) as Uint8Array<ArrayBuffer>], { type: "application/pdf" });
+  const pdf = async () => new Blob([(await buildScoresPdf(board, heading, subtitle, winner)) as Uint8Array<ArrayBuffer>], { type: "application/pdf" });
   const files = [
     { name: winner ? "Final scoreboard.png" : `Scoreboard after task ${shown} of ${all}.png`, render: () => renderScoreboard(board) },
     { name: winner ? "Scores by task.pdf" : "Scores by task so far.pdf", render: pdf },
