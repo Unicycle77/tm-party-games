@@ -5,7 +5,7 @@ import { useServerOffset } from "../games/noisemaster/data";
 import { titleOf } from "../scoreboard/tasks";
 import type { ClockState, Session } from "../types";
 import {
-  addMinute, contestantsOf, goingOf, limitFor, pickEveryone, resetClock, setMode, setSong, setTime, showClock, songIn, sourceOf, startClock, stopClock,
+  addMinute, contestantsOf, goingOf, limitFor, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
   tapContestant, timesOf, useClock, watchLabel, watchTask, type ClockView,
 } from "./data";
 import { FlipClock } from "./FlipClock";
@@ -16,7 +16,7 @@ const QUICK = [60_000, 120_000, 300_000, 600_000];
 
 /**
  * ⏱ The clock, on the host's phone: a countdown set from the task's time limit (or any time) or a stopwatch, started and held
- * with one button, and put on the big screen on its own. The clock keeps running wherever the host goes (see ClockStrip).
+ * with one button. The Clock stage chip (see StageChips) puts it on the big screen, and Curtain takes it down. The clock keeps running wherever the host goes (see ClockStrip).
  * Flipchart's clock, while it runs, is the clock in the party: it shows here, and can only be run from the task.
  */
 export function ClockRemote({ code, session, from }: { code: string; session: Session; from?: string }) {
@@ -47,11 +47,9 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
     );
   }
 
-  const shown = view.shown;
   return (
     <section className="remote converter clock-remote">
       <h2>⏱ The clock</h2>
-      <button className={shown ? "pressed-in" : undefined} aria-pressed={shown} onClick={() => void showClock(code, state, !shown)}>Show the clock</button>
       <div className="choices two marks" role="radiogroup" aria-label="Kind of clock">
         <button role="radio" aria-checked={!up} aria-pressed={!up} disabled={locked} onClick={() => void setMode(code, state, false, source?.id)}>Count down</button>
         <button role="radio" aria-checked={up} aria-pressed={up} disabled={locked} onClick={() => void setMode(code, state, true, source?.id)}>Stopwatch</button>

@@ -455,7 +455,7 @@ A utility in the host's header that runs the show's clock (the one Flipchart dre
 
 | Decision | What we agreed | What we turned down, and why |
 |---|---|---|
-| Running and showing | Separate. The host can start it with nothing on the TV and put it up later or never. "Show the clock" is paper, pressed in while up, never gold; on the TV it replaces whatever was up (words, scoreboard) until the host puts something else up. | Showing it automatically on start; the clock beside a task's words (Jeffrey: replace). |
+| Running and showing | Separate. The host can start it with nothing on the TV and put it up later or never. "Show the clock" is paper, pressed in while up, never gold; on the TV it replaces whatever was up (words, scoreboard) until the host puts something else up. Since the first party: the Clock stage chip puts it up and Curtain takes it down; ⏱'s own button is gone (see Stage chips). | Showing it automatically on start; the clock beside a task's words (Jeffrey: replace). |
 | Presets | A task's time limits are read from its words ("You have exactly 3 minutes"), a part each, with the sentence shown so a misread is obvious. The part on the big screen starts picked; any time and "Your own" are always there. | A time-limit field in ✎ (setup on every task; the words already say it). |
 | Pick, then start | One button in one place: gold ▶ Start (and to carry on), pressed-in ⏸ Stop while it runs. Quiet "+1 minute" and "Reset". | One tap on a preset starting it (no setting up while reading the task out); Flipchart's "Your time starts now" wording and a "Stop the clock" link (Jeffrey: common icons). |
 | The strip | Under "On the big screen" on every page while the clock is going: the song strip's shape. The strip opens ⏱; a separate ⏸ beside it holds the clock. | Tapping the strip pausing it (Jeffrey would tap it expecting to show the clock). |
@@ -512,6 +512,21 @@ A party's house rules: a numbered list, a last paragraph and a sign-off, shown i
 | Big screen | A "Show rules" line chip beside "Show scores", all night (late arrivals); the rules on the task card, the seal under TASKMASTER; anything else put up replaces them. | A step in the running order: can't be skipped or brought back. The seal in its corner: it landed on the sign-off. |
 | Check-in | A required step after "You're Sam?", before the headshot and envelope: the rules card and gold "Got it →". | Skippable: everyone acknowledges the rules. "I serve the Taskmaster": a second voice next to "Got it: pick an envelope →". |
 | Rereading | "✓ Taskmaster rules · agreed" first in the guest's to-do list, opening the card with ← Back. | Anything new: the to-do row already does this for the envelope. |
+
+## Stage chips: Task · Scores · Clock · Curtain
+
+At the first party the clock stayed on the TV: whether it's up is saved on the party, so refreshing brought it back, and the only way down was a second tap on a pressed-in "Show the clock". Designed one step at a time with Jeffrey; the screens are `stage-chips-host-*`.
+
+| Decision | What we agreed | What we turned down, and why |
+|---|---|---|
+| What a reset is | Only what the room sees changes. A running clock keeps counting, the game stays on, so a panic tap loses nothing. | Ending things (the clock, the round) along with the picture. |
+| Where | Under "On the big screen" on every host page: that line already names what's stuck. | The status line itself tappable (nothing says it's a button); a header icon (the icons open pages, they don't act); a quiet link (missed in a dim room). |
+| Which | Task, Scores, Clock, Curtain: one tap each from anywhere (Jeffrey). Task is the app task's own screen. One-word labels so four fit on an iPhone. | Full labels ("Lower the curtain"; two rows); the app's name for Task ("[BLANK] in a Box" doesn't fit). |
+| Always there | All four, always in the same place; Task greyed out with no app task on (Jeffrey). | Hiding the chip for what's up, or Task with no app (the row would shift under a panicking thumb). |
+| Pressed in | What's up is pressed in, read from the status line, and a second tap does nothing: Curtain is the way down. | Toggles (tap again to take down): the exact trap of the first party. |
+| Clock with nothing set | The current task's time limit (the part on the big screen) when it has one, else 0:00; up ready, not started (Jeffrey). | Always 0:00. |
+| Curtain mid-Flipchart | It just lowers the curtain; the round goes on ("the curtain, while they draw"), Clock brings Flipchart's clock back, and the main screen still closes the round at 0:00 (Jeffrey). | Blocking Curtain with an explanation (breaks one tap, whatever's up); a confirm (an extra tap in a panic, for nothing lost). |
+| ⏱'s "Show the clock" | Gone: the Clock chip sits right above it and does the same job (Jeffrey). | Keeping it with an inert second tap (two buttons for one thing); "Hide the clock" (a second way down besides Curtain). |
 
 ## Notes for building
 
