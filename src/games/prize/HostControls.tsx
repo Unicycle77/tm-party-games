@@ -74,6 +74,62 @@ export function HostLobby({ code, session, display, head }: { code: string; sess
   );
 }
 
+/**
+ * The prize task's page before it starts: whose prizes are in, and "+ Add photos" for anyone's that isn't, so the
+ * host can photograph a prize handed over mid-party without starting the task (which puts it on the big screen) or
+ * presenting it (which locks the guest's phone). New photos join the end, as while presenting.
+ */
+export function PrizesBefore({ code, session }: { code: string; session: Session }) {
+  const uid = useUid();
+  const photos = prizePhotos(session);
+  const entries = Object.entries(session.scoreboard?.contestants ?? {}).sort(([, a], [, b]) => a.order - b.order);
+  const [adding, setAdding] = useState<string>();
+  const [sending, setSending] = useState<{ id: string; sent: number[] }>();
+  const input = useRef<HTMLInputElement>(null);
+  useKeepAwake(!!sending);
+  const n = entries.filter(([id]) => photos[id]?.length).length;
+
+  async function add(id: string, files: File[]) {
+    if (!uid || !files.length) return;
+    const sent = files.map(() => 0);
+    setSending({ id, sent: [...sent] });
+    try {
+      await addPrizePhotos(code, uid, id, files, (i, f) => { sent[i] = f; setSending({ id, sent: [...sent] }); });
+    } catch {
+      alert("Some photos didn't finish sending. Check your Wi-Fi and try again.");
+    } finally {
+      setSending(undefined);
+    }
+  }
+
+  return (
+    <section className="prizes-before">
+      <p className="list-label">Prizes in · {n} of {entries.length}</p>
+      <ul className="run-list">
+        {entries.map(([id, c]) => {
+          const count = photos[id]?.length ?? 0;
+          const busy = sending?.id === id;
+          return (
+            <li key={id} className={count ? "done" : "open"}>
+              {count ? (
+                <span className="row-line"><span>✓</span><span>{c.name}</span><span className="state">{count} {count === 1 ? "photo" : "photos"}</span></span>
+              ) : (
+                <button disabled={!!sending} onClick={() => { setAdding(id); input.current?.click(); }}>
+                  <span>🎁</span><span>{c.name}</span>
+                  <span className="state">{busy ? `sending… ${Math.round(sending!.sent.reduce((a, b) => a + b, 0) / sending!.sent.length * 100)}%` : "+ Add photos"}</span>
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="muted small">Guests add their own from the to-do list on their phones. Add one here for a prize handed to you.</p>
+      <input ref={input} type="file" accept="image/*" multiple hidden
+        onChange={(e) => { if (adding) void add(adding, [...(e.target.files ?? [])]); e.target.value = ""; }} />
+    </section>
+  );
+}
+
 export interface PrizeEntry { id: string; name: string; photos: string[] }
 
 /**

@@ -1382,8 +1382,9 @@ button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #00
 .run-list li.next .row-line { color: var(--gold-bright); }
 /* The guest's to-do list: finished rows recede, rows with something left stand out with a gold tag to tap. */
 .guest .run-list li.done { opacity: 0.6; }
-.guest .run-list li.open button { color: var(--paper); }
-.guest .run-list li.open .state { color: var(--gold-bright); border: 1px solid var(--gold-edge); border-radius: 999px; padding: 0.15rem 0.6rem; background: #00000033; }
+.guest .run-list li.open button, .prizes-before .run-list li.open button { color: var(--paper); }
+.prizes-before .run-list li.done .row-line { opacity: 0.6; }
+.guest .run-list li.open .state, .prizes-before .run-list li.open .state { color: var(--gold-bright); border: 1px solid var(--gold-edge); border-radius: 999px; padding: 0.15rem 0.6rem; background: #00000033; }
 .game-slot { display: grid; gap: 1rem; }
 .game-slot[hidden] { display: none; }
 .phone.guest > .link.back { justify-self: start; }
