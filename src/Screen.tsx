@@ -66,10 +66,12 @@ export function Screen({ code, session, viewOnly = false, footer }: {
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // So does the ⏱ clock, when the host shows it.
   if (session.clock?.shown) return <ClockStage session={session} />;
+  // The night ends on the scores or the haul, so the download button (when it's switched on) sits over them too.
+  const download = !viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>;
   // The scoreboard belongs to no game, so it can go up whatever is on.
-  if (display.step === "scoreboard") return <ScoreboardStage board={session.scoreboard} players={session.players} />;
+  if (display.step === "scoreboard") return <><ScoreboardStage board={session.scoreboard} players={session.players} />{download}</>;
   // So is the winner's prize haul, at the end of the party.
-  if (display.step === "haul") return <HaulStage code={code} session={session} />;
+  if (display.step === "haul") return <><HaulStage code={code} session={session} />{download}</>;
   // And a task's text, when the host puts it up.
   const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task, display.part) : undefined;
   if (words) return <TaskTextStage {...words} />;
@@ -164,7 +166,7 @@ export function Screen({ code, session, viewOnly = false, footer }: {
         </ul>
       </aside>
       <CornerCode code={code} session={session} />
-      {!viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>}
+      {download}
       {menu}
       {viewOnly && footer}
     </main>
