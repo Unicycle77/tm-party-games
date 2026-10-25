@@ -78,11 +78,13 @@ export const setTime = (code: string, ms: number, task?: string) =>
 export const startAgain = (code: string, state: ClockState, offset: number) =>
   update(at(code), { "clock/ms": state.set ?? 0, "clock/begun": true, "clock/at": Date.now() + offset + (state.set ?? 0), "clock/stopped": null, "clock/songOn": null, "clock/who": null });
 
-/** Host: switches between a countdown and a stopwatch (only before it starts). A stopwatch starts at nothing. */
-export const setMode = (code: string, state: ClockState | undefined, up: boolean, task?: string) =>
-  update(at(code), up
-    ? { "clock/mode": "up", "clock/ms": 0, "clock/task": task ?? null, "clock/going": null }
-    : { "clock/mode": null, "clock/ms": state?.set ?? 0, "clock/task": task ?? state?.task ?? null });
+/** Host: switches between a countdown and a stopwatch (before it starts, or once a countdown is done). A stopwatch starts at nothing. */
+export const setMode = (code: string, state: ClockState | undefined, up: boolean, task?: string) => {
+  const fresh = { "clock/begun": null, "clock/at": null, "clock/stopped": null, "clock/who": null };
+  return update(at(code), up
+    ? { ...fresh, "clock/mode": "up", "clock/ms": 0, "clock/task": task ?? null, "clock/going": null }
+    : { ...fresh, "clock/mode": null, "clock/ms": state?.set ?? 0, "clock/task": task ?? state?.task ?? null });
+};
 
 /** Where a song for the clock is in the jukebox's list, and how long it is in ms (0: unknown). */
 export function songIn(session: Session, title: string | undefined): { index: number; ms: number } | undefined {

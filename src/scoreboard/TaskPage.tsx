@@ -101,10 +101,11 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
 
 /**
  * A live task with a time limit: "▶ Start the clock · 5 min" under its words, which puts the clock on the big screen and starts
- * it in one press. Always gold: the task may be on paper, so it never waits for the words to be up. Gone while this task's clock
- * counts or is held (the strip above has it); back once it's done, or the clock was used for something else. A task in parts
- * has one under each part's card that has a time, so a part's clock (or the same one, once per player) is always one press.
- * A live task with no time anywhere has just a quiet "⏱ Time this task" into ⏱.
+ * it in one press, whatever the clock was doing. Always gold: the task may be on paper, so it never waits for the words to be up.
+ * Gone while this task's clock counts (the strip above has it); back once it's held (someone finished early: the next press
+ * starts afresh, while the strip's ▶ carries on) or done. A task in parts has one under each part's card that has a time.
+ * "One player at a time?" makes it name whose turn it is, with the contestants as chips to pick who's next. A live task
+ * with no time anywhere has just a quiet "⏱ Time this task" into ⏱.
  */
 function StartClock({ code, session, id, part = 1 }: { code: string; session: Session; id: string; part?: number }) {
   const view = useClock(session);
@@ -116,7 +117,7 @@ function StartClock({ code, session, id, part = 1 }: { code: string; session: Se
   // No time in the words or ✎: a quiet way into ⏱, set up for this task. Once, under the last card.
   if (!limit) return part === Math.max(1, partsOf(task).length) && !limitsOf(task).length
     ? <button className="link" onClick={open}>⏱ Time this task</button> : null;
-  if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
+  if (view.owner || (session.clock?.task === id && view.phase === "running")) return null;
   const turns = session.clock?.turns;
   if (turns?.task === id && turns.part === part) {
     const took = turns.took ?? {};

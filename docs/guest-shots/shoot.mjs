@@ -147,6 +147,11 @@ const SHOTS = {
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
   "clock-host-task": ["host-cd-task"],
+  // started from the task page: one player at a time (host, then the big screen), no time in the words, and ⏱ at 0:00
+  "clock-host-turns": ["host-cd-turns"],
+  "clock-main-turn": ["tv-cd-turn"],
+  "clock-host-untimed": ["host-cd-untimed"],
+  "clock-host-done": ["host-cd-done"],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
   // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it
