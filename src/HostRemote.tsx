@@ -55,6 +55,7 @@ export function onScreenLine(session: Session): string {
   const data = session.games?.[game.id];
   const shown = (data && "shown" in data && data.shown) || {};
   if (display.step === "list" && game.holdsScreen?.(session)) return "the clock";
+  if (display.step === "curtain" && game.holdsScreen?.(session)) return "the curtain, while they draw";
   if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
   if (display.step === "curtain") return `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
   return "everyone's entries";
@@ -90,7 +91,8 @@ function StageChips({ code, session, line }: { code: string; session: Session; l
   return (
     <div className="stage-chips" role="group" aria-label="Put on the big screen">
       {chip("Scores", line.startsWith("the scores"), () => showScoreboard(code))}
-      {chip("Clock", line === "the clock", () => putUpClock(code, session))}
+      {/* While a round holds the screen, its clock is the one to bring back. */}
+      {chip("Clock", line === "the clock", () => activeGame(session)?.holdsScreen?.(session) ? setDisplay(code, { step: "list" }) : putUpClock(code, session))}
       {chip("Curtain", line.startsWith("the curtain"), () => setDisplay(code, { step: "curtain" }))}
     </div>
   );

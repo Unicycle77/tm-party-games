@@ -149,6 +149,8 @@ const SHOTS = {
   "clock-host-task": ["host-cd-task"],
   // The clock left up over Dice tower's words: Scores · Clock · Curtain under the line, Clock pressed in
   "stage-chips-host-clock": ["host-cd-stuck"],
+  // Curtain tapped while Flipchart's guests draw: the round goes on behind it
+  "stage-chips-host-flipchart-curtain": ["host-flipchart-live", "", async (p) => { await p.getByRole("group", { name: "Put on the big screen" }).getByRole("button", { name: "Curtain" }).click(); }],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
   // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it
