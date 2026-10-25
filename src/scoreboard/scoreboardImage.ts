@@ -18,11 +18,11 @@ const SLOT = 275, LEFT = 30, WIDTH = 205;
 const FRAME_H = 250, GAP = 25, INSET = 33;
 const ROW_H = 413;
 
-const load = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+export const load = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => {
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = () => resolve(img);
-  img.onerror = () => reject(new Error("Couldn't load a headshot for the scoreboard."));
+  img.onerror = () => reject(new Error("Couldn't load a photo to draw (bucket CORS isn't set up?)."));
   img.src = src;
 });
 
@@ -134,16 +134,19 @@ export async function renderScoreboard(board: Scoreboard | undefined): Promise<B
     ctx.fillText(String(totals[id] ?? 0), x + WIDTH / 2 + 8, sy + 90);
     ctx.restore();
 
-    if (id === settled) placard(ctx, "Tiebreaker", x + WIDTH / 2, sy + sealH + 14);
+    if (id === settled) placard(ctx, "Tiebreaker", x + WIDTH / 2, sy + sealH + 14, 26, 3, 26);
   }
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Couldn't draw the scoreboard."))), "image/png"));
 }
 
-/** The prize haul's paper placard (`.haul figcaption`), centred on `cx` with its top at `y`. */
-function placard(ctx: CanvasRenderingContext2D, text: string, cx: number, y: number) {
+/**
+ * The prize haul's paper placard (`.haul figcaption`), centred on `cx` with its top at `y`: typewriter at `size`px
+ * (line-height 1.4) on paper, `padY` and `padX` inside a 2px --gold-dark border, and a soft shadow under it.
+ */
+export function placard(ctx: CanvasRenderingContext2D, text: string, cx: number, y: number, size: number, padY: number, padX: number) {
   ctx.save();
-  ctx.font = '26px "Typewriter", sans-serif';
-  const w = ctx.measureText(text).width + 52, h = 46;
+  ctx.font = `${size}px "Typewriter", sans-serif`;
+  const w = ctx.measureText(text).width + 2 * padX + 4, h = size * 1.4 + 2 * padY + 4;
   ctx.shadowColor = "rgba(0, 0, 0, 0.67)";
   ctx.shadowOffsetY = 3;
   ctx.shadowBlur = 8;
@@ -158,4 +161,5 @@ function placard(ctx: CanvasRenderingContext2D, text: string, cx: number, y: num
   ctx.textBaseline = "middle";
   ctx.fillText(text, cx, y + h / 2 + 1);
   ctx.restore();
+  return h;
 }
