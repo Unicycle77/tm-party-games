@@ -7,8 +7,9 @@ import { shownTotals } from "./scoring";
 
 /*
  * The scoreboard for the download-all zip, redrawn on a canvas from ScoreboardStage's own measurements
- * (scoreboard.css): the frames, seals and background as the room last saw them, at the scoreboard's own size
- * (280px a contestant by 1080px) whatever screen does the downloading. Settled, as after the slide; every face
+ * (scoreboard.css): the frames, seals and background as the room last saw them, on a 1920 by 1080 TV whatever
+ * screen does the downloading: the row 280px a contestant, centred, and scaled down as the stage scales it when
+ * it's wider than the screen. Settled, as after the slide; every face
  * sharp, mosaic or not; and when a tie at the top was settled by the tiebreaker, only its winner is enlarged,
  * on the right, with a paper "Tiebreaker" placard under the seal (the prize haul's). Keep it in step with
  * ScoreboardStage when that changes.
@@ -93,13 +94,20 @@ export async function renderScoreboard(board: Scoreboard | undefined): Promise<B
   await document.fonts.load('84px "Typewriter"');
 
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(280 * ids.length, 280);
+  canvas.width = 1920;
   canvas.height = 1080;
   const ctx = canvas.getContext("2d")!;
   // background: center / cover
   const k = Math.max(canvas.width / bg!.naturalWidth, canvas.height / bg!.naturalHeight);
   ctx.drawImage(bg!, (canvas.width - bg!.naturalWidth * k) / 2, (canvas.height - bg!.naturalHeight * k) / 2, bg!.naturalWidth * k, bg!.naturalHeight * k);
 
+  // As ScoreboardStage fits the row to the screen: scaled about its left middle, then centred across.
+  const rowW = 280 * ids.length;
+  const m = Math.min(canvas.width / rowW, 1);
+  ctx.save();
+  ctx.translate((canvas.width - rowW * m) / 2, canvas.height / 2);
+  ctx.scale(m, m);
+  ctx.translate(0, -canvas.height / 2);
   const rowTop = (canvas.height - ROW_H) / 2;
   const sealH = (WIDTH * sealImg!.naturalHeight) / sealImg!.naturalWidth;
   // The original adds the last contestant first, so each one overlaps the next to its left.
@@ -114,8 +122,8 @@ export async function renderScoreboard(board: Scoreboard | undefined): Promise<B
     ctx.translate(0, -FRAME_H / 2);
     ctx.rotate(sway(n));
     ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
-    ctx.shadowOffsetX = 15 * scale(id);
-    ctx.shadowOffsetY = 15 * scale(id);
+    ctx.shadowOffsetX = 15 * scale(id) * m;
+    ctx.shadowOffsetY = 15 * scale(id) * m;
     ctx.shadowBlur = 3;
     ctx.drawImage(framed(faces[n]!, c.photo ? c.crop : undefined, frameImg!), -WIDTH / 2, -FRAME_H / 2);
     ctx.restore();
@@ -136,6 +144,7 @@ export async function renderScoreboard(board: Scoreboard | undefined): Promise<B
 
     if (id === settled) placard(ctx, "Tiebreaker", x + WIDTH / 2, sy + sealH + 14, 26, 3, 26);
   }
+  ctx.restore();
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Couldn't draw the scoreboard."))), "image/png"));
 }
 
