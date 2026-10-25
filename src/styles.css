@@ -1217,7 +1217,7 @@ button.help-q:active { transform: none; box-shadow: none; }
 @media (min-width: 1000px) {
   /* Plan the party on a wide iPad: tasks on the left, contestants on the right, the rest across */
   .scoreboard-remote.plan:not(.task-edit-page) { grid-template-columns: 1fr 1fr; column-gap: 1.5rem; align-items: start; }
-  .scoreboard-remote.plan > h2, .scoreboard-remote.plan > button, .scoreboard-remote.plan > .party-summary, .scoreboard-remote.plan > .envelopes { grid-column: 1 / -1; }
+  .scoreboard-remote.plan > h2, .scoreboard-remote.plan > button, .scoreboard-remote.plan > .party-summary, .scoreboard-remote.plan > .rules-setup, .scoreboard-remote.plan > .envelopes { grid-column: 1 / -1; }
 }
 @media (max-width: 520px) {
   .sb-chips { gap: 0.3rem; }

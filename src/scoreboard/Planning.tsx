@@ -16,7 +16,7 @@ import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 /**
  * Plan the party: everything set up before the night, in the order you'd do it, off Run of show so nothing on it
  * can be hit mid-show. The party (name, portrait, pin), the tasks (≡ to reorder, ✎ to a task's own page), the
- * contestants and the pile of secret envelopes.
+ * contestants, the Taskmaster rules and the pile of secret envelopes.
  */
 export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
   code: string; session: Session; onBack: () => void;
@@ -32,9 +32,9 @@ export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
       <button className="link back" onClick={onBack}>← Run of show</button>
       <h2>Plan the party</h2>
       <PartySummary code={code} session={session} />
-      <RulesSetup code={code} session={session} />
       <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} />
       <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} />
+      <RulesSetup code={code} session={session} />
       <Envelopes code={code} />
       <PrintGroup code={code} session={session} />
       <SetupFile code={code} session={session} />
