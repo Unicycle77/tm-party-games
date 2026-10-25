@@ -17,7 +17,7 @@ import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
 import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { PinStep } from "./HostPin";
-import { JoinError, PinNeededError, allowMove, claimController, claimWithPin, createParty, declineMove, extractCode, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, PinNeededError, RemoteTakenError, allowMove, askHandover, cancelHandover, claimController, claimWithPin, createParty, declineHandover, declineMove, extractCode, finishHandover, handOver, releaseController, setShowDownload, store, useSession, useUid } from "./session";
 import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
 import { DownloadZip } from "./DownloadZip";
 import { Toggle } from "./Toggle";
@@ -178,7 +178,7 @@ function Dealer({ code, session }: { code: string; session: Session }) {
 }
 
 /**
- * Guests asking to move to a new phone, at the top of every view. It blocks nothing and makes no
+ * Guests asking to move to a new phone, and phones asking for the remote, at the top of every view. It blocks nothing and makes no
  * sound: the guest will usually be standing next to the host asking anyway.
  */
 function MoveRequests({ code, session }: { code: string; session: Session }) {
@@ -189,6 +189,8 @@ function MoveRequests({ code, session }: { code: string; session: Session }) {
     .filter(([uid, p]) => !listed.has(uid) && !p.notPlaying)
     .sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
   const asks = Object.entries(session.moves ?? {}).filter(([, m]) => m.status === "asked" && session.players?.[m.from]);
+  // Phones asking for the remote (a party with no pin), oldest first.
+  const handovers = Object.entries(session.handovers ?? {}).filter(([, h]) => h.status === "asked");
   return (
     <>
       {newcomers.map(([uid, p]) => (
@@ -197,6 +199,15 @@ function MoveRequests({ code, session }: { code: string; session: Session }) {
           <div className="row">
             <button onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>Add {p.name}</button>
             <button onClick={() => void setNotPlaying(code, uid)}>Not playing</button>
+          </div>
+        </section>
+      ))}
+      {handovers.map(([to, h]) => (
+        <section key={to} className="move-request">
+          <p><strong>Another phone wants the host remote.</strong> Hand over only if it shows <span className="handover-pair">{h.pair}</span></p>
+          <div className="row">
+            <button onClick={() => void handOver(code, session, to)}>Hand over</button>
+            <button onClick={() => void declineHandover(code, to)}>Decline</button>
           </div>
         </section>
       ))}
@@ -302,6 +313,8 @@ function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnecte
   const [naming, setNaming] = useState<string>();
   /** A pinned party this phone hasn't entered the pin for yet. */
   const [pinFor, setPinFor] = useState<PinNeededError>();
+  /** A party with no pin whose remote is on another phone: this one can ask it to hand over. */
+  const [askFor, setAskFor] = useState<RemoteTakenError>();
   const autoTried = useRef(false);
   // Sessions this phone has been the host remote for.
   const [recent, setRecent] = useState(() => loadRecent(REMOTE_KEY));
@@ -312,6 +325,7 @@ function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnecte
     try { onConnected(await claimController(c)); }
     catch (err) {
       if (err instanceof PinNeededError) { setPinFor(err); return; }
+      if (err instanceof RemoteTakenError) { setAskFor(err); return; }
       // A session that no longer exists drops off the recent list.
       if (err instanceof JoinError && err.message.startsWith("No session found")) {
         setRecent(saveRecent(REMOTE_KEY, withoutRecent(recent, c.trim().toUpperCase())));
@@ -359,6 +373,8 @@ function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnecte
       hint="You'll only type it once on this phone." action="Connect" busy={busy} error={error}
       onSubmit={(pin) => void enterPin(pin)} onExit={() => { setPinFor(undefined); setError(undefined); }} />;
   }
+
+  if (askFor) return <AskHandover taken={askFor} onConnected={onConnected} onExit={() => { setAskFor(undefined); setError(undefined); }} />;
 
   // Days ahead: name the party, and it's made right here, with no big screen yet.
   if (naming !== undefined) {
@@ -408,6 +424,72 @@ function Connect({ takenOver, onConnected }: { takenOver?: TakenOver; onConnecte
         const c = extractCode(t);
         if (c) { setCode(c); setError(undefined); }
       }} />}
+    </main>
+  );
+}
+
+/**
+ * A party with no pin whose remote is on another phone. This phone asks it to hand over, then shows 3 digits;
+ * the other phone's card shows the same, so the host can tell which phone is asking. With a pin, the pin
+ * step does this job instead.
+ */
+function AskHandover({ taken, onConnected, onExit }: { taken: RemoteTakenError; onConnected: (code: string) => void; onExit: () => void }) {
+  const { code, partyName } = taken;
+  const uid = useUid();
+  const session = useSession(code);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  const ask = uid ? session?.handovers?.[uid] : undefined;
+  const handed = ask?.status === "handed" && session?.controllerUid === uid;
+  useEffect(() => {
+    if (!handed || !ask) return;
+    void finishHandover(code, ask.from).then(() => onConnected(code));
+  }, [handed]);
+
+  async function askNow() {
+    setBusy(true);
+    setError(undefined);
+    try { await askHandover(code); }
+    catch (err) { setError(err instanceof JoinError ? err.message : "Couldn't ask. Try again."); }
+    finally { setBusy(false); }
+  }
+  const back = () => { if (ask) void cancelHandover(code); onExit(); };
+  const party = <>{partyName ? <><strong className="party-name">{partyName}</strong> · </> : "Party "}<strong>{code}</strong></>;
+
+  return (
+    <main className="join">
+      <h1>Host remote</h1>
+      {!ask ? (
+        <>
+          <p className="joining">{party} already has a host remote.</p>
+          <button disabled={busy} onClick={() => void askNow()}>{busy ? "Asking…" : "Ask the host phone to hand over"}</button>
+          {error && <p className="error">{error}</p>}
+          <button className="link" onClick={onExit}>Wrong party? Enter a different code</button>
+        </>
+      ) : (
+        <section className="slot waiting">
+          {ask.status === "declined" ? (
+            <>
+              <h2>The host phone said no.</h2>
+              <button disabled={busy} onClick={() => void askNow()}>{busy ? "Asking…" : "Ask again"}</button>
+              <button className="link" onClick={back}>Back</button>
+            </>
+          ) : ask.status === "elsewhere" ? (
+            <>
+              <h2>The host handed over to another phone.</h2>
+              <button className="link" onClick={back}>Back</button>
+            </>
+          ) : (
+            <>
+              <h2>Asked the host phone.</h2>
+              <p className="slot-hint">Check that it shows</p>
+              <p className="handover-pair big">{ask.pair}</p>
+              <p className="slot-hint">{handed ? "Connecting…" : "Waiting for its OK…"}</p>
+              <button className="link" onClick={back}>Cancel</button>
+            </>
+          )}
+        </section>
+      )}
     </main>
   );
 }

@@ -170,6 +170,11 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
 }
 
 /** The name a guest tapped is already checked in on another phone: maybe theirs (see askToMove). */
+/** A party with no host pin whose remote is on another phone: this one can ask it to hand over. */
+export class RemoteTakenError extends JoinError {
+  constructor(readonly code: string, readonly partyName: string | null) { super("This party already has a host remote."); }
+}
+
 export class TakenError extends JoinError {
   constructor(readonly taken: string) { super(`${taken} is already checked in on another phone.`); }
 }
@@ -321,9 +326,7 @@ export async function claimController(rawCode: string): Promise<string> {
     if (current !== user.uid) await set(ref(db(), `sessions/${code}/controllerUid`), user.uid);
     return code;
   }
-  if (current && current !== user.uid) {
-    throw new JoinError("This session already has a host remote. Ask for it to be reset on the main screen.");
-  }
+  if (current && current !== user.uid) throw new RemoteTakenError(code, session.name ?? null);
   if (current === user.uid) return code; // this phone already holds the slot
   try {
     await set(ref(db(), `sessions/${code}/controllerUid`), user.uid);
@@ -332,6 +335,48 @@ export async function claimController(rawCode: string): Promise<string> {
   }
   return code;
 }
+
+/**
+ * New phone, on a party with no pin: asks the host remote to hand over. Returns the 3 digits both phones show,
+ * a new set each time and never the same as another phone's that's asking.
+ */
+export async function askHandover(code: string): Promise<string> {
+  const user = await ensureSignedIn();
+  const snap = await get(ref(db(), `sessions/${code}`));
+  if (!snap.exists()) throw new JoinError(`No session found for code ${code}.`);
+  const session = snap.val() as Session;
+  if (!session.controllerUid) throw new JoinError("Nobody has the host remote now. Connect again.");
+  const taken = new Set(Object.values(session.handovers ?? {}).map((h) => h.pair));
+  let pair: string;
+  do pair = String(100 + Math.floor(Math.random() * 900)); while (taken.has(pair));
+  // A declined or stale ask goes first: only a new one can be written.
+  await remove(ref(db(), `sessions/${code}/handovers/${user.uid}`));
+  await set(ref(db(), `sessions/${code}/handovers/${user.uid}`), { pair, from: session.controllerUid, status: "asked" });
+  return pair;
+}
+
+/** New phone: withdraws its ask (or clears an answered one). */
+export const cancelHandover = async (code: string) =>
+  remove(ref(db(), `sessions/${code}/handovers/${(await ensureSignedIn()).uid}`));
+
+/**
+ * New phone, once handed the remote: tidies its ask away, and on a party with no big screen yet (the remote
+ * that handed over was its host too) takes the host slot as well, so this phone can do all the old one could.
+ */
+export async function finishHandover(code: string, from: string) {
+  const user = await ensureSignedIn();
+  if ((await get(ref(db(), `sessions/${code}/hostUid`))).val() === from) await set(ref(db(), `sessions/${code}/hostUid`), user.uid);
+  await remove(ref(db(), `sessions/${code}/handovers/${user.uid}`));
+}
+
+/** Host remote: hands itself over to the phone that asked, and tells any other phone that asked. */
+export function handOver(code: string, session: Session, to: string) {
+  const u: Record<string, unknown> = { [`sessions/${code}/controllerUid`]: to, [`sessions/${code}/handovers/${to}/status`]: "handed" };
+  for (const [uid, h] of Object.entries(session.handovers ?? {})) if (uid !== to && h.status === "asked") u[`sessions/${code}/handovers/${uid}/status`] = "elsewhere";
+  return update(ref(db()), u);
+}
+
+export const declineHandover = (code: string, to: string) => set(ref(db(), `sessions/${code}/handovers/${to}/status`), "declined");
 
 /** Main screen: disconnects the current host remote so another phone can claim it. */
 export const resetController = (code: string) => remove(ref(db(), `sessions/${code}/controllerUid`));

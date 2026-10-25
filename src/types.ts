@@ -245,6 +245,17 @@ export interface StageLightAsk {
  * host can allow it, so nobody can take someone else's spot. Allowed requests stay, so the old phone
  * can say where its player went.
  */
+/**
+ * A phone asking the host remote to hand the remote over, on a party with no host pin. Both phones show `pair`,
+ * so the host can tell which phone is asking. `from` is the remote it asked (the phone that had it then).
+ */
+export interface HandoverRequest {
+  pair: string;
+  from: string;
+  /** asked; declined by the host; handed to this phone; or "elsewhere", handed to another phone that asked. */
+  status: "asked" | "declined" | "handed" | "elsewhere";
+}
+
 export interface MoveRequest {
   /** The player being moved. */
   from: string;
@@ -526,6 +537,8 @@ export interface Session {
   lightUid?: string;
   /** Guests asking to move to a new phone, by the new phone's uid (see MoveRequest). */
   moves?: Record<string, MoveRequest>;
+  /** Phones asking for the host remote, by the asking phone's uid (see HandoverRequest). */
+  handovers?: Record<string, HandoverRequest>;
   light?: LightState;
   /** Where Before & After kept its data before there were games. Moved into `games` when a main screen opens the session. */
   media?: Record<string, BeforeAfterMedia>;

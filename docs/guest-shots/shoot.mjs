@@ -238,6 +238,10 @@ const SHOTS = {
   // the phone that was bumped, back on its start page, with "Another phone took over …" and gold "Take it back"
   "host-pin-send-link": ["host-plan-pin", "", async (p) => { await p.locator(".party-summary").getByRole("button", { name: "Change" }).click(); }, ".party-summary"],
   "host-taken-over": ["start-host-taken"],
+  // Asking for the remote on a party with no pin: the iPhone told the iPad has it; asked, showing 472; the iPad's card on Run of show
+  "host-handover-ask": ["start-host-ask", "&who=iphone", async (p) => { await p.getByRole("button", { name: /Halloween party/ }).click(); }],
+  "host-handover-waiting": ["start-host-asked", "&who=iphone", async (p) => { await p.getByRole("button", { name: /Halloween party/ }).click(); }],
+  "host-handover-card": ["host-run-handover", "", undefined, ".move-request"],
 };
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:

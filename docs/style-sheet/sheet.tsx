@@ -223,6 +223,10 @@ function Sheet() {
             </div>
             <Cap>A new guest's card (<code>.move-request.new-guest</code>): the move-request style, on any page</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="move-request"><p><strong>Another phone wants the host remote.</strong> Hand over only if it shows <span className="handover-pair">472</span></p><div className="row"><button>Hand over</button><button>Decline</button></div></section>
+            </div>
+            <Cap>A phone asking for the remote on a party with no pin: the same card, its digits in <code>.handover-pair</code> to match the asking phone's</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
               <section className="up-next the-finale"><p className="up-next-label">The finale</p><h3>All 8 tasks scored</h3><p className="up-next-note">One last update on the scoreboard, then the haul.</p><button className="big">🏆 Declare the winner</button></section>
             </div>
             <Cap>The finale (<code>.up-next.the-finale</code>): the Up next card once every task has points</Cap>
