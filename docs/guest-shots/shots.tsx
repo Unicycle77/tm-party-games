@@ -172,6 +172,15 @@ function build() {
     // The scoreboard on the big screen as guests arrive, before any points: Mei and Sam, not in yet, are mosaics.
     case "tv-pixel-arriving": picked(); set("display", { step: "scoreboard" }); break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
+    // The night's last scoreboard, tied at the top: Alex and Priya on 16, and Priya won the tiebreaker.
+    case "tv-scores-tie": {
+      picked(); set("display", { step: "scoreboard" }); set("begun", true);
+      const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 }, t4 = { alex: 2, greg: 3, mei: 4, priya: 5, sam: 3, tom: 1 };
+      for (const [id, scores] of Object.entries({ t1, t2, t3, t4 })) Object.assign(tasks[id] as object, { scores });
+      Object.assign(session.scoreboard as object, { shown: { t1, t2, t3, t4 }, tiebreaker: { winner: "priya" } });
+      for (const [id, src] of Object.entries({ ...PORTRAITS, tom: TOM })) contestants[id]!.photo = src;
+      break;
+    }
     case "tv-scores-before": case "tv-scores": case "tv-scores-cropped": case "tv-haul": case "host-haul": {
       picked(); set("display", { step: shot.endsWith("haul") ? "haul" : "scoreboard" }); set("begun", true);
       const t1 = { alex: 4, greg: 2, mei: 3, priya: 5, sam: 3, tom: 1 }, t2 = { alex: 5, greg: 3, mei: 2, priya: 2, sam: 4, tom: 3 }, t3 = { alex: 5, greg: 4, mei: 2, priya: 4, sam: 5, tom: 1 };
