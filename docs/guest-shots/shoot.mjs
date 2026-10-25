@@ -147,6 +147,8 @@ const SHOTS = {
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
   "clock-host-task": ["host-cd-task"],
+  // The clock left up over Dice tower's words: Scores · Clock · Curtain under the line, Clock pressed in
+  "stage-chips-host-clock": ["host-cd-stuck"],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
   // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it

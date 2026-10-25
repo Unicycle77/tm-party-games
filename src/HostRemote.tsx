@@ -1,12 +1,14 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState, type ReactNode } from "react";
 import { ClockStrip } from "./clock/ClockStrip";
+import { putUpClock } from "./clock/data";
 import { asList, asNums, fmt } from "./JukeboxRemote";
 import { rulesOf } from "./rules";
 import { stingFiles } from "./sting";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
+import { showScoreboard } from "./scoreboard/data";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
 import { endSting, noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
 import type { Display, Session } from "./types";
@@ -59,18 +61,38 @@ export function onScreenLine(session: Session): string {
 }
 
 /**
- * The status line opening every page, and under it, while a song plays, the "now playing" strip: one tap pauses it
- * wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
+ * The status line opening every page, and under it the stage chips, then, while a song plays, the "now playing" strip: one tap
+ * pauses it wherever you are. It's pressed in, never gold, so the gold stays on the next thing to do.
  */
 export function OnScreen({ code, session, chip, noClock }: { code: string; session: Session; chip?: ReactNode; noClock?: boolean }) {
+  const line = onScreenLine(session);
   return (
     <>
-      <p className="on-screen">On the big screen: {onScreenLine(session)}</p>
+      <p className="on-screen">On the big screen: {line}</p>
+      {!noBigScreen(session) && <StageChips code={code} session={session} line={line} />}
       {chip}
       {!noClock && <ClockStrip code={code} session={session} />}
       <TransitionStrip code={code} session={session} />
       <NowPlaying code={code} session={session} />
     </>
+  );
+}
+
+/**
+ * Scores · Clock · Curtain: the three things the host puts on the big screen from anywhere, one tap each, always all three in the
+ * same place. The one up now is pressed in, read from the status line so the two always agree, and tapping it does nothing:
+ * Curtain is the way down, never a second tap (a clock that hid on one stranded a host's first party).
+ */
+function StageChips({ code, session, line }: { code: string; session: Session; line: string }) {
+  const chip = (label: string, up: boolean, go: () => Promise<unknown>) => (
+    <button className={`line-chip-button${up ? " pressed-in" : ""}`} aria-pressed={up} onClick={() => { if (!up) void go(); }}>{label}</button>
+  );
+  return (
+    <div className="stage-chips" role="group" aria-label="Put on the big screen">
+      {chip("Scores", line.startsWith("the scores"), () => showScoreboard(code))}
+      {chip("Clock", line === "the clock", () => putUpClock(code, session))}
+      {chip("Curtain", line.startsWith("the curtain"), () => setDisplay(code, { step: "curtain" }))}
+    </div>
   );
 }
 
