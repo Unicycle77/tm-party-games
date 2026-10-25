@@ -294,7 +294,7 @@ Video limits (taken on 2026-10-14, from the real `PlayerView` with a made-up par
 
 | File | What it shows |
 |---|---|
-| `before-after-player-too-long.jpg` | Before & After on a guest's phone: the hint now says "up to 2 minutes", and the error after choosing a longer video ("That video is 2:30 long… Trim it in your phone's Photos app, then choose it again."). A file over 300 MB gets the same kind of error before it's even read |
+| `before-after-player-too-long.jpg` | Before & After on a guest's phone: the hint now says "up to 2 minutes", and the error after choosing a longer video ("That video is 2:30 long… Trim it in your phone's Photos app, then choose it again."). A file over 400 MB gets the same kind of error before it's even read |
 
 The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`, for the brochure's task pages in [docs/showcase](../showcase/README.md); the photos are emoji stand-ins and the headshots drawn faces):
 

@@ -3,10 +3,10 @@
  *
  * The length is checked on the phone only (Storage can't read a video's length). The size is the hard
  * cap: storage.rules refuses anything bigger, so keep MAX_VIDEO_MB in step with the `video-` rule there.
- * 300 MB fits any 2-minute phone clip at 1080p, even iPhone's "Most Compatible" (about 260 MB).
+ * 400 MB fits any 2-minute phone clip at 1080p, even iPhone's "Most Compatible" (about 260 MB), with room to spare.
  */
 export const MAX_VIDEO_SECONDS = 120;
-export const MAX_VIDEO_MB = 300;
+export const MAX_VIDEO_MB = 400;
 
 // Phones round a clip's length, so a "0:30" video can be 30.4s.
 const LENGTH_GRACE_SECONDS = 0.5;
