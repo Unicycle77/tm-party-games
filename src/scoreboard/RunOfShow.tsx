@@ -39,8 +39,8 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   const unscored = tasks.filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const final = !!board?.final;
   const adHoc = !activeTaskId(session) ? activeGame(session) : undefined;
-  // Until the first task starts (its first points, or ▶ Start) the page is about who's here.
-  const arrivals = !tasks.some(([, t]) => scored(t)) && !activeTaskId(session) && !up && !haulUp;
+  // Until the first task starts (its first points, or ▶ Start) the page is about who's here. Entrances are scored as guests arrive, so the arrival task's points don't count.
+  const arrivals = !tasks.some(([, t]) => scored(t) && !t.checkin) && !activeTaskId(session) && !up && !haulUp;
   const finale = tasks.length > 0 && unscored.length === 0 && !final && !haulUp && !winner;
 
   // The scoreboard's next step takes the top slot, so there's only ever one gold button.

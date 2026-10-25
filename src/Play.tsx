@@ -7,6 +7,7 @@ import { RulesCard } from "./scoreboard/RulesSetup";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
 import { TaskTextCard } from "./scoreboard/TaskText";
+import { arrivalOf } from "./scoreboard/tasks";
 import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
@@ -20,10 +21,12 @@ const NAME_KEY = "ba.playName";
  * if none is on file, the envelope only if the party plays Secret Tasks), so "step 2 of 3" holds still as they're done.
  */
 const CHECKIN_KEY = "ba.checkin";
+/** "Got it: make my entrance", per party: the arrival step is never shown twice. */
+const ARRIVAL_KEY = "ba.arrival";
 /** "Not now" to the prize question, per party: the prize is then an optional row. */
 const LATER_KEY = "ba.prizeLater";
 
-interface CheckIn { code: string; confirmed: boolean; rules?: boolean; headshot: boolean; envelope: boolean }
+interface CheckIn { code: string; confirmed: boolean; rules?: boolean; headshot: boolean; envelope: boolean; arrival?: boolean }
 function readCheckIn(code: string): CheckIn | undefined {
   try {
     const c = JSON.parse(store.get(CHECKIN_KEY) || "null") as CheckIn | null;
@@ -91,7 +94,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   // Just finished checking in: the status line says so once.
   const [justIn, setJustIn] = useState(false);
   // A row the guest tapped, shown in the card's place. A task starting closes it.
-  const [open, setOpen] = useState<"envelope" | "prize" | "rules">();
+  const [open, setOpen] = useState<"envelope" | "prize" | "rules" | "arrival">();
   const [prizeBusy, setPrizeBusy] = useState(false);
   const [later, setLater] = useState(() => store.get(`${LATER_KEY}.${code}`) === "1");
   useEffect(() => { setOpen(undefined); setJustIn(false); }, [session.game]);
@@ -99,14 +102,20 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const needsHeadshot = !!guest && !guest[1].photo;
   // The rules, first: every guest agrees to them, unless the host has taken them all away since.
   const rulesToDo = !!checkin?.rules && !!rules;
-  const checkingIn = !!checkin && (rulesToDo || needsHeadshot || (checkin.envelope && typeof task !== "string"));
-  // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
+  const arrival = arrivalOf(session);
+  // Everyone gets the arrival task, however they got in (typed their name, came late, the host switched it on after they arrived), until their entrance is scored.
+  const arrivalDue = !!id && !!arrival && arrival.scores?.[id] === undefined && store.get(`${ARRIVAL_KEY}.${code}`) !== "1";
+  const envelopeDue = !!checkin?.envelope && typeof task !== "string";
+  const arrivalToDo = !!checkin?.arrival && arrivalDue;
+  const rereadArrival = !!id && !!arrival && arrival.scores?.[id] === undefined;
+  const checkingIn = !!checkin && (rulesToDo || needsHeadshot || envelopeDue || arrivalToDo);
+  // On the guest list but never tapped their name (typed it in, then the host added them), or still owed the arrival task: their steps start here.
   useEffect(() => {
-    if (checkin || !needsHeadshot) return;
-    const c = { code, confirmed: false, rules: !!rules, headshot: true, envelope: planned && typeof task !== "string" };
+    if (checkin || !(needsHeadshot || arrivalDue)) return;
+    const c = { code, confirmed: false, rules: needsHeadshot && !!rules, headshot: needsHeadshot, envelope: needsHeadshot && planned && typeof task !== "string", arrival: arrivalDue };
     saveCheckIn(c);
     setCheckin(c);
-  }, [checkin, needsHeadshot]);
+  }, [checkin, needsHeadshot, arrivalDue]);
   useEffect(() => {
     if (!checkin || checkingIn) return;
     saveCheckIn(undefined);
@@ -120,7 +129,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   // What takes the card: a check-in step, photos being sent, a row the guest opened, the task that's on, then the to-dos in order.
   const showPrize = !checkingIn && (prizeBusy || open === "prize" || (!game && !open && !envelopeToDo && prizeAsk));
-  const showEnvelope = checkingIn ? !rulesToDo && !needsHeadshot : !prizeBusy && open === "envelope";
+  const showEnvelope = checkingIn ? !rulesToDo && !needsHeadshot && envelopeDue : !prizeBusy && open === "envelope";
   const envelopeCard = !checkingIn && !prizeBusy && !open && !game && envelopeToDo;
   const showGame = !!game && !checkingIn && !prizeBusy && !open;
   const watching = !id && !!me.notPlaying;
@@ -128,8 +137,8 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
 
   const partyLine = `${session.name ?? "Party"} · ${code}`;
   const rulesStep = checkin?.rules !== undefined && rules ? 1 : 0;
-  const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) : 0;
-  const step = rulesToDo ? Number(!!checkin?.confirmed) + 1 : needsHeadshot ? Number(!!checkin?.confirmed) + rulesStep + 1 : steps;
+  const steps = checkin ? Number(checkin.confirmed) + rulesStep + Number(checkin.headshot) + Number(checkin.envelope) + Number(checkin.arrival !== undefined && !!arrival) : 0;
+  const step = rulesToDo ? Number(!!checkin?.confirmed) + 1 : needsHeadshot ? Number(!!checkin?.confirmed) + rulesStep + 1 : envelopeDue && arrivalToDo ? steps - 1 : steps;
   const now = (line: string) => justIn ? `You're in! ${line}` : line;
 
   const phoneWords = phoneWordsOf(session);
@@ -185,6 +194,12 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
             <button className="big" onClick={() => { const c = { ...checkin!, rules: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
           </>
         )}
+        {checkingIn && !rulesToDo && !needsHeadshot && !envelopeDue && arrivalToDo && (
+          <>
+            <TaskTextCard type={arrival!.type ?? ""} text={arrival!.text!} />
+            <button className="big" onClick={() => { store.set(`${ARRIVAL_KEY}.${code}`, "1"); const c = { ...checkin!, arrival: false }; saveCheckIn(c); setCheckin(c); }}>Got it: make my entrance →</button>
+          </>
+        )}
         {checkingIn && !rulesToDo && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
         {/* Kept mounted while a row is open, so a photo on its way up isn't dropped. */}
         {game && !watching && (
@@ -204,10 +219,15 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
             onSent={() => setOpen("prize")} />
         )}
         {open === "rules" && rules && <RulesCard key="rules" rules={rules} small />}
+        {open === "arrival" && arrival?.text && <TaskTextCard key="arrival" type={arrival.type ?? ""} text={arrival.text} />}
         {open && !prizeBusy && <button key="back" className="link back" onClick={() => setOpen(undefined)}>← Back</button>}
         <TodoList rows={rows} />
         {/* Disconnects this phone only, back to the join screen to pick a name or a different code: the player's tile and entries stay. Only the host removes players. */}
-        <div className="run-links"><button className="link" onClick={onLeave}>Not {name}? Not the right party?</button></div>
+        <div className="run-links">
+          {/* The arrival task isn't a to-do: its words stay a quiet tap away until the entrances are scored. */}
+          {rereadArrival && !checkingIn && open !== "arrival" && <button className="link" onClick={() => setOpen("arrival")}>Read the arrival task again</button>}
+          <button className="link" onClick={onLeave}>Not {name}? Not the right party?</button>
+        </div>
       </main>
     </GuestContext.Provider>
   );
@@ -261,7 +281,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       const c = await joinAsContestant(code, id);
       store.set(NAME_KEY, guestName);
       // This guest's own steps, counted once: "You're Sam?" (just done), the rules if the party has them, the headshot if none is on file, the envelope if Secret Tasks is planned.
-      saveCheckIn({ code: c, confirmed: true, rules: !!party && !!rulesOf(party), headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party) });
+      saveCheckIn({ code: c, confirmed: true, rules: !!party && !!rulesOf(party), headshot: !party?.scoreboard?.contestants?.[id]?.photo, envelope: !!party && secretTasksPlanned(party), arrival: !!party && !!arrivalOf(party) });
       onJoined(c);
     } catch (err) {
       // Checked in on another phone: maybe theirs, so ask the host to move them here.
@@ -386,7 +406,7 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
 function ConfirmGuest({ guest, session, party, code, busy, error, onYes, onNo }: {
   guest: ScoreboardContestant; session: Session | null | undefined; party?: string; code: string; busy: boolean; error?: string; onYes: () => void; onNo: () => void;
 }) {
-  const steps = 1 + Number(!!session && !!rulesOf(session)) + Number(!guest.photo) + Number(!!session && secretTasksPlanned(session));
+  const steps = 1 + Number(!!session && !!rulesOf(session)) + Number(!guest.photo) + Number(!!session && secretTasksPlanned(session)) + Number(!!session && !!arrivalOf(session));
   return (
     <main className="phone guest">
       <GuestHead title="Taskmaster" line={`Joining ${party ?? "party"} · ${code}`} />

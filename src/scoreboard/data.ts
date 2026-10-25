@@ -292,3 +292,11 @@ export const takeDownPhones = (code: string) => update(ref(db(), `sessions/${cod
 
 /** Puts a task's text (a task's id, or "tiebreaker") on the big screen, on the paper task card: part `part` of it, the first unless said. */
 export const showTaskText = (code: string, task: string, part = 0) => setDisplay(code, { step: "tasktext", task, ...(part && { part }) });
+
+/** Makes `id` the party's arrival task (its words are the last step of check-in), or no task with `on` false. One at most. */
+export function setCheckinTask(code: string, board: Scoreboard | undefined, id: string, on: boolean) {
+  const root: Record<string, true | null> = {};
+  for (const [t, task] of Object.entries(board?.tasks ?? {})) if (task.checkin && t !== id) root[`${t}/checkin`] = null;
+  root[`${id}/checkin`] = on || null;
+  return update(ref(db(), `sessions/${code}/scoreboard/tasks`), root);
+}

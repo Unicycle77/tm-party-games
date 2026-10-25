@@ -10,6 +10,7 @@ const SHOTS = {
   "guest-checkin-headshot": ["checkin-headshot"],
   "guest-checkin-house-rules": ["checkin-house-rules"],
   "guest-checkin-rules": ["checkin-rules"],
+  "guest-checkin-arrival": ["checkin-arrival"],
   "guest-checkin-envelopes": ["checkin-pile", "", async (p) => { await p.getByRole("button", { name: /Got it/ }).click(); }],
   "guest-home-todo": ["home-todo-envelope"],
   "guest-home-prize-ask": ["home-prize-ask"],
@@ -20,6 +21,7 @@ const SHOTS = {
     await (await chooser).setFiles(pngs);
   }],
   "guest-home-waiting": ["home-waiting"],
+  "guest-home-arrival": ["home-arrival"],
   "guest-task-photos": ["task-photos"],
   "guest-task-photos-sent": ["task-photos-sent"],
   "guest-noisemaster-up": ["noisemaster-up"],
@@ -121,6 +123,7 @@ const SHOTS = {
   "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
   "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
   "task-edit-scoring": ["host-plan-edit"],
+  "task-edit-arrival": ["host-edit-arrival", "", async (p) => { await p.locator(".summary-line", { hasText: "Task text" }).getByRole("button", { name: "Change" }).click(); }],
   // ✉ Secret envelopes opened with Change before the night: two more tasks typed in, the pile of ten below
   "secret-tasks-host-pile-open": ["host-plan-pile", "", async (p) => {
     await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
