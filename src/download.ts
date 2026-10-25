@@ -9,7 +9,8 @@ export class CorsError extends Error {}
 
 /**
  * Fetches every player's submitted files and saves them as one zip with a folder
- * per player (Name/before.jpg, Name/after.jpg, Name/video.mov), named by `filesOf`.
+ * per player (Name/before.jpg, Name/after.jpg, Name/video.mov), named by `filesOf`,
+ * then draws `extras` (the scores) at the top of the zip under their own names.
  * Needs the Storage bucket's CORS config (see README) or the fetches are blocked.
  */
 export async function downloadAllMedia(
@@ -17,6 +18,7 @@ export async function downloadAllMedia(
   players: Record<string, Player>,
   filesOf: (uid: string) => { name: string; url?: string; render?: () => Promise<Blob> }[],
   onProgress: (done: number, total: number) => void,
+  extras: { name: string; render: () => Promise<Blob> }[] = [],
 ): Promise<void> {
   const jobs: { folder: string; name: string; url?: string; render?: () => Promise<Blob> }[] = [];
   const folders = new Set<string>();
@@ -45,6 +47,10 @@ export async function downloadAllMedia(
     files.push({ name: `${job.folder}/${job.name}.${ext}`, input: await res.blob() });
     onProgress(files.length, jobs.length);
   }
+
+  const drawn = [];
+  for (const extra of extras) drawn.push({ name: extra.name, input: await extra.render() });
+  files.unshift(...drawn);
 
   const { downloadZip } = await import("client-zip");
   const zip = await downloadZip(files).blob();

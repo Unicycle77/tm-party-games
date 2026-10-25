@@ -820,6 +820,8 @@ body.idle-cursor .stage { cursor: none; }
 span.lock { padding: 0; }
 .party-settings { display: grid; gap: 0.6rem; justify-items: start; }
 .party-settings .toggles { justify-self: stretch; }
+.party-settings .download { margin-top: 0; }
+.party-settings .download p { margin: 0; }
 .party-settings .party-name { justify-self: stretch; }
 .party-settings .host-pin { display: grid; gap: 0.3rem; justify-items: start; }
 .party-settings .host-pin label { justify-self: stretch; }
