@@ -6,6 +6,9 @@ import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
+import { startFromTask, useClock } from "../clock/data";
+import { limitsOf, timeLabel } from "../clock/timesIn";
+import { useServerOffset } from "../games/noisemaster/data";
 import { ReplayStrip } from "./ReplayStrip";
 import type { GameId, Session } from "../types";
 import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
@@ -90,6 +93,28 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
   );
 }
 
+/**
+ * A live task with a time limit: "▶ Start the clock · 5 min" under its words, which puts the clock on the big screen and starts
+ * it in one press. Gold once the words have been up (reading them out is done; this is next). Gone while this task's clock
+ * counts or is held (the strip above has it); back once it's done, or the clock was used for something else.
+ */
+function StartClock({ code, session, id, gold }: { code: string; session: Session; id: string; gold: boolean }) {
+  const view = useClock(session);
+  const offset = useServerOffset();
+  const task = session.scoreboard?.tasks?.[id];
+  const limit = limitsOf(task)[0];
+  if (!task || task.game || !limit) return null;
+  if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
+  return (
+    <>
+      <button className={gold ? "big" : undefined} onClick={() => void startFromTask(code, session.clock, limit.ms, id, offset)}>
+        ▶ Start the clock · {timeLabel(limit.ms)}
+      </button>
+      <p className="muted small">Puts it on the big screen, over the task.</p>
+    </>
+  );
+}
+
 /** The scores or the haul up while a task's page is open: the way back to the curtain. */
 function LowerIfUp({ code, session }: { code: string; session: Session }) {
   const step = session.display?.step;
@@ -147,6 +172,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
+      <StartClock code={code} session={session} id={id} gold={textOn || textSeen} />
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}

@@ -100,6 +100,18 @@ export function stopClock(code: string, view: ClockView, offset: number) {
   return update(at(code), { "clock/ms": ms, "clock/at": null, ...pauseSong(view.state, false) });
 }
 
+/**
+ * Host, from a task's page: "Your time starts now" in one press. Whatever the clock was doing (a finished one, one set for
+ * another task), it's set to this task's time, put on the big screen over the task, and started.
+ */
+export function startFromTask(code: string, state: ClockState | undefined, ms: number, task: string, offset: number) {
+  return update(at(code), {
+    "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task, "clock/going": null,
+    "clock/begun": true, "clock/at": Date.now() + offset + ms, "clock/stopped": null, "clock/shown": true, conversion: null,
+    ...(state?.songOn ? { "clock/songOn": null, "jukebox/state/playing": false } : {}),
+  });
+}
+
 /** Host: back to the time set (or nothing, for a stopwatch), not started. The song stops. */
 export function resetClock(code: string, state: ClockState | undefined) {
   if (!state) return Promise.resolve();
