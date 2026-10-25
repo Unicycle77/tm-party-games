@@ -7,19 +7,20 @@
  * lines. Any of them can be left out.
  */
 
+import fontUrl from "../assets/veteran_typewriter-webfont.woff?url";
 import type { Rules } from "../rules";
 
 export type Page = { heading: string; paragraphs: string[] };
 export type SecretLayout = "cut" | "fold";
 interface Box { x: number; y: number; w: number; h: number }
 
-const PT = 72;
-const PAGE_W = 8.5 * PT;
-const PAGE_H = 11 * PT;
+export const PT = 72;
+export const PAGE_W = 8.5 * PT;
+export const PAGE_H = 11 * PT;
 const SIZE = 12;
 const LEADING = 1.35;
 const GAP = 1.1; // between paragraphs, in lines
-const MARGIN = 1 * PT;
+export const MARGIN = 1 * PT;
 const FULL = { x: 0, y: 0, w: PAGE_W, h: PAGE_H };
 
 /** What the font gives the layout: advance widths (per 1000 em) for the characters a PDF text string can hold. */
@@ -29,6 +30,11 @@ export interface Face {
   ascent: number;
   descent: number;
   bbox: [number, number, number, number];
+}
+
+/** The Veteran Typewriter face, read from the app's own font file, for a PDF. */
+export async function typewriter(): Promise<Face> {
+  return faceOf(await sfntOfWoff(await (await fetch(fontUrl)).arrayBuffer()));
 }
 
 const u16 = (d: DataView, o: number) => d.getUint16(o);
@@ -141,10 +147,10 @@ export function codesOf(face: Face, text: string): number[] {
   return out;
 }
 
-const widthOf = (face: Face, codes: number[], size: number) => codes.reduce((w, c) => w + (face.widths[c] ?? 0), 0) * size / 1000;
+export const widthOf = (face: Face, codes: number[], size: number) => codes.reduce((w, c) => w + (face.widths[c] ?? 0), 0) * size / 1000;
 
 /** A paragraph broken into lines no wider than `max` (a word wider than that is cut where it runs out). */
-function wrap(face: Face, text: string, size: number, max: number): number[][] {
+export function wrap(face: Face, text: string, size: number, max: number): number[][] {
   const lines: number[][] = [];
   let line: number[] = [];
   const space = codesOf(face, " ");
@@ -165,7 +171,7 @@ function wrap(face: Face, text: string, size: number, max: number): number[][] {
 }
 
 /** A line of text where it goes; `grey` (0 black … 1 white) for a quieter line. */
-interface Placed { x: number; y: number; codes: number[]; size: number; grey?: number }
+export interface Placed { x: number; y: number; codes: number[]; size: number; grey?: number }
 
 /**
  * One card's text laid out inside a box: the heading centred in capitals, then a paragraph a line, the block centred
@@ -201,9 +207,9 @@ function layCard(face: Face, p: Page, box: { x: number; y: number; w: number; h:
 }
 
 const hex = (codes: number[]) => "<" + codes.map((c) => c.toString(16).padStart(2, "0")).join("") + ">";
-const num = (n: number) => String(Math.round(n * 100) / 100);
+export const num = (n: number) => String(Math.round(n * 100) / 100);
 
-function stream(placed: Placed[], lines: string[] = []): string {
+export function stream(placed: Placed[], lines: string[] = []): string {
   const ops = [...lines];
   ops.push("BT");
   for (const t of placed) ops.push(`${num(t.grey ?? 0)} g /F1 ${num(t.size)} Tf 1 0 0 1 ${num(t.x)} ${num(t.y)} Tm ${hex(t.codes)} Tj`);
@@ -326,7 +332,7 @@ export async function buildPrintPdf(face: Face, what: { sign?: Sign; rules?: Rul
 }
 
 /** The PDF file around `content`, a content stream a page (the first `landscape` of them turned sideways), with the face embedded once as F1. */
-async function writePdf(face: Face, content: string[], landscape = 0): Promise<Uint8Array> {
+export async function writePdf(face: Face, content: string[], landscape = 0): Promise<Uint8Array> {
   const enc = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [];
