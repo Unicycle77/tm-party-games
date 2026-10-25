@@ -281,6 +281,9 @@ function build() {
     // with its strip, beside Flipchart's own clock; and as a stopwatch (Five socks, Alex timed, Greg going); and on the big screen.
     // The limit shots: part 1's words give no time, so the host set 4 minutes on it in ✎ (open, then closed); ⏱ offers it.
     case "host-cd-limit-edit": case "host-cd-limit-summary": case "host-cd-limit-set":
+    // From the task page: Hum a theme tune timed one player at a time (Alex has had his minute, Greg is next, then Greg's on the big
+    // screen), Five socks (no time in its words) with its quiet way into ⏱, and ⏱ itself at 0:00.
+    case "host-cd-turns": case "tv-cd-turn": case "host-cd-untimed": case "host-cd-done":
     case "host-cd-set": case "host-cd-song": case "host-cd-running": case "host-cd-task": case "host-cd-stuck": case "host-cd-flipchart": case "host-sw-running": case "tv-cd": case "tv-sw": {
       picked(); set("begun", true);
       Object.assign(assigned, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true]));
@@ -292,6 +295,7 @@ function build() {
       };
       if (shot.startsWith("host-cd-limit")) Object.assign(tasks.t6 as object, { text: "Build the tallest tower out of dice.\n\nYour time starts now. Tallest standing tower wins.", limit: 240_000 });
       tasks.t7 = { order: 7, name: "Five socks", type: "Individual", text: "Put on five socks, a sock at a time, as fast as you can. Fastest wins.", scoring: "lowest", results: { alex: 41.3 } };
+      tasks.t8 = { order: 8, name: "Hum a theme tune", type: "Individual", text: "One at a time, hum the theme tune of a TV show for the others to guess.\n\nYou each have 1 minute. Most guessed wins." };
       session.jukebox = {
         tracks: ["Think music", "Eye of the Tiger", "Final countdown"], durations: [32, 245, 190], open: true, state: {},
       };
@@ -305,6 +309,11 @@ function build() {
       // The clock left up over the task's words (the first party's stuck clock), for the stage chips.
       if (shot === "host-cd-stuck") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000, shown: true });
       if (shot === "tv-cd") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now + 167_000, shown: true });
+      if (shot === "host-cd-done") set("clock", { set: 180_000, ms: 180_000, task: "t6", begun: true, at: now - 4_000, shown: true });
+      if (shot === "host-cd-turns") set("clock", { set: 60_000, ms: 60_000, task: "t8", begun: true, at: now - 4_000, shown: true, who: "alex", turns: { task: "t8", part: 1, took: { alex: true } } });
+      if (shot === "tv-cd-turn") set("clock", { set: 60_000, ms: 60_000, task: "t8", begun: true, at: now + 47_000, shown: true, who: "greg", turns: { task: "t8", part: 1, took: { alex: true, greg: true } } });
+      if (shot === "host-cd-turns" || shot === "tv-cd-turn") set("display", { step: "tasktext", task: "t8" });
+      if (shot === "host-cd-untimed") set("display", { step: "curtain" });
       if (stopwatch) set("clock", { mode: "up", ms: 0, task: "t7", begun: true, at: now - 17_300, going: { greg: true }, shown: true });
       if (shot === "host-cd-flipchart") {
         task("flipchart"); tasks.t9 = { order: 9, game: "flipchart", ...flipchartDefaults() };
@@ -409,7 +418,7 @@ if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem(
 if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" ? { view: "show" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-edit-arrival" ? { view: "edit", task: "t0" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" || shot === "host-prize-before" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
-  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" || shot === "host-cd-stuck" ? { view: "task", task: "t6" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));
+  localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" || shot === "host-cd-stuck" ? { view: "task", task: "t6" } : shot === "host-cd-turns" ? { view: "task", task: "t8" } : shot === "host-cd-untimed" ? { view: "task", task: "t7" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));
   localStorage.setItem("ba.hostBack", JSON.stringify({ view: "task", task: shot.startsWith("host-sw") ? "t7" : shot === "host-cd-flipchart" ? "t9" : "t6" }));
 }
 // 📏 on its own at /convert, in US units; the host remote's start page, with the party in its recent list.

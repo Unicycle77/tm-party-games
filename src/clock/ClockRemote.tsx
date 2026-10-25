@@ -5,7 +5,7 @@ import { useServerOffset } from "../games/noisemaster/data";
 import { titleOf } from "../scoreboard/tasks";
 import type { ClockState, Session } from "../types";
 import {
-  addMinute, contestantsOf, goingOf, limitFor, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
+  addMinute, contestantsOf, goingOf, limitFor, startAgain, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
   tapContestant, timesOf, useClock, watchLabel, watchTask, type ClockView,
 } from "./data";
 import { FlipClock } from "./FlipClock";
@@ -26,7 +26,9 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
   const source = sourceOf(session, from);
   const limits = limitsOf(source?.task);
   const up = state?.mode === "up";
-  const begun = !!state?.begun;
+  // A finished countdown is as good as new: its times can be picked again and ▶ Start again starts a fresh one.
+  const done = view.phase === "done";
+  const begun = !!state?.begun && !done;
   const locked = begun || !!view.owner;
 
   // A different task than the clock was last set for: its time limit (for the part on the big screen) is the time to start with, and its song.
@@ -59,6 +61,7 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
         : <Countdown code={code} session={session} state={state} locked={locked} limits={limits} source={source} />}
       <div className="clock-face"><FlipClock ms={view.ms} up={up} width="215px" /></div>
       <Go code={code} view={view} offset={offset} up={up} session={session} />
+      {done && <p className="muted small">Time's up. Pick a time, or start the same again.</p>}
       <div className="row fc-round-links">
         {!up && (view.phase === "running" || view.phase === "held") && <button className="link" onClick={() => void addMinute(code, view, offset)}>+1 minute</button>}
         {begun && <button className="link" onClick={() => void resetClock(code, state)}>Reset</button>}
@@ -73,8 +76,11 @@ function Go({ code, view, offset, up, session }: { code: string; view: ClockView
   if (view.phase === "running") {
     return <button className="pressed-in clock-go" aria-pressed onClick={() => void stopClock(code, view, offset)}>⏸ Stop</button>;
   }
+  if (view.phase === "done" && state) {
+    return <button className="big" onClick={() => void startAgain(code, state, offset)}>▶ Start again · {timeLabel(state.set ?? 0)}</button>;
+  }
   const nothing = up ? goingOf(session).length === 0 : (state?.ms ?? 0) <= 0;
-  const disabled = !state || view.phase === "done" || (view.phase === "held" && !!state.stopped) || (view.phase === "idle" && nothing);
+  const disabled = !state || (view.phase === "held" && !!state.stopped) || (view.phase === "idle" && nothing);
   return <button className="big" disabled={disabled} onClick={() => void startClock(code, view, offset)}>▶ Start</button>;
 }
 

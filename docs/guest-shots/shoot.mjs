@@ -151,6 +151,11 @@ const SHOTS = {
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
   "clock-host-task": ["host-cd-task"],
+  // started from the task page: one player at a time (host, then the big screen), no time in the words, and ⏱ at 0:00
+  "clock-host-turns": ["host-cd-turns"],
+  "clock-main-turn": ["tv-cd-turn"],
+  "clock-host-untimed": ["host-cd-untimed"],
+  "clock-host-done": ["host-cd-done"],
   // The clock left up over Dice tower's words: Scores · Clock · Curtain under the line, Clock pressed in
   "stage-chips-host-clock": ["host-cd-stuck"],
   // The big screen's backup bar, the mouse just moved: the clock up (Clock pressed in); Sam's Before & After, the game's own controls after the chips

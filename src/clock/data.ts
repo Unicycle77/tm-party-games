@@ -99,15 +99,27 @@ export function putUpClock(code: string, session: Session) {
   });
 }
 
-/** Host: sets a countdown's time (before it starts), and the task it came from. Switches a stopwatch back to a countdown. */
+/**
+ * Host: sets a countdown's time (before it starts, or once it's done, which makes it as good as new), and the task it came from.
+ * Switches a stopwatch back to a countdown.
+ */
 export const setTime = (code: string, ms: number, task?: string) =>
-  update(at(code), { "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task ?? null, "clock/going": null });
+  update(at(code), {
+    "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task ?? null, "clock/going": null,
+    "clock/begun": null, "clock/at": null, "clock/stopped": null, "clock/songOn": null, "clock/who": null,
+  });
 
-/** Host: switches between a countdown and a stopwatch (only before it starts). A stopwatch starts at nothing. */
-export const setMode = (code: string, state: ClockState | undefined, up: boolean, task?: string) =>
-  update(at(code), up
-    ? { "clock/mode": "up", "clock/ms": 0, "clock/task": task ?? null, "clock/going": null }
-    : { "clock/mode": null, "clock/ms": state?.set ?? 0, "clock/task": task ?? state?.task ?? null });
+/** Host: ⏱'s "▶ Start again" at 0:00: the same time, from the top, where it is (on the big screen or not). */
+export const startAgain = (code: string, state: ClockState, offset: number) =>
+  update(at(code), { "clock/ms": state.set ?? 0, "clock/begun": true, "clock/at": Date.now() + offset + (state.set ?? 0), "clock/stopped": null, "clock/songOn": null, "clock/who": null });
+
+/** Host: switches between a countdown and a stopwatch (before it starts, or once a countdown is done). A stopwatch starts at nothing. */
+export const setMode = (code: string, state: ClockState | undefined, up: boolean, task?: string) => {
+  const fresh = { "clock/begun": null, "clock/at": null, "clock/stopped": null, "clock/who": null };
+  return update(at(code), up
+    ? { ...fresh, "clock/mode": "up", "clock/ms": 0, "clock/task": task ?? null, "clock/going": null }
+    : { ...fresh, "clock/mode": null, "clock/ms": state?.set ?? 0, "clock/task": task ?? state?.task ?? null });
+};
 
 /** Where a song for the clock is in the jukebox's list, and how long it is in ms (0: unknown). */
 export function songIn(session: Session, title: string | undefined): { index: number; ms: number } | undefined {
@@ -134,6 +146,27 @@ export function stopClock(code: string, view: ClockView, offset: number) {
   const ms = readClock(view.state, Date.now() + offset).ms;
   return update(at(code), { "clock/ms": ms, "clock/at": null, ...pauseSong(view.state, false) });
 }
+
+/**
+ * Host, from a task's page: "Your time starts now" in one press. Whatever the clock was doing (a finished one, one set for
+ * another task), it's set to this task's time, put on the big screen over the task, and started.
+ */
+export function startFromTask(code: string, state: ClockState | undefined, ms: number, task: string, offset: number, who?: string) {
+  return update(at(code), {
+    "clock/who": who ?? null, ...(who ? { [`clock/turns/took/${who}`]: true, "clock/turns/next": null } : {}),
+    "clock/mode": null, "clock/set": ms, "clock/ms": ms, "clock/task": task, "clock/going": null,
+    "clock/begun": true, "clock/at": Date.now() + offset + ms, "clock/stopped": null, "clock/shown": true, conversion: null,
+    ...(state?.songOn ? { "clock/songOn": null, "jukebox/state/playing": false } : {}),
+  });
+}
+
+/** Host: times a task's part one player at a time, or stops. Starting again starts afresh: nobody has had a turn. */
+export const takeTurns = (code: string, task: string, part: number, on: boolean) =>
+  update(at(code), { "clock/turns": on ? { task, part } : null, "clock/who": null });
+
+/** Host: who goes next, or (tapping one who's had a turn) takes their turn back so they go again. */
+export const pickNext = (code: string, id: string, took: boolean) =>
+  update(at(code), took ? { [`clock/turns/took/${id}`]: null, "clock/turns/next": id } : { "clock/turns/next": id });
 
 /** Host: back to the time set (or nothing, for a stopwatch), not started. The song stops. */
 export function resetClock(code: string, state: ClockState | undefined) {
