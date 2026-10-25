@@ -99,7 +99,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const needsHeadshot = !!guest && !guest[1].photo;
   // The rules, first: every guest agrees to them, unless the host has taken them all away since.
   const rulesToDo = !!checkin?.rules && !!rules;
-  const arrival = Object.values(session.scoreboard?.tasks ?? {}).find((t) => /^arrival/i.test(t.type ?? ""));
+  const arrival = Object.values(session.scoreboard?.tasks ?? {}).find((t) => t.checkin);
   const envelopeDue = !!checkin?.envelope && typeof task !== "string";
   const arrivalToDo = !!checkin?.arrival && !!arrival?.text;
   const checkingIn = !!checkin && (rulesToDo || needsHeadshot || envelopeDue || arrivalToDo);

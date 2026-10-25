@@ -121,6 +121,7 @@ const SHOTS = {
   "run-of-show-host-add-game": ["host-plan-add", "", async (p) => { await p.getByRole("button", { name: "+ App task" }).click(); }],
   "scoreboard-host-tasks-contestants": ["host-plan-ipad"],
   "task-edit-scoring": ["host-plan-edit"],
+  "task-edit-arrival": ["host-edit-arrival", "", async (p) => { await p.locator(".summary-line", { hasText: "Task text" }).getByRole("button", { name: "Change" }).click(); }],
   // ✉ Secret envelopes opened with Change before the night: two more tasks typed in, the pile of ten below
   "secret-tasks-host-pile-open": ["host-plan-pile", "", async (p) => {
     await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
