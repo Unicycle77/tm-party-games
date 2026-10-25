@@ -95,11 +95,11 @@ function Sheet() {
               <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Lower the curtain</button></Item>
               <Item cap={<><code>.active</code>: what's on screen now</>}><button className="active">Before</button></Item>
             </div>
-            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show rules" under the stage chips). <code>.stage-chips</code>: Scores · Clock · Curtain under the big-screen line of every host page, all three always there, the one up pressed in</>}>
+            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show rules" under the stage chips). <code>.stage-chips</code>: Task · Scores · Clock · Curtain under the big-screen line of every host page, all four always there (Task greyed with no app task on), the one up pressed in</>}>
               <div style={{ display: "grid", gap: "0.8rem" }}>
                 <div className="line-chip"><p className="muted small party-line">Halloween party · ABCD</p><button className="line-chip-button">Show QR</button></div>
                 <p className="on-screen" style={{ margin: 0 }}>On the big screen: the clock</p>
-                <div className="stage-chips" style={{ marginTop: 0 }}><button className="line-chip-button">Scores</button><button className="line-chip-button pressed-in" aria-pressed>Clock</button><button className="line-chip-button">Curtain</button></div>
+                <div className="stage-chips" style={{ marginTop: 0 }}><button className="line-chip-button">Task</button><button className="line-chip-button">Scores</button><button className="line-chip-button pressed-in" aria-pressed>Clock</button><button className="line-chip-button">Curtain</button></div>
                 <button className="line-chip-button" style={{ justifySelf: "start" }}>Show rules</button>
               </div>
             </Item>

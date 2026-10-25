@@ -80,19 +80,27 @@ export function OnScreen({ code, session, chip, noClock }: { code: string; sessi
 }
 
 /**
- * Scores · Clock · Curtain: the three things the host puts on the big screen from anywhere, one tap each, always all three in the
- * same place. The one up now is pressed in, read from the status line so the two always agree, and tapping it does nothing:
+ * Task · Scores · Clock · Curtain: the four things the host puts on the big screen from anywhere, one tap each, always all four in
+ * the same place. Task is the app task's own screen (the task card with who's sent, or the game's board), greyed out while no app
+ * task is on. The one up now is pressed in, read from the status line so the two always agree, and tapping it does nothing:
  * Curtain is the way down, never a second tap (a clock that hid on one stranded a host's first party).
  */
 function StageChips({ code, session, line }: { code: string; session: Session; line: string }) {
-  const chip = (label: string, up: boolean, go: () => Promise<unknown>) => (
-    <button className={`line-chip-button${up ? " pressed-in" : ""}`} aria-pressed={up} onClick={() => { if (!up) void go(); }}>{label}</button>
+  const game = activeGame(session);
+  const holds = !!game?.holdsScreen?.(session);
+  const step = session.display?.step ?? "list";
+  const appStep = game && (game.status ? "list" : game.firstStep);
+  // Nothing covering it (a conversion, the clock, a transition), and not a round's clock (that's Clock's).
+  const appUp = !!appStep && step === appStep && !session.conversion && !session.clock?.shown && !stingFiles(session) && !holds;
+  const chip = (label: string, up: boolean, go: (() => Promise<unknown>) | undefined) => (
+    <button className={`line-chip-button${up ? " pressed-in" : ""}`} aria-pressed={up} disabled={!go} onClick={() => { if (!up && go) void go(); }}>{label}</button>
   );
   return (
     <div className="stage-chips" role="group" aria-label="Put on the big screen">
+      {chip("Task", appUp, appStep && (() => setDisplay(code, { step: appStep })))}
       {chip("Scores", line.startsWith("the scores"), () => showScoreboard(code))}
       {/* While a round holds the screen, its clock is the one to bring back. */}
-      {chip("Clock", line === "the clock", () => activeGame(session)?.holdsScreen?.(session) ? setDisplay(code, { step: "list" }) : putUpClock(code, session))}
+      {chip("Clock", line === "the clock", () => holds ? setDisplay(code, { step: "list" }) : putUpClock(code, session))}
       {chip("Curtain", line.startsWith("the curtain"), () => setDisplay(code, { step: "curtain" }))}
     </div>
   );
