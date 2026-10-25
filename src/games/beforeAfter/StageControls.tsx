@@ -1,7 +1,7 @@
 import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { patchDisplay, setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { Display } from "../../types";
 
 type StageStep = "before" | "after" | "both" | "video";

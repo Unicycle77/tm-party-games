@@ -4,7 +4,7 @@ import { Framed } from "../../Framed";
 import { Review } from "../../Review";
 import { SafeImg } from "../../SafeImg";
 import { setDisplay, showContestant } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { Display, Session } from "../../types";
 import { allPhotos, neighbour, photoOf } from "./data";
 
