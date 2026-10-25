@@ -68,8 +68,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
     </>
   ) : up ? <button className="big" onClick={() => void lowerCurtain(code)}>Lower the curtain</button> : undefined;
 
-  // Side actions on the big screen, each gone while what it shows is up.
-  const scoresChip = !up && !haulUp && !winner;
+  // "Show rules", gone while they're up (the scores are a stage chip, on every page).
   const rulesChip = !!rulesOf(session) && session.display?.step !== "rules";
 
   return (
@@ -79,11 +78,8 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
         <JoinQr code={code} session={session} />
       </div>
-      <OnScreen code={code} session={session} chip={(scoresChip || rulesChip) && (
-        <div className="line-chips under">
-          {scoresChip && <button className="line-chip-button" onClick={() => void showScoreboard(code)}>Show scores</button>}
-          {rulesChip && <button className="line-chip-button" onClick={() => void showRules(code)}>Show rules</button>}
-        </div>
+      <OnScreen code={code} session={session} chip={rulesChip && (
+        <button className="line-chip-button under" onClick={() => void showRules(code)}>Show rules</button>
       )} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}

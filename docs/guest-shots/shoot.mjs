@@ -151,6 +151,15 @@ const SHOTS = {
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
   "clock-host-task": ["host-cd-task"],
+  // The clock left up over Dice tower's words: Scores · Clock · Curtain under the line, Clock pressed in
+  "stage-chips-host-clock": ["host-cd-stuck"],
+  // The big screen's backup bar, the mouse just moved: the clock up (Clock pressed in); Sam's Before & After, the game's own controls after the chips
+  "stage-bar-main-clock": ["tv-cd", "&bar=1", async (p) => { await p.mouse.move(800, 300); await p.mouse.move(820, 320); }],
+  "stage-bar-main-before-after": ["tv-beforeafter", "&bar=1", async (p) => { await p.mouse.move(800, 300); await p.mouse.move(820, 320); }],
+  // Curtain tapped while Dice tower's transition video held its last frame: it's ended, the curtain is up
+  "stage-chips-host-transition-curtain": ["host-sting-held", "", async (p) => { await p.getByRole("group", { name: "Put on the big screen" }).getByRole("button", { name: "Curtain" }).click(); }],
+  // Curtain tapped while Flipchart's guests draw: the round goes on behind it
+  "stage-chips-host-flipchart-curtain": ["host-flipchart-live", "", async (p) => { await p.getByRole("group", { name: "Put on the big screen" }).getByRole("button", { name: "Curtain" }).click(); }],
   "clock-host-flipchart": ["host-cd-flipchart"],
   "clock-host-stopwatch": ["host-sw-running"],
   // a time limit set on a part in ✎: Dice tower's Task text opened (4 min set on part 1, part 2's 2 minutes read from its words), its closed line, and ⏱ offering it
