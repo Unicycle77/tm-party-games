@@ -190,7 +190,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
         {checkingIn && !rulesToDo && !needsHeadshot && !envelopeDue && arrivalToDo && (
           <>
             <TaskTextCard type={arrival!.type!} text={arrival!.text!} />
-            <button className="big" onClick={() => { const c = { ...checkin!, arrival: false }; saveCheckIn(c); setCheckin(c); }}>Got it →</button>
+            <button className="big" onClick={() => { const c = { ...checkin!, arrival: false }; saveCheckIn(c); setCheckin(c); }}>Got it: make my entrance →</button>
           </>
         )}
         {checkingIn && !rulesToDo && needsHeadshot && <Headshot key="headshot" code={code} uid={uid} id={id!} session={session} />}
