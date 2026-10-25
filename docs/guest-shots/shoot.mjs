@@ -21,6 +21,7 @@ const SHOTS = {
     await (await chooser).setFiles(pngs);
   }],
   "guest-home-waiting": ["home-waiting"],
+  "guest-home-arrival": ["home-arrival"],
   "guest-task-photos": ["task-photos"],
   "guest-task-photos-sent": ["task-photos-sent"],
   "guest-noisemaster-up": ["noisemaster-up"],

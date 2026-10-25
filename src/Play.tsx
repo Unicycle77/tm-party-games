@@ -7,6 +7,7 @@ import { RulesCard } from "./scoreboard/RulesSetup";
 import { secretTasksPlanned, useMyTask } from "./games/secretTasks/data";
 import { SecretEnvelope } from "./games/secretTasks/PlayerView";
 import { TaskTextCard } from "./scoreboard/TaskText";
+import { scored } from "./scoreboard/tasks";
 import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
@@ -91,7 +92,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   // Just finished checking in: the status line says so once.
   const [justIn, setJustIn] = useState(false);
   // A row the guest tapped, shown in the card's place. A task starting closes it.
-  const [open, setOpen] = useState<"envelope" | "prize" | "rules">();
+  const [open, setOpen] = useState<"envelope" | "prize" | "rules" | "arrival">();
   const [prizeBusy, setPrizeBusy] = useState(false);
   const [later, setLater] = useState(() => store.get(`${LATER_KEY}.${code}`) === "1");
   useEffect(() => { setOpen(undefined); setJustIn(false); }, [session.game]);
@@ -102,6 +103,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   const arrival = Object.values(session.scoreboard?.tasks ?? {}).find((t) => t.checkin);
   const envelopeDue = !!checkin?.envelope && typeof task !== "string";
   const arrivalToDo = !!checkin?.arrival && !!arrival?.text;
+  const rereadArrival = !!id && !!arrival?.text && !scored(arrival);
   const checkingIn = !!checkin && (rulesToDo || needsHeadshot || envelopeDue || arrivalToDo);
   // On the guest list but never tapped their name (typed it in, then the host added them): their steps start here.
   useEffect(() => {
@@ -212,10 +214,15 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
             onSent={() => setOpen("prize")} />
         )}
         {open === "rules" && rules && <RulesCard key="rules" rules={rules} small />}
+        {open === "arrival" && arrival?.text && <TaskTextCard key="arrival" type={arrival.type ?? ""} text={arrival.text} />}
         {open && !prizeBusy && <button key="back" className="link back" onClick={() => setOpen(undefined)}>← Back</button>}
         <TodoList rows={rows} />
         {/* Disconnects this phone only, back to the join screen to pick a name or a different code: the player's tile and entries stay. Only the host removes players. */}
-        <div className="run-links"><button className="link" onClick={onLeave}>Not {name}? Not the right party?</button></div>
+        <div className="run-links">
+          {/* The arrival task isn't a to-do: its words stay a quiet tap away until the entrances are scored. */}
+          {rereadArrival && !checkingIn && open !== "arrival" && <button className="link" onClick={() => setOpen("arrival")}>Read the arrival task again</button>}
+          <button className="link" onClick={onLeave}>Not {name}? Not the right party?</button>
+        </div>
       </main>
     </GuestContext.Provider>
   );

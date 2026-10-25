@@ -86,7 +86,7 @@ function build() {
     t5: { order: 5, game: "noisemaster" },
   };
   for (let i = 6; i <= 8; i++) tasks[`t${i}`] = { order: i, name: `Live task ${i}` };
-  if (shot.startsWith("checkin") || shot === "host-edit-arrival") tasks.t0 = { order: 0, name: "Entrance", type: "Arrival", checkin: true, text: "Make the most obsequious entrance.\n\nYou must enter through the front door and greet the TASKMASTER before anyone else. You may use anything you brought with you, but nothing from inside the house.\n\nYour entrance will be judged as it happens. You only get one.\n\nYour time starts now." };
+  if (shot.startsWith("checkin") || shot === "host-edit-arrival" || shot === "home-arrival") tasks.t0 = { order: 0, name: "Entrance", type: "Arrival", checkin: true, text: "Make the most obsequious entrance.\n\nYou must enter through the front door and greet the TASKMASTER before anyone else. You may use anything you brought with you, but nothing from inside the house.\n\nYour entrance will be judged as it happens. You only get one.\n\nYour time starts now." };
   // Plan the party shows the lineup to a friend, so its live tasks have real names: the ones played elsewhere tonight.
   if (shot.startsWith("host-plan")) {
     tasks.t6 = { order: 6, name: "Dice tower", type: "Individual", text: "Build the tallest tower out of dice.\n\nYou have exactly 3 minutes. Tallest standing tower wins." };
@@ -128,6 +128,7 @@ function build() {
     case "home-todo-envelope": delete tasks.t3; break;
     case "home-prize-ask": picked(); break;
     case "home-waiting": picked(); q.set("later", "1"); break;
+    case "home-arrival": picked(); q.set("later", "1"); break;
     case "task-photos": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; break;
     case "task-photos-sent": picked(); q.set("later", "1"); task("photos"); g.photos!.task = "t2"; (g.photos!.media as Record<string, unknown>)[who] = { photo: pic("👑", "#3a2a1c") }; break;
     case "prize-check": picked(); q.set("pick", "1"); break;
