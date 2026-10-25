@@ -125,6 +125,14 @@ const SHOTS = {
     await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
     await p.getByLabel("New tasks, one per line").fill("Swap seats with someone without asking.\nLaugh at a joke before it ends.");
   }, "section.envelopes"],
+  // The download-all zip: the TV's corner button, and the host remote's at the top of Party settings (no videos)
+  "zip-main-download": ["tv-zip"],
+  "zip-host-party-settings": ["host-zip", "", async (p) => {
+    const back = p.getByRole("button", { name: /Run of show/ }).first();
+    if (await back.isVisible()) await back.click();
+    await p.getByRole("button", { name: "Party settings" }).click();
+    await p.locator(".party-settings").scrollIntoViewIfNeeded();
+  }, ".party-settings"],
   "host-reset-scores": ["host-reset", "", async (p) => {
     await p.getByRole("button", { name: "Party settings" }).click();
     await p.getByRole("button", { name: /Reset scores/ }).click();

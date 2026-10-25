@@ -6,7 +6,7 @@ import { sorted, titleOf } from "./tasks";
 /*
  * "Scores by task" for the download-all zip, built with the Print PDF's own writer, so it's the same plain black
  * typewriter on white Letter. A row per task the room has seen scored, in the order played; a column per guest in
- * final standing, the winner first; a cell is that task's points, a bonus kept apart ("3 +1") and a DQ as "DQ".
+ * final standing, lowest on the left and the winner on the right as on the scoreboard; a cell is that task's points, a bonus kept apart ("3 +1") and a DQ as "DQ".
  * Totals along the bottom, as on the scoreboard, and the tiebreaker's winner under them when it settled a tie.
  */
 
@@ -71,8 +71,8 @@ export async function buildScoresPdf(board: Scoreboard | undefined, heading: str
   const top = Math.max(...ids.map((id) => totals[id] ?? 0));
   const leaders = ids.filter((id) => (totals[id] ?? 0) === top);
   const settled = leaders.length > 1 && board?.tiebreaker?.winner && leaders.includes(board.tiebreaker.winner) ? board.tiebreaker.winner : undefined;
-  // Highest first; the tiebreaker's winner ahead of whoever they tied with, then the list's order.
-  const cols = [...ids].sort((a, b) => (totals[b] ?? 0) - (totals[a] ?? 0) || +(b === settled) - +(a === settled));
+  // Lowest on the left and the winner on the right, as on the scoreboard; the tiebreaker's winner right of whoever they tied with.
+  const cols = [...ids].sort((a, b) => (totals[a] ?? 0) - (totals[b] ?? 0) || +(a === settled) - +(b === settled));
   const shown = board?.shown ?? {};
   const tasks = sorted(board?.tasks).filter(([id]) => shown[id] && Object.keys(shown[id]!).length);
   const name = (id: string) => board?.contestants?.[id]?.name ?? "";

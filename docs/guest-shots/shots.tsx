@@ -173,8 +173,9 @@ function build() {
     case "tv-pixel-arriving": picked(); set("display", { step: "scoreboard" }); break;
     // The scoreboard on the big screen, before and after the host updates it with the prize task's points.
     // The end of the night, tied at the top: Alex and Priya on 30 after all eight tasks, and Priya won the tiebreaker.
-    // Greg has a bonus point on the dice tower and Tom a DQ on the last task. The scoreboard, then the prize haul.
-    case "tv-scores-tie": case "tv-haul-tie": {
+    // Greg has a bonus point on the dice tower and Tom a DQ on the last task. The scoreboard, then the prize haul;
+    // then the download buttons, with everyone's costume photo in and Alex's and Greg's Before & After videos.
+    case "tv-scores-tie": case "tv-haul-tie": case "tv-zip": case "host-zip": {
       picked(); set("display", { step: shot === "tv-haul-tie" ? "haul" : "scoreboard" }); set("begun", true);
       const ids8 = ["priya", "alex", "sam", "greg", "mei", "tom"];
       const row = (...n: number[]) => Object.fromEntries(ids8.map((id, i) => [id, n[i]!]));
@@ -189,6 +190,13 @@ function build() {
       Object.assign(session.scoreboard as object, { shown: scores, final: true, tiebreaker: { winner: "priya" } });
       for (const [id, src] of Object.entries({ ...PORTRAITS, tom: TOM })) contestants[id]!.photo = src;
       g.prize = { photos: PRIZE_PHOTOS, presented: { sam: true, alex: true, greg: true, priya: true } };
+      // Halloween night: everyone checked in from 7pm, which is the date on the scores PDF.
+      for (const [i, p] of Object.values(session.players as Record<string, { joinedAt: number }>).entries()) p.joinedAt = new Date(2026, 9, 31, 19, i * 4).getTime();
+      if (shot.endsWith("zip")) {
+        g.photos!.media = Object.fromEntries(ids8.map((id) => [id, { photo: pic("🎃", "#3a2a1c") }]));
+        g.beforeAfter = { media: { alex: { before: pic("🧹", "#3a2a1c"), after: pic("✨", "#3a2a1c"), video: "alex.mp4" }, greg: { video: "greg.mp4" } } };
+        set("showDownload", true);
+      }
       break;
     }
     case "tv-scores-before": case "tv-scores": case "tv-scores-cropped": case "tv-haul": case "host-haul": {
@@ -391,7 +399,7 @@ function build() {
 const { session, secret } = build();
 if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 // Loading the pile before the night: nobody has an envelope yet, and the pile holds the six that get picked plus four more.
 if (shot === "host-plan-pile") {
   secret.assigned = {}; secret.seen = {};
