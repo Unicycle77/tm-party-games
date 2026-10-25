@@ -34,6 +34,7 @@ const SHOTS = {
   "main-secret-tasks": ["tv-secret"],
   "prize-main-photo": ["tv-prize"],
   "prize-host-up": ["host-prize"],
+  "prize-host-before": ["host-prize-before"],
   "guest-secret-open": ["home-waiting", "", async (p) => { await p.getByRole("button", { name: /Secret envelope/ }).click(); await p.getByRole("button", { name: /Open your secret task/ }).click(); await p.waitForTimeout(1500); }],
   "secret-tasks-host-who-has-what": ["host-secret", "", async (p) => { await p.getByRole("button", { name: /Sam/ }).first().click(); }],
   // the host phone, whole page

@@ -236,7 +236,7 @@ function Sheet() {
                 <button className="big">Start task 4 →</button>
               </section>
             </Item>
-            <Item cap={<><code>.guest-card</code> (<code>GuestCard</code>): the guest phone's "To do now" card, the host's Up next card with a task's own controls inside; <code>Status</code> above it, <code>TodoList</code> below</>}>
+            <Item cap={<><code>.guest-card</code> (<code>GuestCard</code>): the guest phone's "To do now" card, the host's Up next card with a task's own controls inside; <code>Status</code> above it, <code>TodoList</code> below: done recedes, open has a gold-outlined tag, next is gold</>}>
               <div style={{ display: "grid", gap: 12 }}>
                 <Status>1 thing left to do</Status>
                 <GuestCard label="To do now · Prize task" title="Got photos of your prize?">
@@ -244,7 +244,7 @@ function Sheet() {
                   <button className="big">Yes, add photos →</button>
                   <button>Not now</button>
                 </GuestCard>
-                <TodoList rows={[{ id: "h", icon: "✓", label: "Headshot", state: "done", tone: "done" }, { id: "p", icon: "🎁", label: "Prize photos", state: "to do", tone: "next" }]} />
+                <TodoList rows={[{ id: "h", icon: "✓", label: "Headshot", state: "done", tone: "done" }, { id: "e", icon: "✉", label: "Secret envelope", state: "to do", tone: "open" }, { id: "p", icon: "🎁", label: "Prize photos", state: "to do", tone: "next" }]} />
               </div>
             </Item>
             <Item cap={<><code>.name-tag</code> (<code>NameTag</code>): "HELLO my name is", a burgundy band over paper; scattered and tappable at check-in (faded with "✓ here" once taken), bigger and centred (<code>.mine</code>) on a waiting phone</>}>

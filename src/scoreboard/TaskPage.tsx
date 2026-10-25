@@ -4,6 +4,7 @@ import { PICKER_GAMES, activeGame } from "../games";
 import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
+import { PrizesBefore } from "../games/prize/HostControls";
 import { setGame } from "../session";
 import { SongStrip } from "../SongStrip";
 import { ReplayStrip } from "./ReplayStrip";
@@ -152,6 +153,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
           ▶ Start {titleOf(task)}
         </button>
       )}
+      {task.game === "prize" && !playing && <PrizesBefore code={code} session={session} />}
     </>
   );
   return (
