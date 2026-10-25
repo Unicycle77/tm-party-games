@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
 import { PICKER_GAMES, activeGame } from "../games";
 import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
@@ -73,7 +73,12 @@ function PartCards({ code, session, task, parts, phones }: { code: string; sessi
         onPick={(i) => { if (i !== undefined) void showTaskText(code, task, i); else if (stage !== undefined) void lowerCurtain(code); }} />
       {phones && <PartPick label="Phones" up={phone} count={parts.length}
         onPick={(i) => void (i === undefined ? takeDownPhones(code) : showOnPhones(code, task, i))} />}
-      {parts.map((p, i) => <TaskTextCard key={i} type={p.type} text={p.text} />)}
+      {parts.map((p, i) => (
+        <Fragment key={i}>
+          <TaskTextCard type={p.type} text={p.text} />
+          <StartClock code={code} session={session} id={task} part={i + 1} />
+        </Fragment>
+      ))}
     </>
   );
 }
@@ -96,13 +101,14 @@ function PartPick({ label, up, count, onPick }: { label: string; up: number | un
 /**
  * A live task with a time limit: "▶ Start the clock · 5 min" under its words, which puts the clock on the big screen and starts
  * it in one press. Always gold: the task may be on paper, so it never waits for the words to be up. Gone while this task's clock
- * counts or is held (the strip above has it); back once it's done, or the clock was used for something else.
+ * counts or is held (the strip above has it); back once it's done, or the clock was used for something else. A task in parts
+ * has one under each part's card that has a time, so a part's clock (or the same one, once per player) is always one press.
  */
-function StartClock({ code, session, id }: { code: string; session: Session; id: string }) {
+function StartClock({ code, session, id, part = 1 }: { code: string; session: Session; id: string; part?: number }) {
   const view = useClock(session);
   const offset = useServerOffset();
   const task = session.scoreboard?.tasks?.[id];
-  const limit = limitsOf(task)[0];
+  const limit = limitsOf(task).find((l) => l.part === part);
   if (!task || task.game || !limit) return null;
   if (view.owner || (session.clock?.task === id && (view.phase === "running" || view.phase === "held"))) return null;
   return (
@@ -172,7 +178,7 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {task.description && <p className="muted small sb-note">{task.description}</p>}
       {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
-      <StartClock code={code} session={session} id={id} />
+      {!rows && <StartClock code={code} session={session} id={id} />}
       {startable && (
         <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
