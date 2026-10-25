@@ -6,3 +6,4 @@
 - Every new or changed screen gets a screenshot in [docs/screens](docs/screens) (JPEG, rendered from the real components), with a row in its README. Not only in chat or a scratch folder.
 - Screens shown together (a showcase section, a README set) come from one party: the sample code is ABCD, and the TV, guest and host screens agree on who's in, who's checked in and what's on. Alex and Greg are always two of the guests, as a nod to the show. Re-shoot a screen from the same party rather than mixing in an old one (`docs/guest-shots` draws the guest phone and the TV's welcome that way).
 - Merge with `git merge --no-ff`, so every merge leaves a merge commit. Never fast-forward.
+- Never give two files in `src/` names that differ only in capitals (`stageBar.ts` beside `StageBar.tsx`): macOS treats them as one file and the build breaks there. `scripts/check-names.mjs` fails the build and the commit hook if it happens.
