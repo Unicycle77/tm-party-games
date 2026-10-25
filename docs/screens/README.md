@@ -347,6 +347,6 @@ The download-all zip (2026-10-25, the ABCD party's last night: Alex and Priya ti
 | File | What it shows |
 |---|---|
 | `zip-main-download.jpg` | Main screen: the final scoreboard with "⬇ Download photos, videos & scores (10)" in the bottom-left corner |
-| `zip-final-scoreboard.jpg` | "Final scoreboard.png": the scoreboard redrawn at 1680×1080, faces sharp, tilts frozen, only Priya enlarged with the "Tiebreaker" placard |
+| `zip-final-scoreboard.jpg` | "Final scoreboard.png": the scoreboard redrawn at 1920×1080, faces sharp, tilts frozen, only Priya enlarged with the "Tiebreaker" placard |
 | `zip-prize-haul.jpg` | "Prize haul.png": the haul at 1920×1080, Priya in the centre, the four prizes hung |
 | `zip-scores-by-task.jpg` | "Scores by task.pdf", page 1: the grid lowest to highest, "3 +1" and "DQ", the top points underlined and Priya's 30 circled in blue pen, "Tiebreaker: Priya" |
