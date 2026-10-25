@@ -95,11 +95,18 @@ function Sheet() {
               <Item cap={<>Default: paper, a plain <code>&lt;button&gt;</code></>}><button>Lower the curtain</button></Item>
               <Item cap={<><code>.active</code>: what's on screen now</>}><button className="active">Before</button></Item>
             </div>
-            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show scores" and "Show rules" side by side under the big-screen line in <code>.line-chips.under</code>)</>}>
+            <Item cap={<><code>.line-chip-button</code>: a small side action by the line it's about (Run of show's "Show QR" by the code, "Show rules" under the stage chips). <code>.stage-chips</code>: Task · Scores · Clock · Curtain under the big-screen line of every host page, all four always there (Task greyed with no app task on), the one up pressed in</>}>
               <div style={{ display: "grid", gap: "0.8rem" }}>
                 <div className="line-chip"><p className="muted small party-line">Halloween party · ABCD</p><button className="line-chip-button">Show QR</button></div>
-                <p className="on-screen" style={{ margin: 0 }}>On the big screen: the curtain</p>
-                <div className="line-chips under"><button className="line-chip-button">Show scores</button><button className="line-chip-button">Show rules</button></div>
+                <p className="on-screen" style={{ margin: 0 }}>On the big screen: the clock</p>
+                <div className="stage-chips" style={{ marginTop: 0 }}><button className="line-chip-button">Task</button><button className="line-chip-button">Scores</button><button className="line-chip-button pressed-in" aria-pressed>Clock</button><button className="line-chip-button">Curtain</button></div>
+                <button className="line-chip-button" style={{ justifySelf: "start" }}>Show rules</button>
+              </div>
+            </Item>
+            <Item cap={<>The big screen's backup bar (<code>.stage-controls</code>, shown while the mouse moves): the stage chips first, at the bar's size, then a game's own controls after a rule (<code>.game-bar</code>). Esc lowers the curtain from anywhere</>}>
+              <div className="stage-controls show" style={{ position: "static", transform: "none", width: "max-content" }}>
+                <div className="stage-chips"><button className="line-chip-button">Task</button><button className="line-chip-button">Scores</button><button className="line-chip-button">Clock</button><button className="line-chip-button">Curtain</button></div>
+                <span className="game-bar"><button>Before</button><button>After</button><button className="active">◫ Side by side</button></span>
               </div>
             </Item>
             <Item cap={<><code>.big</code>: the one main action. One per screen</>}><button className="big">Update the scores</button></Item>
@@ -245,7 +252,7 @@ function Sheet() {
                 <button className="big">Start task 4 →</button>
               </section>
             </Item>
-            <Item cap={<><code>.guest-card</code> (<code>GuestCard</code>): the guest phone's "To do now" card, the host's Up next card with a task's own controls inside; <code>Status</code> above it, <code>TodoList</code> below</>}>
+            <Item cap={<><code>.guest-card</code> (<code>GuestCard</code>): the guest phone's "To do now" card, the host's Up next card with a task's own controls inside; <code>Status</code> above it, <code>TodoList</code> below: done recedes, open has a gold-outlined tag, next is gold</>}>
               <div style={{ display: "grid", gap: 12 }}>
                 <Status>1 thing left to do</Status>
                 <GuestCard label="To do now · Prize task" title="Got photos of your prize?">
@@ -253,7 +260,7 @@ function Sheet() {
                   <button className="big">Yes, add photos →</button>
                   <button>Not now</button>
                 </GuestCard>
-                <TodoList rows={[{ id: "h", icon: "✓", label: "Headshot", state: "done", tone: "done" }, { id: "p", icon: "🎁", label: "Prize photos", state: "to do", tone: "next" }]} />
+                <TodoList rows={[{ id: "h", icon: "✓", label: "Headshot", state: "done", tone: "done" }, { id: "e", icon: "✉", label: "Secret envelope", state: "to do", tone: "open" }, { id: "p", icon: "🎁", label: "Prize photos", state: "to do", tone: "next" }]} />
               </div>
             </Item>
             <Item cap={<><code>.name-tag</code> (<code>NameTag</code>): "HELLO my name is", a burgundy band over paper; scattered and tappable at check-in (faded with "✓ here" once taken), bigger and centred (<code>.mine</code>) on a waiting phone</>}>

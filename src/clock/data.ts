@@ -5,9 +5,10 @@ import { dataOf as flipchartOf, running as flipchartRunning } from "../games/fli
 import { useServerOffset } from "../games/noisemaster/data";
 import { enterPoints } from "../scoreboard/data";
 import { scoringOf } from "../scoreboard/measured";
-import { sorted } from "../scoreboard/tasks";
+import { activeTaskId, sorted } from "../scoreboard/tasks";
 import { asNums, asList } from "../JukeboxRemote";
 import type { ClockState, Session } from "../types";
+import { limitsOf } from "./timesIn";
 
 export { clockText, watchLabel, watchText } from "./text";
 
@@ -63,6 +64,40 @@ const at = (code: string) => ref(db(), `sessions/${code}`);
 /** Host: puts the clock on the big screen over whatever's there, or takes it down. */
 export const showClock = (code: string, state: ClockState | undefined, on: boolean) =>
   update(at(code), on ? { "clock/shown": true, ...(state ? {} : { "clock/ms": 0 }), conversion: null } : { "clock/shown": null });
+
+/**
+ * The task the clock is for: the one whose page the host came from, else the one whose words are on the big screen, else the game
+ * in progress. Its time limits are the presets, and a stopwatch's times go into it.
+ */
+export function sourceOf(session: Session, from: string | undefined) {
+  const tasks = session.scoreboard?.tasks ?? {};
+  const shown = session.display?.step === "tasktext" ? session.display.task : undefined;
+  const id = [from, shown, activeTaskId(session)].find((t) => !!t && !!tasks[t]);
+  return id ? { id, task: tasks[id]! } : undefined;
+}
+
+/** The task's time limit ⏱ starts from: the part on the big screen's, else its first. */
+export function limitFor(session: Session, source: ReturnType<typeof sourceOf>) {
+  const limits = limitsOf(source?.task);
+  const display = session.display;
+  const partUp = display?.step === "tasktext" && display.task === source?.id ? display.part ?? 0 : 0;
+  return limits.find((l) => l.part === partUp + 1) ?? limits[0];
+}
+
+/**
+ * Host: the "Clock" stage chip. A countdown not yet begun, last set for another task (or never), is set to this task's time limit
+ * and song first, as ⏱ would; then it goes up, not started. A clock already going goes up as it is.
+ */
+export function putUpClock(code: string, session: Session) {
+  const state = session.clock;
+  const source = sourceOf(session, undefined);
+  const pick = source && limitFor(session, source);
+  if (!pick || state?.begun || state?.mode === "up" || state?.task === source.id) return showClock(code, state, true);
+  return update(at(code), {
+    "clock/mode": null, "clock/set": pick.ms, "clock/ms": pick.ms, "clock/task": source.id, "clock/going": null,
+    "clock/song": source.task.song ?? null, "clock/songOn": null, "clock/shown": true, conversion: null,
+  });
+}
 
 /**
  * Host: sets a countdown's time (before it starts, or once it's done, which makes it as good as new), and the task it came from.

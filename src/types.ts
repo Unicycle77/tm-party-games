@@ -332,6 +332,8 @@ export interface ScoreboardTask {
   transitionImage?: string;
   /** A video from the music folder's Transition videos subfolder, by file name: it plays full screen, with its own sound, on its own (no music or picture with it). */
   transitionVideo?: string;
+  /** The arrival task: guests get its words as the last step of check-in. One task per party at most. */
+  checkin?: true;
   /** The task's type, heading its text: "Individual", "Team" or the host's own word ("Arrival"). TASK is added when shown. */
   type?: string;
   /** The words the host reads out, a paragraph a line. Shown on the host remote, and on the big screen only when the host puts it up. */

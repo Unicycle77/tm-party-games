@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { placeOf } from "../HostRemote";
 import { asList, asNums, fmt } from "../JukeboxRemote";
 import { useServerOffset } from "../games/noisemaster/data";
-import { activeTaskId, titleOf } from "../scoreboard/tasks";
+import { titleOf } from "../scoreboard/tasks";
 import type { ClockState, Session } from "../types";
 import {
-  addMinute, contestantsOf, startAgain, goingOf, pickEveryone, resetClock, setMode, setSong, setTime, showClock, songIn, startClock, stopClock,
+  addMinute, contestantsOf, goingOf, limitFor, startAgain, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
   tapContestant, timesOf, useClock, watchLabel, watchTask, type ClockView,
 } from "./data";
 import { FlipClock } from "./FlipClock";
@@ -15,19 +15,8 @@ import { limitsOf, timeLabel } from "./timesIn";
 const QUICK = [60_000, 120_000, 300_000, 600_000];
 
 /**
- * The task the clock is for: the one whose page the host came from, else the one whose words are on the big screen, else the game
- * in progress. Its time limits are the presets, and a stopwatch's times go into it.
- */
-function sourceOf(session: Session, from: string | undefined) {
-  const tasks = session.scoreboard?.tasks ?? {};
-  const shown = session.display?.step === "tasktext" ? session.display.task : undefined;
-  const id = [from, shown, activeTaskId(session)].find((t) => !!t && !!tasks[t]);
-  return id ? { id, task: tasks[id]! } : undefined;
-}
-
-/**
  * ⏱ The clock, on the host's phone: a countdown set from the task's time limit (or any time) or a stopwatch, started and held
- * with one button, and put on the big screen on its own. The clock keeps running wherever the host goes (see ClockStrip).
+ * with one button. The Clock stage chip (see StageChips) puts it on the big screen, and Curtain takes it down. The clock keeps running wherever the host goes (see ClockStrip).
  * Flipchart's clock, while it runs, is the clock in the party: it shows here, and can only be run from the task.
  */
 export function ClockRemote({ code, session, from }: { code: string; session: Session; from?: string }) {
@@ -43,10 +32,9 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
   const locked = begun || !!view.owner;
 
   // A different task than the clock was last set for: its time limit (for the part on the big screen) is the time to start with, and its song.
-  const partUp = session.display?.step === "tasktext" && session.display.task === source?.id ? session.display.part ?? 0 : 0;
   useEffect(() => {
     if (!source || view.owner || begun || up || state?.task === source.id) return;
-    const pick = limits.find((l) => l.part === partUp + 1) ?? limits[0];
+    const pick = limitFor(session, source);
     if (pick) void setTime(code, pick.ms, source.id);
     if ((source.task.song ?? null) !== (state?.song ?? null) && (source.task.song || state?.song)) void setSong(code, source.task.song ?? null);
   }, [source?.id, begun, up, view.owner]);
@@ -61,11 +49,9 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
     );
   }
 
-  const shown = view.shown;
   return (
     <section className="remote converter clock-remote">
       <h2>⏱ The clock</h2>
-      <button className={shown ? "pressed-in" : undefined} aria-pressed={shown} onClick={() => void showClock(code, state, !shown)}>Show the clock</button>
       <div className="choices two marks" role="radiogroup" aria-label="Kind of clock">
         <button role="radio" aria-checked={!up} aria-pressed={!up} disabled={locked} onClick={() => void setMode(code, state, false, source?.id)}>Count down</button>
         <button role="radio" aria-checked={up} aria-pressed={up} disabled={locked} onClick={() => void setMode(code, state, true, source?.id)}>Stopwatch</button>
