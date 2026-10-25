@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { StageChips, onScreenLine } from "./HostRemote";
 import { endSting, setDisplay } from "./session";
 import { stingFiles } from "./sting";
-import { useStageBarVisible } from "./stageBar";
+import { useStageBarVisible } from "./useStageBarVisible";
 import type { Session } from "./types";
 
 /** Where a game's own backup controls go: after the stage chips, in the one bar. */

@@ -2,7 +2,7 @@ import { GameBar } from "../../StageBar";
 import { useEffect, useState } from "react";
 import { Curtain } from "../../Curtain";
 import { setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { BoxKey, BoxRound, Display, Session } from "../../types";
 import { decider, holderOf, openBox, roundOf, titleOf, useBoxSecret } from "./data";
 import { BOX_ART, findObject } from "./objects";

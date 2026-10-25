@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Curtain } from "../../Curtain";
 import { db } from "../../firebase";
 import { setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { Display, NoisemasterPress, NoisemasterRound, Session } from "../../types";
 import { elapsedOf, formatTime, recordPress, restartRound, roundOf, useNoisemasterSecret, useServerNow, useServerOffset } from "./data";
 import { Soundboard } from "./Soundboard";

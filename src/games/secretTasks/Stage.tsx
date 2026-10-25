@@ -1,7 +1,7 @@
 import { GameBar } from "../../StageBar";
 import { useEffect } from "react";
 import { setDisplay } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import type { Display, Session } from "../../types";
 import { currentOf, pointsOf, revealOf } from "./data";
 import { Envelope, Letter } from "./PlayerView";

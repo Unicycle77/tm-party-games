@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Framed } from "../../Framed";
 import { Review } from "../../Review";
 import { setDisplay, showContestant } from "../../session";
-import { useStageBarVisible } from "../../stageBar";
+import { useStageBarVisible } from "../../useStageBarVisible";
 import { TaskCard } from "../../TaskCard";
 import type { Display, Session } from "../../types";
 import { FlipClock } from "../../clock/FlipClock";

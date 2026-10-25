@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useStageBarVisible } from "../stageBar";
+import { useStageBarVisible } from "../useStageBarVisible";
 import { RecentList, WATCHED_KEY, HOSTED_KEY, loadRecent, mergeRecent } from "../recent";
 import { JoinError, store, useSession, useUid } from "../session";
 import { Toggle } from "../Toggle";
