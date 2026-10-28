@@ -209,7 +209,7 @@ function build() {
       if (shot.endsWith("zip")) {
         g.photos!.media = Object.fromEntries(ids8.map((id) => [id, { photo: pic("🎃", "#3a2a1c") }]));
         g.beforeAfter = { media: { alex: { before: pic("🧹", "#3a2a1c"), after: pic("✨", "#3a2a1c"), video: "alex.mp4" }, greg: { video: "greg.mp4" } } };
-        set("showDownload", true);
+        set("controllerUid", "host-phone");
       }
       break;
     }
@@ -477,5 +477,5 @@ const allBulbs = MODES.find((m) => m.id === "all")!.bulbs;
 if (shot === "host-light-flash") window.setTimeout(() => void lightNow(CODE), 1200);
 root.render(shot === "tv-light" ? <main className="stage light-stage"><div className="light-show"><Bulb lit /></div></main> :
   shot === "tv-light-all" ? <main className="stage light-stage"><div className="light-show"><div className="light-bulbs" style={{ gridTemplateColumns: "repeat(3, auto)" }}>
-    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={!q.get("bar") && shot !== "tv-zip"} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
+    {allBulbs.map((b) => <Bulb key={b.trigger.id} lit={b.trigger.id === "stop-smiling" || b.trigger.id === "arm-up"} colour={b.colour} />)}</div></div></main> : shot.startsWith("tv-gate") ? <StageGate code={CODE} session={session as unknown as Session} onRaised={() => {}} onEnd={() => {}} /> : shot.startsWith("tv-") ? <Screen code={CODE} session={session as unknown as Session} viewOnly={!q.get("bar") && shot !== "tv-zip"} footer={shot === "tv-zip" && <button className="link">End session</button>} /> : shot.startsWith("host-") || shot.startsWith("start-host") ? <HostPage /> :
   shot === "alone-convert" ? <ConverterPage /> : <Play />);

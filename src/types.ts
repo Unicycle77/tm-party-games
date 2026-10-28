@@ -516,8 +516,6 @@ export interface Session {
   begun?: boolean;
   /** This party's portrait of the Taskmaster (a download URL), shown framed on the big screen between games. */
   portrait?: string;
-  /** Host remote toggles this to reveal the download-all button on the main screen. */
-  showDownload?: boolean;
   /** The host remote's "Show QR" is open: the big screen puts the join QR above its corner code too. */
   showQr?: boolean;
   /** A live task's words (a task's id, or "tiebreaker", and which part) the host put on every guest's phone, until the host takes them down. Apart from the big screen's `display`. */

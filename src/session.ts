@@ -480,9 +480,6 @@ export const showContestant = (code: string, game: GameId, display: Display & { 
 export const renameParty = (code: string, name: string) =>
   set(ref(db(), `sessions/${code}/name`), name.trim());
 
-export const setShowDownload = (code: string, show: boolean) =>
-  set(ref(db(), `sessions/${code}/showDownload`), show);
-
 /** How the 📏 converter explains a result. Metric is the default, so it isn't stored. */
 export const setUnits = (code: string, units: "metric" | "imperial") =>
   set(ref(db(), `sessions/${code}/units`), units === "imperial" ? units : null);

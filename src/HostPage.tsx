@@ -17,7 +17,7 @@ import { AdHocPage, TaskPage, TiebreakerPage } from "./scoreboard/TaskPage";
 import { activeTaskId } from "./scoreboard/tasks";
 import { REMOTE_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
 import { PinStep } from "./HostPin";
-import { JoinError, PinNeededError, RemoteTakenError, allowMove, askHandover, cancelHandover, claimController, claimWithPin, createParty, declineHandover, declineMove, extractCode, finishHandover, handOver, releaseController, setShowDownload, store, useSession, useUid } from "./session";
+import { JoinError, PinNeededError, RemoteTakenError, allowMove, askHandover, cancelHandover, claimController, claimWithPin, createParty, declineHandover, declineMove, extractCode, finishHandover, handOver, releaseController, store, useSession, useUid } from "./session";
 import { addPlayerToScoreboard, setNotPlaying } from "./scoreboard/data";
 import { DownloadZip } from "./DownloadZip";
 import { Toggle } from "./Toggle";
@@ -237,10 +237,7 @@ function PartySettings({ code, session, onDisconnect }: { code: string; session:
         <h2>Party settings</h2>
         <button className="link" onClick={() => setOpen(false)}>Close</button>
       </div>
-      <DownloadZip code={code} session={session} videos={false} />
-      <div className="toggles">
-        <Toggle label="Download button on the big screen" on={!!session.showDownload} onChange={(on) => void setShowDownload(code, on)} />
-      </div>
+      <DownloadZip code={code} session={session} />
       {session.lightUid && (runsOnStage(session) ? (
         <button className="link" onClick={() => { if (confirm("Stop the light? The big screen turns its camera off, and the light can start again from 💡.")) void releaseLight(code); }}>
           Stop the light on the big screen

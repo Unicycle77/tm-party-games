@@ -102,7 +102,7 @@ Host phone (`/host`, 390px wide):
 | `host-read-it-out-up.jpg` | The same with it on the big screen: the status line says "a useless conversion", the button is pressed in ("On the big screen · Jordan"), and 📏 is lit in the header (2026-10-18) |
 | `host-party-settings.jpg` | Party settings, at the bottom of Run of show: only the night-of switches, the download button and "Disconnect this phone" (the name, portrait and pin moved to Plan the party) (2026-10-18). "Reset scores…" now sits under the download switch: see `host-reset-scores.jpg` |
 | `host-reset-scores.jpg` | Party settings with "Reset scores…" opened in place: what it clears and keeps, "the app tasks' rounds", "Also remove guests (6 joined)" switched on with what goes, and the paper "Reset and remove guests" button with Cancel (2026-10-19, from the ABCD party) |
-| `zip-host-party-settings.jpg` | Party settings with the download button at the top: "⬇ Download photos & scores (8)", the muted "Videos download from the big screen's button (switch below).", then the switch (2026-10-25, the ABCD party's tied night) |
+| `zip-host-party-settings.jpg` | Party settings with the download button at the top: "⬇ Download photos & scores (8)", the muted "Videos download from the big screen's ☰ Menu." (2026-10-28, the ABCD party's tied night) |
 
 Main screen (`/`, 1600×900):
 
@@ -345,11 +345,12 @@ The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`,
 | `light-host-trouble-fix.jpg` | "fix it here" opened: the lamp step with "○ Hue lamp: Living room, not responding", "Switch the light off to test the lamp…" instead of Flash the lamp, and the bridge's error (2026-10-24) |
 | `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |
 
-The download-all zip (2026-10-25, the ABCD party's last night: Alex and Priya tied on 30 after eight tasks, Priya won the tiebreaker; `node docs/guest-shots/zip.mjs` draws the files with the app's own renderers, `shoot.mjs zip-main-download` the TV):
+The download-all zip (2026-10-25, the ABCD party's last night: Alex and Priya tied on 30 after eight tasks, Priya won the tiebreaker; `node docs/guest-shots/zip.mjs` draws the files with the app's own renderers, `shoot.mjs zip-main-menu zip-main-zipping` the TV):
 
 | File | What it shows |
 |---|---|
-| `zip-main-download.jpg` | Main screen: the final scoreboard with "⬇ Download photos, videos & scores (10)" in the bottom-left corner |
+| `zip-main-menu.jpg` | Main screen: the final scoreboard with the ☰ Menu open, "⬇ Download photos, videos & scores (10)" just above End session (2026-10-28) |
+| `zip-main-zipping.jpg` | Main screen: the menu closed after the click, the greyed "Zipping 3 / 10…" in the bottom-left corner (2026-10-28) |
 | `zip-final-scoreboard.jpg` | "Final scoreboard.png": the scoreboard redrawn at 1920×1080, faces sharp, tilts frozen, only Priya enlarged with the "Tiebreaker" placard |
 | `zip-prize-haul.jpg` | "Prize haul.png": the haul at 1920×1080, Priya in the centre, the four prizes hung |
 | `zip-scores-by-task.jpg` | "Scores by task.pdf", page 1: the grid lowest to highest, "3 +1" and "DQ", the top points underlined and Priya's 30 circled in blue pen, "Tiebreaker: Priya" |
