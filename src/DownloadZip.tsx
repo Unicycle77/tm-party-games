@@ -7,10 +7,10 @@ import type { Session } from "./types";
 /**
  * Saves every photo and video submitted in any of the session's games as one zip, with the scores at the top
  * (the scoreboard, the scores by task and the prize haul). `videos` false (the host remote) leaves the videos
- * out, since a phone has to hold the whole zip in memory: "⬇ Download photos & scores (19)", and the TV's
- * button for the videos. The count is the photos and videos; with none, "⬇ Download the scores".
+ * out, since a phone has to hold the whole zip in memory: "⬇ Download photos & scores (19)", and the big
+ * screen's ☰ Menu for the videos. The count is the photos and videos; with none, "⬇ Download the scores".
  */
-export function DownloadZip({ code, session, videos = true }: { code: string; session: Session; videos?: boolean }) {
+export function useZip(code: string, session: Session, videos: boolean) {
   const players = session.players ?? {};
   const filesOf = (uid: string) => Object.values(GAMES).flatMap((game) => game.files(session, uid)).filter((f) => videos || f.name !== "video");
   const [progress, setProgress] = useState<[number, number]>();
@@ -22,6 +22,7 @@ export function DownloadZip({ code, session, videos = true }: { code: string; se
   const label = !scores ? `⬇ Download all ${media} (${fileCount})`
     : fileCount ? `⬇ Download ${videos ? "photos, videos" : "photos"} & scores (${fileCount})`
     : "⬇ Download the scores";
+  const busy = progress && (fileCount ? `Zipping ${progress[0]} / ${progress[1]}…` : "Zipping…");
 
   async function run() {
     setError(undefined);
@@ -38,13 +39,27 @@ export function DownloadZip({ code, session, videos = true }: { code: string; se
     }
   }
 
+  return { label, busy, error, videosLeftOut, disabled: (fileCount === 0 && !scores) || !!progress, run, clearError: () => setError(undefined) };
+}
+
+/** The host remote's download, at the top of Party settings: the button shows its own progress. */
+export function DownloadZip({ code, session }: { code: string; session: Session }) {
+  const zip = useZip(code, session, false);
   return (
     <div className="download">
-      <button disabled={(fileCount === 0 && !scores) || !!progress} onClick={() => void run()}>
-        {progress ? (fileCount ? `Zipping ${progress[0]} / ${progress[1]}…` : "Zipping…") : label}
-      </button>
-      {videosLeftOut && <p className="muted small">Videos download from the big screen's button (switch below).</p>}
-      {error && <p className="error small">{error}</p>}
+      <button disabled={zip.disabled} onClick={() => void zip.run()}>{zip.busy ?? zip.label}</button>
+      {zip.videosLeftOut && <p className="muted small">Videos download from the big screen's ☰ Menu.</p>}
+      {zip.error && <p className="error small">{zip.error}</p>}
     </div>
   );
+}
+
+/**
+ * The big screen's zip, started from the ☰ Menu: while it runs, the greyed "Zipping 4 / 10…" sits in the
+ * bottom-left corner over whatever is on, and gone once the browser has it. An error stays there until clicked.
+ */
+export function ZipProgress({ zip }: { zip: ReturnType<typeof useZip> }) {
+  if (zip.busy) return <div className="corner-download"><button disabled>{zip.busy}</button></div>;
+  if (zip.error) return <button className="corner-download corner-error error small" onClick={zip.clearError}>{zip.error}</button>;
+  return null;
 }

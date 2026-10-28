@@ -1,6 +1,6 @@
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
-import { DownloadZip } from "./DownloadZip";
+import { ZipProgress, useZip } from "./DownloadZip";
 import { CornerCode, Curtain } from "./Curtain";
 import { TaskCard } from "./TaskCard";
 import { ScoreboardStage } from "./scoreboard/ScoreboardStage";
@@ -39,13 +39,66 @@ export function screenState(session: Session) {
 
 /**
  * The lobby or the stage, as the main screen shows them. `viewOnly` is for extra screens (`/screen`):
- * the same picture, but nothing to click and no host setup (QR, remote status, download).
- * `footer` goes in the lobby's hidden menu (e.g. End session), or at the bottom of a view-only lobby.
+ * the same picture, but nothing to click and no hidden menu (QR, remote status, download).
+ * `footer` goes in the hidden menu (e.g. End session), or at the bottom of a view-only lobby.
  */
 export function Screen({ code, session, viewOnly = false, footer }: {
   code: string; session: Session; viewOnly?: boolean; footer?: React.ReactNode;
 }) {
-  return <StageBar code={code} session={session} enabled={!viewOnly}><ScreenStage code={code} session={session} viewOnly={viewOnly} footer={footer} /></StageBar>;
+  return (
+    <StageBar code={code} session={session} enabled={!viewOnly}>
+      <ScreenStage code={code} session={session} viewOnly={viewOnly} footer={footer} />
+      {!viewOnly && <StageMenu code={code} session={session} footer={footer} />}
+    </StageBar>
+  );
+}
+
+/**
+ * The host's setup and the night's end, out of sight until the mouse goes near the top-left corner. It's on every
+ * screen the stage can show, so the download (just above End session) is always there. The zip lives out here,
+ * not in the menu, so it keeps going when the menu closes or the screen changes underneath it.
+ */
+function StageMenu({ code, session, footer }: { code: string; session: Session; footer?: React.ReactNode }) {
+  const { game } = screenState(session);
+  const zip = useZip(code, session, true);
+  const site = PUBLIC_URL.replace(/^https?:\/\//, "");
+  return (
+    <>
+      <LobbyMenu>
+        {(close) => (
+          <>
+            {session.controllerUid
+              ? <p className="muted small">🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></p>
+              : (
+                <>
+                  <figure className="host-qr">
+                    <QRCodeSVG value={hostUrlFor(code)} size={150} bgColor="#fff" marginSize={2} />
+                    <figcaption>Host scans here</figcaption>
+                  </figure>
+                  <p className="muted small">Or open <strong>{site}/host</strong> on your phone and enter the same code.</p>
+                </>
+              )}
+            {/* Only ever removed here, never set or shown: the big screen faces the room. */}
+            {session.hostPin && (
+              <p className="muted small">🔑 Host pin on: a new phone needs it to connect. <button className="link" onClick={() => void removeHostPin(code)}>Remove the pin</button></p>
+            )}
+            <p className="muted small">
+              📺 To show this on another screen too, open <strong>{site}/screen</strong> there and enter the same code.
+            </p>
+            <p className="muted small">
+              {session.lightUid
+                ? "💡 The light is running" + (lightOf(session).onStage ? " here, out of sight." : ".")
+                : <>💡 The light starts from the host phone's 💡, using this computer's webcam. For a webcam on another computer, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> there.</>}
+            </p>
+            {game && <button className="link" onClick={() => void setGame(code, null)}>← Between tasks</button>}
+            <button className="menu-download" disabled={zip.disabled} onClick={() => { close(); void zip.run(); }}>{zip.label}</button>
+            {footer}
+          </>
+        )}
+      </LobbyMenu>
+      <ZipProgress zip={zip} />
+    </>
+  );
 }
 
 function ScreenStage({ code, session, viewOnly, footer }: { code: string; session: Session; viewOnly: boolean; footer?: React.ReactNode }) {
@@ -71,12 +124,10 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
   if (session.conversion) return <ConversionStage conversion={session.conversion} />;
   // So does the ⏱ clock, when the host shows it.
   if (session.clock?.shown) return <ClockStage session={session} />;
-  // The night ends on the scores or the haul, so the download button (when it's switched on) sits over them too.
-  const download = !viewOnly && session.showDownload && <div className="corner-download"><DownloadZip code={code} session={session} /></div>;
   // The scoreboard belongs to no game, so it can go up whatever is on.
-  if (display.step === "scoreboard") return <><ScoreboardStage board={session.scoreboard} players={session.players} />{download}</>;
+  if (display.step === "scoreboard") return <><ScoreboardStage board={session.scoreboard} players={session.players} /></>;
   // So is the winner's prize haul, at the end of the party.
-  if (display.step === "haul") return <><HaulStage code={code} session={session} />{download}</>;
+  if (display.step === "haul") return <><HaulStage code={code} session={session} /></>;
   // And a task's text, when the host puts it up.
   const words = display.step === "tasktext" ? textUp(session.scoreboard, display.task, display.part) : undefined;
   if (words) return <TaskTextStage {...words} />;
@@ -86,40 +137,10 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
   if (game && onStage) return <game.Stage code={code} session={session} display={display} viewOnly={viewOnly} />;
 
   const site = PUBLIC_URL.replace(/^https?:\/\//, "");
-  // Host setup: out of sight until the mouse goes near the top-left corner.
-  const menu = !viewOnly && (
-    <LobbyMenu>
-      {session.controllerUid
-        ? <p className="muted small">🎮 Host remote connected. <button className="link" onClick={() => void resetController(code)}>Reset</button></p>
-        : (
-          <>
-            <figure className="host-qr">
-              <QRCodeSVG value={hostUrlFor(code)} size={150} bgColor="#fff" marginSize={2} />
-              <figcaption>Host scans here</figcaption>
-            </figure>
-            <p className="muted small">Or open <strong>{site}/host</strong> on your phone and enter the same code.</p>
-          </>
-        )}
-      {/* Only ever removed here, never set or shown: the big screen faces the room. */}
-      {session.hostPin && (
-        <p className="muted small">🔑 Host pin on: a new phone needs it to connect. <button className="link" onClick={() => void removeHostPin(code)}>Remove the pin</button></p>
-      )}
-      <p className="muted small">
-        📺 To show this on another screen too, open <strong>{site}/screen</strong> there and enter the same code.
-      </p>
-      <p className="muted small">
-        {session.lightUid
-          ? "💡 The light is running" + (lightOf(session).onStage ? " here, out of sight." : ".")
-          : <>💡 The light starts from the host phone's 💡, using this computer's webcam. For a webcam on another computer, open <a href={`${PUBLIC_URL}/light?code=${code}`} target="_blank" rel="noreferrer">{site}/light</a> there.</>}
-      </p>
-      {game && <button className="link" onClick={() => void setGame(code, null)}>← Between tasks</button>}
-      {footer}
-    </LobbyMenu>
-  );
 
   // Between games (once the first has started): the party's Taskmaster portrait, framed, on the
   // curtain; or just the curtain if there's none. The code stays small in the corner for latecomers.
-  if (!game && session.begun) return <Curtain code={code} session={session}>{menu}{viewOnly && footer}</Curtain>;
+  if (!game && session.begun) return <Curtain code={code} session={session}>{viewOnly && footer}</Curtain>;
 
   // Welcome: guests join on the left and find their name on the right. No game list: the host picks on their phone.
   if (!game) {
@@ -141,7 +162,6 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
             {players.map(([uid, p]) => <Tile key={uid} player={p} />)}
           </ul>
         </section>
-        {menu}
         {viewOnly && footer}
       </main>
     );
@@ -149,7 +169,7 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
 
   // Between contestants, and for a game the host runs (like [BLANK] in a Box) until a round starts:
   // the curtain (with the portrait, if there is one), so the room looks at the host.
-  if (!game.status || display.step === "curtain") return <Curtain code={code} session={session}>{menu}{viewOnly && footer}</Curtain>;
+  if (!game.status || display.step === "curtain") return <Curtain code={code} session={session}>{viewOnly && footer}</Curtain>;
 
   // Collecting: the task card is the star; the contestants move to a column on the right.
   const status = game.status;
@@ -171,8 +191,6 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
         </ul>
       </aside>
       <CornerCode code={code} session={session} />
-      {download}
-      {menu}
       {viewOnly && footer}
     </main>
   );
@@ -180,23 +198,24 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
 
 /**
  * The main screen's hidden menu (like tm-scoreboard's): a paper "☰ Menu" button in the top-left corner that stays
- * invisible until the mouse comes near it, and opens a panel of setup hints. Escape or a click outside closes it.
+ * invisible until the mouse comes near it, and opens a panel of setup hints. Escape, a click outside or `close` closes it.
  */
-function LobbyMenu({ children }: { children: React.ReactNode }) {
+function LobbyMenu({ children }: { children: (close: () => void) => React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const zone = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    // Caught on the way down, so the stage bar's Escape (the curtain) doesn't fire too: it only closes the menu.
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); setOpen(false); } };
     const onDown = (e: PointerEvent) => { if (!zone.current?.contains(e.target as Node)) setOpen(false); };
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
     window.addEventListener("pointerdown", onDown);
-    return () => { window.removeEventListener("keydown", onKey); window.removeEventListener("pointerdown", onDown); };
+    return () => { window.removeEventListener("keydown", onKey, true); window.removeEventListener("pointerdown", onDown); };
   }, [open]);
   return (
     <div ref={zone} className={open ? "lobby-menu open" : "lobby-menu"}>
       <button className="lobby-menu-button" aria-expanded={open} onClick={() => setOpen((o) => !o)}>☰ Menu</button>
-      {open && <div className="lobby-menu-panel">{children}</div>}
+      {open && <div className="lobby-menu-panel">{children(() => setOpen(false))}</div>}
     </div>
   );
 }

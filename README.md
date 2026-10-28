@@ -61,7 +61,7 @@ A running puzzle for the whole evening, after the Taskmaster task: a red light b
 5. `npm run deploy` to ship to Hosting.
 
 ## Downloading everything
-The main screen's **Download photos, videos & scores** button (hidden until the host turns on "Download button on the big screen" in Party settings) zips every submitted file in the browser (one folder per player), with the final scoreboard, the prize haul and a scores-by-task PDF at the top. The host remote has the same button at the top of Party settings, without the videos (a phone holds the whole zip in memory). Because it fetches the files with JavaScript, the Storage bucket needs a one-time CORS setting. In [Google Cloud Shell](https://console.cloud.google.com/?cloudshell=true) (project `before-and-after-6a096`):
+The main screen's **Download photos, videos & scores** button (in its hidden ☰ Menu, top-left, just above End session) zips every submitted file in the browser (one folder per player), with the final scoreboard, the prize haul and a scores-by-task PDF at the top. The host remote has the same button at the top of Party settings, without the videos (a phone holds the whole zip in memory). Because it fetches the files with JavaScript, the Storage bucket needs a one-time CORS setting. In [Google Cloud Shell](https://console.cloud.google.com/?cloudshell=true) (project `before-and-after-6a096`):
 
 ```sh
 echo '[{"origin":["https://tm-party-games.web.app","https://tm-party-games.firebaseapp.com","https://before-and-after-6a096.web.app","https://before-and-after-6a096.firebaseapp.com","http://localhost:5173"],"method":["GET"],"maxAgeSeconds":3600}]' > cors.json

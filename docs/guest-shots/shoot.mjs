@@ -129,8 +129,15 @@ const SHOTS = {
     await p.locator("section.envelopes").getByRole("button", { name: "Change" }).click();
     await p.getByLabel("New tasks, one per line").fill("Swap seats with someone without asking.\nLaugh at a joke before it ends.");
   }, "section.envelopes"],
-  // The download-all zip: the TV's corner button, and the host remote's at the top of Party settings (no videos)
-  "zip-main-download": ["tv-zip"],
+  // The download-all zip: the TV's ☰ Menu, its corner progress, and the host remote's at the top of Party settings (no videos)
+  "zip-main-menu": ["tv-zip", "", async (p) => { await p.getByRole("button", { name: /Menu/ }).click(); await p.waitForTimeout(500); }],
+  "zip-main-zipping": ["tv-zip", "", async (p) => {
+    await p.route(/\.(jpe?g|png|mp4)(\?|$)/, () => {}); // the files never arrive, so it stays part way
+    await p.getByRole("button", { name: /Menu/ }).click();
+    await p.getByRole("button", { name: /Download photos/ }).click();
+    await p.waitForTimeout(1500);
+    await p.mouse.move(800, 600);
+  }],
   "zip-host-party-settings": ["host-zip", "", async (p) => {
     const back = p.getByRole("button", { name: /Run of show/ }).first();
     if (await back.isVisible()) await back.click();
