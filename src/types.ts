@@ -204,6 +204,8 @@ export interface LightState {
    * it (the smallest got it first). Only the order counts, so taking someone off leaves a gap, not a renumbering.
    */
   got?: Record<string, number>;
+  /** Who has used their one guess on a wrong answer, by scoreboard contestant: 0 points, locked in. */
+  wrong?: Record<string, true>;
   /**
    * The host started the light on the main screen (from the phone): the main screen's browser runs the
    * camera and the Hue lamp out of sight, instead of a computer at /light. Cleared when it stops.

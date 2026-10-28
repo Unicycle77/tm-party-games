@@ -82,6 +82,9 @@ export function unmarkGot(code: string, session: Session, contestant: string) {
   return saveGot(code, session, got);
 }
 
+/** Marks a contestant as having guessed wrong: their one guess is used, for 0 points. */
+export const markWrong = (code: string, contestant: string) => set(ref(db(), `sessions/${code}/light/wrong/${contestant}`), true);
+
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 
 /** The light page: becomes the session's light computer (one per session; this browser may already be it). */

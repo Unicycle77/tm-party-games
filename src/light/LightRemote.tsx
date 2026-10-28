@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Toggle } from "../Toggle";
 import { addKeptGame, taskFor } from "../scoreboard/data";
 import { ordinal, pointsForPlace, workOut } from "../scoreboard/measured";
+import { list } from "../scoreboard/tasks";
 import type { Session } from "../types";
 import { PUBLIC_URL } from "../firebase";
 import {
-  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, lightPageGone, markGot, modeOf, moveGot, moveToStage, releaseLight, setArmed,
+  DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, lightPageGone, markGot, markWrong, modeOf, moveGot, moveToStage, releaseLight, setArmed,
   setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot,
 } from "./data";
 import { ReadyLine, type SetupStep, StageSetup, TroubleLine } from "./StageSetup";
@@ -170,6 +171,7 @@ export function LightRemote({ code, session }: { code: string; session: Session 
  */
 export function GotIt({ code, session }: { code: string; session: Session }) {
   const [last, setLast] = useState<string>();
+  const [lastWrong, setLastWrong] = useState<string>();
   const [open, setOpen] = useState<string>();
   const contestants = session.scoreboard?.contestants ?? {};
   const names = Object.entries(contestants).sort(([, a], [, b]) => a.name.localeCompare(b.name));
@@ -182,8 +184,11 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
   const task = id ? session.scoreboard?.tasks?.[id] : undefined;
   const worked = task && workOut(task);
   const pointsOf = (c: string) => worked ? worked.points[c] ?? 0 : pointsForPlace(placeOf(c));
-  const mark = (c: string) => { void markGot(code, session, c); setLast(c); setOpen(undefined); };
+  const mark = (c: string) => { void markGot(code, session, c); setLast(c); setLastWrong(undefined); setOpen(undefined); };
   const lastPlace = last ? placeOf(last) : 0;
+  const wrong = names.map(([c]) => c).filter((c) => lightOf(session).wrong?.[c]);
+  const guessed = (c: string) => placeOf(c) > 0 || wrong.includes(c);
+  const markW = (c: string) => { void markWrong(code, c); setLastWrong(c); setLast(undefined); setOpen(undefined); };
 
   return (
     <div className="light-got">
@@ -213,6 +218,12 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
           ))}
         </ol>
       )}
+      {wrong.length > 0 && (
+        <div className="light-got-row light-got-wrong"><span className="muted">✗</span><span className="light-got-name">Guessed wrong: {list(wrong.map(nameOf))}</span><span className="light-got-pts">0 pts</span></div>
+      )}
+      {lastWrong && !last && (
+        <p className="muted small">✗ {nameOf(lastWrong)} guessed wrong · 0 points, locked in.</p>
+      )}
       {lastPlace > 0 && (
         <p className="muted small">✓ {nameOf(last!)} got it {ordinal(lastPlace)} · {pointsOf(last!)} points{task ? " on the scoreboard" : ""}.</p>
       )}
@@ -226,7 +237,14 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
       <div className="choices">
         {names.map(([c, { name }]) => placeOf(c) > 0
           ? <button key={c} className="got" aria-label={`${name}, got it ${ordinal(placeOf(c))}. Change`} onClick={() => setOpen(c)}>✓ {name}</button>
+          : wrong.includes(c) ? <button key={c} className="got" aria-label={`${name}, guessed wrong`}>✗ {name}</button>
           : <button key={c} onClick={() => mark(c)}>{name}</button>)}
+      </div>
+      <p className="muted small">Tap whoever just guessed wrong:</p>
+      <div className="choices">
+        {names.map(([c, { name }]) => guessed(c)
+          ? <button key={c} className="got" aria-label={`${name}, already guessed`}>{placeOf(c) > 0 ? "✓" : "✗"} {name}</button>
+          : <button key={c} onClick={() => markW(c)}>{name}</button>)}
       </div>
     </div>
   );

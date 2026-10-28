@@ -389,10 +389,12 @@ function build() {
       break;
     }
     // The light: the bulb lit on the light computer, and the host's 💡 page with Sam and Priya already got it.
-    case "tv-light": case "tv-light-all": case "host-light": case "host-light-change":
+    case "tv-light": case "tv-light-all": case "host-light": case "host-light-change": case "host-light-wrong":
       picked(); set("begun", true);
       set("lightUid", "light-pc");
-      set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } } });
+      set("light", { armed: true, trigger: "stop-smiling", litAt: 1, got: { sam: 1, priya: 2 }, camera: { people: 6, each: { "stop-smiling": 2 } },
+        // Alex guessed wrong earlier; the shot taps Mei's wrong guess in.
+        ...(shot === "host-light-wrong" ? { wrong: { alex: true } } : {}) });
       break;
     // The light run by the big screen, set up from the host's 💡 page: not started, the camera and lamp checklist, then ready.
     case "host-light-start": case "host-light-camera": case "host-light-lamp": case "host-light-ready": case "host-light-flash": case "host-light-trouble": case "host-light-trouble-fix": case "host-light-left-over":
