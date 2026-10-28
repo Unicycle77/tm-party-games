@@ -5,9 +5,9 @@ description: Use when starting a new party or game-night web app with a shared s
 
 # Build a party app framework: stage, players, host
 
-This recipe builds the base that every game sits on: one app with three screens, kept in sync through one live session, which players join with a 4-letter code or a QR. It comes from the Taskmaster party app, which has run real parties on it. Write the code fresh in the new repo; the snippets below are the shape to follow.
+This recipe builds the base that any party game, quiz night or game show can sit on: one app with three screens, kept in sync through one live session, which players join with a 4-letter code or a QR. It's drawn from an app that has run real parties. Write the code fresh in the new repo; the snippets below are the shape to follow, not code to paste.
 
-Before you write code, design the app's scenarios with the person (see the pair-design-feature skill if it's there). This skill covers only the plumbing.
+Before you write code, agree with the person on what the night looks like: who's in the room, what's on the TV, what each phone is for. This skill covers only the plumbing, not the games or the look.
 
 ## 0. The shape
 
@@ -22,7 +22,7 @@ Rules that hold everywhere:
 
 - **The session is the truth.** Every screen subscribes to `sessions/{code}` and renders from it. A button writes to the database; it never talks to another screen directly. That way a refresh, or a second stage, always shows the right thing.
 - **The stage is passive.** It shows `display` and the session's state. Controls live on the host remote. Keep only a small backup control bar on the stage, for when the host is at the TV.
-- **Copy for guests says "the big screen".** "Stage" is the builder's word.
+- **Name the shared screen in the players' words** ("the big screen", "the TV"). "Stage" is the builder's word.
 
 ## 1. Project setup
 
@@ -170,7 +170,7 @@ export function extractCode(text: string) {
 
 - **Before a party exists**: a "Start a party" button, plus a box to resume one by its code.
 - **During the party**: render by `display.step`. The lobby shows each player's name tile appearing as they join. Keep a corner line on every screen with the code and URL (and the QR, when the host asks for it), for latecomers.
-- **Browser rules**: browsers block sound until someone clicks, so open on a "Raise the curtain" click. Offer full screen, and keep the screen awake (Wake Lock).
+- **Browser rules**: browsers block sound until someone clicks, so open on a single "Start" click. Offer full screen, and keep the screen awake (Wake Lock).
 - `/screen` reuses the stage with `viewOnly`: no controls, and never a write.
 
 ## 9. Games plug in
@@ -182,7 +182,7 @@ Define a `Game` interface once, and have each game in `src/games/<id>/` provide:
 - `status(session, uid)`, if players submit something;
 - `files(session, uid)`, for a download-everything zip.
 
-A `GAMES` record lists them in picker order. The shared screens render `activeGame(session)?.Stage` and so on. Adding a game then never touches the framework. (In a repo that has it, the add-app-task skill is the full checklist for a new game.)
+A `GAMES` record lists them in picker order. The shared screens render `activeGame(session)?.Stage` and so on. Adding a game then never touches the framework. When a game stores something new, give it a rules block in the same change.
 
 ## 10. Test it like a party
 
