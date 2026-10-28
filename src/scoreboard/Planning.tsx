@@ -4,7 +4,7 @@ import { PileSetup, usePileCount } from "../games/secretTasks/TaskPile";
 import { PartySummary } from "../PartySetup";
 import { removePlayer, useUid } from "../session";
 import type { HeadshotCrop, Scoreboard, ScoreboardContestant, ScoreboardTask, Session, TaskGame } from "../types";
-import { addContestants, addKeptGame, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, setPixelate, uploadHeadshot } from "./data";
+import { addContestants, addKeptGame, lockedAt, addPlayerToScoreboard, addTask, removeContestant, renameContestant, reorderTasks, setPixelate, uploadHeadshot } from "./data";
 import { cropFill } from "./crop";
 import { currentTotals } from "./scoring";
 import { SetupFile } from "./SetupFile";
@@ -16,7 +16,8 @@ import { LIGHT, plural, scored, sorted, titleOf } from "./tasks";
 /**
  * Plan the party: everything set up before the night, in the order you'd do it, off Run of show so nothing on it
  * can be hit mid-show. The party (name, portrait, pin), the tasks (≡ to reorder, ✎ to a task's own page), the
- * contestants, the Taskmaster rules and the pile of secret envelopes.
+ * contestants, the Taskmaster rules and the pile of secret envelopes. On a locked party, tasks and guests can't be
+ * added, removed or moved (the party unlocks on Run of show), and a headshot asks before it changes.
  */
 export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
   code: string; session: Session; onBack: () => void;
@@ -27,13 +28,14 @@ export function PlanParty({ code, session, onBack, onEdit, onCrop }: {
 }) {
   const board = session.scoreboard;
   const tasks = sorted(board?.tasks);
+  const locked = lockedAt(board) !== undefined;
   return (
     <div className="box-setup scoreboard-remote plan">
       <button className="link back" onClick={onBack}>← Run of show</button>
       <h2>Plan the party</h2>
       <PartySummary code={code} session={session} />
-      <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} />
-      <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} />
+      <TaskList code={code} session={session} board={board} tasks={tasks} onEdit={onEdit} locked={locked} onBack={onBack} />
+      <Contestants code={code} session={session} board={board} contestants={sorted(board?.contestants)} onCrop={onCrop} locked={locked} onBack={onBack} />
       <RulesSetup code={code} session={session} />
       <Envelopes code={code} />
       <PrintGroup code={code} session={session} />
@@ -62,9 +64,9 @@ function Envelopes({ code }: { code: string }) {
  * opens its own page. Starting a task is Run of show's job, so there's no ▶ here. The tiebreaker is a summary line
  * under the list, since it's outside the running order.
  */
-function TaskList({ code, session, board, tasks, onEdit }: {
+function TaskList({ code, session, board, tasks, onEdit, locked, onBack }: {
   code: string; session: Session; board: Scoreboard | undefined; tasks: [string, ScoreboardTask][];
-  onEdit: (id: string) => void;
+  onEdit: (id: string) => void; locked: boolean; onBack: () => void;
 }) {
   const [adding, setAdding] = useState<"live" | "game">();
   const ids = tasks.map(([id]) => id);
@@ -99,12 +101,13 @@ function TaskList({ code, session, board, tasks, onEdit }: {
     <section className="sb-tasks">
       <h3>Tasks ({tasks.length})</h3>
       {tasks.length === 0 && <p className="muted small">No tasks yet. Add them in the order you'll play them.</p>}
+      {locked && <PartyLocked what="tasks can't be added, removed or moved" to="change them" onBack={onBack} />}
       <ul className="sb-task-list">
         {order.map((id, i) => {
           const t = byId[id]!;
           return (
             <li key={id} ref={(el) => { rows.current[id] = el; }} className={dragging?.id === id ? "dragging" : undefined}>
-              <button className="sb-handle" aria-label={`Move ${titleOf(t)}`}
+              <button className="sb-handle" aria-label={`Move ${titleOf(t)}`} disabled={locked}
                 onPointerDown={(e) => drag.start(e, id)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>
               <button className="sb-task" disabled>
                 <span className="sb-task-title">{i + 1}&nbsp; {titleOf(t)}{t.game && <span className="muted small"> · app task</span>}{t.checkin && <span className="muted small"> · at check-in</span>}</span>
@@ -116,7 +119,7 @@ function TaskList({ code, session, board, tasks, onEdit }: {
           );
         })}
       </ul>
-      {adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
+      {locked ? null : adding === "live" ? <AddLiveTask code={code} board={board} onClose={() => setAdding(undefined)} />
         : adding === "game" ? (
           <div className="sb-add">
             <p className="muted small">Which task?</p>
@@ -169,8 +172,9 @@ function AddLiveTask({ code, board, onClose }: { code: string; board: Scoreboard
  * Everyone at the party: the guest list (each with "checked in" once their phone is in) and, below it,
  * anyone who joined by typing a name while there was no list yet, ready to be added to the scoreboard.
  */
-function Contestants({ code, session, board, contestants, onCrop }: {
+function Contestants({ code, session, board, contestants, onCrop, locked, onBack }: {
   code: string; session: Session; board: Scoreboard | undefined; contestants: [string, ScoreboardContestant][]; onCrop: (id: string) => void;
+  locked: boolean; onBack: () => void;
 }) {
   const players = session.players ?? {};
   const linked = new Set(contestants.map(([, c]) => c.uid).filter((u) => u && players[u]));
@@ -188,10 +192,11 @@ function Contestants({ code, session, board, contestants, onCrop }: {
       <h3>Contestants ({contestants.length})</h3>
       <div className="toggles"><Toggle label="Pixelate until checked in" on={board?.pixelate !== false} onChange={(on) => void setPixelate(code, on)} /></div>
       <p className="muted small">On the big screen's scoreboard only. Each face sharpens as they check in.</p>
+      {locked && <PartyLocked what="guests can't be added or removed" to="add or remove guests" onBack={onBack} />}
       <ul className="sb-contestant-list">
         {contestants.map(([id, c]) => (
           <ContestantRow key={id} code={code} board={board} id={id} name={c.name} photo={c.photo} crop={c.crop} hasPoints={id in totals} onCrop={() => onCrop(id)}
-            here={c.uid && players[c.uid] ? c.uid : undefined} />
+            here={c.uid && players[c.uid] ? c.uid : undefined} locked={locked} />
         ))}
       </ul>
       {loose.length > 0 && (
@@ -201,26 +206,28 @@ function Contestants({ code, session, board, contestants, onCrop }: {
             {loose.map(([uid, p]) => (
               <li key={uid}>
                 <span className="sb-contestant-name sb-loose">{p.name}<span className="muted small">{p.notPlaying ? "not playing" : "checked in"}</span></span>
-                <button className="sb-start" onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>+ Add</button>
+                <button className="sb-start" disabled={locked} onClick={() => void addPlayerToScoreboard(code, board, uid, p.name)}>+ Add</button>
               </li>
             ))}
           </ul>
         </>
       )}
-      <form className="sb-add" onSubmit={add}>
+      {!locked && <form className="sb-add" onSubmit={add}>
         <label>Add contestants, one per line
           <textarea rows={3} value={names} maxLength={2000} onChange={(e) => setNames(e.target.value)} placeholder={"Sam\nPriya\nAlex"} />
         </label>
         <button type="submit" disabled={!names.trim()}>Add {names.split("\n").filter((n) => n.trim()).length > 1 ? "them" : "contestant"}</button>
-      </form>
+      </form>}
     </section>
   );
 }
 
-function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, onCrop }: {
+function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, onCrop, locked }: {
   code: string; board: Scoreboard | undefined; id: string; name: string; photo?: string; crop?: HeadshotCrop; hasPoints: boolean; onCrop: () => void;
   /** Their phone's uid, once they've checked in. */
   here?: string;
+  /** A locked party: they stay on the list, and changing their headshot asks first. */
+  locked: boolean;
 }) {
   const uid = useUid();
   const input = useRef<HTMLInputElement>(null);
@@ -239,6 +246,7 @@ function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, on
     catch { setFailed(true); }
     finally { setProgress(undefined); }
   }
+  const sure = (what: string) => !locked || confirm(`The party is completed. ${what} ${name}'s headshot?`);
   // Off the scoreboard and, if they've checked in, out of the party too (their phone goes back to joining).
   const drop = () => {
     const what = [hasPoints && "all their points", here && "their phone's entries"].filter(Boolean).join(" and ");
@@ -250,7 +258,7 @@ function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, on
   return (
     <li>
       <button className="sb-photo" aria-label={photo ? `Change ${name}'s headshot` : `Add ${name}'s headshot`} aria-expanded={photo ? choosing : undefined}
-        onClick={() => photo ? setChoosing(!choosing) : input.current?.click()}>
+        onClick={() => photo ? setChoosing(!choosing) : sure("Add") && input.current?.click()}>
         {progress !== undefined ? <span className="small">{Math.round(progress * 100)}%</span>
           : photo ? <span className="sb-photo-fill" style={cropFill(photo, crop)} /> : <span aria-hidden>+</span>}
       </button>
@@ -259,8 +267,8 @@ function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, on
         <div className="sb-photo-choice">
           <span className="muted small">{name}'s headshot</span>
           <div className="row">
-            <button onClick={() => { setChoosing(false); onCrop(); }}>Crop</button>
-            <button onClick={() => { setChoosing(false); input.current?.click(); }}>Replace</button>
+            <button onClick={() => { setChoosing(false); if (sure("Crop")) onCrop(); }}>Crop</button>
+            <button onClick={() => { setChoosing(false); if (sure("Replace")) input.current?.click(); }}>Replace</button>
             <button className="link" onClick={() => setChoosing(false)}>Cancel</button>
           </div>
         </div>
@@ -277,7 +285,12 @@ function ContestantRow({ code, board, id, name, photo, crop, hasPoints, here, on
           <button type="button" className="link" onClick={() => setDraft(undefined)}>Cancel</button>
         </form>
       )}
-      <button className="x" aria-label={`Remove ${name}`} onClick={drop}>✕</button>
+      <button className="x" aria-label={`Remove ${name}`} disabled={locked} onClick={drop}>✕</button>
     </li>
   );
+}
+
+/** On a locked party, above what it keeps: "🔒 The party is completed, so guests can't be added or removed. Unlock the party on Run of show to …" */
+function PartyLocked({ what, to, onBack }: { what: string; to: string; onBack: () => void }) {
+  return <p className="muted small locked-line">🔒 The party is completed, so {what}. Unlock the party on <button className="link" onClick={onBack}>Run of show</button> to {to}.</p>;
 }

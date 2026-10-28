@@ -259,6 +259,15 @@ export const declareWinner = (code: string, on = true) =>
     ? { "scoreboard/final": true, display: { step: "scoreboard" }, conversion: null, "clock/shown": null }
     : { "scoreboard/final": null });
 
+/** When the party was locked (ms), if it is. */
+export const lockedAt = (board: Scoreboard | undefined) => typeof board?.locked === "number" ? board.locked : undefined;
+
+/** Locks the party, so nothing about the finished night changes by accident. Nothing changes on the big screen. */
+export const lockParty = (code: string) => set(at(code, "locked"), Date.now());
+
+/** Unlocks the whole party (for guests or a reset); Run of show says so until it's locked again. */
+export const unlockParty = (code: string) => set(at(code, "locked"), false);
+
 /** Whether the big screen pixelates the headshots of guests who haven't checked in (on unless turned off). */
 export const setPixelate = (code: string, on: boolean) => set(at(code, "pixelate"), on ? null : false);
 

@@ -242,6 +242,26 @@ const SHOTS = {
   "host-handover-ask": ["start-host-ask", "&who=iphone", async (p) => { await p.getByRole("button", { name: /Halloween party/ }).click(); }],
   "host-handover-waiting": ["start-host-asked", "&who=iphone", async (p) => { await p.getByRole("button", { name: /Halloween party/ }).click(); }],
   "host-handover-card": ["host-run-handover", "", undefined, ".move-request"],
+  // A completed party (the same night, Priya's haul still up): at 11pm the offer to lock it, under the haul's buttons; the
+  // morning after, Run of show with the Completed stamp; Dice tower's points locked, Sam's 4 tapped by mistake; Plan the party;
+  // Sam's phone, its prize row, and adding a photo to his presented prize; and someone new trying to join.
+  "lock-host-offer": ["host-lock-offer"],
+  "lock-host-run-of-show": ["host-locked"],
+  "lock-host-points-tapped": ["host-locked-points", "", async (p) => { await p.getByRole("button", { name: "4 for Sam" }).click(); }, "section.sb-points"],
+  "lock-host-points-unlocked": ["host-locked-points", "", async (p) => {
+    p.once("dialog", (d) => d.accept());
+    await p.getByRole("button", { name: "4 for Sam" }).click();
+    await p.getByRole("button", { name: "Unlock Dice tower" }).click();
+  }, "section.sb-points"],
+  "lock-host-plan": ["host-locked-plan", "", undefined, "section.sb-contestants"],
+  "lock-guest-home": ["home-locked"],
+  "lock-guest-prize-add": ["prize-add-locked", "", async (p) => {
+    await p.getByRole("button", { name: /Prize photos/ }).click();
+    const chooser = p.waitForEvent("filechooser");
+    await p.getByRole("button", { name: /Add more photos/ }).click();
+    await (await chooser).setFiles([new URL("./prizes/sock-puppet.jpg", import.meta.url).pathname]);
+  }],
+  "lock-guest-join": ["join-locked"],
 };
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:

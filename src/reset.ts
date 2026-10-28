@@ -20,6 +20,8 @@ export async function resetScores(code: string, session: Session, guests: boolea
   const patch: Record<string, unknown> = {
     "scoreboard/shown": null,
     "scoreboard/final": null,
+    // A reset is only offered on an unlocked party; clearing "unlocked" lets the night's offer to lock come back.
+    "scoreboard/locked": null,
     "scoreboard/tiebreaker/winner": null,
     game: null,
     display: { step: "curtain" },

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { formatTime } from "../games/noisemaster/data";
 import { ReadOut } from "../conversions/ReadOut";
 import type { Scoreboard, Session } from "../types";
 import { enterPoints, type TaskEntry } from "./data";
+import { LockedLine, LockState, useTaskLock } from "./partyLock";
 import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
 import { currentTotals } from "./scoring";
 import { allScored, LIGHT, list, plural } from "./tasks";
@@ -11,7 +12,8 @@ import { allScored, LIGHT, list, plural } from "./tasks";
  * Giving points for one task, always open at the bottom of its page. By hand: a row of chips per contestant.
  * Measured: a box for each contestant's number, and the points by place. Every tap saves; nothing goes on the
  * big screen. Once everyone has points, gold "Done" goes back to Run of show, where the next task and the
- * choice to show the scores are waiting.
+ * choice to show the scores are waiting. On a locked party the chips fade back to the points given, and a tap says
+ * so under that row instead of changing anything (see partyLock).
  */
 export function Points({ code, session, board, onScreen, id, onDone, onLight }: {
   code: string; session: Session; board: Scoreboard | undefined; onScreen: boolean; id: string; onDone: () => void;
@@ -29,12 +31,18 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
   const light = task.game === "light";
   // Whose number was typed last, for "Read it out".
   const [last, setLast] = useState<string>();
+  const lock = useTaskLock();
+  // Whose row was tapped while locked: the line under it says why nothing changed.
+  const [tapped, setTapped] = useState<string>();
   const enter = (entry: TaskEntry) => {
     const typed = Object.entries(entry.results ?? {}).find(([, n]) => n !== null)?.[0];
     if (typed) setLast(typed);
     void enterPoints(code, board, onScreen, id, entry);
   };
   const nameOf = (c: string) => board?.contestants?.[c]?.name ?? "";
+  const stays = (c: string) => task.dq?.[c] ? `${nameOf(c)}'s DQ stays`
+    : worked.points[c] !== undefined ? `${nameOf(c)} stays on ${worked.points[c]}` : `${nameOf(c)} stays without points`;
+  const onEnterFor = (c: string): EntryFor => (entry) => lock.locked ? setTapped(c) : enter(entry(c));
   // The DQs that change anyone else's points: those with points or a number of their own.
   const outs = contestants.map(([c]) => c).filter((c) => task.dq?.[c] && (measured ? task.results?.[c] : (task.given ?? task.scores)?.[c]) !== undefined);
   const before = Object.keys(worked.before).length > 0;
@@ -52,7 +60,7 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
     return (
       <section className="sb-points">
         <h2>Points</h2>
-        <p className="muted small">{status} · from the reveal, when you lower the curtain</p>
+        <p className="muted small">{status} · from the reveal, when you lower the curtain<LockState /></p>
         {allScored(board, task) && <button className="big" onClick={onDone}>Done: back to Run of show →</button>}
       </section>
     );
@@ -61,25 +69,28 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
     return <section className="sb-points"><h2>Points</h2><p className="muted small">No contestants yet. Add them on Plan the party.</p></section>;
   }
   return (
-    <section className="sb-points">
+    <section className={lock.locked ? "sb-points locked" : "sb-points"}>
       <h2>Points</h2>
-      <p className="muted small">{status}{bonuses > 0 && ` · ${plural(bonuses, "bonus point", "bonus points")}`}</p>
+      <p className="muted small">{status}{bonuses > 0 && ` · ${plural(bonuses, "bonus point", "bonus points")}`}<LockState /></p>
       {outs.length > 0 && worked.moved > 0 && (
         <p className="muted small sb-dq-line">
           {list(outs.map(nameOf))}'s {outs.length === 1 ? "DQ" : "DQs"}{" "}
-          {task.dqStays ? <>{outs.length === 1 ? "doesn't" : "don't"} move anyone. <button className="link" onClick={() => enter({ dqStays: null })}>Move them up</button></>
-            : <>moved {plural(worked.moved, "person", "people")} up. <button className="link" onClick={() => enter({ dqStays: true })}>Don't move them</button></>}
+          {task.dqStays ? <>{outs.length === 1 ? "doesn't" : "don't"} move anyone.{!lock.locked && <> <button className="link" onClick={() => enter({ dqStays: null })}>Move them up</button></>}</>
+            : <>moved {plural(worked.moved, "person", "people")} up.{!lock.locked && <> <button className="link" onClick={() => enter({ dqStays: true })}>Don't move them</button></>}</>}
         </p>
       )}
       <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
-        {contestants.map(([c, con]) => measured
-          ? <MeasuredRow key={c} name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
+        {contestants.map(([c, con]) => <Fragment key={c}>{measured
+          ? <MeasuredRow name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
               result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={bonusOf(task, c)}
-              points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />
-          : <PointsRow key={c} name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
-              dq={!!task.dq?.[c]} bonus={bonusOf(task, c)} before={worked.before[c]} onEnter={(entry) => enter(entry(c))} />)}
+              points={worked.points[c]} auto={worked.auto[c]} place={worked.place[c]} before={worked.before[c]} onEnter={onEnterFor(c)}
+              locked={lock.locked} onLocked={() => setTapped(c)} />
+          : <PointsRow name={con.name} total={totals[c] ?? 0} points={worked.points[c]} given={(task.given ?? task.scores)?.[c]}
+              dq={!!task.dq?.[c]} bonus={bonusOf(task, c)} before={worked.before[c]} onEnter={onEnterFor(c)} />}
+          {lock.locked && tapped === c && <li className="sb-locked"><LockedLine what={stays(c)} /></li>}
+        </Fragment>)}
       </ul>
       {before && <p className="muted small sb-before-key"><span className="sb-before" aria-hidden="true" /> before the DQ</p>}
       {light && <p className="muted small">Change the order on <button className="link" onClick={onLight}>{LIGHT}</button>.</p>}
@@ -149,9 +160,11 @@ function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
  * a point set by hand sticks. On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the
  * line they went over, and `lo` offers LO, under the box while it's being typed in.
  */
-function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter }: {
+function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter, locked, onLocked }: {
   name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
   result?: number; restarts?: number; dq: boolean; given?: number; bonus: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
+  /** A locked party: the box can't be typed in, and tapping it says why. */
+  locked: boolean; onLocked: () => void;
 }) {
   const format = (n: number) => timed ? formatTime(n) : n === LO ? "LO" : String(n);
   const [typing, setTyping] = useState<string>();
@@ -177,7 +190,8 @@ function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, 
         {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result === undefined ? "not yet" : `got it ${ordinal(result)}`}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
             placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
-            onChange={(e) => type(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => { setTyping(undefined); setFocused(false); }} />
+            readOnly={locked} onChange={(e) => type(e.target.value)} onFocus={() => locked ? onLocked() : setFocused(true)}
+            onBlur={() => { setTyping(undefined); setFocused(false); }} />
         )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
         {points !== undefined

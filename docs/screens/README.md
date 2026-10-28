@@ -70,7 +70,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `scores-main-before.jpg` | Main screen: the scoreboard before the host updates it, six wax seals showing the totals so far (taken 2026-10-18 from the ABCD party, silhouette headshots) |
 | `scores-main-after.jpg` | Main screen: the same scoreboard after the update with the Prize task's points, seals ticked up and everyone in their new order, the leader's frame enlarged (taken 2026-10-18 from the ABCD party) |
 | `haul-main-winner.jpg` | Main screen: the Prize Haul with Alex in the centre as "Alex is the winner!" and the four prize photos hung around him with "from" placards (taken 2026-10-18 from the ABCD party, silhouette headshot) |
-| `haul-host-up.jpg` | Host phone with the haul on the big screen: "On the big screen: the prize haul", gold "Lower the curtain", "Back to the scoreboard" as a link (taken 2026-10-18 from the ABCD party) |
+| `haul-host-up.jpg` | Host phone with the haul on the big screen: "On the big screen: the prize haul", gold "Lower the curtain", "Back to the scoreboard" as a link, and under them the offer to lock the party (taken 2026-10-18 from the ABCD party; re-shot 2026-10-28 for the offer) |
 | `main-secret-tasks.jpg` | Secret Tasks on the big screen: "What was Sam's secret?" over the opened envelope, the task on its paper (2026-10-18) |
 | `main-secret-sealed.jpg` | Main screen during the Secret Tasks reveal before the envelope opens: "What was Sam's secret?" over the sealed envelope with the red TM wax seal (taken 2026-10-18 from the ABCD party) |
 | `guest-secret-open.jpg` | Sam's opened envelope on the guest phone: the task on its paper, "Seal it again", the to-do list with the secret envelope "picked" (2026-10-18) |
@@ -353,3 +353,16 @@ The download-all zip (2026-10-25, the ABCD party's last night: Alex and Priya ti
 | `zip-final-scoreboard.jpg` | "Final scoreboard.png": the scoreboard redrawn at 1920×1080, faces sharp, tilts frozen, only Priya enlarged with the "Tiebreaker" placard |
 | `zip-prize-haul.jpg` | "Prize haul.png": the haul at 1920×1080, Priya in the centre, the four prizes hung |
 | `zip-scores-by-task.jpg` | "Scores by task.pdf", page 1: the grid lowest to highest, "3 +1" and "DQ", the top points underlined and Priya's 30 circled in blue pen, "Tiebreaker: Priya" |
+
+A completed party (2026-10-28, the same last night: Priya won the tiebreaker, her haul still up; `node docs/guest-shots/shoot.mjs lock-…`):
+
+| File | What it shows |
+|---|---|
+| `lock-host-offer.jpg` | Run of show at 11pm with the haul up: gold "Lower the curtain", then a paper slot "That's the night. Lock the party so nothing changes by accident? Guests can still add prize photos.", paper "🔒 Lock the party" and "Not yet" |
+| `lock-host-run-of-show.jpg` | The morning after: under the party line, the red "✓ Completed" stamp on paper, "🔒 Locked Oct 31. Points, entries and guests stay as they are. Adding or removing a photo asks first." and "Unlock to change something"; the haul still on the big screen |
+| `lock-host-points-tapped.jpg` | Dice tower's points, locked: "· 🔒 locked" on the status line, the given points at full strength and the rest faded; Sam's 4 tapped, so under his row "🔒 The party is completed, so Sam stays on 2. Unlock Dice tower to change it." |
+| `lock-host-points-unlocked.jpg` | The same page after "Unlock Dice tower" and its confirm: every chip live, "· 🔓 unlocked · Lock it"; leaving the page locks it again |
+| `lock-host-plan.jpg` | Plan the party's Contestants on the locked party: "🔒 The party is completed, so guests can't be added or removed. Unlock the party on Run of show to add or remove guests.", the ✕ greyed, no add box |
+| `lock-guest-home.jpg` | Sam's phone: "The party is over. Thanks for playing!" under his name tag; the to-do list with "Prize photos · presented · + add more" |
+| `lock-guest-prize-add.jpg` | Sam adding to his presented prize: "Prize task · presented", "Add to your prize"; the goat and jerky flowers already sent (no ✕, no ≡, the ★ stays), the sock puppet new with ✕; "🔒 The party is completed. New photos join the end of your prize, and can't be taken off once they're sent.", gold "Add 1 photo" |
+| `lock-guest-join.jpg` | A new phone on the party's code: "Halloween party is over, so nobody new can join.", "Here on another phone? Tap your name tag." and only the checked-in guests' faded tags |

@@ -11,7 +11,7 @@ import { arrivalOf } from "./scoreboard/tasks";
 import { GuestCard, GuestContext, GuestHead, NameTag, PUT_AWAY, Status, TodoList, afterwards, leftToDo, phoneWordsOf, taskOn, type TodoRow } from "./guest";
 import { QrScannerModal } from "./QrScannerModal";
 import { Headshot, HeadshotCaption } from "./scoreboard/Headshot";
-import { JoinError, SameNameError, TakenError, askToMove, cancelMove, extractCode, joinAsContestant, joinSession, sameName, store, useSession, useUid } from "./session";
+import { JoinError, SameNameError, TakenError, askToMove, partyOver, cancelMove, extractCode, joinAsContestant, joinSession, sameName, store, useSession, useUid } from "./session";
 import type { ScoreboardContestant, Session } from "./types";
 
 const CODE_KEY = "ba.playCode";
@@ -147,6 +147,7 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
   else if (watching) status = <Status>You're watching tonight. Enjoy the show.</Status>;
   else if (showGame) status = null; // the game says where the guest stands
   else if (phoneWords) status = <Status>Here's the task. Read it, then put your phone away.</Status>;
+  else if (typeof session.scoreboard?.locked === "number") status = <Status big>The party is over. Thanks for playing!</Status>;
   else if (showPrize && open === "prize" && saved.length && !presented && !prizeBusy) status = <Status>{afterwards("Prize photos sent.", left)}</Status>;
   else if (left || showPrize || showEnvelope) status = <Status>{now(left ? leftToDo(left) : PUT_AWAY)}</Status>;
   else if (!id) status = <Status>Waiting for the host to add you to the scoreboard.</Status>;
@@ -169,7 +170,8 @@ function Guest({ code, uid, session, onLeave }: { code: string; uid: string; ses
       rows.push({
         id: "prize", icon: "🎁", label: "Prize photos",
         // After "Not now" it's still open, not grey, so the guest can find it once the prize is out.
-        state: presented ? "🔒 presented" : saved.length ? "✓ sent" : later ? "add when ready →" : "to do",
+        // Once presented, photos can still be added (never taken off): the row says so.
+        state: presented ? "presented · + add more" : saved.length ? "✓ sent" : later ? "add when ready →" : "to do",
         tone: showPrize ? "next" : presented || saved.length ? "done" : "open",
         onOpen: () => setOpen("prize"),
       });
@@ -263,6 +265,8 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
   const [typing, setTyping] = useState(false);
   const [tapped, setTapped] = useState<string>();
   const listed = !editingCode && !typing && guests.length > 0;
+  // A locked party takes nobody new: only the guests already in can tap their tag (moving phones, through the host).
+  const over = typeof party?.scoreboard?.locked === "number";
 
   async function askMove() {
     setBusy(true);
@@ -302,17 +306,19 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
   }
 
   if (listed) {
+    const tags = over ? guests.filter(([, g]) => g.uid && party?.players?.[g.uid]) : guests;
     return (
       <main className="phone guest">
         <GuestHead title="Taskmaster" line={`Joining ${party?.name ?? "party"} · ${code}`} />
         {notice && <p className="notice">{notice}</p>}
-        <Status>Find your name tag and tap it</Status>
+        <Status>{over ? partyOver(party?.name) : "Find your name tag and tap it"}</Status>
+        {over && tags.length > 0 && <p className="muted">Here on another phone? Tap your name tag.</p>}
         {/* Name tags scattered on the curtain, two to a row in name order; checked-in guests' are faded but still tappable (a guest moving phones). */}
-        <div className="tag-pile" style={{ height: `${Math.ceil(guests.length / 2) * 8 + 2}rem` }}>
-          {guests.map(([id, g], i) => <NameTag key={id} name={g.name} here={!!g.uid} style={tagSpot(id, i)} onClick={() => { setTapped(id); setError(undefined); }} />)}
+        <div className="tag-pile" style={{ height: `${Math.ceil(tags.length / 2) * 8 + 2}rem` }}>
+          {tags.map(([id, g], i) => <NameTag key={id} name={g.name} here={!!g.uid} style={tagSpot(id, i)} onClick={() => { setTapped(id); setError(undefined); }} />)}
         </div>
         <div className="run-links">
-          <button className="link" onClick={() => setTyping(true)}>Not on the list? Type your name</button>
+          {!over && <button className="link" onClick={() => setTyping(true)}>Not on the list? Type your name</button>}
           <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>
         </div>
       </main>
@@ -370,6 +376,16 @@ function Join({ notice, onJoined }: { notice?: string; onJoined: (code: string) 
       if (err instanceof JoinError && err.message.startsWith("No session found")) setEditingCode(true);
       setError(err instanceof JoinError ? err.message : "Something went wrong. Try again.");
     } finally { setBusy(false); }
+  }
+
+  if (over) {
+    return (
+      <main className="join">
+        <h1>Taskmaster</h1>
+        <p className="joining">{partyOver(party?.name)}</p>
+        <button className="link" onClick={() => setEditingCode(true)}>Wrong party? Enter a different code</button>
+      </main>
+    );
   }
 
   return (

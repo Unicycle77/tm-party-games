@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { GuestCard, Quote, Status } from "../../guest";
 import { useKeepAwake } from "../../keepAwake";
 import type { Session } from "../../types";
-import { prizePhotos, presentedOf, submitPrize } from "./data";
+import { appendPrize, prizePhotos, presentedOf, submitPrize } from "./data";
 
 /** The prize task's words, as the host wrote them. */
 const prizeText = (session: Session) =>
@@ -13,8 +13,8 @@ const prizeText = (session: Session) =>
  * the scoreboard contestant they checked in as). A prize is one or more photos. It starts as a question on
  * the "To do now" card, "Got photos of your prize?": "Yes, add photos" opens the phone's own picker (which
  * already offers the library and the camera); "Not now" leaves it an optional row on the to-do list
- * (`onLater`). More photos can be added, and any removed, before submitting. Once presented the prize is
- * locked. Stays mounted while hidden (`shown` false), so a phone moving on mid-upload doesn't drop it;
+ * (`onLater`). More photos can be added, and any removed, before submitting. Once presented, the photos sent
+ * stay as they are: more can only be added, at the end (`appendPrize`). Stays mounted while hidden (`shown` false), so a phone moving on mid-upload doesn't drop it;
  * `onBusy` says when photos are being checked or sent, which puts this card first.
  */
 export function PrizeArea({ code, uid, id, session, shown, onBusy, onLater, onSent }: {
@@ -23,6 +23,7 @@ export function PrizeArea({ code, uid, id, session, shown, onBusy, onLater, onSe
 }) {
   const saved = prizePhotos(session)[id] ?? [];
   const presented = !!presentedOf(session)[id];
+  const completed = typeof session.scoreboard?.locked === "number";
   const text = prizeText(session);
   // Being changed on this phone: photos already sent (no file) and new ones, in the guest's order.
   const [picked, setPicked] = useState<Picked[]>();
@@ -58,7 +59,8 @@ export function PrizeArea({ code, uid, id, session, shown, onBusy, onLater, onSe
     setFailed(false);
     setProgress(0);
     try {
-      await submitPrize(code, uid, id, picked, setProgress, ctl.signal);
+      if (presented) await appendPrize(code, uid, id, picked.flatMap((p) => p.file ? [p.file] : []), setProgress, ctl.signal);
+      else await submitPrize(code, uid, id, picked, setProgress, ctl.signal);
       picked.forEach(revoke);
       setPicked(undefined);
       onSent();
@@ -72,7 +74,9 @@ export function PrizeArea({ code, uid, id, session, shown, onBusy, onLater, onSe
 
   const browse = () => input.current?.click();
   const card = !shown && !picked ? null
-    : presented ? <PrizeReceipt photos={saved} text={text} locked />
+    : presented && picked ? <PrizeCheck picked={picked} sent={saved} completed={completed} text={text} progress={progress} failed={failed} onAdd={browse} onRemove={remove}
+        onReorder={setPicked} onSubmit={() => void submit()} onCancel={() => upload.current?.abort()} />
+    : presented ? <PrizeReceipt photos={saved} text={text} locked onAdd={browse} />
     : picked ? <PrizeCheck picked={picked} text={text} progress={progress} failed={failed} onAdd={browse} onRemove={remove} onReorder={setPicked}
         onSubmit={() => void submit()} onCancel={() => upload.current?.abort()} />
     : saved.length ? <PrizeReceipt photos={saved} text={text} onChange={() => setPicked(saved.map((url) => ({ url })))} />
@@ -112,9 +116,13 @@ function PrizeAsk({ text, onYes, onLater }: { text?: string; onYes: () => void; 
  * the run of show; the host's previews follow this order. The first photo, starred, is the prize's photo
  * in the winner's haul at the end of the night. Only the ≡ drags, so a thumb landing on a
  * photo still scrolls the page. Removing the last photo goes back to the empty card.
+ * `sent`: the prize has been presented, so these photos come first with nothing to press on them, and `picked`
+ * (new photos only, each with ✕) join the end once sent. `completed` says the party is locked too.
  */
-export function PrizeCheck({ picked, text, progress, failed, onAdd, onRemove, onReorder, onSubmit, onCancel }: {
+export function PrizeCheck({ picked, sent, completed, text, progress, failed, onAdd, onRemove, onReorder, onSubmit, onCancel }: {
   picked: Picked[];
+  sent?: string[];
+  completed?: boolean;
   text?: string;
   /** Sending, as a fraction sent: Photos' sending state, and nothing on the photos to press. */
   progress?: number;
@@ -150,21 +158,29 @@ export function PrizeCheck({ picked, text, progress, failed, onAdd, onRemove, on
     },
   };
 
+  const adding = !!sent;
+  const before = sent?.length ?? 0;
   return (
-    <GuestCard label={LABEL} title="Your prize photos">
+    <GuestCard label={adding ? "Prize task · presented" : LABEL} title={adding ? "Add to your prize" : "Your prize photos"}>
       {text && <Quote text={text} />}
       <ul className="prize-picks">
+        {sent?.map((url, i) => (
+          <li key={url}>
+            <img src={url} alt={`Photo ${i + 1}`} />
+            {i === 0 && <span className="star" role="img" aria-label="Main photo">★</span>}
+          </li>
+        ))}
         {order.map((p, i) => (
           <li key={p.url} ref={(el) => { tiles.current[p.url] = el; }} className={dragging?.url === p.url ? "dragging" : undefined}>
-            <img src={p.url} alt={`Photo ${i + 1}`} />
+            <img src={p.url} alt={`Photo ${before + i + 1}`} />
             {!sending && (
               <>
-                <button className="handle" aria-label={`Move photo ${i + 1}`}
-                  onPointerDown={(e) => drag.start(e, p.url)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>
-                <button className="x" aria-label={`Remove photo ${i + 1}`} onClick={() => onRemove(i)}>✕</button>
+                {!adding && <button className="handle" aria-label={`Move photo ${i + 1}`}
+                  onPointerDown={(e) => drag.start(e, p.url)} onPointerMove={drag.move} onPointerUp={drag.end} onPointerCancel={drag.end}>≡</button>}
+                <button className="x" aria-label={`Remove photo ${before + i + 1}`} onClick={() => onRemove(i)}>✕</button>
               </>
             )}
-            {i === 0 && <span className="star" role="img" aria-label="Main photo">★</span>}
+            {before + i === 0 && <span className="star" role="img" aria-label="Main photo">★</span>}
           </li>
         ))}
         {!sending && <li><button className="prize-add" onClick={onAdd}>+ Add more</button></li>}
@@ -182,9 +198,11 @@ export function PrizeCheck({ picked, text, progress, failed, onAdd, onRemove, on
         <>
           {failed
             ? <p className="error">Your photos didn't finish sending. Nothing was submitted. Check your Wi-Fi and try again.</p>
+            : adding ? <p className="slot-hint">{completed ? "🔒 The party is completed. New photos join the end of your prize, and can't be taken off once they're sent."
+                : "Your prize has been presented. New photos join the end, and can't be taken off once they're sent."}</p>
             : <p className="slot-hint">★ The first photo is the one on the big screen at the end. Drag ≡ to change the order.</p>}
-          <button className="big" onClick={onSubmit}>{failed ? "Try again" : `Submit ${n} ${n === 1 ? "photo" : "photos"}`}</button>
-          <p className="slot-hint">{WHO_SEES}</p>
+          <button className="big" onClick={onSubmit}>{failed ? "Try again" : `${adding ? "Add" : "Submit"} ${n} ${n === 1 ? "photo" : "photos"}`}</button>
+          <p className="slot-hint">{adding ? "The host sees them, and they go in the party's download." : WHO_SEES}</p>
         </>
       )}
     </GuestCard>
@@ -195,9 +213,9 @@ export function PrizeCheck({ picked, text, progress, failed, onAdd, onRemove, on
  * Submitted: a still receipt, no gold button. The photos as on the check screen, in their order with the
  * ★, but with nothing to press on them. Sam can still change them until their prize is presented, so
  * "Change my photos" goes back to the check screen with these photos on it. `locked`: presented, so
- * the link gives way to the lock.
+ * the link gives way to the lock, and "+ Add more photos" (`onAdd`) opens the picker to add to the end.
  */
-export function PrizeReceipt({ photos, text, onChange, locked }: { photos: string[]; text?: string; onChange?: () => void; locked?: boolean }) {
+export function PrizeReceipt({ photos, text, onChange, locked, onAdd }: { photos: string[]; text?: string; onChange?: () => void; locked?: boolean; onAdd?: () => void }) {
   const n = photos.length;
   return (
     <GuestCard label="Prize task" title="Your prize photos">
@@ -211,7 +229,12 @@ export function PrizeReceipt({ photos, text, onChange, locked }: { photos: strin
           </li>
         ))}
       </ul>
-      {locked ? <p className="slot-hint">{n ? `${n} ${n === 1 ? "photo" : "photos"}. ` : ""}🔒 Your prize has been presented.</p> : (
+      {locked ? (
+        <>
+          <p className="slot-hint">{n ? `${n} ${n === 1 ? "photo" : "photos"}. ` : ""}🔒 Your prize has been presented.</p>
+          {onAdd && <button className="link" onClick={onAdd}>+ Add more photos</button>}
+        </>
+      ) : (
         <>
           <p className="slot-hint">{n} {n === 1 ? "photo" : "photos"}. {WHO_SEES}</p>
           <button className="link" onClick={onChange}>Change my photos</button>

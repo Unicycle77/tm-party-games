@@ -1,4 +1,4 @@
-import { ref, runTransaction, set } from "firebase/database";
+import { get, ref, runTransaction, set, update } from "firebase/database";
 import { db, storage } from "../../firebase";
 import { shrinkImage } from "../../media";
 import { shownTotals } from "../../scoreboard/scoring";
@@ -103,6 +103,23 @@ export async function submitPrize(code: string, uid: string, id: string, picks: 
   }, signal)));
   const uploaded = new Map(files.map((p, n) => [p, urls[n]!]));
   await set(photosAt(code, id), picks.map((p) => uploaded.get(p) ?? p.url));
+}
+
+/**
+ * A guest adds to a prize that's been presented: the new photos go up together, then join the end, each in a
+ * place of its own. Once presented, a guest's phone only ever adds (the database refuses anything else), so the
+ * photos the room saw, and the ★, stay as they were.
+ */
+export async function appendPrize(code: string, uid: string, id: string, files: File[],
+  onProgress: (fraction: number) => void, signal?: AbortSignal): Promise<void> {
+  const sent = files.map(() => 0);
+  onProgress(0);
+  const urls = await Promise.all(files.map((file, n) => uploadPhoto(code, uid, file, n, (f) => {
+    sent[n] = f;
+    onProgress(sent.reduce((a, b) => a + b, 0) / sent.length);
+  }, signal)));
+  const now = ((await get(photosAt(code, id))).val() ?? []) as string[];
+  await update(photosAt(code, id), Object.fromEntries(urls.map((url, n) => [String(now.length + n), url])));
 }
 
 /** Changes a prize's photos in one go, so photos a guest or another phone adds meanwhile aren't lost. */

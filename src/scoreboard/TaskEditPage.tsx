@@ -6,7 +6,7 @@ import { asList, asNums, fmt } from "../JukeboxRemote";
 import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
-import { editTask, editTiebreaker, setCheckinTask, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
+import { editTask, editTiebreaker, lockedAt, setCheckinTask, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
 import { isMeasured, overLine } from "./measured";
 import { asParts, gameName, scored, titleOf } from "./tasks";
 import { TaskTextField, TaskTypeField, TIEBREAKER_TYPE, typeOf } from "./TaskText";
@@ -142,6 +142,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   }
 
   const saved = unitOf(unit);
+  const locked = lockedAt(board) !== undefined;
   const loud = unit.kind === "loudness";
   const flip = task.game === "flipchart";
   // The words follow what they draw, until the host has written their own.
@@ -155,6 +156,8 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
     if (lost && !confirm(`Score "${titleOf(task)}" by its numbers? Points given by hand to anyone without a number are cleared.`)) return;
     const line = Number(dqOver.replace(",", "."));
     const over = saved?.kind === "loudness" && dqOver.trim() !== "" && Number.isFinite(line) ? line : undefined;
+    // A locked party: the words and the song can change, but scoring it another way asks first.
+    if (locked && (rescored || over !== task.dqOver) && !confirm(`The party is completed. Saving changes how "${titleOf(task)}" is scored, so its points can change. Save anyway?`)) return;
     if (flip) void editFlipchart(code, id, draw, minutes);
     void editTransition(code, id, transition);
     if (checkin !== !!task.checkin) void setCheckinTask(code, board, id, checkin && !!text.trim());
@@ -295,7 +298,9 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
         <button className="big" disabled={!task.game && !name.trim()} onClick={save}>Save</button>
         <button className="link" onClick={onBack}>Cancel</button>
       </div>
-      {!tiebreaker && <button className="link" onClick={drop}>Remove this task</button>}
+      {!tiebreaker && (locked
+        ? <p className="muted small locked-line">🔒 The party is completed, so this task stays on the list. Unlock the party on Run of show to remove it.</p>
+        : <button className="link" onClick={drop}>Remove this task</button>)}
     </div>
   );
 }

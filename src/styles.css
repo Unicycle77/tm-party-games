@@ -1125,6 +1125,11 @@ button.help-q:active { transform: none; box-shadow: none; }
 .sb-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 /* names are short, so a narrow name column keeps each contestant on one line, with "now N" under the name; DQ sits by the name */
 .sb-rows li { display: grid; grid-template-columns: 4.5rem 3rem 1fr 3rem; align-items: center; gap: 0.6rem; }
+/* A locked party (partyLock.tsx): the points given stay at full strength, the rest fade back; a tap's line goes under the row */
+.sb-points.locked .sb-rows .choices button:not([aria-pressed="true"]), .sb-points.locked .sb-result { opacity: 0.35; }
+.sb-rows li.sb-locked { display: block; }
+.locked-line { margin: 0; }
+button.link.locked { opacity: 0.55; }
 .sb-name { display: grid; line-height: 1.2; font-family: var(--typewriter); color: var(--fg); overflow-wrap: anywhere; }
 .sb-chips { flex-wrap: nowrap; }
 .sb-chips button { flex: 1 1 0; min-width: 2.4rem; padding: 0.55rem 0; text-align: center; font-size: 1.05rem; }
@@ -1304,6 +1309,10 @@ button.help-q:active { transform: none; box-shadow: none; }
 .task-page.has-bar { padding-bottom: 9rem; }
 /* "Show the task" while its text is up: gold, pressed in like a marked chip */
 button.big.pressed { transform: translateY(2px); box-shadow: inset 0 3px 6px #0008; filter: brightness(0.85); }
+
+/* A completed party (see LockedSlot): the red stamp on paper, under the party line; and the offer to lock it after the haul. */
+.party-lock { gap: 0.5rem; padding: 0.8rem 1rem; }
+.party-lock > button:not(.link) { justify-self: start; }
 
 /* Run of show: the next task on a paper card, with the night's gold button */
 .up-next { background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); border-radius: 6px; padding: 0.9rem 1rem 1rem; display: grid; gap: 0.4rem; box-shadow: 0 4px 10px #0008; }

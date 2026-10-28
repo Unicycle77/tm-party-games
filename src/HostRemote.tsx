@@ -8,6 +8,7 @@ import { stingFiles } from "./sting";
 import { joinUrlFor } from "./firebase";
 import { activeGame } from "./games";
 import { partsOf, wordsOfTask } from "./scoreboard/TaskText";
+import { LockedLine, useTaskLock } from "./scoreboard/partyLock";
 import { showScoreboard } from "./scoreboard/data";
 import { list, pendingIds, sorted, titleOf } from "./scoreboard/tasks";
 import { endSting, noBigScreen, setDisplay, setJukeboxState, setShowQr, setUnlocked, showContestant } from "./session";
@@ -195,6 +196,9 @@ export function JoinQr({ code, session }: { code: string; session: Session }) {
  * `head`: the page's top, for games that lay it out themselves (Noisemaster's columns).
  */
 export function GameControls({ code, session, quiet, head }: { code: string; session: Session; quiet?: boolean; head?: ReactNode }) {
+  const lock = useTaskLock();
+  // Whose 🔒 was tapped on a locked party: the line under the list says why they can't resubmit.
+  const [tapped, setTapped] = useState<string>();
   const game = activeGame(session);
   if (!game) return null;
   const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
@@ -264,12 +268,15 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
               </button>
               {collecting && !game.Round && (s === "submitted"
                 ? <button className="lock" aria-label={unlocked ? `Lock ${p.name}'s entry` : `Let ${p.name} resubmit`}
-                    onClick={() => void setUnlocked(code, game.id, uid, !unlocked)}>{unlocked ? "🔓" : "🔒"}</button>
+                    onClick={() => lock.locked ? setTapped(uid) : void setUnlocked(code, game.id, uid, !unlocked)}>{unlocked ? "🔓" : "🔒"}</button>
                 : <span className="lock" aria-hidden />)}
             </li>
           );
         })}
       </ul>
+      {lock.locked && tapped && session.players?.[tapped] && (
+        <LockedLine what={`${session.players[tapped]!.name}'s entry stays as it is`} to={`let ${session.players[tapped]!.name} resubmit`} />
+      )}
       <game.HostLobby code={code} session={session} display={display} />
     </>
   );

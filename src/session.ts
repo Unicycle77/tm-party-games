@@ -145,6 +145,7 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   if (!(await get(ref(db(), `sessions/${code}/hostUid`))).exists()) {
     throw new JoinError(`No session found for code ${code}.`);
   }
+  if (typeof (await get(ref(db(), `sessions/${code}/scoreboard/locked`))).val() === "number") throw new JoinError(await overLine(code));
   const players = ((await get(ref(db(), `sessions/${code}/players`))).val() ?? {}) as Record<string, Player>;
   const clash = Object.entries(players).find(([uid, p]) => uid !== user.uid && sameName(p.name, name));
   if (clash) throw new SameNameError(clash[1].name);
@@ -169,6 +170,10 @@ export async function joinSession(rawCode: string, rawName: string): Promise<str
   return code;
 }
 
+/** What a locked party says to anyone new trying to join. */
+export const partyOver = (name: string | undefined) => `${name ?? "This party"} is over, so nobody new can join.`;
+const overLine = async (code: string) => partyOver((await get(ref(db(), `sessions/${code}/name`))).val() ?? undefined);
+
 /** The name a guest tapped is already checked in on another phone: maybe theirs (see askToMove). */
 /** A party with no host pin whose remote is on another phone: this one can ask it to hand over. */
 export class RemoteTakenError extends JoinError {
@@ -189,6 +194,8 @@ export async function joinAsContestant(rawCode: string, id: string): Promise<str
   const guest = session.scoreboard?.contestants?.[id];
   if (!guest) throw new JoinError("That name isn't on the list any more. Ask the host.");
   if (guest.uid && guest.uid !== user.uid && session.players?.[guest.uid]) throw new TakenError(guest.name);
+  // A locked party takes nobody new: only a guest who's in already, moving phones (above, through the host).
+  if (typeof session.scoreboard?.locked === "number" && !session.players?.[user.uid]) throw new JoinError(partyOver(session.name));
   if (!session.players?.[user.uid]) await clearSubmissions(code, user.uid);
   await update(ref(db(), `sessions/${code}`), {
     [`scoreboard/contestants/${id}/uid`]: user.uid,
