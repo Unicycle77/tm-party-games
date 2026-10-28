@@ -31,7 +31,7 @@ export function HostLobby({ code, session, display, head }: { code: string; sess
   }
 
   async function add(id: string, files: File[]) {
-    if (!uid || !files.length) return;
+    if (!uid || !files.length || !sureToAdd(session, id, files.length)) return;
     const sent = files.map(() => 0);
     setSending({ id, sent: [...sent] });
     try {
@@ -46,7 +46,7 @@ export function HostLobby({ code, session, display, head }: { code: string; sess
   const url = (id: string, i: number) => photos[id]?.[i];
   return (
     <>
-      <PrizePresenting head={head} entries={entries} presenting={presenting} presented={presentedOf(session)} up={up}
+      <PrizePresenting head={head} entries={entries} completed={completed(session)} presenting={presenting} presented={presentedOf(session)} up={up}
         sending={sending && sending.id === presenting ? sending.sent.filter((f) => f < 1) : []}
         onPick={pick}
         onShow={(id, i) => void showPrizePhoto(code, id, i)}
@@ -90,7 +90,7 @@ export function PrizesBefore({ code, session }: { code: string; session: Session
   const n = entries.filter(([id]) => photos[id]?.length).length;
 
   async function add(id: string, files: File[]) {
-    if (!uid || !files.length) return;
+    if (!uid || !files.length || !sureToAdd(session, id, files.length)) return;
     const sent = files.map(() => 0);
     setSending({ id, sent: [...sent] });
     try {
@@ -130,19 +130,30 @@ export function PrizesBefore({ code, session }: { code: string; session: Session
 
 export interface PrizeEntry { id: string; name: string; photos: string[] }
 
+/** A locked party: the host can still change prize photos, after a confirm that leads with the lock. */
+const completed = (session: Session) => typeof session.scoreboard?.locked === "number";
+const LOCKED = "The party is completed.";
+
+function sureToAdd(session: Session, id: string, n: number) {
+  const name = session.scoreboard?.contestants?.[id]?.name ?? "this guest";
+  return !completed(session) || confirm(`${LOCKED} Add ${n} ${n === 1 ? "photo" : "photos"} to ${name}'s prize?`);
+}
+
 /**
  * The host remote during the prize task. One list of contestants in no set order, since the host talks
  * to whoever they like next: no gold "Next". Tapping a name starts presenting that prize (locking the
  * guest's phone) and opens its previews beside the list, in the guest's order with the ★ on the first.
  * Nothing goes on the big screen until a preview is tapped; the one up is gold, as the stage's current
  * step is. Tapping another name switches straight to them. "+ Add photos" lets the host photograph a
- * prize in the room (only the host can add to a prize once it's presented): new photos join the end,
+ * prize in the room (once it's presented, guests can only add to it, and the host tidies it): new photos join the end,
  * each as a tile with its progress until it's sent, so the ★ stays on the guest's first. A prize with
  * no photos gets its first, and its ★, this way. The host can also tidy a prize: ✕ removes a photo (asking
  * first, since it's the guest's; never the one on the big screen), and ☆ on any other photo moves the ★
  * to it, which makes it the first.
  */
-export function PrizePresenting({ head, entries, presenting, presented, up, sending = [], onPick, onShow, onAdd, onRemove, onStar, onLower }: {
+export function PrizePresenting({ head, entries, completed, presenting, presented, up, sending = [], onPick, onShow, onAdd, onRemove, onStar, onLower }: {
+  /** A locked party: removing and ★ ask first, leading with the lock. */
+  completed?: boolean;
   /** The task's name, the way back to the run of show and what's on the big screen, over the list. */
   head?: ReactNode;
   entries: PrizeEntry[];
@@ -194,9 +205,10 @@ export function PrizePresenting({ head, entries, presenting, presented, up, send
                         <img src={url} alt="" />
                       </button>
                       <button className="x" disabled={isUp} aria-label={`Remove photo ${i + 1}`}
-                        onClick={() => confirm(`Remove this photo from ${current.name}'s prize?`) && onRemove(current.id, i)}>✕</button>
+                        onClick={() => confirm(completed ? `${LOCKED} Remove this photo from ${current.name}'s prize? It can't be put back.`
+                          : `Remove this photo from ${current.name}'s prize?`) && onRemove(current.id, i)}>✕</button>
                       {i === 0 ? <span className="star" role="img" aria-label="Main photo">★</span>
-                        : <button className="unstar" aria-label={`Make photo ${i + 1} the main photo`} onClick={() => onStar(current.id, i)}>☆</button>}
+                        : <button className="unstar" aria-label={`Make photo ${i + 1} the main photo`} onClick={() => (!completed || confirm(`${LOCKED} Make this ${current.name}'s main photo? It's the one the prize haul shows.`)) && onStar(current.id, i)}>☆</button>}
                     </div>
                     <span className="muted small">{isUp ? "on the big screen" : " "}</span>
                   </li>

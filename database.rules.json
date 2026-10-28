@@ -25,7 +25,7 @@
         },
         "players": {
           "$uid": {
-            ".write": "auth != null && (auth.uid === $uid || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+            ".write": "auth != null && ((auth.uid === $uid && (!root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() || (data.exists() && newData.exists()))) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
             "name": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20"
             }
@@ -35,7 +35,7 @@
           "beforeAfter": {
             "media": {
               "$uid": {
-                ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || !(data.child('before').exists() && data.child('after').exists()) || root.child('sessions').child($code).child('games').child('beforeAfter').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && (!newData.exists() || !(data.child('before').exists() && data.child('after').exists()) || root.child('sessions').child($code).child('games').child('beforeAfter').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
               }
             },
             "unlocked": {
@@ -57,7 +57,7 @@
           "photos": {
             "media": {
               "$uid": {
-                ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || !data.child('photo').exists() || root.child('sessions').child($code).child('games').child('photos').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && (!newData.exists() || !data.child('photo').exists() || root.child('sessions').child($code).child('games').child('photos').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)"
               }
             },
             "unlocked": {
@@ -86,13 +86,13 @@
           "flipchart": {
             "pages": {
               "$uid": {
-                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('games').child('flipchart').child('closed').exists() && (!root.child('sessions').child($code).child('games').child('flipchart').child('submitted').child($uid).exists() || root.child('sessions').child($code).child('games').child('flipchart').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && !root.child('sessions').child($code).child('games').child('flipchart').child('closed').exists() && (!root.child('sessions').child($code).child('games').child('flipchart').child('submitted').child($uid).exists() || root.child('sessions').child($code).child('games').child('flipchart').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
                 "$p": { ".validate": "$p.matches(/^p([1-9]|1[0-6])$/) && newData.isString() && newData.val().length <= 120000" }
               }
             },
             "submitted": {
               "$uid": {
-                ".write": "auth != null && ((auth.uid === $uid && !data.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".write": "auth != null && ((auth.uid === $uid && !data.exists() && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
                 ".validate": "newData.val() === true"
               }
             },
@@ -139,7 +139,10 @@
             "photos": {
               "$id": {
                 ".write": "auth != null && ((root.child('sessions').child($code).child('scoreboard').child('contestants').child($id).child('uid').val() === auth.uid && root.child('sessions').child($code).child('games').child('prize').child('presented').child($id).val() !== true) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-                "$i": { ".validate": "$i.matches(/^[0-9]+$/) && newData.isString() && newData.val().length <= 2000" }
+                "$i": {
+                  ".write": "auth != null && root.child('sessions').child($code).child('scoreboard').child('contestants').child($id).child('uid').val() === auth.uid && root.child('sessions').child($code).child('games').child('prize').child('presented').child($id).val() === true && !data.exists() && newData.exists()",
+                  ".validate": "$i.matches(/^[0-9]+$/) && newData.isString() && newData.val().length <= 2000"
+                }
               }
             },
             "presented": {
@@ -472,14 +475,14 @@
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
           "contestants": {
             "$id": {
-              ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+              ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()",
               "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" },
               "photo": {
-                ".write": "auth != null && data.parent().child('uid').val() === auth.uid",
+                ".write": "auth != null && data.parent().child('uid').val() === auth.uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()",
                 ".validate": "newData.isString() && newData.val().length <= 2000"
               },
               "crop": {
-                ".write": "auth != null && data.parent().child('uid').val() === auth.uid && !newData.exists()",
+                ".write": "auth != null && data.parent().child('uid').val() === auth.uid && !newData.exists() && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()",
                 ".validate": "newData.hasChildren(['x', 'y', 'w', 'h'])",
                 "$k": { ".validate": "($k === 'x' || $k === 'y' || $k === 'w' || $k === 'h') && newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" }
               },
@@ -540,6 +543,7 @@
           "shown": { "$task": { "$cid": { ".validate": "newData.isNumber()" } } },
           "pixelate": { ".validate": "newData.val() === false" },
           "final": { ".validate": "newData.val() === true" },
+          "locked": { ".validate": "newData.isNumber() || newData.val() === false" },
           "tiebreaker": {
             "name": { ".validate": "newData.isString() && newData.val().length <= 80" },
             "description": { ".validate": "newData.isString() && newData.val().length <= 600" },

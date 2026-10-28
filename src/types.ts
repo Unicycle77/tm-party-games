@@ -449,6 +449,11 @@ export interface Scoreboard {
   /** The host has declared the winner: the night is decided on the tasks scored so far, unscored ones and all. */
   final?: boolean;
   /**
+   * The host locked the party once the night was over (when, ms): scores, entries and guests stay as they are; guests
+   * can still add prize photos. `false` once unlocked again from Run of show (so it can say so), absent if never locked.
+   */
+  locked?: number | false;
+  /**
    * The tiebreaker task, played only when the last update leaves a tie at the top, by just the tied
    * contestants. It has one winner and no points, so nobody's total changes.
    */

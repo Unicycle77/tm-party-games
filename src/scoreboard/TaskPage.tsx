@@ -13,8 +13,9 @@ import { limitsOf, timeLabel } from "../clock/timesIn";
 import { useServerOffset } from "../games/noisemaster/data";
 import { ReplayStrip } from "./ReplayStrip";
 import type { GameId, Session } from "../types";
-import { lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
+import { lockedAt, lowerCurtain, setTiebreakerWinner, showOnPhones, showTaskText, startSting, startTask, takeDownPhones } from "./data";
 import { Points } from "./Points";
+import { LockedLine, TaskLockContext, type TaskLock } from "./partyLock";
 import { activeTaskId, list, scored, titleOf } from "./tasks";
 import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
 
@@ -174,6 +175,9 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   const textOn = session.display?.step === "tasktext" && session.display.task === id;
   // Once the words have been up, the gold moves on to the game's next step.
   const [textSeen, setTextSeen] = useState(textOn);
+  // A locked party: this task unlocked on this page only (leaving it locks it again), and a tap on Start while locked.
+  const [unlocked, setUnlocked] = useState<string>();
+  const [startTapped, setStartTapped] = useState(false);
   if (!task) {
     return (
       <section className="remote task-page">
@@ -192,6 +196,16 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   const secret = task.game === "secretTasks";
   const textFirst = !secret && !!task.text && !rows && !textSeen && !textOn;
   const startable = task.game && task.game !== "light" && !playing;
+  const partyLocked = lockedAt(board) !== undefined;
+  const lock: TaskLock = {
+    locked: partyLocked && unlocked !== id,
+    open: partyLocked && unlocked === id,
+    title: titleOf(task),
+    unlock: () => {
+      if (confirm(`Unlock ${titleOf(task)}? Its points${task.game ? " and entries" : ""} can change until you leave this page. The rest of the party stays locked.`)) setUnlocked(id);
+    },
+    relock: () => setUnlocked(undefined),
+  };
   const top = (
     <>
       <button className="link back" onClick={onBack}>← Run of show</button>
@@ -211,18 +225,22 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
       {!rows && <StartClock code={code} session={session} id={id} />}
       {startable && (
-        <button className={!scored(task) && !textFirst ? "big" : undefined} onClick={() => void beginTask(code, session, id)}>
+        <button className={!scored(task) && !textFirst && !lock.locked ? "big" : undefined}
+          onClick={() => lock.locked ? setStartTapped(true) : void beginTask(code, session, id)}>
           ▶ Start {titleOf(task)}
         </button>
       )}
+      {startable && lock.locked && startTapped && <LockedLine what={`${titleOf(task)} stays as it ended`} to="start it again" />}
       {task.game === "prize" && !playing && <PrizesBefore code={code} session={session} />}
     </>
   );
   return (
-    <section className="remote task-page">
-      {game ? <GameControls code={code} session={session} quiet={textFirst} head={top} /> : top}
-      <Points code={code} session={session} board={board} onScreen={session.display?.step === "scoreboard"} id={id} onDone={onBack} onLight={onLight} />
-    </section>
+    <TaskLockContext.Provider value={lock}>
+      <section className="remote task-page">
+        {game ? <GameControls code={code} session={session} quiet={textFirst} head={top} /> : top}
+        <Points code={code} session={session} board={board} onScreen={session.display?.step === "scoreboard"} id={id} onDone={onBack} onLight={onLight} />
+      </section>
+    </TaskLockContext.Provider>
   );
 }
 
@@ -274,7 +292,11 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
   const now = standing(session);
   const winner = now && "winner" in now ? now.winner : undefined;
   const tbParts = partsOf(tb && tiebreakerWords(tb));
+  // On a locked party the winner stays: a tap says so (the tiebreaker has no lock of its own; the party unlocks on Run of show).
+  const locked = lockedAt(board) !== undefined;
+  const [tapped, setTapped] = useState(false);
   const won = (id: string) => {
+    if (locked) { setTapped(true); return; }
     void setTiebreakerWinner(code, tb?.winner === id ? null : id);
     // Back up to the haul, which is what's next.
     if (tb?.winner !== id) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -295,7 +317,9 @@ export function TiebreakerPage({ code, session, onBack }: { code: string; sessio
       {tbParts.length > 0 && <PartCards code={code} session={session} task="tiebreaker" parts={tbParts} phones />}
       {/* Fixed to the bottom, so whoever says it first is one tap away however far the story has scrolled. */}
       <div className="sb-won-bar">
-        <p className="muted small">Tap who won.</p>
+        {locked && tapped
+          ? <p className="muted small">🔒 The party is completed, so {tb?.winner ? `the tiebreaker stays with ${nameOf(tb.winner)}` : "the tiebreaker stays as it is"}. Unlock the party on <button className="link" onClick={onBack}>Run of show</button> to change it.</p>
+          : <p className="muted small">Tap who won.</p>}
         <ul className="picker running">
           {tied.map((id) => (
             <li key={id} className={tb?.winner === id ? "up" : ""}>

@@ -191,6 +191,21 @@ function Sheet() {
               </ul>
             </div>
             <Cap>Run of show's task list (<code>.run-list</code>): read-only, one short state on the right; scored quiet, next <code>--gold-bright</code>; tap opens the task</Cap>
+            <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
+              <section className="sb-points locked">
+                <p className="muted small">6 of 6 scored · 🔒 locked</p>
+                <ul className="sb-rows">
+                  <li>
+                    <span className="sb-name">Sam<span className="muted small sb-now">now 29</span></span>
+                    <div className="choices marks sb-dq"><button aria-pressed={false}>DQ</button></div>
+                    <div className="choices marks sb-chips">{[1, 2, 3, 4, 5].map((n) => <button key={n} aria-pressed={n === 2}>{n}</button>)}</div>
+                    <div className="choices marks sb-bonus"><button aria-pressed={false}>+1</button></div>
+                  </li>
+                  <li className="sb-locked"><p className="muted small locked-line">🔒 The party is completed, so Sam stays on 2. <button className="link">Unlock Dice tower</button> to change it.</p></li>
+                </ul>
+              </section>
+            </div>
+            <Cap>Locked (a completed party, <code>.sb-points.locked</code>): what was given stays, the rest fades; a tap explains under the row (<code>LockedLine</code>)</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12, display: "grid", gap: 4 }}>
               <div className="summary-line"><span>Halloween party<span className="muted small"> · portrait set · pin set</span></span><button className="link">Change</button></div>
               <div className="summary-line"><span>♪ Song<span className="muted small"> · Eye of the Tiger · 4:05</span></span><button className="link">Change</button></div>
@@ -277,6 +292,13 @@ function Sheet() {
               </div>
             </Item>
             <Item cap={<><code>.stamp</code>: the one look for "done", with ✓ and words</>}><div style={{ display: "flex", gap: 16 }}><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ Submitted</span><span className="stamp" style={{ fontSize: "1.2rem" }}>✓ You're in</span></div></Item>
+            <Item cap={<><code>.slot.party-lock</code>: a locked party's slot on Run of show, the stamp on paper, a quiet way to unlock</>}>
+              <div className="slot party-lock">
+                <span className="stamp">✓ Completed</span>
+                <p className="slot-hint">🔒 Locked Oct 31. Points, entries and guests stay as they are. Adding or removing a photo asks first.</p>
+                <button className="link">Unlock to change something</button>
+              </div>
+            </Item>
           </Sec>
           <Sec title="Aged paper" note="a task's words, never UI">
             <TaskCard small lines={["Task 2 · Build the tallest tower", "Build the tallest tower you can out of dry spaghetti and marshmallows.", "Fastest wins. You have ten minutes. Your time starts now."]} />

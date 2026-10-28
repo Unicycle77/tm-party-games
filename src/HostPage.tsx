@@ -265,6 +265,13 @@ function ResetScores({ code, session }: { code: string; session: Session }) {
   const [guests, setGuests] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  // A locked party can't be reset: the link stays, faded, and a tap says why (it's unlocked on Run of show).
+  const [tapped, setTapped] = useState(false);
+  if (typeof session.scoreboard?.locked === "number") {
+    return tapped
+      ? <p className="muted small locked-line">🔒 The party is completed, so it can't be reset. Unlock it on Run of show to reset it.</p>
+      : <button className="link locked" onClick={() => setTapped(true)}>Reset scores…</button>;
+  }
   if (!open) return <button className="link" onClick={() => setOpen(true)}>Reset scores…</button>;
   const tasks = Object.keys(session.scoreboard?.tasks ?? {}).length;
   const joined = Object.keys(session.players ?? {}).length;

@@ -1,12 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { JoinQr, OnScreen } from "../HostRemote";
 import { activeGame } from "../games";
-import { prizesIn, showHaul, standing } from "../games/prize/data";
+import { haulWinner, prizesIn, showHaul, standing } from "../games/prize/data";
 import { rulesOf } from "../rules";
 import { noBigScreen } from "../session";
 import type { Session } from "../types";
 import { cropFill } from "./crop";
-import { declareWinner, lowerCurtain, showRules, showScoreboard, updateScores } from "./data";
+import { declareWinner, lockedAt, lockParty, lowerCurtain, showRules, showScoreboard, unlockParty, updateScores } from "./data";
 import { beginTask } from "./TaskPage";
 import { activeTaskId, allScored, list, pendingIds, scored, sorted, titleOf, upNextOf } from "./tasks";
 import { transitionLine } from "./TransitionField";
@@ -38,6 +38,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
   const nameOf = (id: string) => board?.contestants?.[id]?.name ?? "";
   const unscored = tasks.filter(([, t]) => !scored(t)).map(([, t]) => titleOf(t));
   const final = !!board?.final;
+  const locked = lockedAt(board) !== undefined;
   const adHoc = !activeTaskId(session) ? activeGame(session) : undefined;
   // Until the first task starts (its first points, or ▶ Start) the page is about who's here. Entrances are scored as guests arrive, so the arrival task's points don't count.
   const arrivals = !tasks.some(([, t]) => scored(t) && !t.checkin) && !activeTaskId(session) && !up && !haulUp;
@@ -78,14 +79,16 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         <p className="muted small party-line">{session.name ? `${session.name} · ` : ""}{code}</p>
         <JoinQr code={code} session={session} />
       </div>
+      <LockedSlot code={code} session={session} />
       <OnScreen code={code} session={session} chip={rulesChip && (
         <button className="line-chip-button under" onClick={() => void showRules(code)}>Show rules</button>
       )} />
       {noBigScreen(session) && <p className="muted small">On the night, open the big screen and resume party {code}.</p>}
       {scores}
+      <LockOffer code={code} session={session} haulUp={haulUp} />
       {!haulUp && unscored.length > 0 && (final ? (
         <p className="muted small">
-          Declaring the winner with {list(unscored)} unscored. <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button>
+          Declaring the winner with {list(unscored)} unscored.{!locked && <> <button className="link" onClick={() => void declareWinner(code, false)}>Not yet</button></>}
         </p>
       ) : up && !pending.length && (
         <p className="muted small">The prize haul comes once every task has points. Still none for {list(unscored)}. Or end the night now, below the list.</p>
@@ -95,7 +98,7 @@ export function RunOfShow({ code, session, onOpen, onTiebreak, footer }: {
         : <UpNext code={code} session={session} quiet={!!scores} onOpen={onOpen} />}
       <TaskList session={session} onOpen={onOpen} />
       {/* The night can end before every task is played: one last update, then the haul. */}
-      {!final && !haulUp && unscored.length > 0 && tasks.some(([, t]) => scored(t)) && (
+      {!final && !locked && !haulUp && unscored.length > 0 && tasks.some(([, t]) => scored(t)) && (
         <button className="link end-night" onClick={() => { void declareWinner(code); window.scrollTo(0, 0); }}>End the night now: declare the winner</button>
       )}
       <div className="run-links">
@@ -128,7 +131,8 @@ function UpNext({ code, session, quiet, onOpen }: { code: string; session: Sessi
   // Greyed, with the reason, when the main screen can't play it; Start still works.
   const sting = open ? undefined : transitionLine(session, task);
   const go = () => {
-    if (open) onOpen(next.id);
+    // On a locked party nothing starts again: the page opens, to read.
+    if (open || lockedAt(board) !== undefined) onOpen(next.id);
     else void beginTask(code, session, next.id).then(() => onOpen(next.id));
   };
   return (
@@ -180,6 +184,55 @@ function TaskList({ session, onOpen }: { session: Session; onOpen: (id: string) 
         })}
       </ul>
     </section>
+  );
+}
+
+/** The day a party was locked, as it's said on its slot ("Oct 31"). */
+const dayOf = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+/**
+ * At the top of a locked party: the red stamp and what the lock keeps, with a quiet way to unlock the whole party
+ * (for guests or a reset; one task unlocks on its own page). Once unlocked, it says so until the party is locked again.
+ */
+function LockedSlot({ code, session }: { code: string; session: Session }) {
+  const board = session.scoreboard;
+  const at = lockedAt(board);
+  if (at !== undefined) {
+    const unlock = () => {
+      if (confirm("Unlock the party? Points, entries and guests can change again until you lock it.")) void unlockParty(code);
+    };
+    return (
+      <div className="slot party-lock">
+        <span className="stamp">✓ Completed</span>
+        <p className="slot-hint">🔒 Locked {dayOf(at)}. Points, entries and guests stay as they are. Adding or removing a photo asks first.</p>
+        <button className="link" onClick={unlock}>Unlock to change something</button>
+      </div>
+    );
+  }
+  if (board?.locked !== false) return null;
+  return (
+    <div className="slot party-lock">
+      <p className="slot-hint">🔓 Unlocked. Lock it again when you're done.</p>
+      <button onClick={() => void lockParty(code)}>🔒 Lock the party</button>
+    </div>
+  );
+}
+
+/**
+ * The end of the night, once the winner is decided and the party isn't locked yet: while the haul is up, the offer to
+ * lock it, under the haul's own buttons (locking never changes the big screen); after that, or after "Not yet", a quiet
+ * link in the same place. Locking only protects, so it doesn't ask.
+ */
+function LockOffer({ code, session, haulUp }: { code: string; session: Session; haulUp: boolean }) {
+  const [later, setLater] = useState(false);
+  if (session.scoreboard?.locked !== undefined || !haulWinner(session)) return null;
+  if (!haulUp || later) return <button className="link" onClick={() => void lockParty(code)}>🔒 Lock the party</button>;
+  return (
+    <div className="slot party-lock">
+      <p className="slot-hint">That's the night. Lock the party so nothing changes by accident? Guests can still add prize photos.</p>
+      <button onClick={() => void lockParty(code)}>🔒 Lock the party</button>
+      <button className="link" onClick={() => setLater(true)}>Not yet</button>
+    </div>
   );
 }
 
