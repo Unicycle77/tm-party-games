@@ -16,7 +16,7 @@ import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
 const SHOWING: Partial<Record<Display["step"], string>> = {
-  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait",
+  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait", acetate: "acetate",
 };
 
 /**
@@ -235,7 +235,7 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
   const shownCount = ready.filter(([uid]) => shown[uid]).length;
   const next = ready.find(([uid]) => !shown[uid]);
   const everyone = !collecting && ready.length > 0 && !next;
-  // A timed round (Flipchart) has its own gold control until it's over, and nobody is shown before then.
+  // A timed round (Flipchart, Acetate) has its own gold control until it's over, and nobody is shown before then.
   const hold = game.canShow?.(session) === false;
 
   return (

@@ -4,6 +4,7 @@ import { endSting } from "../session";
 import { draftOf, unitOf, UnitField } from "../conversions/UnitField";
 import { asList, asNums, fmt } from "../JukeboxRemote";
 import { DEFAULT_DRAW, MINUTES, drawOf, editFlipchart, flipchartWords, minutesOf } from "../games/flipchart/data";
+import { DEFAULT_DRAW as ACETATE_DRAW, acetateWords, drawOf as acetateDrawOf, editAcetate } from "../games/acetate/data";
 import { SongField } from "../SongStrip";
 import type { ScoreboardTask, Session } from "../types";
 import { editTask, editTiebreaker, lockedAt, setCheckinTask, editTransition, enterPoints, removeTask, setScoring, type TaskEntry } from "./data";
@@ -145,9 +146,11 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
   const locked = lockedAt(board) !== undefined;
   const loud = unit.kind === "loudness";
   const flip = task.game === "flipchart";
+  const acetate = task.game === "acetate";
   // The words follow what they draw, until the host has written their own.
-  const flipText = flip && text.trim() === flipchartWords(drawOf(task)) ? flipchartWords(draw) : text;
-  const words = { type, text: flip ? flipText : text, limit, parts: parts.map(({ type, text, limit }) => ({ type, text, limit })) };
+  const followed = flip && text.trim() === flipchartWords(drawOf(task)) ? flipchartWords(draw)
+    : acetate && text.trim() === acetateWords(acetateDrawOf(task)) ? acetateWords(draw) : text;
+  const words = { type, text: followed, limit, parts: parts.map(({ type, text, limit }) => ({ type, text, limit })) };
   const save = () => {
     if (tiebreaker) { void editTiebreaker(code, name, description, song, words); onBack(); return; }
     const rescored = !task.game && scoring !== task.scoring;
@@ -159,6 +162,7 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
     // A locked party: the words and the song can change, but scoring it another way asks first.
     if (locked && (rescored || over !== task.dqOver) && !confirm(`The party is completed. Saving changes how "${titleOf(task)}" is scored, so its points can change. Save anyway?`)) return;
     if (flip) void editFlipchart(code, id, draw, minutes);
+    if (acetate) void editAcetate(code, id, draw);
     void editTransition(code, id, transition);
     if (checkin !== !!task.checkin) void setCheckinTask(code, board, id, checkin && !!text.trim());
     void editTask(code, id, name, description, song, words, saved, over ?? null).then(() => {
@@ -225,6 +229,11 @@ export function TaskEditPage({ code, session, id, onBack }: { code: string; sess
             </div>
           </div>
         </>
+      )}
+      {acetate && (
+        <label>What they draw
+          <input value={draw} maxLength={120} placeholder={ACETATE_DRAW} onChange={(e) => setDraw(e.target.value)} />
+        </label>
       )}
       {!task.game && !tiebreaker && <ScoringField scoring={scoring} onChange={setScoringDraft} />}
 

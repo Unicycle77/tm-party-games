@@ -1,5 +1,6 @@
 import { get, ref, remove, update } from "firebase/database";
 import { db } from "./firebase";
+import { DRAW_GAMES, GUEST_PARTS } from "./games/drawGames";
 import type { SecretTasks, Session } from "./types";
 
 /** What a task's points page enters and works out, all produced on the night (a task's setup, like `dqStays`, stays). */
@@ -38,9 +39,9 @@ export async function resetScores(code: string, session: Session, guests: boolea
   for (const id of keys(games?.prize?.presented)) patch[`games/prize/presented/${id}`] = null;
   for (const uid of keys(games?.box?.played)) patch[`games/box/played/${uid}`] = null;
   for (const uid of keys(games?.noisemaster?.played)) patch[`games/noisemaster/played/${uid}`] = null;
-  for (const k of ["startedAt", "endsAt", "closed"]) patch[`games/flipchart/${k}`] = null;
-  for (const part of ["pages", "submitted", "unlocked", "shown"] as const) {
-    for (const uid of keys(games?.flipchart?.[part])) patch[`games/flipchart/${part}/${uid}`] = null;
+  for (const g of DRAW_GAMES) {
+    for (const k of ["startedAt", "endsAt", "closed"]) patch[`games/${g}/${k}`] = null;
+    for (const part of GUEST_PARTS) for (const uid of keys(games?.[g]?.[part])) patch[`games/${g}/${part}/${uid}`] = null;
   }
   for (const id of keys(games?.secretTasks?.picks)) patch[`games/secretTasks/picks/${id}`] = null;
 

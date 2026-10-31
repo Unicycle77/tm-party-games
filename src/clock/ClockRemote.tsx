@@ -5,7 +5,7 @@ import { useServerOffset } from "../games/noisemaster/data";
 import { titleOf } from "../scoreboard/tasks";
 import type { ClockState, Session } from "../types";
 import {
-  addMinute, contestantsOf, goingOf, limitFor, startAgain, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
+  addMinute, contestantsOf, goingOf, limitFor, ownerClockName, startAgain, pickEveryone, resetClock, setMode, setSong, setTime, songIn, sourceOf, startClock, stopClock,
   tapContestant, timesOf, useClock, watchLabel, watchTask, type ClockView,
 } from "./data";
 import { FlipClock } from "./FlipClock";
@@ -17,7 +17,7 @@ const QUICK = [60_000, 120_000, 300_000, 600_000];
 /**
  * ⏱ The clock, on the host's phone: a countdown set from the task's time limit (or any time) or a stopwatch, started and held
  * with one button. The Clock stage chip (see StageChips) puts it on the big screen, and Curtain takes it down. The clock keeps running wherever the host goes (see ClockStrip).
- * Flipchart's clock, while it runs, is the clock in the party: it shows here, and can only be run from the task.
+ * A drawing task's clock (Flipchart, Acetate), while it runs, is the clock in the party: it shows here, and can only be run from the task.
  */
 export function ClockRemote({ code, session, from }: { code: string; session: Session; from?: string }) {
   const view = useClock(session);
@@ -43,7 +43,7 @@ export function ClockRemote({ code, session, from }: { code: string; session: Se
     return (
       <section className="remote converter clock-remote">
         <h2>⏱ The clock</h2>
-        <p className="muted">Flipchart's clock is the one running, on the big screen. Run it from the task.</p>
+        <p className="muted">{ownerClockName(view.owner)} is the one running, on the big screen. Run it from the task.</p>
         <div className="clock-face"><FlipClock ms={view.ms} width="215px" /></div>
       </section>
     );

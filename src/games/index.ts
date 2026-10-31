@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from "react";
 import { activeGameId } from "../session";
 import type { SubmissionStatus } from "../submission";
 import type { Display, GameId, Session, Step } from "../types";
+import { acetate } from "./acetate";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
 import { flipchart } from "./flipchart";
@@ -68,7 +69,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart, acetate };
 
 /** The games on the game picker (the rest only start from the scoreboard's task list). */
 export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);
