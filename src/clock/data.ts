@@ -1,7 +1,9 @@
 import { ref, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { dataOf as flipchartOf, running as flipchartRunning } from "../games/flipchart/data";
+import type { DrawGame } from "../games/drawGames";
+import { GAMES } from "../games";
+import { roundOwningClock } from "../games/rounds";
 import { useServerOffset } from "../games/noisemaster/data";
 import { enterPoints } from "../scoreboard/data";
 import { scoringOf } from "../scoreboard/measured";
@@ -25,39 +27,41 @@ export function readClock(state: ClockState | undefined, now: number): { phase: 
   return left > 0 ? { phase: "running", ms: left } : { phase: "done", ms: 0 };
 }
 
-/** The clock in the party: the ⏱ clock, or Flipchart's while that runs (its own state, since it also closes the drawing). */
+/** The clock in the party: the ⏱ clock, or a drawing task's (Flipchart, Acetate) while that runs (its own state, since it also closes the drawing). */
 export interface ClockView {
-  /** The ⏱ clock's state, even while Flipchart's clock is the one in the party. */
+  /** The ⏱ clock's state, even while a drawing task's clock is the one in the party. */
   state: ClockState | undefined;
-  owner?: "flipchart";
+  owner?: DrawGame;
   up: boolean;
   phase: Phase;
   ms: number;
-  /** On the big screen, over whatever's there (Flipchart's always is: it's the focus). */
+  /** On the big screen, over whatever's there (a drawing task's always is: it's the focus). */
   shown: boolean;
 }
 
-/** Flipchart's clock is the one in the party while the game is on and its time runs. */
-const flipchartOwns = (session: Session) => session.game === "flipchart" && flipchartRunning(session) && flipchartOf(session).endsAt !== undefined;
 
 /** The clock every screen counts, ticking every tenth of a second while it runs. */
 export function useClock(session: Session | undefined): ClockView {
   const offset = useServerOffset();
   const [, tick] = useState(0);
   const state = session?.clock;
-  const owner = !!session && flipchartOwns(session);
+  const round = session ? roundOwningClock(session) : undefined;
+  const owner = !!round;
   const now = Date.now() + offset;
   const own = readClock(state, now);
-  const left = owner ? Math.max(0, flipchartOf(session!).endsAt! - now) : 0;
+  const left = round ? Math.max(0, round.dataOf(session!).endsAt! - now) : 0;
   const live = owner ? left > 0 : own.phase === "running";
   useEffect(() => {
     if (!live) return;
     const t = window.setInterval(() => tick((n) => n + 1), 100);
     return () => window.clearInterval(t);
   }, [live]);
-  if (owner) return { state, owner: "flipchart", up: false, phase: left > 0 ? "running" : "done", ms: left, shown: true };
+  if (round) return { state, owner: round.game, up: false, phase: left > 0 ? "running" : "done", ms: left, shown: true };
   return { state, up: state?.mode === "up", phase: own.phase, ms: own.ms, shown: !!state?.shown };
 }
+
+/** "Flipchart's clock": what the host calls a drawing task's own clock. */
+export const ownerClockName = (owner: DrawGame) => `${GAMES[owner].name}'s clock`;
 
 const at = (code: string) => ref(db(), `sessions/${code}`);
 

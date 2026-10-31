@@ -6,7 +6,7 @@ import { asParts } from "./tasks";
 /** The types every party uses; anything else ("Arrival") is typed under Other…. */
 const TYPES = ["Individual", "Team"];
 /** App games already know what kind of task they are. */
-const GAME_TYPES: Partial<Record<TaskGame, string>> = { headshots: "Headshot", prize: "Prize", secretTasks: "Secret" };
+const GAME_TYPES: Partial<Record<TaskGame, string>> = { headshots: "Headshot", prize: "Prize", secretTasks: "Secret", acetate: "Live" };
 export const TIEBREAKER_TYPE = "Tiebreaker";
 
 /** "Individual" → "Individual task", as it heads the card (in capitals there). A type that already ends in "task" or "tasks" ("Arrival task", "Secret Tasks") is left as it is. */

@@ -1,5 +1,6 @@
 import { push, ref, remove, set, update } from "firebase/database";
 import { flipchartDefaults } from "../games/flipchart/data";
+import { acetateDefaults } from "../games/acetate/data";
 import { db, storage } from "../firebase";
 import { DEFAULT_WORDS } from "../games/secretTasks/data";
 import { shrinkImage } from "../media";
@@ -81,7 +82,7 @@ export async function setHeadshotCrop(code: string, id: string, crop: HeadshotCr
 export async function addTask(code: string, board: Scoreboard | undefined, task: { name: string; description?: string } | { game: TaskGame }) {
   const key = push(at(code, "tasks")).key!;
   const entry: ScoreboardTask = "game" in task
-    ? { order: nextOrder(board?.tasks), game: task.game, ...(task.game === "secretTasks" && DEFAULT_WORDS), ...(task.game === "flipchart" && flipchartDefaults()) }
+    ? { order: nextOrder(board?.tasks), game: task.game, ...(task.game === "secretTasks" && DEFAULT_WORDS), ...(task.game === "flipchart" && flipchartDefaults()), ...(task.game === "acetate" && acetateDefaults()) }
     : { order: nextOrder(board?.tasks), name: task.name.trim(), ...(task.description?.trim() ? { description: task.description.trim() } : {}) };
   await set(at(code, `tasks/${key}`), entry);
   return key;

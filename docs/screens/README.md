@@ -37,6 +37,16 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `flipchart-host-start.jpg` | Host task page before the start: the clock at its limit and gold "Your time starts now" (2026-10-21) |
 | `flipchart-host-live.jpg` | Host task page while it runs: the clock, "+5 minutes", "End now: send everyone's" (2026-10-21) |
 | `flipchart-host-edit.jpg` | The task's ✎ page: what they draw and the time limit (10, 15, 20 or 30 minutes) (2026-10-21) |
+| `acetate-guest-locked.jpg` | Acetate before the host starts the clock: Greg's card with the task's words and the clear acetate lying on it, no pens yet (2026-10-31) |
+| `acetate-guest-drawing.jpg` | Acetate mid-task: Greg drawing upside down on the sheet, the four markers and Undo, "It's task time." (no clock, no send button) (2026-10-31) |
+| `acetate-guest-sent.jpg` | Time's up: everyone's acetate went in at 0:00; Greg's receipt with his acetate small, his way up, "✓ Submitted" and the locked line (2026-10-31) |
+| `acetate-main-clock.jpg` | The big screen while they draw: the show's clock only, nothing projector-like (2026-10-31) |
+| `acetate-main-hand.jpg` | The reveal starting: the room dark, the projector's light on, the hand's blurred shadow nudging Alex's acetate straight (2026-10-31) |
+| `acetate-main-projector.jpg` | Alex's acetate settled on the projector, turned over: his horse stands, but he wrote his name the normal way up, so it's upside down (2026-10-31) |
+| `acetate-main-everyone.jpg` | Everyone's acetates, a row of projectors: Alex's name upside down, Greg's last G, Mei's and Sam's horses on their backs, Priya both right, Tom ran out of time (2026-10-31) |
+| `acetate-host-start.jpg` | Host task page before the start: the clock at 1:40 (from the task's words) and gold "Your time starts now" (2026-10-31) |
+| `acetate-host-live.jpg` | Host task page while it runs: the clock and "End now: send everyone's" only (no extra time: it's a live task) (2026-10-31) |
+| `acetate-host-edit.jpg` | The task's ✎ page: what they draw, defaulting to "a happy horse"; the words follow it (2026-10-31) |
 | `clock-host-set.jpg` | ⏱ The clock, set from a task: Dice tower's time limits read from its words (3 min for part 1, which is on the big screen, 2 min for part 2), quick times, "Your own", "+ Song to end on", gold ▶ Start (2026-10-21) |
 | `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
 | `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |

@@ -1,13 +1,13 @@
 import { createContext, useContext } from "react";
 import { useServerOffset } from "../games/noisemaster/data";
 import type { Session } from "../types";
-import { clockText, startClock, stopClock, useClock, watchLabel } from "./data";
+import { clockText, ownerClockName, startClock, stopClock, useClock, watchLabel } from "./data";
 
 /** How a page opens ⏱ (the host's phone provides it): the strip below opens it from anywhere. */
 export const OpenClock = createContext<() => void>(() => {});
 
 /**
- * The clock's strip under "On the big screen", on every page while it's set going, shown or Flipchart's: the same shape and
+ * The clock's strip under "On the big screen", on every page while it's set going, shown or a drawing task's: the same shape and
  * place as the song strip. Tapping the strip opens ⏱ (it never changes what the room sees); the ⏸ beside it, a separate
  * button, holds the clock and ▶ carries on.
  */
@@ -28,7 +28,7 @@ export function ClockStrip({ code, session }: { code: string; session: Session }
   return (
     <div className="clock-strip">
       <button className="sb-song" onClick={open}>
-        <span className="title">⏱ {view.owner ? "Flipchart's clock" : "The clock"} →</span>
+        <span className="title">⏱ {view.owner ? ownerClockName(view.owner) : "The clock"} →</span>
         <span className="dur">{label}</span>
       </button>
       {hold && <button className="clock-hold" aria-label="Stop the clock" onClick={() => void stopClock(code, view, offset)}>⏸</button>}

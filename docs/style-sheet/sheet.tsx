@@ -11,13 +11,19 @@ import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
 import { FlipClock } from "../../src/clock/FlipClock";
-import { Portrait } from "../../src/games/flipchart/Portrait";
+import { PageSvg, Portrait } from "../../src/games/flipchart/Portrait";
+import { Sheet as AcetateSheet } from "../../src/games/acetate/PlayerView";
+import { Projector } from "../../src/games/acetate/Projector";
+import { acetateSheets } from "../guest-shots/acetates";
+import { decodePage } from "../../src/games/flipchart/strokes";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
 import { cropFill } from "../../src/scoreboard/crop";
 import { Mosaic } from "../../src/scoreboard/Mosaic";
+/** Alex's acetate from the shots, his way up (the projector turns it). */
+const ACETATE = decodePage(acetateSheets(["alex"]).alex!.p1);
 
 const noop = () => {};
 // A wide group shot cropped onto the person on the left, as on the crop page.
@@ -351,6 +357,13 @@ function Sheet() {
             </div>
             <Cap>The ⏱ clock is the same object (<code>FlipClock</code>), counting down or, as a stopwatch (<code>up</code>), up with a small tenths digit. One button in one place: gold ▶ Start (and to carry on), pressed-in paper ⏸ Stop while it runs, never gold, and gold "▶ Start again" at 0:00</Cap>
             <Cap>The show's clock (<code>.fc-clock</code>): red seven-segment digits on a black 4:3 screen, white matte, black frame about half the matte's width; the same on the TV and the host's phone, for the whole task. The portrait (<code>.fc-portrait</code>): sixteen pages in the show's pattern as one picture</Cap>
+          </Sec>
+          <Sec title="Acetate &amp; projector" note="phone · stage">
+            <div className="pair" style={{ alignItems: "center" }}>
+              <div className="slot guest-card" style={{ width: 200 }}><AcetateSheet><PageSvg strokes={ACETATE} /></AcetateSheet></div>
+              <div className="ohp-demo"><Projector uid="alex" strokes={ACETATE} /></div>
+            </div>
+            <Cap>The acetate (<code>.acetate-sheet</code>): a clear A4 sheet lying on the card, the paper showing through, a faint glare; never white paper. Flipchart's four markers and ↶ Undo; no clock and no send button. The projector (<code>.ohp</code>): the curtain darkened to a third, a keystoned square of warm light with a soft spill, blue and amber edges, the sheet on the glass turned half way round and a degree or two off straight. On the reveal a blurred, see-through hand puts it down and nudges it, a little differently for each guest</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>

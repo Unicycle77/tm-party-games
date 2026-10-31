@@ -1523,6 +1523,74 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 @keyframes fc-drop { from { opacity: 0; margin-top: -4%; } }
 @media (prefers-reduced-motion: reduce) { .fc-page, .fc-page.dropping { animation: none; transition: none; } }
 
+/* ---- Acetate: a clear overhead projector sheet on the guest's card; on the big screen, the projector ---- */
+/* the sheet: A4's shape, clear, the card's paper showing through, a faint glare (never Flipchart's white paper) */
+.acetate-sheet {
+  position: relative; width: 78%; justify-self: center; aspect-ratio: 1000 / 1414; border-radius: 3px;
+  background: linear-gradient(135deg, #ffffff38 0%, #e9f3f622 40%, #ffffff10 60%, #ffffff30 100%);
+  border: 1px solid #5f7c8655; box-shadow: 0 1px 0 #ffffffaa inset, 0 2px 6px #0002;
+}
+.acetate-sheet::after {
+  content: ""; position: absolute; inset: 0; border-radius: 3px; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, #ffffff55 38%, transparent 46%);
+}
+.acetate-sheet.small { width: 38%; }
+.acetate-surface { position: absolute; inset: 0; touch-action: none; }
+.acetate-surface.live { cursor: crosshair; }
+
+/* the big screen: the curtain darkened, not black, as if the lights went down for the projector */
+body:has(.ohp-stage)::before { filter: brightness(0.3) saturate(0.9); }
+.ohp-stage { place-items: center; }
+/* the light thrown a little past the screen, warming the curtain around it */
+.ohp { --lw: min(43vw, 87vh * 0.872); position: relative; width: var(--lw); aspect-ratio: 820 / 940; }
+.ohp-spill {
+  position: absolute; left: -40%; right: -40%; top: -12%; bottom: -12%; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(closest-side, #ffe9b099 0%, #ffdf9a55 45%, #ffd28a1c 75%, transparent 100%);
+}
+/* a keystoned square of warm light (wider at the top, as an overhead projector throws it), falling off to the corners */
+.ohp-light {
+  position: absolute; inset: 0; overflow: hidden; clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+  background: radial-gradient(ellipse at 50% 45%, #fffdf3 0%, #fbf4dc 55%, #e9dcb4 85%, #cdbb8c 100%);
+}
+/* blue and amber at the edges, as an overhead projector's lens gives */
+.ohp-fringe {
+  position: absolute; inset: 0; pointer-events: none;
+  box-shadow: inset 6px 0 10px -4px #6aa0ff88, inset -6px 0 10px -4px #ffb34788, inset 0 6px 10px -4px #6aa0ff55, inset 0 -6px 10px -4px #ffb34755;
+}
+/* the acetate on the glass, laid by hand: its edge just visible */
+.ohp-sheet {
+  position: absolute; left: 12%; top: 5%; width: 76%; height: 90%;
+  border: 1.5px solid #00000026; box-shadow: 0 0 0 1px #ffffff55 inset;
+  transition: transform 600ms cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+/* turned half way round: the room's way up. Projected pen is a little soft */
+.ohp-ink { position: absolute; inset: 0; transform: rotate(180deg); filter: blur(0.06vmin) contrast(1.1); }
+.ohp-ink .fc-svg { width: 100%; height: 100%; }
+/* the hand above the glass: out of focus, so blurred and see-through. Holds a bottom corner, and leaves down off the light */
+.ohp-hand {
+  position: absolute; width: 62%; aspect-ratio: 400 / 600; top: 72%; filter: blur(1vmin); opacity: 0.88;
+  transition: transform 450ms ease-in, opacity 450ms ease-in;
+}
+.ohp-hand.right { left: 62%; }
+.ohp-hand.left { right: 62%; transform: scaleX(-1); }
+.ohp-hand svg { display: block; width: 100%; height: 100%; }
+.ohp-hand.off { transform: translateY(90%); opacity: 0; }
+.ohp-hand.left.off { transform: scaleX(-1) translateY(90%); }
+/* everyone: a row of projectors (two rows past five), each with its own spill, kept tight so the glows don't add up */
+.ohp-row {
+  display: grid; grid-template-columns: repeat(var(--cols), auto); justify-content: center; align-content: center;
+  gap: 3vh 2.4vw; padding: 2vh 2vw 6vh;
+}
+.ohp-row figure { margin: 0; display: grid; justify-items: center; gap: 1.6vh; }
+.ohp.small { --lw: min(calc((92vw - (var(--cols) - 1) * 2.4vw) / var(--cols)), calc((82vh / var(--rows) - 6vh) * 0.872)); }
+.ohp.small .ohp-spill { left: -18%; right: -18%; top: -8%; bottom: -8%; background: radial-gradient(closest-side, #ffe9b04c 0%, #ffdf9a2a 45%, #ffd28a0e 75%, transparent 100%); }
+.ohp-row figcaption {
+  background: var(--paper); color: var(--ink); border: 2px solid var(--gold-dark); padding: 0.2rem 0.9rem;
+  font-family: var(--typewriter); font-size: clamp(0.9rem, 2vmin, 1.5rem); letter-spacing: 0.05em; box-shadow: 0 3px 8px #000a; white-space: nowrap;
+}
+.ohp-row figcaption span { text-transform: uppercase; color: var(--burgundy); font-weight: bold; }
+@media (prefers-reduced-motion: reduce) { .ohp-sheet, .ohp-hand { transition: none; } }
+
 /* ---- the ⏱ clock: set on the host's phone, the show's clock on the big screen ---- */
 .clock-stage { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; }
 .clock-stage .fc-clock.tv { width: min(var(--w), 100%); }

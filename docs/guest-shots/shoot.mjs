@@ -162,6 +162,17 @@ const SHOTS = {
   "flipchart-host-live": ["host-flipchart-live"],
   "flipchart-host-edit": ["host-flipchart-edit"],
   // The ⏱ clock: set from Dice tower's 3 minutes, with a song that ends on 0:00, counting, the task page with its strip, Flipchart's clock, a stopwatch; the big screen's two
+  // Acetate: Greg's phone before the clock, drawing, at time; the big screen's clock, the hand putting Alex's down, Alex's, everyone's; the host's phone
+  "acetate-guest-locked": ["task-acetate-locked", "&who=greg"],
+  "acetate-guest-drawing": ["task-acetate-drawing", "&who=greg"],
+  "acetate-guest-sent": ["task-acetate-sent", "&who=greg"],
+  "acetate-main-clock": ["tv-acetate-clock"],
+  "acetate-main-hand": ["tv-acetate-hand", "&motion=1", async (p) => { await p.waitForTimeout(650); }],
+  "acetate-main-projector": ["tv-acetate"],
+  "acetate-main-everyone": ["tv-acetate-everyone"],
+  "acetate-host-start": ["host-acetate"],
+  "acetate-host-live": ["host-acetate-live"],
+  "acetate-host-edit": ["host-acetate-edit"],
   "clock-host-set": ["host-cd-set"],
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
@@ -280,7 +291,7 @@ for (const [name, [shot, extra = "", before, part]] of Object.entries(SHOTS)) {
   if (only.length && !only.includes(name)) continue;
   const tv = shot.startsWith("tv-");
   const ipad = shot.endsWith("-ipad");
-  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : ipad ? { width: 1100, height: 1024 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
+  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : ipad ? { width: 1100, height: 1024 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: extra.includes("motion=1") ? "no-preference" : "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
   await page.waitForSelector("main, .scoreboard-stage, .task-text-stage");
   await page.evaluate(() => document.fonts.ready);

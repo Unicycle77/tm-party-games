@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ClockSongStarter } from "./clock/data";
-import { FlipchartCloser } from "./games/flipchart/data";
+import { RoundCloser } from "./games/RoundCloser";
 import { Jukebox } from "./Jukebox";
 import { StingDriver } from "./StingDriver";
 import { HOSTED_KEY, RecentList, loadRecent, saveRecent, withRecent, withoutRecent } from "./recent";
@@ -172,8 +172,8 @@ export function MainScreen() {
         ? <Screen code={code} session={session} footer={<button className="link" onClick={end}>End session</button>} />
         : <StageGate code={code} session={session} onRaised={() => setRaised(true)} onEnd={end} />}
       {raised && <ClockSongStarter code={code} session={session} />}
-      {/* A Flipchart round ends on time whatever is up, even behind the curtain or the setup gate. */}
-      <FlipchartCloser code={code} session={session} />
+      {/* A drawing round (Flipchart, Acetate) ends on time whatever is up, even behind the curtain or the setup gate. */}
+      <RoundCloser code={code} session={session} />
       {raised && <StingDriver code={code} session={session} />}
       {/* The light, when the host starts it here: out of sight, whatever is on screen. */}
       <StageLight code={code} session={session} />
