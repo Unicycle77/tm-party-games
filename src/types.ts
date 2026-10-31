@@ -68,7 +68,7 @@ export interface DrawingData {
   endsAt?: number;
   /** The time is up, or the host ended it: every portrait is final, sent or not. */
   closed?: true;
-  /** Each guest's pages, by uid: "p1" to "p16" (page order, as on the front page; Acetate has only "p1") to the page's strokes (see games/flipchart/strokes.ts). */
+  /** Each guest's pages, by uid: "p1" to "p16" (page order, as on the front page; Acetate has only "p1") to the page's strokes (see src/drawing/strokes.ts). */
   pages?: Record<string, Record<string, string>>;
   /** Guests whose drawing is in (sent, or in at time). */
   submitted?: Record<string, true>;

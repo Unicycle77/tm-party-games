@@ -2,7 +2,8 @@ import { ref, update } from "firebase/database";
 import { db } from "../../firebase";
 import type { ScoreboardTask, Session } from "../../types";
 import { limitsOf } from "../../clock/timesIn";
-import { decodePage, type Stroke } from "../flipchart/strokes";
+import { MARKERS } from "../../drawing/palettes";
+import { decodePage, type Stroke } from "../../drawing/strokes";
 import { drawRound } from "../drawRound";
 
 export const DEFAULT_DRAW = "a happy horse";
@@ -38,7 +39,7 @@ export const acetateStatus = round.status;
 export const SHEET = "p1";
 
 /** A guest's acetate, decoded from the session, the guest's way up. */
-export const sheetOf = (session: Session, uid: string): Stroke[] => decodePage(dataOf(session).pages?.[uid]?.[SHEET]);
+export const sheetOf = (session: Session, uid: string): Stroke[] => decodePage(dataOf(session).pages?.[uid]?.[SHEET], MARKERS.length);
 
 /** Saves a task's what-they-draw (its words follow from it, see `editTask`). */
 export const editAcetate = (code: string, id: string, draw: string) =>

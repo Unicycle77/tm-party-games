@@ -15,7 +15,8 @@ import { PageSvg, Portrait } from "../../src/games/flipchart/Portrait";
 import { Sheet as AcetateSheet } from "../../src/games/acetate/PlayerView";
 import { Projector } from "../../src/games/acetate/Projector";
 import { acetateSheets } from "../guest-shots/acetates";
-import { decodePage } from "../../src/games/flipchart/strokes";
+import { MARKERS } from "../../src/drawing/palettes";
+import { decodePage } from "../../src/drawing/strokes";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
@@ -23,7 +24,7 @@ import frame from "../../src/assets/frame.png";
 import { cropFill } from "../../src/scoreboard/crop";
 import { Mosaic } from "../../src/scoreboard/Mosaic";
 /** Alex's acetate from the shots, his way up (the projector turns it). */
-const ACETATE = decodePage(acetateSheets(["alex"]).alex!.p1);
+const ACETATE = decodePage(acetateSheets(["alex"]).alex!.p1, MARKERS.length);
 
 const noop = () => {};
 // A wide group shot cropped onto the person on the left, as on the crop page.

@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { LINE, MARKERS, PAGES, PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN, type Stroke } from "./strokes";
+import { MARKERS } from "../../drawing/palettes";
+import type { Stroke } from "../../drawing/strokes";
+import { StrokesSvg } from "../../drawing/StrokesSvg";
+import { PAGES, PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN } from "./strokes";
 
-/** A page's strokes as one SVG, filling whatever box it's in (which is A1's shape). */
+/** A page's strokes as one SVG, filling whatever box it's in (which is A1's shape), in the four markers. */
 export function PageSvg({ strokes, draft }: { strokes: Stroke[]; draft?: Stroke }) {
-  return (
-    <svg className="fc-svg" viewBox={`0 0 ${PAGE_W} ${PAGE_H}`} fill="none" strokeWidth={LINE} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {(draft ? [...strokes, draft] : strokes).map((s, i) => s.p.length === 2
-        ? <circle key={i} cx={s.p[0]} cy={s.p[1]} r={LINE / 2} fill={MARKERS[s.c]!.colour} stroke="none" />
-        : <polyline key={i} points={s.p.join(" ")} stroke={MARKERS[s.c]!.colour} />)}
-    </svg>
-  );
+  return <StrokesSvg w={PAGE_W} h={PAGE_H} strokes={strokes} draft={draft} palette={MARKERS} />;
 }
 
 /** A page's place on the portrait, from its number: row and column of the pattern. */

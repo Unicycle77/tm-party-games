@@ -1,4 +1,6 @@
-import { PAGE_H, PAGE_W, drawStrokes, type Stroke } from "../flipchart/strokes";
+import { MARKERS } from "../../drawing/palettes";
+import { drawStrokes, type Stroke } from "../../drawing/strokes";
+import { PAGE_H, PAGE_W } from "../flipchart/strokes";
 
 /** A guest's acetate as a PNG for the party download: as the room saw it on the projector (turned half way round), on plain white. */
 export async function renderAcetate(strokes: Stroke[], scale = 1): Promise<Blob> {
@@ -10,6 +12,6 @@ export async function renderAcetate(strokes: Stroke[], scale = 1): Promise<Blob>
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.translate(canvas.width, canvas.height);
   ctx.rotate(Math.PI);
-  drawStrokes(ctx, strokes, scale);
+  drawStrokes(ctx, strokes, scale, MARKERS);
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Couldn't draw the acetate."))), "image/png"));
 }
