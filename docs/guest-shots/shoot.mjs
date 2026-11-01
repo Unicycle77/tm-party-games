@@ -204,6 +204,21 @@ const SHOTS = {
   // the host: the gold knock-out button, and the sizes at the end
   "duck-host-knockout": ["host-duck-knockout"],
   "duck-host-sizes": ["host-duck-sizes"],
+  // Fruit selfie, party ABCD: part 1 on Alex's phone (3 typed in) and locked in, and on the TV with three answered; part 2 with
+  // everyone's time; the clock at 2:41 on the TV and the host's page, Alex drawing and Greg's receipt; the host about to start
+  // with Tom unanswered, and at 4:12 ending Tom's time; Greg's picture in the frame, and everyone's.
+  "fruit-guest-question": ["task-fruit-question", "&who=alex", async (p) => { await p.getByLabel("minutes").fill("3"); }],
+  "fruit-guest-answered": ["task-fruit-answered", "&who=alex"],
+  "fruit-main-question": ["tv-fruit-question"],
+  "fruit-main-times": ["tv-fruit-times"],
+  "fruit-main-clock": ["tv-fruit-clock"],
+  "fruit-host-running": ["host-fruit-running"],
+  "fruit-guest-drawing": ["task-fruit-drawing", "&who=alex"],
+  "fruit-guest-sent": ["task-fruit-sent", "&who=greg"],
+  "fruit-host-no-answer": ["host-fruit-start", "", async (p) => { await p.getByRole("button", { name: "Your time starts now" }).click(); await p.evaluate(() => window.scrollTo(0, 0)); }],
+  "fruit-host-end-one": ["host-fruit-end", "", async (p) => { await p.getByRole("button", { name: /^Tom/ }).click(); await p.evaluate(() => window.scrollTo(0, 0)); }],
+  "fruit-main-picture": ["tv-fruit-picture"],
+  "fruit-main-everyone": ["tv-fruit-everyone", "", async (p) => { await p.waitForTimeout(11000); await readyPics(p); }],
   "clock-host-set": ["host-cd-set"],
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],

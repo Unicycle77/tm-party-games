@@ -13,6 +13,7 @@ import { prize } from "./prize";
 import { secretTasks } from "./secretTasks";
 import { snake } from "./snake";
 import { duck } from "./duck";
+import { fruit } from "./fruit";
 
 /**
  * What a game plugs into the shared screens. The session, its players, the lobby, the jukebox and
@@ -52,6 +53,15 @@ export interface Game {
   canShow?(session: Session): boolean;
   /** True while the round holds the main screen, so a pick on it does nothing. */
   holdsScreen?(session: Session): boolean;
+  /**
+   * The order the host's running order and the "everyone" screen go in (the fruit selfie: shortest time first). Default:
+   * the order the guests joined.
+   */
+  order?(session: Session): string[];
+  /** Main screen, collecting: replaces the column of names and stamps on the right (the fruit selfie's times). */
+  Side?: ComponentType<{ code: string; session: Session; viewOnly: boolean }>;
+  /** Host phone: the Round draws its own list of contestants while the round is on (the fruit selfie's times and stamps), in place of the usual one. */
+  ownList?: boolean;
   /** Main screen, collecting: replaces the task card in the middle. */
   Collecting?: ComponentType<{ code: string; session: Session; viewOnly: boolean }>;
   /** Host phone, collecting: the round's own control, above the player list (the gold "next thing" while the round is on). */
@@ -78,7 +88,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart, acetate, snake, duck };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart, acetate, snake, duck, fruit };
 
 /** The games on the game picker (the rest only start from the scoreboard's task list). */
 export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);

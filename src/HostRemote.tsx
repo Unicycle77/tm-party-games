@@ -16,7 +16,7 @@ import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
 const SHOWING: Partial<Record<Display["step"], string>> = {
-  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait", acetate: "acetate",
+  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait", acetate: "acetate", selfie: "picture",
 };
 
 /**
@@ -55,6 +55,9 @@ export function onScreenLine(session: Session): string {
   const ready = players.filter((uid) => game.status!(session, uid) === "submitted");
   const data = session.games?.[game.id];
   const shown = (data && "shown" in data && data.shown) || {};
+  // A game with more to say about its own collecting screen (the fruit selfie's parts and times).
+  const own = display.step === "list" ? game.onScreen?.(session, display) : undefined;
+  if (own) return own;
   if (display.step === "list" && game.holdsScreen?.(session)) return "the clock";
   if (display.step === "curtain" && game.holdsScreen?.(session)) return "the curtain, while they draw";
   if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
@@ -201,7 +204,9 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
   const [tapped, setTapped] = useState<string>();
   const game = activeGame(session);
   if (!game) return null;
-  const players = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
+  const joined = Object.entries(session.players ?? {}).sort(([, a], [, b]) => a.joinedAt - b.joinedAt);
+  const order = game.order?.(session);
+  const players = order ? order.flatMap((uid) => joined.filter(([u]) => u === uid)) : joined;
   const display = session.display ?? { step: "list" as const };
   const current = display.uid ? session.players?.[display.uid] : undefined;
   const status = game.status;
@@ -240,6 +245,8 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
 
   // Revealed all together (the snake race, the duck line-up): once the round is over, the Round is the whole page.
   if (game.together && !hold) return <>{head}{game.Round && <game.Round code={code} session={session} />}</>;
+  // A round with its own list (the fruit selfie's times): the Round is the whole page until it's over.
+  if (game.ownList && hold) return <>{head}{game.Round && <game.Round code={code} session={session} />}</>;
 
   return (
     <>

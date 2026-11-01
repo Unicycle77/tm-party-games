@@ -68,6 +68,18 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `duck-main-median.jpg` | Mei left (six ducks: of the middle two, Tom 7 and Mei 10, hers is closer to the average), the gold 5 on the frame's corner, "10 sq in" under her name (2026-11-01) |
 | `duck-host-knockout.jpg` | Host task page after the first knock-out: the gold button offers the next ("Out: the smallest and the biggest" again, six ducks), the sizes smallest first with "median · 5" on Mei for the host only, the Points filled from the pages (2026-11-01) |
 | `duck-host-sizes.jpg` | Host task page at the end: "Show the sizes" pressed in, "median · 5" on Mei, Greg's +1, the Points filled from the pages (2026-11-01) |
+| `fruit-guest-question.jpg` | Fruit selfie part 1 on Alex's phone: "TASK 7 OF 8 · PART 1", "How long does it take you to eat an orange?", minutes 3 typed in, gold "Send my answer" (2026-11-01) |
+| `fruit-guest-answered.jpg` | The answer's receipt: "✓ Sent", "3:00", "🔒 You can't change it now.", status "Waiting for the others." (2026-11-01) |
+| `fruit-main-question.jpg` | The big screen during part 1: the question on the task card, "3 of 6 submitted" with stamps on Alex, Greg and Sam and "… waiting" on the rest, no times (2026-11-01) |
+| `fruit-main-times.jpg` | Part 2 up: its card and "Time to eat an orange", everyone's time shortest first, Greg 0:45 to Tom 10:00 (2026-11-01) |
+| `fruit-main-clock.jpg` | One clock counting up (2:41) beside the times, "✓ Time's up" in place of Greg's 0:45 (2026-11-01) |
+| `fruit-host-running.jpg` | Host task page while they draw: both parts, the clock at 2:41 with ⏸, Greg stamped, Alex and Priya outlined as next, "End it now" (2026-11-01) |
+| `fruit-host-no-answer.jpg` | "Your time starts now" with Tom unanswered: "Tom hasn't answered. Start now and Tom gets the shortest time: 0:45." with "Wait" and "Start anyway" (2026-11-01) |
+| `fruit-host-end-one.jpg` | Tom's row tapped at 4:12: "End Tom's time? The picture goes in as drawn." with "Keep going" and "Yes, end it" (2026-11-01) |
+| `fruit-guest-drawing.jpg` | Alex drawing: the plain page with a thicker pen, the ten rainbow markers, Undo, no send button and no clock (2026-11-01) |
+| `fruit-guest-sent.jpg` | Greg's receipt: his picture small, "✓ Time's up", "🔒 Your picture is locked in. You'll see it on the big screen." (2026-11-01) |
+| `fruit-main-picture.jpg` | The reveal: Greg's selfie in the gold frame, labelled "Greg · 0:45" (2026-11-01) |
+| `fruit-main-everyone.jpg` | Show everyone: six framed selfies, shortest time first, each labelled name · time (2026-11-01) |
 | `clock-host-set.jpg` | ⏱ The clock, set from a task: Dice tower's time limits read from its words (3 min for part 1, which is on the big screen, 2 min for part 2), quick times, "Your own", "+ Song to end on", gold ▶ Start (2026-10-21) |
 | `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
 | `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |

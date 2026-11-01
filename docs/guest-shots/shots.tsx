@@ -15,6 +15,8 @@ import { acetateSheets } from "./acetates";
 import { snakeDefaults, lengthOf } from "../../src/games/snake/data";
 import { duckDefaults, slideAt, sizeOf, HANG_MS, WASH_MS } from "../../src/games/duck/data";
 import { snakeRolls, duckPages } from "./snakes";
+import { fruitDefaults } from "../../src/games/fruit/data";
+import { fruitPages, ORANGE_TIMES } from "./selfies";
 import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
 import { MODES } from "../../src/light/triggers";
@@ -116,6 +118,8 @@ function build() {
   // The snake and the duck do the same, each the fifth and sixth of the night's tasks in the design notes, here the eighth.
   if (shot.includes("snake")) tasks.t8 = { order: 8, game: "snake", ...snakeDefaults() };
   if (shot.includes("duck")) tasks.t8 = { order: 8, game: "duck", ...duckDefaults() };
+  // The fruit selfie is the seventh, as in its design notes.
+  if (shot.includes("fruit")) tasks.t7 = { order: 7, game: "fruit", ...fruitDefaults() };
   // The task pages' shots of Before & After, [BLANK] in a Box and the light.
   // They take the place of a live task, so the party still has eight.
   if (shot.includes("beforeafter")) tasks.t6 = { order: 6, game: "beforeAfter", text: "Film the most satisfying before and after." };
@@ -396,6 +400,40 @@ function build() {
       if (!live && !shot.startsWith("task-")) (tasks.t8 as Record<string, unknown>).results = Object.fromEntries(drawers.map((id) => [id, sizeOf({ games: { duck: dk } } as unknown as Session, id).sqIn]));
       break;
     }
+    // Fruit selfie, party ABCD (orange times: Greg 0:45, Alex and Priya 3:00, Mei 4:30, Sam 6:00, Tom 10:00). Part 1 on Alex's
+    // phone and the TV, Alex, Greg and Sam answered; part 2 with the times up; the clock at 2:41 (Greg's time up) on the TV, the
+    // host's page and Alex's phone, and Greg's receipt; the host at 4:12 ending Tom's time, and about to start with Tom unanswered;
+    // then Greg's picture in the frame, and everyone's.
+    case "task-fruit-question": case "task-fruit-answered": case "tv-fruit-question":
+    case "tv-fruit-times": case "host-fruit-start":
+    case "tv-fruit-clock": case "host-fruit-running": case "task-fruit-drawing": case "task-fruit-sent": case "host-fruit-end":
+    case "tv-fruit-picture": case "tv-fruit-everyone": {
+      picked(); q.set("later", "1"); task("fruit"); set("begun", true);
+      const now = Date.now();
+      const fr: Record<string, unknown> = { asked: true };
+      const part1 = shot === "task-fruit-question" || shot === "task-fruit-answered" || shot === "tv-fruit-question";
+      const answered = part1 ? (shot === "task-fruit-question" ? ["greg", "sam"] : ["alex", "greg", "sam"])
+        : shot === "host-fruit-start" ? Object.keys(people).filter((id) => id !== "tom") : Object.keys(people);
+      fr.answers = Object.fromEntries(answered.map((id) => [id, ORANGE_TIMES[id]!]));
+      if (!part1) fr.told = true;
+      const at = shot === "host-fruit-end" ? 252_000 : shot === "task-fruit-drawing" ? 120_000 : 161_000;
+      const drawing = ["tv-fruit-clock", "host-fruit-running", "task-fruit-drawing", "task-fruit-sent", "host-fruit-end"].includes(shot);
+      const over = shot === "tv-fruit-picture" || shot === "tv-fruit-everyone";
+      if (drawing) {
+        Object.assign(fr, { startedAt: now - at, endsAt: now - at + 600_000 });
+        fr.submitted = Object.fromEntries(Object.keys(people).filter((id) => ORANGE_TIMES[id]! <= at).map((id) => [id, true]));
+        fr.pages = fruitPages(Object.keys(people));
+      }
+      if (over) {
+        Object.assign(fr, { startedAt: now - 700_000, endsAt: now - 100_000, closed: true });
+        fr.submitted = Object.fromEntries(Object.keys(people).map((id) => [id, true]));
+        fr.pages = fruitPages(Object.keys(people));
+      }
+      g.fruit = fr;
+      if (shot === "tv-fruit-picture") set("display", { step: "selfie", uid: "greg" });
+      if (shot === "tv-fruit-everyone") set("display", { step: "selfies" });
+      break;
+    }
     // The ⏱ clock: set from a task's time limit (Dice tower, part 1 on the big screen), with a song that ends on 0:00, counting, on the task page
     // with its strip, beside Flipchart's own clock; and as a stopwatch (Five socks, Alex timed, Greg going); and on the big screen.
     // The limit shots: part 1's words give no time, so the host set 4 minutes on it in ✎ (open, then closed); ⏱ offers it.
@@ -517,7 +555,7 @@ if (shot.startsWith("host-")) { (session as Record<string, unknown>).controllerU
 if (shot === "start-host-ask" || shot === "start-host-asked") { (session as Record<string, unknown>).controllerUid = "host"; (session as Record<string, unknown>).hostUid = "owner"; }
 if (shot === "start-host-asked" || shot === "host-run-handover") (session as Record<string, unknown>).handovers = { iphone: { pair: "472", from: "host", status: "asked" } };
 // On the noisemaster host page everyone has their secret task, and has looked, so the ✉ has no dot.
-if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot.startsWith("host-acetate") || shot.startsWith("host-snake") || shot.startsWith("host-duck") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-prize-before" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || shot.startsWith("host-lock") || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
+if (shot.startsWith("host-parts") || shot.startsWith("host-onepart") || shot.startsWith("host-plan") || shot === "host-crop" || shot === "host-app-game" || shot === "host-adhoc" || shot === "host-reset" || shot.startsWith("host-flipchart") || shot.startsWith("host-acetate") || shot.startsWith("host-snake") || shot.startsWith("host-duck") || shot.startsWith("host-fruit") || shot === "host-noisemaster" || shot === "host-noisemaster-setup" || shot === "host-prize" || shot === "host-prize-before" || shot === "host-points" || shot === "host-run" || shot === "host-haul" || shot === "host-zip" || shot.startsWith("host-lock") || ["host-photos", "host-headshot", "host-beforeafter", "host-box"].includes(shot) || shot.startsWith("host-light")) { Object.assign(secret.assigned as object, SECRETS); secret.seen = Object.fromEntries(Object.keys(people).map((id) => [id, true])); }
 // Loading the pile before the night: nobody has an envelope yet, and the pile holds the six that get picked plus four more.
 if (shot === "host-plan-pile") {
   secret.assigned = {}; secret.seen = {};
@@ -539,7 +577,7 @@ if (joined && shot.startsWith("checkin")) {
   (session.scoreboard as { contestants: Record<string, { uid?: string }> }).contestants[who]!.uid = who;
 }
 if (shot === "checkin-list" || shot === "checkin-confirm") localStorage.setItem("ba.playCode", shot === "checkin-list" ? "" : "");
-if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-handover" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" || shot === "host-lock-offer" || shot === "host-locked" ? { view: "show" } : shot === "host-locked-points" ? { view: "task", task: "t6" } : shot === "host-locked-plan" ? { view: "plan" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" || shot === "host-acetate-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") || shot.startsWith("host-acetate") || shot.startsWith("host-snake") || shot.startsWith("host-duck") ? { view: "task", task: "t8" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-edit-arrival" ? { view: "edit", task: "t0" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" || shot === "host-prize-before" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot === "host-score-light" ? { view: "task", task: "t8" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
+if (shot.startsWith("host-")) { localStorage.setItem("ba.remoteCode", CODE); localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-run" || shot === "host-run-handover" || shot === "host-run-transition" || shot === "host-run-transition-missing" || shot === "host-haul" || shot === "host-arrivals" || shot === "host-reset" || shot === "host-lock-offer" || shot === "host-locked" ? { view: "show" } : shot === "host-locked-points" ? { view: "task", task: "t6" } : shot === "host-locked-plan" ? { view: "plan" } : shot === "host-app-game" ? { view: "task", task: "t2" } : shot === "host-sting" || shot === "host-sting-held" || shot === "host-replay" ? { view: "task", task: "t6" } : shot === "host-edit-transition" || shot === "host-edit-transition-try" ? { view: "edit", task: "t6" } : shot === "host-adhoc" ? { view: "task", task: "adhoc" } : shot === "host-secret" ? { view: "tasks" } : shot === "host-secret-title" ? { view: "task", task: "t4" } : shot === "host-secret-edit" ? { view: "edit", task: "t4" } : shot === "host-flipchart-edit" || shot === "host-acetate-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-flipchart") || shot.startsWith("host-acetate") || shot.startsWith("host-snake") || shot.startsWith("host-duck") ? { view: "task", task: "t8" } : shot.startsWith("host-fruit") ? { view: "task", task: "t7" } : shot === "host-parts-edit" ? { view: "edit", task: "t6" } : shot.startsWith("host-parts") ? { view: "task", task: "t6" } : shot.startsWith("host-onepart") ? { view: "task", task: "t7" } : shot === "host-edit-arrival" ? { view: "edit", task: "t0" } : shot === "host-plan-edit" ? { view: "edit", task: "t8" } : shot.startsWith("host-plan") ? { view: "plan" } : shot === "host-crop" ? { view: "crop", contestant: "greg" } : shot === "host-prize" || shot === "host-points" || shot === "host-prize-before" ? { view: "task", task: "t3" } : shot === "host-photos" ? { view: "task", task: "t2" } : shot === "host-headshot" ? { view: "task", task: "t1" } : shot === "host-beforeafter" ? { view: "task", task: "t6" } : shot === "host-box" ? { view: "task", task: "t7" } : shot === "host-light-flash" ? { view: "show" } : shot === "host-score-light" ? { view: "task", task: "t8" } : shot.startsWith("host-light") ? { view: "light" } : { view: "task", task: "t5" })); }
 // The ⏱ clock's shots open on ⏱ (the task page for one), with the task they came from behind it.
 if (/^host-(cd|sw)-/.test(shot)) {
   localStorage.setItem("ba.hostTab", JSON.stringify(shot === "host-cd-task" || shot === "host-cd-stuck" ? { view: "task", task: "t6" } : shot === "host-cd-turns" ? { view: "task", task: "t8" } : shot === "host-cd-untimed" ? { view: "task", task: "t7" } : shot === "host-cd-limit-edit" || shot === "host-cd-limit-summary" ? { view: "edit", task: "t6" } : { view: "clock" }));

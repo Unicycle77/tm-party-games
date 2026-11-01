@@ -20,7 +20,8 @@ import { Pens } from "../../src/drawing/Pens";
 import { PaperStrip, RollSvg } from "../../src/drawing/surfaces/Roll";
 import { SHEET } from "../../src/games/snake/data";
 import { snakeRolls, duckPages } from "../guest-shots/snakes";
-import { decodePage } from "../../src/drawing/strokes";
+import { decodePage, LINE } from "../../src/drawing/strokes";
+import { fruitPages } from "../guest-shots/selfies";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
@@ -32,6 +33,7 @@ const ACETATE = decodePage(acetateSheets(["alex"]).alex!.p1, MARKERS.length);
 /** Mei's snake (the second longest, from the shots) and Greg's duck. */
 const SNAKE = decodePage(snakeRolls(["mei"]).mei!.p1, MARKERS.length);
 const DUCK = decodePage(duckPages(["greg"]).greg!.p1, RAINBOW.length);
+const SELFIE = decodePage(fruitPages(["alex"]).alex!.p1, RAINBOW.length);
 
 const noop = () => {};
 // A wide group shot cropped onto the person on the left, as on the crop page.
@@ -395,6 +397,22 @@ function Sheet() {
               </div>
             </div>
             <Cap>The ranked list on the host's page (<code>.ranked-list</code>): the measures to read out, in the TV's order, the winner's outcome in burgundy, notes under the name (a thin spot in red). On the TV the winner gets the gold 5 tile (<code>.five</code>) and the best-picture bonus a round paper +1 (<code>.plus-one</code>), side by side when one guest has both; no 0 stamp. A thin spot is circled in red (<code>.thin-ring</code>) when the host asks</Cap>
+          </Sec>
+          <Sec title="Fruit selfie: one clock, everyone's own time" note="stage · phone">
+            <div className="pair" style={{ alignItems: "start", gridTemplateColumns: "1fr 160px" }}>
+              <aside className="collecting-side" style={{ width: "100%" }}>
+                <h2>Time to eat an orange</h2>
+                <ul className="tiles">
+                  <li><button className="tile static" tabIndex={-1}><span className="name">Greg</span><span className="stamp">✓ Time's up</span></button></li>
+                  <li><button className="tile static" tabIndex={-1}><span className="name">Alex</span><span className="time">3:00</span></button></li>
+                  <li><button className="tile static" tabIndex={-1}><span className="name">Tom</span><span className="time">10:00</span></button></li>
+                </ul>
+              </aside>
+              <div className="slot guest-card">
+                <DrawingSheet look="paper"><SheetStrokes strokes={SELFIE} palette={RAINBOW} width={LINE * 2} /></DrawingSheet>
+              </div>
+            </div>
+            <Cap>The TV's times column (<code>.collecting-side .tile .time</code>): everyone's own limit in burgundy typewriter, shortest first, beside one clock counting up; as each time passes, "✓ Time's up" takes its place. The pen drawn without hands is twice as thick (<code>width</code> on <code>SheetPad</code> and <code>SheetStrokes</code>)</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>

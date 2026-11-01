@@ -2,6 +2,7 @@ import { push, ref, remove, set, update } from "firebase/database";
 import { flipchartDefaults } from "../games/flipchart/data";
 import { acetateDefaults } from "../games/acetate/data";
 import { snakeDefaults } from "../games/snake/data";
+import { fruitDefaults } from "../games/fruit/data";
 import { duckDefaults } from "../games/duck/data";
 import { db, storage } from "../firebase";
 import { DEFAULT_WORDS } from "../games/secretTasks/data";
@@ -85,7 +86,7 @@ export async function addTask(code: string, board: Scoreboard | undefined, task:
   const key = push(at(code, "tasks")).key!;
   const entry: ScoreboardTask = "game" in task
     ? { order: nextOrder(board?.tasks), game: task.game, ...(task.game === "secretTasks" && DEFAULT_WORDS), ...(task.game === "flipchart" && flipchartDefaults()), ...(task.game === "acetate" && acetateDefaults()),
-      ...(task.game === "snake" && snakeDefaults()), ...(task.game === "duck" && duckDefaults()) }
+      ...(task.game === "snake" && snakeDefaults()), ...(task.game === "duck" && duckDefaults()), ...(task.game === "fruit" && fruitDefaults()) }
     : { order: nextOrder(board?.tasks), name: task.name.trim(), ...(task.description?.trim() ? { description: task.description.trim() } : {}) };
   await set(at(code, `tasks/${key}`), entry);
   return key;

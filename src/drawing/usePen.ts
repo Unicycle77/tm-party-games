@@ -5,6 +5,7 @@ import { MIN_STEP, type Stroke } from "./strokes";
  * A finger on a surface, turned into strokes: the point under the finger (in the surface's units, from `at`), a new point
  * every `MIN_STEP`, the stroke so far as `draft`, and the finished stroke handed to `onStroke` when the finger lifts.
  * `live` false: the surface takes no ink (before the clock, after it). Spread `handlers` on the surface's element.
+ * One touch at a time: while a stroke is going, any other touch (a cheek or a chin, drawing with a nose) is ignored.
  */
 export function usePen({ live, marker, at, onStroke }: {
   live: boolean;
@@ -15,17 +16,19 @@ export function usePen({ live, marker, at, onStroke }: {
 }) {
   const [draft, setDraft] = useState<Stroke>();
   const drawing = useRef<Stroke>();
+  const pointer = useRef<number>();
   const down = (e: React.PointerEvent<HTMLElement>) => {
-    if (!live) return;
+    if (!live || drawing.current) return;
     const p = at(e);
     if (!p) return;
     e.currentTarget.setPointerCapture(e.pointerId);
+    pointer.current = e.pointerId;
     drawing.current = { c: marker, p };
     setDraft(drawing.current);
   };
   const move = (e: React.PointerEvent<HTMLElement>) => {
     const s = drawing.current;
-    if (!s) return;
+    if (!s || e.pointerId !== pointer.current) return;
     const p = at(e);
     if (!p) return;
     const [x, y] = p;
@@ -33,14 +36,16 @@ export function usePen({ live, marker, at, onStroke }: {
     drawing.current = { ...s, p: [...s.p, x, y] };
     setDraft(drawing.current);
   };
-  const up = () => {
+  const up = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerId !== pointer.current) return;
     const s = drawing.current;
     drawing.current = undefined;
+    pointer.current = undefined;
     setDraft(undefined);
     if (s) onStroke(s);
   };
   /** Drops a stroke in progress (the page turned under it). */
-  const cancel = () => { drawing.current = undefined; setDraft(undefined); };
+  const cancel = () => { drawing.current = undefined; pointer.current = undefined; setDraft(undefined); };
   return { draft, cancel, handlers: { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up } };
 }
 

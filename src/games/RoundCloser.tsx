@@ -1,5 +1,6 @@
 import type { Session } from "../types";
 import { ROUNDS } from "./rounds";
+import { useFruitSender } from "./fruit/closer";
 
 /** Main screen: closes a drawing round on time whatever is up, the curtain included (see drawRound's `useCloser`). */
 export function RoundCloser({ code, session }: { code: string; session: Session }) {
@@ -7,5 +8,7 @@ export function RoundCloser({ code, session }: { code: string; session: Session 
   ROUNDS.acetate.useCloser(code, session, true);
   ROUNDS.snake.useCloser(code, session, true);
   ROUNDS.duck.useCloser(code, session, true);
+  ROUNDS.fruit.useCloser(code, session, true);
+  useFruitSender(code, session);
   return null;
 }
