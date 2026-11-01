@@ -30,6 +30,7 @@ export async function resetScores(code: string, session: Session, guests: boolea
     clock: null,
     phoneText: null,
     "light/got": null,
+    "light/wrong": null,
     "games/box/round": null,
     "games/noisemaster/round": null,
     "games/secretTasks/reveal": null,

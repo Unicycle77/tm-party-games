@@ -163,14 +163,14 @@ export function LightRemote({ code, session }: { code: string; session: Session 
 }
 
 /**
- * Who has worked out the secret, in the order the host tapped them: the place and the points, so the host
- * can say them out loud. Every contestant keeps a chip in the same spot (dimmed once they're on the list),
- * and a tap on a row or a dimmed chip opens it to move them or take them off. While the light is on the
- * task list the points are the scoreboard's (a DQ there shows here); until then a line offers to add it.
+ * Everyone's one guess at the secret: a row per contestant, alphabetical, with Right and Wrong until they've
+ * guessed, then their place and points (the order of the Right taps) or "wrong" and 0, locked in. Tapping a
+ * guessed row opens it to move them or take the guess back. While the light is on the task list the points
+ * are the scoreboard's; until then a line offers to add it.
  */
 export function GotIt({ code, session }: { code: string; session: Session }) {
-  const [last, setLast] = useState<string>();
-  const [lastWrong, setLastWrong] = useState<string>();
+  // The last guess marked here, for the line under the rows.
+  const [last, setLast] = useState<{ c: string; wrong?: true }>();
   const [open, setOpen] = useState<string>();
   const contestants = session.scoreboard?.contestants ?? {};
   const names = Object.entries(contestants).sort(([, a], [, b]) => a.name.localeCompare(b.name));
@@ -183,25 +183,33 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
   const task = id ? session.scoreboard?.tasks?.[id] : undefined;
   const worked = task && workOut(task);
   const pointsOf = (c: string) => worked ? worked.points[c] ?? 0 : pointsForPlace(placeOf(c));
-  const mark = (c: string) => { void markGot(code, session, c); setLast(c); setLastWrong(undefined); setOpen(undefined); };
-  const lastPlace = last ? placeOf(last) : 0;
-  const wrong = names.map(([c]) => c).filter((c) => lightOf(session).wrong?.[c]);
-  const markW = (c: string) => { void markWrong(code, c); setLastWrong(c); setLast(undefined); setOpen(undefined); };
+  // A right guess wins over a wrong one, should both ever be saved.
+  const isWrong = (c: string) => !!lightOf(session).wrong?.[c] && placeOf(c) === 0;
+  const guesses = order.length + names.filter(([c]) => isWrong(c)).length;
+  const mark = (c: string, right: boolean) => {
+    void (right ? markGot(code, session, c) : markWrong(code, c));
+    setLast(right ? { c } : { c, wrong: true }); setOpen(undefined);
+  };
+  const takeBack = (c: string) => {
+    void (placeOf(c) > 0 ? unmarkGot(code, session, c) : unmarkWrong(code, c));
+    setOpen(undefined); if (last?.c === c) setLast(undefined);
+  };
+  const lastPlace = last && !last.wrong ? placeOf(last.c) : 0;
 
   return (
     <div className="light-got">
-      <div className="remote-head"><h3>Guesses</h3><span className="muted small">{order.length + wrong.length} of {names.length} · one each</span></div>
+      <div className="remote-head"><h3>Guesses</h3><span className="muted small">{guesses} of {names.length} · one each</span></div>
       <ul>
         {names.map(([c, { name }]) => {
           const place = placeOf(c);
           return (
-            <li key={c} className={[open === c && "open", task?.dq?.[c] && "dq"].filter(Boolean).join(" ") || undefined}>
+            <li key={c} className={open === c ? "open" : undefined}>
               {place > 0 ? (
                 <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
-                  <span className="light-got-name">{name}</span><span className="muted">✓ {ordinal(place)}</span>
-                  <span className="light-got-pts">{task?.dq?.[c] ? "DQ" : `${pointsOf(c)} pts`}</span>
+                  <span className="light-got-name">{name}</span><span>✓ {ordinal(place)}</span>
+                  <span className="light-got-pts">{pointsOf(c)} pts</span>
                 </button>
-              ) : wrong.includes(c) ? (
+              ) : isWrong(c) ? (
                 <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
                   <span className="light-got-name">{name}</span><span className="muted">✗ wrong</span><span className="light-got-pts">0 pts</span>
                 </button>
@@ -209,8 +217,8 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
                 <div className="light-got-row light-got-ask">
                   <span className="light-got-name">{name}</span>
                   <span className="light-got-buttons">
-                    <button onClick={() => mark(c)} aria-label={`${name} got it`}>✓ Right</button>
-                    <button onClick={() => markW(c)} aria-label={`${name} guessed wrong`}>✗ Wrong</button>
+                    <button onClick={() => mark(c, true)} aria-label={`${name} got it`}>✓ Right</button>
+                    <button onClick={() => mark(c, false)} aria-label={`${name} guessed wrong`}>✗ Wrong</button>
                   </span>
                 </div>
               )}
@@ -222,15 +230,15 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
                       <button key={k} aria-pressed={k + 1 === place} onClick={() => { if (k + 1 !== place) void moveGot(code, session, c, k + 1); }}>{ordinal(k + 1)}</button>
                     ))}
                   </div>
-                  <button className="link" onClick={() => { void unmarkGot(code, session, c); setOpen(undefined); if (last === c) setLast(undefined); }}>
+                  <button className="link" onClick={() => takeBack(c)}>
                     Take {name}'s guess back
                   </button>
                 </div>
               )}
-              {open === c && wrong.includes(c) && (
+              {open === c && isWrong(c) && (
                 <div className="light-got-fix">
                   <p className="muted small">Marked wrong by mistake? Taking it back gives {name} Right and Wrong again.</p>
-                  <button className="link" onClick={() => { void unmarkWrong(code, c); setOpen(undefined); if (lastWrong === c) setLastWrong(undefined); }}>
+                  <button className="link" onClick={() => takeBack(c)}>
                     Take {name}'s guess back
                   </button>
                 </div>
@@ -239,11 +247,9 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
           );
         })}
       </ul>
-      {lastWrong && !last && (
-        <p className="muted small">✗ {nameOf(lastWrong)} guessed wrong · 0 points, locked in.</p>
-      )}
+      {last?.wrong && isWrong(last.c) && <p className="muted small">✗ {nameOf(last.c)} guessed wrong · 0 points, locked in.</p>}
       {lastPlace > 0 && (
-        <p className="muted small">✓ {nameOf(last!)} got it {ordinal(lastPlace)} · {pointsOf(last!)} points{task ? " on the scoreboard" : ""}.</p>
+        <p className="muted small">✓ {nameOf(last!.c)} got it {ordinal(lastPlace)} · {pointsOf(last!.c)} points{task ? " on the scoreboard" : ""}.</p>
       )}
       {!task && (
         <p className="muted small">

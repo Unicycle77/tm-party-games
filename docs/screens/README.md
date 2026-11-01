@@ -120,12 +120,7 @@ Host phone (`/host`, 390px wide):
 | `host-running-order.jpg` | Curtain down between contestants: gold "Next: Alex →", the running order (shown ones dimmed), Points below (2026-10-18) |
 | `host-box-setup.jpg` | [BLANK] in a Box: setting up a round |
 | `host-light.jpg` | 💡 The light as a side page: "← Back", the status line, then the light's switch, its secret and the "Got it" list (2026-10-18) |
-| `host-light-got-it.jpg` | 💡 The light's "Got it" list: Sam 1st, Priya just tapped in 2nd ("✓ Priya got it 2nd · 4 points."), their chips dimmed with ✓ (2026-10-17) |
-| `host-light-got-it-fix.jpg` | Fixing a mark: Tom's row open with the place chips (3rd pressed in) and "Take Tom off the list" (2026-10-17) |
-| `host-light-got-it-listed.jpg` | The light on the task list: "✓ Mei got it 4th · 2 points on the scoreboard.", no nudge (2026-10-17) |
-| `host-light-got-it-dq.jpg` | Sam DQ'd on the scoreboard: struck through with "DQ", the others moved up (2026-10-17) |
 | `run-of-show-host-light.jpg` | "7 💡 The light · 3 of 5 got it" on Run of show: tapping the row opens its page, and there is no ▶ Start (2026-10-18) |
-| `scoreboard-host-points-light.jpg` | The light's points page: "got it 2nd" or "not yet" for each contestant, "Fastest wins · order from the light · 4 of 6 got it · 1 bonus point", Sam DQ'd and the others moved up, "Change the order on 💡 The light", Mei's +1 bonus (2026-10-17) |
 | `noisemaster-host-kept.jpg` | A Noisemaster go while it isn't on the task list: "Kept. Not on the task list yet, so this time isn't on the scoreboard. Add it" (2026-10-17) |
 | `host-jukebox.jpg` | 🎵 The jukebox while a song plays: "← Back", the status line, the pressed-in now-playing strip, the jukebox below, and the four header icons with 🎵▶ open (2026-10-18) |
 | `host-now-playing.jpg` | A task page with a song playing: the pressed-in "⏸ Eye of the Tiger · 1:55 left" strip under the status line, and the task's own song strip pressed in too (2026-10-18) |
@@ -374,7 +369,10 @@ The task pages (taken on 2026-10-21 from the ABCD party with `docs/guest-shots`,
 | `light-host-left-over.jpg` | A /light page ran the light and was closed without Stop: "The /light page that was running the light has closed.", gold "Run it on the big screen instead", "Or open …/light on that computer again.", no switch or test (2026-10-24) |
 | `light-host-trouble.jpg` | The lamp dropped mid-game, light on: 💡 with the alert dot, "The Hue lamp isn't responding: couldn't reach the bridge. Check the lamp is switched on at the wall, then fix it here.", Sam 1st and Priya 2nd still on Got it (2026-10-24) |
 | `light-host-trouble-fix.jpg` | "fix it here" opened: the lamp step with "○ Hue lamp: Living room, not responding", "Switch the light off to test the lamp…" instead of Flash the lamp, and the bridge's error (2026-10-24) |
-| `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Got it: Sam 1st 5 pts, Priya 2nd 4 pts |
+| `light-host-got-it.jpg` | The host's 💡 page with the light on: "Camera sees 6 people, 2 smiling.", "Light it in 2 s", the secret, and Guesses: Sam ✓ 1st 5 pts, Priya ✓ 2nd 4 pts, everyone else with Right and Wrong (re-shot 2026-11-01) |
+| `light-host-wrong.jpg` | Guesses after Mei's wrong guess was just tapped: Alex and Mei "✗ wrong · 0 pts", Sam and Priya with their places, Greg and Tom still with Right and Wrong, "✗ Mei guessed wrong · 0 points, locked in." (2026-11-01) |
+| `light-host-wrong-fix.jpg` | Alex's wrong row tapped open: "Marked wrong by mistake? Taking it back gives Alex Right and Wrong again." and "Take Alex's guess back" (2026-11-01) |
+| `light-host-score.jpg` | The light's points page, a read-out: "guessed wrong", "didn't guess" or "got it 2nd" per row, 0 for anyone without a right guess, no DQ or bonus chips, "2 got it · 2 wrong · 2 didn't guess", and Done (2026-11-01) |
 
 The download-all zip (2026-10-25, the ABCD party's last night: Alex and Priya tied on 30 after eight tasks, Priya won the tiebreaker; `node docs/guest-shots/zip.mjs` draws the files with the app's own renderers, `shoot.mjs zip-main-menu zip-main-zipping` the TV):
 

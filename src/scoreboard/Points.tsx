@@ -191,14 +191,14 @@ function MeasuredRow({ name, total, timed, light, wrong, unit, lo, over, line, r
   const overridden = given !== undefined && !dq;
   const autoLine = auto !== undefined && place !== undefined ? `${auto} for ${ordinal(place)}` : undefined;
   return (
-    <li className={dq ? "dq" : undefined}>
+    <li className={dq && !light ? "dq" : undefined}>
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
         {/* The light has no DQ: one guess each, right or wrong, and nothing else to break. */}
         {light ? <span /> : (
           <div className="choices marks sb-dq">
-          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
-        </div>
+            <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
+          </div>
         )}
         {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result !== undefined ? `got it ${ordinal(result)}` : wrong ? "guessed wrong" : "didn't guess"}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
@@ -208,7 +208,7 @@ function MeasuredRow({ name, total, timed, light, wrong, unit, lo, over, line, r
         )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
         {/* The light's points come only from the order on 💡: nothing to set by hand, and no bonus. */}
-        {light ? <span className={`sb-pts sb-zero${points === undefined ? " muted" : ""}`}><b>{points ?? 0}</b><span className="small">{place !== undefined ? ordinal(place) : ""}</span></span>
+        {light ? <span className={`sb-pts${points === undefined ? " muted" : ""}`}><b>{points ?? 0}</b><span className="small">{place !== undefined ? ordinal(place) : ""}</span></span>
           : points !== undefined
           ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
               disabled={dq} onClick={() => setOpen(!open)}>
