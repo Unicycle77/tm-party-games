@@ -3,13 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { db } from "../../firebase";
 import { MARKERS } from "../../drawing/palettes";
 import { Pens } from "../../drawing/Pens";
+import { StrokesSvg } from "../../drawing/StrokesSvg";
 import { boxAt, usePen } from "../../drawing/usePen";
 import { useSavedStrokes } from "../../drawing/useSaved";
 import { GuestCard, Quote, Status, afterwards, useGuest } from "../../guest";
 import type { Session } from "../../types";
-import { PageSvg } from "../flipchart/Portrait";
-import { PAGE_H, PAGE_W } from "../flipchart/strokes";
-import { SHEET, acetateTask, closed, dataOf, drawOf, sheetOf, started, titleOfDraw, useRemaining } from "./data";
+import { SHEET, SHEET_H, SHEET_W, acetateTask, closed, dataOf, drawOf, sheetOf, started, titleOfDraw, useRemaining } from "./data";
 
 const path = (code: string) => `sessions/${code}/games/acetate`;
 
@@ -48,13 +47,13 @@ function Acetate({ code, uid, session, live }: { code: string; uid: string; sess
   const { strokes, latest, change } = useSavedStrokes(code, path(code), `pages/${uid}/${SHEET}`, sheetOf(session, uid));
   const [marker, setMarker] = useState(0);
   const surface = useRef<HTMLDivElement>(null);
-  const pen = usePen({ live, marker, at: (e) => boxAt(surface.current, PAGE_W, PAGE_H)(e), onStroke: (s) => change([...latest.current, s]) });
+  const pen = usePen({ live, marker, at: (e) => boxAt(surface.current, SHEET_W, SHEET_H)(e), onStroke: (s) => change([...latest.current, s]) });
 
   return (
     <>
       <Sheet>
         <div ref={surface} className={live ? "acetate-surface live" : "acetate-surface"} {...pen.handlers}>
-          <PageSvg strokes={strokes} draft={pen.draft} />
+          <StrokesSvg w={SHEET_W} h={SHEET_H} strokes={strokes} draft={pen.draft} palette={MARKERS} />
         </div>
       </Sheet>
       {live && <Pens palette={MARKERS} marker={marker} onMarker={setMarker} canUndo={strokes.length > 0} onUndo={() => change(latest.current.slice(0, -1))} />}
@@ -72,7 +71,7 @@ function Receipt({ code, uid, session, label, title, left }: { code: string; uid
     <>
       <Status>{afterwards("Time's up. Acetate in.", left)}</Status>
       <GuestCard label={label} title={title}>
-        <Sheet small><PageSvg strokes={sheetOf(session, uid)} /></Sheet>
+        <Sheet small><StrokesSvg w={SHEET_W} h={SHEET_H} strokes={sheetOf(session, uid)} palette={MARKERS} /></Sheet>
         <span className="stamp">✓ Submitted</span>
         <p className="slot-hint">🔒 Your acetate is locked in. You'll see it on the projector.</p>
       </GuestCard>

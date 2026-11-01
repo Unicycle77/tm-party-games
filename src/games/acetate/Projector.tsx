@@ -1,7 +1,8 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { PageSvg } from "../flipchart/Portrait";
+import { MARKERS } from "../../drawing/palettes";
+import { StrokesSvg } from "../../drawing/StrokesSvg";
 import type { Stroke } from "../../drawing/strokes";
-import { handOf } from "./data";
+import { SHEET_H, SHEET_W, handOf } from "./data";
 
 /** The steps of the hand putting the acetate down: an empty glass, the sheet dropped in crooked, a nudge or two, the hand gone. */
 type Beat = "empty" | "drop" | "nudge" | "nudge2" | "rest" | "gone";
@@ -43,7 +44,7 @@ export function Projector({ uid, strokes, landing = false, small = false }: { ui
       <div className="ohp-spill" />
       <div className="ohp-light">
         <div className="ohp-sheet" style={sheet}>
-          <div className="ohp-ink"><PageSvg strokes={strokes} /></div>
+          <div className="ohp-ink"><StrokesSvg w={SHEET_W} h={SHEET_H} strokes={strokes} palette={MARKERS} /></div>
           {!still && (
             <div className={["ohp-hand", hand.side, handOn ? "on" : "off"].join(" ")}>
               <HandShadow />

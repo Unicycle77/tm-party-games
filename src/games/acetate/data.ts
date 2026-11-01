@@ -36,6 +36,10 @@ export const { dataOf, started, closed, running, holdsScreen, sentCount, useRema
 export const acetateStatus = round.status;
 
 /** The one sheet each guest draws on. */
+/** A sheet of A4, 1000 units across (1 : 1.414). */
+export const SHEET_W = 1000;
+export const SHEET_H = 1414;
+
 export const SHEET = "p1";
 
 /** A guest's acetate, decoded from the session, the guest's way up. */

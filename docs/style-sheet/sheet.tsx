@@ -11,9 +11,10 @@ import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
 import { FlipClock } from "../../src/clock/FlipClock";
-import { PageSvg, Portrait } from "../../src/games/flipchart/Portrait";
+import { Portrait } from "../../src/games/flipchart/Portrait";
 import { Sheet as AcetateSheet } from "../../src/games/acetate/PlayerView";
 import { Projector } from "../../src/games/acetate/Projector";
+import { SHEET_H, SHEET_W } from "../../src/games/acetate/data";
 import { acetateSheets } from "../guest-shots/acetates";
 import { MARKERS, RAINBOW } from "../../src/drawing/palettes";
 import { Pens } from "../../src/drawing/Pens";
@@ -370,7 +371,7 @@ function Sheet() {
           </Sec>
           <Sec title="Acetate &amp; projector" note="phone · stage">
             <div className="pair" style={{ alignItems: "center" }}>
-              <div className="slot guest-card" style={{ width: 200 }}><AcetateSheet><PageSvg strokes={ACETATE} /></AcetateSheet></div>
+              <div className="slot guest-card" style={{ width: 200 }}><AcetateSheet><StrokesSvg w={SHEET_W} h={SHEET_H} strokes={ACETATE} palette={MARKERS} /></AcetateSheet></div>
               <div className="ohp-demo"><Projector uid="alex" strokes={ACETATE} /></div>
             </div>
             <Cap>The acetate (<code>.acetate-sheet</code>): a clear A4 sheet lying on the card, the paper showing through, a faint glare; never white paper. Flipchart's four markers and ↶ Undo; no clock and no send button. The projector (<code>.ohp</code>): the curtain darkened to a third, a keystoned square of warm light with a soft spill, blue and amber edges, the sheet on the glass turned half way round and a degree or two off straight. On the reveal a blurred, see-through hand puts it down and nudges it, a little differently for each guest</Cap>
