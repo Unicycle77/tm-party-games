@@ -84,6 +84,8 @@ export function unmarkGot(code: string, session: Session, contestant: string) {
 
 /** Marks a contestant as having guessed wrong: their one guess is used, for 0 points. */
 export const markWrong = (code: string, contestant: string) => set(ref(db(), `sessions/${code}/light/wrong/${contestant}`), true);
+/** Takes a wrong guess back, as if they'd never guessed. */
+export const unmarkWrong = (code: string, contestant: string) => set(ref(db(), `sessions/${code}/light/wrong/${contestant}`), null);
 
 export const setCamera = (code: string, camera: LightState["camera"] | null) => set(path(code, "camera"), camera);
 

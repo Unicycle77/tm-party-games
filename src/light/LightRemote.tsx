@@ -6,7 +6,7 @@ import type { Session } from "../types";
 import { PUBLIC_URL } from "../firebase";
 import {
   DELAY_MS, cameraText, gotOrder, isArmed, lightAllNow, lightLater, lightNow, lightOf, lightOneLater, lightPageGone, markGot, markWrong, modeOf, moveGot, moveToStage, releaseLight, setArmed,
-  setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot,
+  setMode, setSetup, setTrigger, startOnStage, triggerOf, unmarkGot, unmarkWrong,
 } from "./data";
 import { ReadyLine, type SetupStep, StageSetup, TroubleLine } from "./StageSetup";
 import { MODES, TRIGGERS } from "./triggers";
@@ -202,7 +202,9 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
                   <span className="light-got-pts">{task?.dq?.[c] ? "DQ" : `${pointsOf(c)} pts`}</span>
                 </button>
               ) : wrong.includes(c) ? (
-                <div className="light-got-row"><span className="light-got-name">{name}</span><span className="muted">✗ wrong</span><span className="light-got-pts">0 pts</span></div>
+                <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
+                  <span className="light-got-name">{name}</span><span className="muted">✗ wrong</span><span className="light-got-pts">0 pts</span>
+                </button>
               ) : (
                 <div className="light-got-row light-got-ask">
                   <span className="light-got-name">{name}</span>
@@ -221,7 +223,15 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
                     ))}
                   </div>
                   <button className="link" onClick={() => { void unmarkGot(code, session, c); setOpen(undefined); if (last === c) setLast(undefined); }}>
-                    Take {name} off the list
+                    Take {name}'s guess back
+                  </button>
+                </div>
+              )}
+              {open === c && wrong.includes(c) && (
+                <div className="light-got-fix">
+                  <p className="muted small">Marked wrong by mistake? Taking it back gives {name} Right and Wrong again.</p>
+                  <button className="link" onClick={() => { void unmarkWrong(code, c); setOpen(undefined); if (lastWrong === c) setLastWrong(undefined); }}>
+                    Take {name}'s guess back
                   </button>
                 </div>
               )}
