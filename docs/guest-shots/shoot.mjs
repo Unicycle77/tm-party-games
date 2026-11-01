@@ -58,7 +58,7 @@ const SHOTS = {
   "light-main-lit": ["tv-light", "", async (p) => { await p.waitForTimeout(3000); }],
   "light-host-got-it": ["host-light"],
   "light-main-all": ["tv-light-all", "", async (p) => { await p.waitForTimeout(3000); }],
-  "light-host-wrong": ["host-light-wrong", "", async (p) => { await p.getByRole("button", { name: "Mei", exact: true }).last().click(); await p.waitForTimeout(500); }],
+  "light-host-wrong": ["host-light-wrong", "", async (p) => { await p.getByRole("button", { name: "Mei guessed wrong" }).click(); await p.waitForTimeout(500); }],
   "light-host-change": ["host-light-change", "", async (p) => { await p.getByRole("button", { name: "Change" }).first().click(); }],
   // the light run by the big screen, set up from the phone: not started, the camera check, the lamp check, ready, and the 💡 pulsing for a flash
   "light-host-start": ["host-light-start"],

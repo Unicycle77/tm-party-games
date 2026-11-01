@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Toggle } from "../Toggle";
 import { addKeptGame, taskFor } from "../scoreboard/data";
 import { ordinal, pointsForPlace, workOut } from "../scoreboard/measured";
-import { list } from "../scoreboard/tasks";
 import type { Session } from "../types";
 import { PUBLIC_URL } from "../firebase";
 import {
@@ -187,40 +186,49 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
   const mark = (c: string) => { void markGot(code, session, c); setLast(c); setLastWrong(undefined); setOpen(undefined); };
   const lastPlace = last ? placeOf(last) : 0;
   const wrong = names.map(([c]) => c).filter((c) => lightOf(session).wrong?.[c]);
-  const guessed = (c: string) => placeOf(c) > 0 || wrong.includes(c);
   const markW = (c: string) => { void markWrong(code, c); setLastWrong(c); setLast(undefined); setOpen(undefined); };
 
   return (
     <div className="light-got">
-      <div className="remote-head"><h3>Got it</h3><span className="muted small">{order.length} of {names.length}</span></div>
-      {order.length > 0 && (
-        <ol>
-          {order.map((c, i) => (
+      <div className="remote-head"><h3>Guesses</h3><span className="muted small">{order.length + wrong.length} of {names.length} · one each</span></div>
+      <ul>
+        {names.map(([c, { name }]) => {
+          const place = placeOf(c);
+          return (
             <li key={c} className={[open === c && "open", task?.dq?.[c] && "dq"].filter(Boolean).join(" ") || undefined}>
-              <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
-                <span className="muted">{ordinal(i + 1)}</span><span className="light-got-name">{nameOf(c)}</span>
-                <span className="light-got-pts">{task?.dq?.[c] ? "DQ" : `${pointsOf(c)} pts`}</span>
-              </button>
-              {open === c && (
+              {place > 0 ? (
+                <button className="light-got-row" aria-expanded={open === c} onClick={() => setOpen(open === c ? undefined : c)}>
+                  <span className="light-got-name">{name}</span><span className="muted">✓ {ordinal(place)}</span>
+                  <span className="light-got-pts">{task?.dq?.[c] ? "DQ" : `${pointsOf(c)} pts`}</span>
+                </button>
+              ) : wrong.includes(c) ? (
+                <div className="light-got-row"><span className="light-got-name">{name}</span><span className="muted">✗ wrong</span><span className="light-got-pts">0 pts</span></div>
+              ) : (
+                <div className="light-got-row light-got-ask">
+                  <span className="light-got-name">{name}</span>
+                  <span className="light-got-buttons">
+                    <button onClick={() => mark(c)} aria-label={`${name} got it`}>✓ Right</button>
+                    <button onClick={() => markW(c)} aria-label={`${name} guessed wrong`}>✗ Wrong</button>
+                  </span>
+                </div>
+              )}
+              {open === c && place > 0 && (
                 <div className="light-got-fix">
-                  <p className="muted small">{nameOf(c)}'s place. Tap another to move {nameOf(c)}; the others shift.</p>
-                  <div className="choices marks" role="group" aria-label={`${nameOf(c)}'s place`}>
+                  <p className="muted small">{name}'s place. Tap another to move {name}; the others shift.</p>
+                  <div className="choices marks" role="group" aria-label={`${name}'s place`}>
                     {order.map((_, k) => (
-                      <button key={k} aria-pressed={k === i} onClick={() => { if (k !== i) void moveGot(code, session, c, k + 1); }}>{ordinal(k + 1)}</button>
+                      <button key={k} aria-pressed={k + 1 === place} onClick={() => { if (k + 1 !== place) void moveGot(code, session, c, k + 1); }}>{ordinal(k + 1)}</button>
                     ))}
                   </div>
                   <button className="link" onClick={() => { void unmarkGot(code, session, c); setOpen(undefined); if (last === c) setLast(undefined); }}>
-                    Take {nameOf(c)} off the list
+                    Take {name} off the list
                   </button>
                 </div>
               )}
             </li>
-          ))}
-        </ol>
-      )}
-      {wrong.length > 0 && (
-        <div className="light-got-row light-got-wrong"><span className="muted">✗</span><span className="light-got-name">Guessed wrong: {list(wrong.map(nameOf))}</span><span className="light-got-pts">0 pts</span></div>
-      )}
+          );
+        })}
+      </ul>
       {lastWrong && !last && (
         <p className="muted small">✗ {nameOf(lastWrong)} guessed wrong · 0 points, locked in.</p>
       )}
@@ -233,19 +241,6 @@ export function GotIt({ code, session }: { code: string; session: Session }) {
           <button className="link" onClick={() => void addKeptGame(code, session, "light")}>Add it</button>
         </p>
       )}
-      <p className="muted small">Tap whoever just got it:</p>
-      <div className="choices">
-        {names.map(([c, { name }]) => placeOf(c) > 0
-          ? <button key={c} className="got" aria-label={`${name}, got it ${ordinal(placeOf(c))}. Change`} onClick={() => setOpen(c)}>✓ {name}</button>
-          : wrong.includes(c) ? <button key={c} className="got" aria-label={`${name}, guessed wrong`}>✗ {name}</button>
-          : <button key={c} onClick={() => mark(c)}>{name}</button>)}
-      </div>
-      <p className="muted small">Tap whoever just guessed wrong:</p>
-      <div className="choices">
-        {names.map(([c, { name }]) => guessed(c)
-          ? <button key={c} className="got" aria-label={`${name}, already guessed`}>{placeOf(c) > 0 ? "✓" : "✗"} {name}</button>
-          : <button key={c} onClick={() => markW(c)}>{name}</button>)}
-      </div>
     </div>
   );
 }
