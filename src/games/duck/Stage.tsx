@@ -3,9 +3,9 @@ import { TaskCard } from "../../TaskCard";
 import type { Display, Session } from "../../types";
 import { FlipClock } from "../../clock/FlipClock";
 import type { Mask } from "../../drawing/measure";
-import { StrokesSvg } from "../../drawing/StrokesSvg";
+import { SHEET_H, SHEET_W, SheetStrokes } from "../../drawing/surfaces/Sheet";
 import { useServerNow } from "../noisemaster/data";
-import { DUCK_WORDS, HANG_MS, PAGE_H, PAGE_W, PALETTE, WASH_MS, closed, duckTask, pageOf, running, sizeOf, slideAt, useRemaining } from "./data";
+import { DUCK_WORDS, HANG_MS, PALETTE, WASH_MS, closed, duckTask, pageOf, running, sizeOf, slideAt, useRemaining } from "./data";
 import { duckStandings } from "./standings";
 
 /** While they draw: the show's clock. Before and after it, the task's words, with the stamp once every duck is in. */
@@ -76,8 +76,8 @@ export function Stage({ session, display }: { code: string; session: Session; di
   const cellW = (vp.w * 0.92) / cols;
   const cellH = (vp.h * 0.74) / rowsN;
   // The frame's border is about 7% of the page's width on each side.
-  const frameH = Math.min((cellH - label) / 1.2, ((cellW * 0.8) / PAGE_W) * PAGE_H);
-  const frameW = (frameH * PAGE_W) / PAGE_H;
+  const frameH = Math.min((cellH - label) / 1.2, ((cellW * 0.8) / SHEET_W) * SHEET_H);
+  const frameW = (frameH * SHEET_W) / SHEET_H;
   // Each row as tall as its frames and labels, so the line-up sits in the middle of the screen rather than up top.
   const rowH = Math.min(cellH, frameH * 1.2 + label);
   const washes = useMemo(() => Object.fromEntries(rows.map((r) => [r.uid, washOf(sizeOf(session, r.uid).mask)])), [rows.map((r) => r.uid).join(), session.games?.duck?.pages]);
@@ -97,7 +97,7 @@ export function Stage({ session, display }: { code: string; session: Session; di
             <figure key={r.uid} className={["duck-cell", falls && "falling", gone && "gone", done && r.won && "won"].filter(Boolean).join(" ")}
               style={{ transform: `translate(${x}px, ${y}px)`, "--dx": `${left ? -12 : 12}vw`, "--turn": `${left ? -35 : 35}deg` } as CSSProperties}>
               <div className="duck-frame">
-                <StrokesSvg w={PAGE_W} h={PAGE_H} strokes={pageOf(session, r.uid)} palette={PALETTE} />
+                <SheetStrokes strokes={pageOf(session, r.uid)} palette={PALETTE} />
                 {washes[r.uid] && !still && since < washAt + WASH_MS + 500 && (
                   <img className="duck-wash" src={washes[r.uid]} alt="" style={{ animationDelay: `${washAt - since}ms` }} />
                 )}

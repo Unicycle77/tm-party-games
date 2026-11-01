@@ -1496,7 +1496,9 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
 .flipchart .bar { height: 0.7rem; background: linear-gradient(#6b6b6b, #3c3c3c); }
 .flipchart .page { position: relative; aspect-ratio: 1000 / 1414; background: #fffdf8; color: var(--ink); }
 .flipchart.small { width: 38%; justify-self: center; }
-.fc-surface { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+/* the sheet taking ink (`SheetPad`), on any of its three looks */
+.sheet-pad { position: absolute; inset: 0; touch-action: none; }
+.sheet-pad.live { cursor: crosshair; }
 .fc-svg { display: block; width: 100%; height: 100%; }
 .fc-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); }
 .fc-grid span { display: grid; place-items: center; border: 1px dashed #0004; font-family: var(--typewriter); font-size: 1.6rem; color: #6b5a44; }
@@ -1535,8 +1537,6 @@ button.name-tag:focus-visible { outline: 2px solid var(--gold-bright); }
   background: linear-gradient(115deg, transparent 30%, #ffffff55 38%, transparent 46%);
 }
 .acetate-sheet.small { width: 38%; }
-.acetate-surface { position: absolute; inset: 0; touch-action: none; }
-.acetate-surface.live { cursor: crosshair; }
 
 /* the big screen: the curtain darkened, not black, as if the lights went down for the projector */
 body:has(.ohp-stage)::before { filter: brightness(0.3) saturate(0.9); }
@@ -1625,8 +1625,6 @@ body:has(.ohp-stage)::before { filter: brightness(0.3) saturate(0.9); }
 .paper-sheet { position: relative; width: 70%; justify-self: center; margin-top: 0.4rem; aspect-ratio: 1000 / 1414; background: #fff; box-shadow: 0 0 0 1px #0002, 0 4px 10px #0005; }
 .paper-sheet.small { width: 38%; }
 .paper-sheet .fc-svg { position: absolute; inset: 0; }
-.paper-surface { position: absolute; inset: 0; touch-action: none; }
-.paper-surface.live { cursor: crosshair; }
 
 /* ---- the snake's and the duck's host list: what to read out, the winner in burgundy (accent on paper) ---- */
 .snake-round { display: grid; gap: 0.7rem; }

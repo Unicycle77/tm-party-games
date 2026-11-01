@@ -1,7 +1,7 @@
 // Each guest's Acetate for the shots, as strokes on their sheet (the guest's way up, as stored). Drawn here as the room
 // should see them on the projector, then turned half way round for the guest's phone, except where the guest forgot.
 import { encodePage, type Stroke } from "../../src/drawing/strokes";
-import { PAGE_H, PAGE_W } from "../../src/games/flipchart/strokes";
+import { SHEET_H, SHEET_W } from "../../src/drawing/surfaces/Sheet";
 
 const BLACK = 0, RED = 1, BLUE = 2, GREEN = 3;
 type Pt = [number, number];
@@ -68,7 +68,7 @@ function word(text: string, cx: number, y: number, h: number, c: number, { turne
 /** Turns strokes half way round about a point. */
 const turn = (strokes: Stroke[], cx: number, cy: number): Stroke[] => strokes.map((s) => ({ c: s.c, p: s.p.map((v, i) => Math.round(i % 2 ? 2 * cy - v : 2 * cx - v)) }));
 /** From the room's view to the guest's phone: half way round about the middle of the sheet. */
-const toPhone = (strokes: Stroke[]) => turn(strokes, PAGE_W / 2, PAGE_H / 2);
+const toPhone = (strokes: Stroke[]) => turn(strokes, SHEET_W / 2, SHEET_H / 2);
 
 /** What each guest put on their acetate, in the room's view (see the shots for who did what). */
 const ROOM: Record<string, Stroke[]> = {
@@ -81,7 +81,7 @@ const ROOM: Record<string, Stroke[]> = {
   // Got both right.
   priya: [...horse(0, 0, 1, GREEN), grass(), ...word("PRIYA", 500, 1170, 130, RED)],
   // Forgot it all: drew it the normal way up on the phone, so the horse is on its back and the name upside down.
-  sam: [...turn([...horse(), ...word("SAM", 500, 1170, 140, BLUE)], PAGE_W / 2, PAGE_H / 2)],
+  sam: [...turn([...horse(), ...word("SAM", 500, 1170, 140, BLUE)], SHEET_W / 2, SHEET_H / 2)],
   // Ran out of time: a head and half a name.
   tom: [...horse(-120, 120).slice(1, 3), ...horse(-120, 120).slice(8), ...word("TO", 440, 1150, 140, BLUE)],
 };

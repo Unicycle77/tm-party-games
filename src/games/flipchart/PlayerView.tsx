@@ -5,12 +5,11 @@ import { GuestCard, Quote, Status, afterwards, useGuest } from "../../guest";
 import { store } from "../../session";
 import type { Session } from "../../types";
 import { closed, dataOf, drawOf, flipchartTask, started, useRemaining } from "./data";
-import { PageSvg } from "./Portrait";
 import { MARKERS } from "../../drawing/palettes";
 import { Pens } from "../../drawing/Pens";
 import { encodePage, type Stroke } from "../../drawing/strokes";
-import { boxAt, usePen } from "../../drawing/usePen";
-import { PAGES, PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN, pageKey, pagesOf } from "./strokes";
+import { Sheet, SheetPad } from "../../drawing/surfaces/Sheet";
+import { PAGES, PATTERN, UPSIDE_DOWN, pageKey, pagesOf } from "./strokes";
 
 const SHEET_KEY = "ba.flipchart.page";
 const path = (code: string) => `sessions/${code}/games/flipchart`;
@@ -53,23 +52,12 @@ function FrontPage() {
   );
 }
 
-/** A flipchart: its binding and one page of paper. */
-function Paper({ children, small = false }: { children: React.ReactNode; small?: boolean }) {
-  return (
-    <div className={small ? "flipchart small" : "flipchart"}>
-      <div className="bar" />
-      <div className="page">{children}</div>
-    </div>
-  );
-}
-
 function Flipchart({ code, uid, session, live, words, again }: { code: string; uid: string; session: Session; live: boolean; words?: string; again: boolean }) {
   const [pages, setPages] = useState(() => pagesOf(session, uid));
   // 0 is the front page, 1 to 16 the pages in order. A reloaded phone is back on the page it was on.
   const [sheet, setSheet] = useState(() => (live ? Math.min(PAGES, Math.max(0, Number(store.get(`${SHEET_KEY}.${code}`)) || 0)) : 0));
   const [marker, setMarker] = useState(0);
   const [confirming, setConfirming] = useState(false);
-  const surface = useRef<HTMLDivElement>(null);
   const dirty = useRef(new Set<number>());
   const timer = useRef<number>();
   const latest = useRef(pages);
@@ -93,11 +81,8 @@ function Flipchart({ code, uid, session, live, words, again }: { code: string; u
   useEffect(() => () => flush(), []);
   useEffect(() => { if (live) store.set(`${SHEET_KEY}.${code}`, String(sheet)); }, [live, sheet]);
 
-  const pen = usePen({
-    live: live && sheet > 0, marker, at: (e) => boxAt(surface.current, PAGE_W, PAGE_H)(e),
-    onStroke: (st) => changed(sheet, [...latest.current[sheet - 1]!, st]),
-  });
-  const turn = (by: 1 | -1) => { flush(); pen.cancel(); setConfirming(false); setSheet((s) => s + by); };
+  // Turning the page gives the pad a new key, which drops a stroke in progress.
+  const turn = (by: 1 | -1) => { flush(); setConfirming(false); setSheet((s) => s + by); };
   const undo = () => changed(sheet, latest.current[sheet - 1]!.slice(0, -1));
   const send = () => { flush({ [`submitted/${uid}`]: true, [`unlocked/${uid}`]: null }); };
 
@@ -105,13 +90,11 @@ function Flipchart({ code, uid, session, live, words, again }: { code: string; u
   return (
     <>
       {sheet === 0 && words && <Quote text={words} />}
-      <Paper>
+      <Sheet look="flipchart">
         {sheet === 0 ? <FrontPage /> : (
-          <div ref={surface} className="fc-surface" {...pen.handlers}>
-            <PageSvg strokes={page} draft={pen.draft} />
-          </div>
+          <SheetPad key={sheet} live={live} marker={marker} palette={MARKERS} strokes={page} onStroke={(st) => changed(sheet, [...latest.current[sheet - 1]!, st])} />
         )}
-      </Paper>
+      </Sheet>
       {live && sheet > 0 && <Pens palette={MARKERS} marker={marker} onMarker={setMarker} canUndo={page.length > 0} onUndo={undo} />}
       <div className="fc-flips">
         <button disabled={!live || sheet === 0} aria-label="Previous page" onClick={() => turn(-1)}>←</button>
@@ -142,7 +125,7 @@ function Receipt({ code, uid, sent, label, title, left }: { code: string; uid: s
     <>
       <Status>{afterwards(timesUp ? "Time's up. Portrait sent." : "Portrait sent.", left)}</Status>
       <GuestCard label={label} title={title}>
-        <Paper small><FrontPage /></Paper>
+        <Sheet look="flipchart" small><FrontPage /></Sheet>
         <span className="stamp">✓ Submitted</span>
         <p className="slot-hint">🔒 Your portrait is locked in. You'll see it on the big screen.</p>
       </GuestCard>

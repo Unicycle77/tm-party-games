@@ -1,21 +1,20 @@
 import type { Session } from "../../types";
 import { MARKERS } from "../../drawing/palettes";
 import { decodePage, drawStrokes, type Stroke } from "../../drawing/strokes";
+import { SHEET_H, SHEET_W } from "../../drawing/surfaces/Sheet";
 
 /**
  * A Flipchart portrait is 16 pages of strokes, drawn on A1-shaped pages (1 : 1.414) and laid out in the pattern the show
  * printed on the flipchart's front page. Everything that shows a portrait (the guest's page, the big screen, the party
  * download) draws it from the strokes, so there is no picture to keep.
  */
-export const PAGE_W = 1000;
-export const PAGE_H = 1414;
 /** The pattern on the front page, row by row: which page goes where. */
 export const PATTERN: readonly (readonly number[])[] = [[12, 2, 6, 5], [14, 7, 16, 13], [4, 11, 1, 15], [10, 9, 8, 3]];
 /** The pages printed upside down on the front page, so turned half way round when the portrait is put together. */
 export const UPSIDE_DOWN: ReadonlySet<number> = new Set([3, 9, 10, 16]);
 export const PAGES = 16;
 /** The portrait's shape: four pages across, four down. */
-export const PORTRAIT_RATIO = (4 * PAGE_W) / (4 * PAGE_H);
+export const PORTRAIT_RATIO = (4 * SHEET_W) / (4 * SHEET_H);
 
 export const PAPER = "#fbfaf6";
 const EDGE = "#e4e0d6";
@@ -32,7 +31,7 @@ export const isBlank = (page: Stroke[]) => page.length === 0;
 
 /** The assembled portrait as a PNG: the pages in the pattern, the upside-down ones turned half way round. */
 export async function renderPortrait(pages: Stroke[][], scale = 0.5): Promise<Blob> {
-  const w = PAGE_W * scale, h = PAGE_H * scale;
+  const w = SHEET_W * scale, h = SHEET_H * scale;
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(4 * w);
   canvas.height = Math.round(4 * h);
