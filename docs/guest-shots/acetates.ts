@@ -1,6 +1,7 @@
 // Each guest's Acetate for the shots, as strokes on their sheet (the guest's way up, as stored). Drawn here as the room
 // should see them on the projector, then turned half way round for the guest's phone, except where the guest forgot.
-import { PAGE_H, PAGE_W, encodePage, type Stroke } from "../../src/games/flipchart/strokes";
+import { encodePage, type Stroke } from "../../src/drawing/strokes";
+import { PAGE_H, PAGE_W } from "../../src/games/flipchart/strokes";
 
 const BLACK = 0, RED = 1, BLUE = 2, GREEN = 3;
 type Pt = [number, number];

@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { PageSvg } from "../flipchart/Portrait";
-import type { Stroke } from "../flipchart/strokes";
+import type { Stroke } from "../../drawing/strokes";
 import { handOf } from "./data";
 
 /** The steps of the hand putting the acetate down: an empty glass, the sheet dropped in crooked, a nudge or two, the hand gone. */

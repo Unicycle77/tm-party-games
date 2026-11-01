@@ -1,6 +1,7 @@
 // Sample portraits for the Flipchart shots: a face drawn once across the whole 4 x 4 chart, then cut into the 16 pages the way a
 // guest's pen would have, the four pages printed upside down drawn upside down.
-import { PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN, encodePage, type Stroke } from "../../src/games/flipchart/strokes";
+import { encodePage, type Stroke } from "../../src/drawing/strokes";
+import { PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN } from "../../src/games/flipchart/strokes";
 
 type Pt = [number, number];
 const W = 4 * PAGE_W, H = 4 * PAGE_H;
