@@ -203,14 +203,16 @@ function MeasuredRow({ name, total, timed, light, wrong, unit, lo, over, line, r
             onBlur={() => { setTyping(undefined); setFocused(false); }} />
         )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
-        {points !== undefined
+        {/* The light's points come only from the order on 💡: nothing to set by hand, and no bonus. */}
+        {light ? <span className={`sb-pts sb-zero${points === undefined ? " muted" : ""}`}><b>{points ?? 0}</b><span className="small">{place !== undefined ? ordinal(place) : ""}</span></span>
+          : points !== undefined
           ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
               disabled={dq} onClick={() => setOpen(!open)}>
               <b>{points}{overridden && <span className="sb-hand">✎</span>}{before !== undefined && <span className="sb-before">{before}</span>}</b>
               <span className="small">{dq ? (over !== undefined ? `over ${over}` : "DQ") : place !== undefined ? ordinal(place) : ""}</span>
             </button>
-          : light && !dq ? <span className="sb-pts sb-zero muted"><b>0</b></span> : <span />}
-        <BonusChip name={name} bonus={bonus} onEnter={onEnter} />
+          : <span />}
+        {!light && <BonusChip name={name} bonus={bonus} onEnter={onEnter} />}
       </div>
       {lo && focused && (
         <div className="sb-override sb-lo">
