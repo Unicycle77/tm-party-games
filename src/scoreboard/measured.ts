@@ -65,7 +65,7 @@ export function workOut(t: ScoreboardTask): Worked {
     const all = Object.keys(results);
     // Places and the points they're worth, among `ids`: by place, or 5 for the target rank and 0 for the rest.
     const rank = (ids: string[]) => {
-      if (target) return targetPoints(target, ids, results, t.sheets);
+      if (target) return targetPoints(target, ids, results, t.sheets, all.length);
       const place = places(results, ids, lowest);
       return { place, points: Object.fromEntries(ids.map((c) => [c, pointsForPlace(place[c]!)])) };
     };

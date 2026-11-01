@@ -8,8 +8,8 @@ import { LINE, type Stroke } from "./strokes";
  * 1. **Ink**: each stroke stamped as a round marker line, a little fatter than drawn so a hairline gap in an outline closes.
  * 2. **Silhouette**: the ink plus everything it encloses (an outline counts as filled in; colouring in changes nothing).
  * 3. **Shapes**: the silhouette's separate pieces. Only the largest shape counts (the biggest by area, the longest by length).
- * 4. **Length**: the shape thinned to its centre line, the longest path along it, smoothed so pixel steps aren't
- *    over-counted. **Width**: twice the distance from the centre line to the edge.
+ * 4. **Length**: the shape thinned to its centre line, the longest path along it, stray lines off its ends cut back (an
+ *    overshoot where an outline was closed, a tongue), smoothed so pixel steps aren't over-counted. **Width**: twice the distance from the centre line to the edge.
  *
  * No DOM: it runs anywhere (the host phone, the TV, a test).
  */
@@ -246,6 +246,31 @@ function smoothLength(path: number[], w: number): number {
   return len;
 }
 
+/** A bare marker line, in surface units: the silhouette there is no wider than a few strokes side by side. */
+const BARE = LINE * 3;
+
+/**
+ * Stray lines off the ends of a centre line, cut back: where an outline was closed with a little overshoot, a forked tongue,
+ * a tick. They're bare ink, no wider than a stroke or two, and short. Left in, they'd add their length and move the snake's
+ * end out onto the line, so the real head or tail would fall inside the width check. A bare line longer than an inch is
+ * kept: that's a snake drawn as a line (or a line for a body), measured and flagged as before.
+ */
+function trimSpurs(path: number[], dist: Float32Array, w: number, unitsPerInch: number): number[] {
+  const bare = (i: number) => 2 * dist[i]! * UNIT - 2 * GROW <= BARE;
+  const most = unitsPerInch / UNIT;
+  const cut = (p: number[]) => {
+    let along = 0, k = 0;
+    while (k + 1 < p.length && bare(p[k]!)) {
+      const a = p[k]!, b = p[k + 1]!;
+      along += Math.hypot((a % w) - (b % w), Math.floor(a / w) - Math.floor(b / w));
+      if (along > most) return p;
+      k++;
+    }
+    return k + 1 < p.length ? p.slice(k) : p;
+  };
+  return cut(cut(path).reverse()).reverse();
+}
+
 export interface Length {
   /** Along the centre line of the longest shape, to the nearest half inch. */
   inches: number;
@@ -276,17 +301,17 @@ export function lengthOf(strokes: Stroke[], surface: Surface, { minWidth }: { mi
   const pieces = piecesOf(sil);
   if (!pieces.length) return none;
   const x0 = -pad;
-  let best: { len: number; path: number[]; piece: Int32Array; mask: Mask } | undefined;
+  let best: { len: number; path: number[]; piece: Int32Array; mask: Mask; dist: Float32Array } | undefined;
   // Only the few biggest pieces can be the longest: a snake is big. Keeps a roll of doodles quick.
   for (const piece of pieces.slice(0, 4)) {
     const mask = maskOfPiece(sil, piece);
-    const path = longestPath(thin(mask), sil.w, sil.h);
+    const dist = distanceIn(mask);
+    const path = trimSpurs(longestPath(thin(mask), sil.w, sil.h), dist, sil.w, unitsPerInch);
     const len = smoothLength(path, sil.w);
-    if (!best || len > best.len) best = { len, path, piece, mask };
+    if (!best || len > best.len) best = { len, path, piece, mask, dist };
   }
-  const { path, piece, mask } = best!;
+  const { path, piece, dist } = best!;
   // The centre line stops short of the tips by about the body's half width there: add it back at both ends.
-  const dist = distanceIn(mask);
   const len = best!.len + (path.length ? dist[path[0]!]! + dist[path[path.length - 1]!]! : 0);
   const toIn = UNIT / unitsPerInch;
   let firstRow = Infinity, lastRow = -Infinity;

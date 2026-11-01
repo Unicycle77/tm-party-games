@@ -10,14 +10,19 @@ import { duckStandings } from "./standings";
 export function HostPlayer() { return null; }
 export function HostLobby() { return null; }
 
-/** Host: puts every size on the task's Points (so 5 and 0 are already there), and hangs the ducks on the TV. */
+/** Host: puts every size on the task's Points (so 5 and 0 are already there, and a blank page's DQ), and hangs the ducks on the TV. */
 function lineUp(code: string, session: Session, offset: number) {
   const board = session.scoreboard;
   const entry = Object.entries(board?.tasks ?? {}).find(([, t]) => t.game === "duck");
   if (entry) {
-    const results: Record<string, number> = {};
-    for (const r of duckStandings(session).rows) if (r.contestant) results[r.contestant] = sizeOf(session, r.uid).sqIn;
-    if (Object.keys(results).length) void enterPoints(code, board, session.display?.step === "scoreboard", entry[0], { results });
+    const results: Record<string, number> = {}, dq: Record<string, true> = {};
+    for (const r of duckStandings(session).rows) {
+      if (!r.contestant) continue;
+      const m = sizeOf(session, r.uid);
+      results[r.contestant] = m.sqIn;
+      if (!m.shapes) dq[r.contestant] = true;
+    }
+    if (Object.keys(results).length) void enterPoints(code, board, session.display?.step === "scoreboard", entry[0], { results, dq });
   }
   return setDisplay(code, { step: "ducks", revealAt: Date.now() + offset, out: 0 });
 }

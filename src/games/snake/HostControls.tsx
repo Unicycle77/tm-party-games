@@ -10,20 +10,21 @@ import { longestFirst, standingsOf } from "./standings";
 export function HostPlayer() { return null; }
 export function HostLobby() { return null; }
 
-/** Host: puts every measure on the task's Points (so 5 and 0 are already there), and starts the race on the TV. */
+/** Host: puts every measure on the task's Points (so 5 and 0 are already there, and a blank roll's DQ), and starts the race on the TV. */
 function unroll(code: string, session: Session, offset: number) {
   const board = session.scoreboard;
   const entry = Object.entries(board?.tasks ?? {}).find(([, t]) => t.game === "snake");
   if (entry) {
     const [id] = entry;
-    const results: Record<string, number> = {}, sheets: Record<string, number> = {};
+    const results: Record<string, number> = {}, sheets: Record<string, number> = {}, dq: Record<string, true> = {};
     for (const r of standingsOf(session)) {
       if (!r.contestant) continue;
       const m = lengthOf(session, r.uid);
       results[r.contestant] = m.inches;
       sheets[r.contestant] = m.sheets;
+      if (!m.shapes) dq[r.contestant] = true;
     }
-    if (Object.keys(results).length) void enterPoints(code, board, session.display?.step === "scoreboard", id, { results, sheets });
+    if (Object.keys(results).length) void enterPoints(code, board, session.display?.step === "scoreboard", id, { results, sheets, dq });
   }
   return setDisplay(code, { step: "snakes", revealAt: Date.now() + offset });
 }
@@ -64,7 +65,7 @@ export function Round({ code, session }: { code: string; session: Session }) {
   const allStopped = racing && rows.every((r) => stopped(r.stopsAt));
   const ranked = longestFirst(rows.filter((r) => !r.dq));
   const rankOf = (uid: string) => ranked.findIndex((r) => r.uid === uid);
-  const two = ranked.length <= 2;
+  const two = rows.length <= 2;
   const go = (d: Display) => void setDisplay(code, d);
   const withoutCircle = ({ circle: _, ...d }: Display) => d;
   const withoutNumbers = ({ numbers: _, ...d }: Display) => d;
