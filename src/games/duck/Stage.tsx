@@ -76,16 +76,18 @@ export function Stage({ session, display }: { code: string; session: Session; di
   const cellW = (vp.w * 0.92) / cols;
   const cellH = (vp.h * 0.74) / rowsN;
   // The frame's border is about 7% of the page's width on each side.
-  const frameH = Math.min((cellH - label) / 1.2, ((cellW * 0.74) / PAGE_W) * PAGE_H);
+  const frameH = Math.min((cellH - label) / 1.2, ((cellW * 0.8) / PAGE_W) * PAGE_H);
   const frameW = (frameH * PAGE_W) / PAGE_H;
+  // Each row as tall as its frames and labels, so the line-up sits in the middle of the screen rather than up top.
+  const rowH = Math.min(cellH, frameH * 1.2 + label);
   const washes = useMemo(() => Object.fromEntries(rows.map((r) => [r.uid, washOf(sizeOf(session, r.uid).mask)])), [rows.map((r) => r.uid).join(), session.games?.duck?.pages]);
 
   return (
     <main className="stage duck-stage" style={{ "--fw": `${frameW}px`, "--fh": `${frameH}px`, "--cw": `${cellW}px` } as CSSProperties}>
-      <div className="duck-line" style={{ height: `${rowsN * cellH}px`, width: `${cols * cellW}px` }}>
+      <div className="duck-line" style={{ height: `${rowsN * rowH}px`, width: `${cols * cellW}px` }}>
         {rows.map((r, i) => {
           const at = order.indexOf(r.uid);
-          const x = (at % cols) * cellW, y = Math.floor(at / cols) * cellH;
+          const x = (at % cols) * cellW, y = Math.floor(at / cols) * rowH;
           const falls = fallen.has(r.uid);
           const gone = falls && seen.current!.has(r.uid);
           // The smaller half tips out to the left, the bigger to the right.

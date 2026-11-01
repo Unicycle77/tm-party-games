@@ -182,8 +182,8 @@ const SHOTS = {
   "snake-guest-sent": ["task-snake-sent", "&who=alex"],
   // the TV: the clock, the rolls before the race, mid-race, and the lengths up (Greg's thin spot circled, Alex's +1); a winner with the bonus too
   "snake-main-clock": ["tv-snake-clock"],
-  "snake-main-race-start": ["tv-snake-race-start"],
-  "snake-main-race-mid": ["tv-snake-race-mid"],
+  "snake-main-race-start": ["tv-snake-race-start", "&motion=1"],
+  "snake-main-race-mid": ["tv-snake-race-mid", "&motion=1"],
   "snake-main-lengths": ["tv-snake-lengths"],
   "snake-main-lengths-bonus": ["tv-snake-lengths-both"],
   // the host: before the start, and the lengths to read out

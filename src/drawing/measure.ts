@@ -289,8 +289,8 @@ export function measureSnake(strokes: Stroke[], opts: { w: number; unitsPerInch:
   const touched = new Set<number>();
   for (const i of piece) touched.add(Math.floor((y0 + (Math.floor(i / sil.w) + 0.5) * UNIT) / sheet));
 
-  // Width along the centre line, leaving out half an inch at each end (a head and a tail taper to a point).
-  const skip = unitsPerInch / 2 / UNIT;
+  // Width along the centre line, leaving out an inch at each end (a head and a tail taper to a point).
+  const skip = unitsPerInch / UNIT;
   const thinAt: boolean[] = [];
   let along = 0, thinCount = 0, counted = 0;
   for (let k = 0; k < path.length; k++) {

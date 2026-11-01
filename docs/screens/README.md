@@ -47,6 +47,27 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `acetate-host-start.jpg` | Host task page before the start: the clock at 1:40 (from the task's words) and gold "Your time starts now" (2026-10-31) |
 | `acetate-host-live.jpg` | Host task page while it runs: the clock and "End now: send everyone's" only (no extra time: it's a live task) (2026-10-31) |
 | `acetate-host-edit.jpg` | The task's ✎ page: what they draw, defaulting to "a happy horse"; the words follow it (2026-10-31) |
+| `snake-guest-start.jpg` | Second longest snake at 3:00: Alex's card, "TASK 8 OF 8 · TOILET ROLL", the roll across the top with "Pull the paper down" on it, one sheet hanging, no task words (2026-11-01) |
+| `snake-guest-pulling.jpg` | Alex mid-task, paper pulled out, his snake's two sides drawn down the roll, the hint gone (2026-11-01) |
+| `snake-guest-rollup.jpg` | 0:18 left: Alex winding his roll back up, the burgundy ✂ in the margin at the perforation it will tear at (2026-11-01) |
+| `snake-guest-tear.jpg` | 0:00: Alex didn't wind up in time; his roll tears at the perforation, ragged, and the first sheet falls away (2026-11-01) |
+| `snake-guest-sent.jpg` | The receipt: the roll small with what still hangs (ragged), "✓ Submitted" and the locked line (2026-11-01) |
+| `snake-main-clock.jpg` | The big screen while they draw: the show's clock only (2026-11-01) |
+| `snake-main-race-start.jpg` | "▶ Unroll the snakes": everyone's roll in a row under name labels, the paper still wound up; Alex's torn sheet taped back on below the tear (2026-11-01) |
+| `snake-main-race-mid.jpg` | The race mid-run: all unrolling at the same speed, Alex's, Greg's and Priya's done (empty brown tubes), Mei, Sam and Tom still going (2026-11-01) |
+| `snake-main-lengths.jpg` | "Show the lengths": "42½ in · 9 sheets" under each name, Mei (second longest) glowing with the gold 5, Alex's +1, Greg's thin spot circled in red (2026-11-01) |
+| `snake-main-lengths-bonus.jpg` | The same with the bonus on the winner: Mei's 5 and +1 side by side, Sam's +1 (2026-11-01) |
+| `snake-host-start.jpg` | Host task page before the start: the clock at 3:00 and gold "Your time starts now" (2026-11-01) |
+| `snake-host-lengths.jpg` | Host task page after the race: "Show the lengths" pressed in, the lengths longest first ("longest · 0", "2nd longest · 5"), Alex's torn piece, Greg's thin spot with "◯ Circle Greg's thin spot on the TV", and the Points filled from the rolls (2026-11-01) |
+| `duck-guest-drawing.jpg` | Median duck mid-task: Greg's card, "TASK 8 OF 8 · PAPER", a white A4 page, the ten rainbow markers in two rows, Undo, gold "Send my duck" (2026-11-01) |
+| `duck-guest-confirm.jpg` | "Send your duck? You can't change it after." with "Keep drawing" and "Yes, send it" (2026-11-01) |
+| `duck-guest-sent.jpg` | The receipt: Greg's duck small, "✓ Submitted" and the locked line (2026-11-01) |
+| `duck-main-wash.jpg` | "▶ Line up the ducks": every page in a gold frame in running order, each measured silhouette washing gold in turn (2026-11-01) |
+| `duck-main-lineup.jpg` | Slid into size order, Priya smallest to Greg biggest, "← smallest · biggest →" (Tom's pond is a separate shape and doesn't count) (2026-11-01) |
+| `duck-main-knockout.jpg` | "Out: the smallest and the biggest": Priya's and Greg's frames tipping off either end (2026-11-01) |
+| `duck-main-median.jpg` | Mei left (six ducks: of the middle two, Tom 7 and Mei 10, hers is closer to the average), the gold 5 on the frame's corner, "10 sq in" under her name (2026-11-01) |
+| `duck-host-knockout.jpg` | Host task page after the first knock-out: the gold button offers the next ("Out: the smallest and the biggest" again, six ducks), the sizes smallest first with "median · 5" on Mei for the host only, the Points filled from the pages (2026-11-01) |
+| `duck-host-sizes.jpg` | Host task page at the end: "Show the sizes" pressed in, "median · 5" on Mei, Greg's +1, the Points filled from the pages (2026-11-01) |
 | `clock-host-set.jpg` | ⏱ The clock, set from a task: Dice tower's time limits read from its words (3 min for part 1, which is on the big screen, 2 min for part 2), quick times, "Your own", "+ Song to end on", gold ▶ Start (2026-10-21) |
 | `clock-host-song.jpg` | The same with a song that ends on 0:00: "♪ Ends on: Think music · 0:32" and the line saying when it starts (2026-10-21) |
 | `clock-host-running.jpg` | While it counts: the times locked and dimmed, pressed-in "⏸ Stop", quiet "+1 minute" and "Reset" (2026-10-21) |

@@ -16,7 +16,7 @@ function snake(c: number, from: number, to: number, { half = 72, amp = 230, peri
   const centre = (t: number): Pt => { const y = from + (to - from) * t; return [500 + amp * Math.sin(y / period + phase), y]; };
   const width = (t: number) => {
     const y = from + (to - from) * t;
-    const tail = Math.min(1, t / 0.08) ** 0.7;
+    const tail = Math.min(1, (y - from) / 200) ** 0.7;
     const pinched = pinch && y > pinch[0] && y < pinch[1] ? pinch[2] : half;
     return Math.max(10, Math.min(half, pinched) * tail) + (t > 0.96 ? (t - 0.96) * 600 : 0);
   };
@@ -84,10 +84,10 @@ function duck(cx: number, cy: number, s: number, { colour = YELLOW, fill = true,
   const P = ([x, y]: Pt): Pt => [cx + x * s, cy + y * s];
   const L = (c: number, pts: Pt[]) => line(c, pts.map(P));
   const out: Stroke[] = [
-    L(BLACK10, [...ellipse(0, 0, 190, 120, 36, Math.PI * 0.15, Math.PI * 2.05)]),
-    L(BLACK10, ellipse(120, -170, 85, 80, 30)),
-    L(ORANGE, [[195, -180], [270, -165], [200, -145]]),
-    line(BLACK10, [P([140, -190])]),
+    L(BLACK10, [...ellipse(0, 0, 190, 120, 36, Math.PI * 0.15, Math.PI * 2.13)]),
+    L(BLACK10, ellipse(120, -150, 85, 80, 30)),
+    L(ORANGE, [[195, -160], [270, -145], [200, -125]]),
+    line(BLACK10, [P([140, -170])]),
     L(BLACK10, [[-80, -10], [20, -40], [60, 10], [-60, 40]]),
     L(ORANGE, [[-40, 115], [-45, 115 + 140 * legs], [-90, 130 + 140 * legs]]),
     L(ORANGE, [[50, 115], [55, 115 + 140 * legs], [10, 130 + 140 * legs]]),

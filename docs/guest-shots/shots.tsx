@@ -12,8 +12,8 @@ import { DEFAULT_WORDS } from "../../src/games/secretTasks/data";
 import { flipchartDefaults } from "../../src/games/flipchart/data";
 import { acetateDefaults } from "../../src/games/acetate/data";
 import { acetateSheets } from "./acetates";
-import { snakeDefaults } from "../../src/games/snake/data";
-import { duckDefaults, slideAt, HANG_MS, WASH_MS } from "../../src/games/duck/data";
+import { snakeDefaults, lengthOf } from "../../src/games/snake/data";
+import { duckDefaults, slideAt, sizeOf, HANG_MS, WASH_MS } from "../../src/games/duck/data";
 import { snakeRolls, duckPages } from "./snakes";
 import { portraitPages, type Reading } from "./portraits";
 import { Bulb } from "../../src/light/Bulb";
@@ -362,6 +362,11 @@ function build() {
       if (shot === "tv-snake-lengths" || shot === "tv-snake-lengths-both" || shot === "host-snake-lengths") set("display", { step: "snakes", revealAt: now - 120_000, numbers: true, ...(shot !== "tv-snake-lengths-both" && { circle: "greg" }) });
       if (shot === "tv-snake-lengths" || shot === "host-snake-lengths") (tasks.t8 as Record<string, unknown>).bonus = { alex: 1 };
       if (shot === "tv-snake-lengths-both") (tasks.t8 as Record<string, unknown>).bonus = { sam: 1, mei: 1 };
+      // "▶ Unroll the snakes" put every length on the task's Points.
+      if (shot.startsWith("tv-snake-race") || shot.includes("snake-lengths")) {
+        const m = Object.fromEntries(drawers.map((id) => [id, lengthOf({ games: { snake: sn } } as unknown as Session, id)]));
+        Object.assign(tasks.t8 as Record<string, unknown>, { results: Object.fromEntries(drawers.map((id) => [id, m[id]!.inches])), sheets: Object.fromEntries(drawers.map((id) => [id, m[id]!.sheets])) });
+      }
       break;
     }
     // Median duck: Greg's phone drawing (0:58 left), asking before it sends, and the receipt; the TV's line-up mid-wash, slid into
@@ -387,6 +392,8 @@ function build() {
         set("display", { step: "ducks", revealAt: now - slideAt(n) - 30_000, out: 3, numbers: true });
         (tasks.t8 as Record<string, unknown>).bonus = { greg: 1 };
       }
+      // "▶ Line up the ducks" put every size on the task's Points.
+      if (!live && !shot.startsWith("task-")) (tasks.t8 as Record<string, unknown>).results = Object.fromEntries(drawers.map((id) => [id, sizeOf({ games: { duck: dk } } as unknown as Session, id).sqIn]));
       break;
     }
     // The ⏱ clock: set from a task's time limit (Dice tower, part 1 on the big screen), with a song that ends on 0:00, counting, on the task page
