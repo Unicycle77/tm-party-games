@@ -165,6 +165,45 @@ const SHOTS = {
   "flipchart-host-live": ["host-flipchart-live"],
   "flipchart-host-edit": ["host-flipchart-edit"],
   // The ⏱ clock: set from Dice tower's 3 minutes, with a song that ends on 0:00, counting, the task page with its strip, Flipchart's clock, a stopwatch; the big screen's two
+  // Acetate: Greg's phone before the clock, drawing, at time; the big screen's clock, the hand putting Alex's down, Alex's, everyone's; the host's phone
+  "acetate-guest-locked": ["task-acetate-locked", "&who=greg"],
+  "acetate-guest-drawing": ["task-acetate-drawing", "&who=greg"],
+  "acetate-guest-sent": ["task-acetate-sent", "&who=greg"],
+  "acetate-main-clock": ["tv-acetate-clock"],
+  "acetate-main-hand": ["tv-acetate-hand", "&motion=1", async (p) => { await p.waitForTimeout(650); }],
+  "acetate-main-projector": ["tv-acetate"],
+  "acetate-main-everyone": ["tv-acetate-everyone"],
+  "acetate-host-start": ["host-acetate"],
+  "acetate-host-live": ["host-acetate-live"],
+  "acetate-host-edit": ["host-acetate-edit"],
+  // Second longest snake: Alex's phone at 3:00 (the hint on the roll), pulling paper, winding up with 0:18 left (the ✂), the
+  // tear at 0:00, and the receipt
+  "snake-guest-start": ["task-snake-start", "&who=alex"],
+  "snake-guest-pulling": ["task-snake-pulling", "&who=alex"],
+  "snake-guest-rollup": ["task-snake-rollup", "&who=alex"],
+  "snake-guest-tear": ["task-snake-tear", "&who=alex&motion=1", async (p) => { await p.waitForTimeout(1750); }],
+  "snake-guest-sent": ["task-snake-sent", "&who=alex"],
+  // the TV: the clock, the rolls before the race, mid-race, and the lengths up (Greg's thin spot circled, Alex's +1); a winner with the bonus too
+  "snake-main-clock": ["tv-snake-clock"],
+  "snake-main-race-start": ["tv-snake-race-start", "&motion=1"],
+  "snake-main-race-mid": ["tv-snake-race-mid", "&motion=1"],
+  "snake-main-lengths": ["tv-snake-lengths"],
+  "snake-main-lengths-bonus": ["tv-snake-lengths-both"],
+  // the host: before the start, and the lengths to read out
+  "snake-host-start": ["host-snake"],
+  "snake-host-lengths": ["host-snake-lengths"],
+  // Median duck: Greg's phone drawing, asking before it sends, and the receipt
+  "duck-guest-drawing": ["task-duck-drawing", "&who=greg"],
+  "duck-guest-confirm": ["task-duck-drawing", "&who=greg", async (p) => { await p.getByRole("button", { name: "Send my duck" }).click(); }],
+  "duck-guest-sent": ["task-duck-sent", "&who=greg"],
+  // the TV: a duck's gold wash, the line-up in size order, the first knock-out falling, and the median with the sizes up
+  "duck-main-wash": ["tv-duck-wash", "&motion=1", async (p) => { await p.waitForTimeout(100); }],
+  "duck-main-lineup": ["tv-duck-lineup"],
+  "duck-main-knockout": ["tv-duck-knockout", "&motion=1", async (p) => { await p.waitForTimeout(1050); }],
+  "duck-main-median": ["tv-duck-median"],
+  // the host: the gold knock-out button, and the sizes at the end
+  "duck-host-knockout": ["host-duck-knockout"],
+  "duck-host-sizes": ["host-duck-sizes"],
   "clock-host-set": ["host-cd-set"],
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],
@@ -283,7 +322,7 @@ for (const [name, [shot, extra = "", before, part]] of Object.entries(SHOTS)) {
   if (only.length && !only.includes(name)) continue;
   const tv = shot.startsWith("tv-");
   const ipad = shot.endsWith("-ipad");
-  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : ipad ? { width: 1100, height: 1024 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: "reduce" });
+  const page = await browser.newPage({ viewport: tv ? { width: 1600, height: 900 } : ipad ? { width: 1100, height: 1024 } : { width: 390, height: 844 }, deviceScaleFactor: tv ? 1 : 2, reducedMotion: extra.includes("motion=1") ? "no-preference" : "reduce" });
   await page.goto(`${base}?shot=${shot}${extra}`);
   await page.waitForSelector("main, .scoreboard-stage, .task-text-stage");
   await page.evaluate(() => document.fonts.ready);

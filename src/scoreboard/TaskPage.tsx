@@ -1,7 +1,8 @@
 import { Fragment, useContext, useState } from "react";
 import { GameControls, OnScreen, placeOf } from "../HostRemote";
-import { PICKER_GAMES, activeGame } from "../games";
-import { drewIn, roundOver, settleOldRound } from "../games/flipchart/data";
+import { GAMES, PICKER_GAMES, activeGame } from "../games";
+import { DRAW_GAMES, type DrawGame } from "../games/drawGames";
+import { ROUNDS } from "../games/rounds";
 import { switchPhotosTask } from "../games/photos/data";
 import { showHaul, standing } from "../games/prize/data";
 import { PrizesBefore } from "../games/prize/HostControls";
@@ -22,7 +23,7 @@ import { partsOf, TaskTextCard, tiebreakerWords, typeOf } from "./TaskText";
 /**
  * Starts a task from Run of show or its page: the scores come down if they're up, the task before it is caught
  * up on the scoreboard (see startTask), and an app game goes on, bringing its photos if it's a photo task, or settling
- * Flipchart's round from before (see settleOldRound). A live task ends any game still on, so the big screen goes back
+ * a drawing task's round from before (see settleOldRound). A live task ends any game still on, so the big screen goes back
  * to the curtain.
  */
 export async function beginTask(code: string, session: Session, id: string) {
@@ -32,7 +33,7 @@ export async function beginTask(code: string, session: Session, id: string) {
   if (task.game && task.game !== "light") {
     await startTask(code, session.scoreboard, false, id);
     if (task.game === "photos") await switchPhotosTask(code, session, id);
-    if (task.game === "flipchart") await settleOldRound(code, session, !wipeDrawings(session));
+    if (isDrawGame(task.game)) await ROUNDS[task.game].settleOldRound(code, session, !wipeDrawings(session, task.game));
     await setGame(code, task.game as GameId);
   } else {
     if (session.game) await setGame(code, null);
@@ -45,11 +46,14 @@ export async function beginTask(code: string, session: Session, id: string) {
   }
 }
 
-/** Flipchart's Start, over a round from before with drawings in it: asks before they're wiped (Cancel keeps them for the reveal). */
-function wipeDrawings(session: Session) {
-  const names = drewIn(session).map((uid) => session.players?.[uid]?.name).filter((n): n is string => !!n);
-  if (!roundOver(session) || !names.length) return false;
-  return confirm(`Start Flipchart fresh? ${list(names)} drew in the last round. ${names.length === 1 ? "Their drawing" : "Their drawings"} will be wiped.`);
+const isDrawGame = (g: string): g is DrawGame => (DRAW_GAMES as readonly string[]).includes(g);
+
+/** A drawing task's Start, over a round from before with drawings in it: asks before they're wiped (Cancel keeps them for the reveal). */
+function wipeDrawings(session: Session, game: DrawGame) {
+  const round = ROUNDS[game];
+  const names = round.drewIn(session).map((uid) => session.players?.[uid]?.name).filter((n): n is string => !!n);
+  if (!round.roundOver(session) || !names.length) return false;
+  return confirm(`Start ${GAMES[game].name} fresh? ${list(names)} drew in the last round. ${names.length === 1 ? "Their drawing" : "Their drawings"} will be wiped.`);
 }
 
 /** "Show the task": gold, since putting the words up is usually what comes next. Pressed in while they're up; tapping again lowers the curtain. */
@@ -213,8 +217,8 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
         <h1>{titleOf(task)}</h1>
         <p className="muted">Task {place} of {of} · {task.game ? "app task" : "live task"}</p>
       </div>
-      {/* Flipchart's own page has its clock already (the strip would say the same twice). */}
-      <OnScreen code={code} session={session} noClock={task.game === "flipchart"} />
+      {/* A drawing task's own page has its clock already (the strip would say the same twice). */}
+      <OnScreen code={code} session={session} noClock={!!task.game && isDrawGame(task.game)} />
       <LowerIfUp code={code} session={session} />
       {secret ? parts.length > 1 && <ShowTask code={code} session={session} task={id} part={1} gold={false} onShown={() => setTextSeen(true)} />
         : task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}

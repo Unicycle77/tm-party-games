@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from "react";
 import { activeGameId } from "../session";
 import type { SubmissionStatus } from "../submission";
 import type { Display, GameId, Session, Step } from "../types";
+import { acetate } from "./acetate";
 import { beforeAfter } from "./beforeAfter";
 import { box } from "./box";
 import { flipchart } from "./flipchart";
@@ -10,6 +11,8 @@ import { headshotsGame } from "./headshots";
 import { photos } from "./photos";
 import { prize } from "./prize";
 import { secretTasks } from "./secretTasks";
+import { snake } from "./snake";
+import { duck } from "./duck";
 
 /**
  * What a game plugs into the shared screens. The session, its players, the lobby, the jukebox and
@@ -18,6 +21,13 @@ import { secretTasks } from "./secretTasks";
 export interface Game {
   id: GameId;
   name: string;
+  /** What the guest's card names the task by, when it's the thing they draw on ("Task 5 of 8 · Toilet roll"). Default: `name`. */
+  medium?: string;
+  /**
+   * Everyone's entries are revealed together, by the game's own Round (the snake race, the duck line-up): no "Next" and no
+   * one-at-a-time look on the host's list, and once the round is over the list gives way to the Round's.
+   */
+  together?: boolean;
   /** One line on the game picker's card saying what players do. */
   blurb: string;
   /** The lobby's title while this game is on. */
@@ -68,7 +78,7 @@ export interface Game {
 }
 
 /** In the order the game picker shows them. */
-export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart };
+export const GAMES: Record<GameId, Game> = { photos, beforeAfter, box, noisemaster, secretTasks, headshots: headshotsGame, prize, flipchart, acetate, snake, duck };
 
 /** The games on the game picker (the rest only start from the scoreboard's task list). */
 export const PICKER_GAMES = Object.values(GAMES).filter((g) => !g.scoreboardOnly);

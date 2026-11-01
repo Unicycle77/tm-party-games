@@ -3,6 +3,7 @@ import { get, onDisconnect, onValue, push, ref, remove, serverTimestamp, set, up
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { store } from "./store";
+import { DRAW_GAMES, GUEST_PARTS } from "./games/drawGames";
 import { type BeforeAfterMedia, type Display, type GameData, type GameId, type Jukebox, type Player, type ScoreboardContestant, type Session, type ShownConversion } from "./types";
 
 let signIn: Promise<User> | undefined;
@@ -244,7 +245,7 @@ export async function allowMove(code: string, session: Session, to: string) {
     carry(`games/photos/sets/${task}/unlocked`, set.unlocked?.[from]);
     carry(`games/photos/sets/${task}/shown`, set.shown?.[from]);
   }
-  for (const part of ["pages", "submitted", "unlocked", "shown"] as const) carry(`games/flipchart/${part}`, session.games?.flipchart?.[part]?.[from]);
+  for (const g of DRAW_GAMES) for (const part of GUEST_PARTS) carry(`games/${g}/${part}`, session.games?.[g]?.[part]?.[from]);
   carry("games/box/played", session.games?.box?.played?.[from]);
   carry("games/noisemaster/played", session.games?.noisemaster?.played?.[from]);
   const round = session.games?.box?.round;
@@ -421,7 +422,7 @@ export const removePlayer = async (code: string, uid: string) => {
     ...listed.map(([id]) => remove(ref(db(), `sessions/${code}/scoreboard/contestants/${id}/uid`))),
     remove(ref(db(), `sessions/${code}/players/${uid}`)),
     clearSubmissions(code, uid),
-    ...["pages", "submitted", "unlocked", "shown"].map((part) => remove(ref(db(), `sessions/${code}/games/flipchart/${part}/${uid}`))),
+    ...DRAW_GAMES.flatMap((g) => GUEST_PARTS.map((part) => remove(ref(db(), `sessions/${code}/games/${g}/${part}/${uid}`)))),
     remove(ref(db(), `sessions/${code}/games/box/played/${uid}`)),
     remove(ref(db(), `sessions/${code}/games/noisemaster/played/${uid}`)),
     // Their secret task goes back in the pool, for whoever arrives next.

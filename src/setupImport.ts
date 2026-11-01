@@ -62,9 +62,11 @@ export function parseSetup(text: string): { setup: Setup; warnings: string[] } |
     if (r.dqStays === true) task.dqStays = true;
     // One arrival task at most: the first in the file.
     if (r.checkin === true && !game && task.text && !tasks.some((t) => t.checkin)) task.checkin = true;
-    if (game === "flipchart") {
+    if (game === "flipchart" || game === "acetate") {
       const draw = str(r.draw, 120);
       if (draw) task.draw = draw;
+    }
+    if (game === "flipchart") {
       if (typeof r.minutes === "number" && r.minutes >= 1 && r.minutes <= 120) task.minutes = Math.round(r.minutes);
     }
     if (obj(r.unit)) {

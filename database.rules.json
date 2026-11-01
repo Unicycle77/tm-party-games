@@ -124,6 +124,129 @@
               ".validate": false
             }
           },
+          "acetate": {
+            "pages": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && !root.child('sessions').child($code).child('games').child('acetate').child('closed').exists() && (!root.child('sessions').child($code).child('games').child('acetate').child('submitted').child($uid).exists() || root.child('sessions').child($code).child('games').child('acetate').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                "$p": { ".validate": "$p === 'p1' && newData.isString() && newData.val().length <= 120000" }
+              }
+            },
+            "submitted": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !data.exists() && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "unlocked": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "shown": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "startedAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "endsAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "closed": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.val() === true"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "snake": {
+            "pages": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && !root.child('sessions').child($code).child('games').child('snake').child('closed').exists() && (!root.child('sessions').child($code).child('games').child('snake').child('submitted').child($uid).exists() || root.child('sessions').child($code).child('games').child('snake').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                "$p": { ".validate": "($p === 'p1' && newData.isString() && newData.val().length <= 400000) || ($p === 'out' && newData.isString() && newData.val().length <= 12)" }
+              }
+            },
+            "submitted": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !data.exists() && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "unlocked": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "shown": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "startedAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "endsAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "closed": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.val() === true"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "duck": {
+            "pages": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber() && !root.child('sessions').child($code).child('games').child('duck').child('closed').exists() && (!root.child('sessions').child($code).child('games').child('duck').child('submitted').child($uid).exists() || root.child('sessions').child($code).child('games').child('duck').child('unlocked').child($uid).val() === true)) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                "$p": { ".validate": "$p === 'p1' && newData.isString() && newData.val().length <= 120000" }
+              }
+            },
+            "submitted": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !data.exists() && !root.child('sessions').child($code).child('scoreboard').child('locked').isNumber()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "unlocked": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "shown": {
+              "$uid": {
+                ".write": "auth != null && ((auth.uid === $uid && !newData.exists()) || root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+                ".validate": "newData.val() === true"
+              }
+            },
+            "startedAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "endsAt": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.isNumber()"
+            },
+            "closed": {
+              ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
+              ".validate": "newData.val() === true"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "headshots": {
             "shown": {
               "$id": {
@@ -264,7 +387,7 @@
         },
         "game": {
           ".write": "auth != null && (root.child('sessions').child($code).child('hostUid').val() === auth.uid || root.child('sessions').child($code).child('controllerUid').val() === auth.uid)",
-          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks' || newData.val() === 'headshots' || newData.val() === 'prize' || newData.val() === 'flipchart'"
+          ".validate": "newData.val() === 'beforeAfter' || newData.val() === 'photos' || newData.val() === 'box' || newData.val() === 'noisemaster' || newData.val() === 'secretTasks' || newData.val() === 'headshots' || newData.val() === 'prize' || newData.val() === 'flipchart' || newData.val() === 'acetate' || newData.val() === 'snake' || newData.val() === 'duck'"
         },
         "jukebox": {
           "tracks": {
@@ -531,6 +654,7 @@
               "dqOver": { ".validate": "newData.isNumber()" },
               "overDq": { "$cid": { ".validate": "newData.val() === true" } },
               "restarts": { "$cid": { ".validate": "newData.isNumber()" } },
+              "sheets": { "$cid": { ".validate": "newData.isNumber()" } },
               "draw": { ".validate": "newData.isString() && newData.val().length <= 120" },
               "minutes": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 120" },
               "$other": { ".validate": false }

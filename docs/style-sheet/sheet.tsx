@@ -12,12 +12,26 @@ import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
 import { FlipClock } from "../../src/clock/FlipClock";
 import { Portrait } from "../../src/games/flipchart/Portrait";
+import { Sheet as DrawingSheet, SheetStrokes } from "../../src/drawing/surfaces/Sheet";
+import { Projector } from "../../src/games/acetate/Projector";
+import { acetateSheets } from "../guest-shots/acetates";
+import { MARKERS, RAINBOW } from "../../src/drawing/palettes";
+import { Pens } from "../../src/drawing/Pens";
+import { PaperStrip, RollSvg } from "../../src/drawing/surfaces/Roll";
+import { SHEET } from "../../src/games/snake/data";
+import { snakeRolls, duckPages } from "../guest-shots/snakes";
+import { decodePage } from "../../src/drawing/strokes";
 import { GotIt } from "../../src/light/LightRemote";
 import type { Session } from "../../src/types";
 import peach from "../../src/assets/box-objects/peach.svg";
 import frame from "../../src/assets/frame.png";
 import { cropFill } from "../../src/scoreboard/crop";
 import { Mosaic } from "../../src/scoreboard/Mosaic";
+/** Alex's acetate from the shots, his way up (the projector turns it). */
+const ACETATE = decodePage(acetateSheets(["alex"]).alex!.p1, MARKERS.length);
+/** Mei's snake (the second longest, from the shots) and Greg's duck. */
+const SNAKE = decodePage(snakeRolls(["mei"]).mei!.p1, MARKERS.length);
+const DUCK = decodePage(duckPages(["greg"]).greg!.p1, RAINBOW.length);
 
 const noop = () => {};
 // A wide group shot cropped onto the person on the left, as on the crop page.
@@ -351,6 +365,36 @@ function Sheet() {
             </div>
             <Cap>The ⏱ clock is the same object (<code>FlipClock</code>), counting down or, as a stopwatch (<code>up</code>), up with a small tenths digit. One button in one place: gold ▶ Start (and to carry on), pressed-in paper ⏸ Stop while it runs, never gold, and gold "▶ Start again" at 0:00</Cap>
             <Cap>The show's clock (<code>.fc-clock</code>): red seven-segment digits on a black 4:3 screen, white matte, black frame about half the matte's width; the same on the TV and the host's phone, for the whole task. The portrait (<code>.fc-portrait</code>): sixteen pages in the show's pattern as one picture</Cap>
+          </Sec>
+          <Sec title="Acetate &amp; projector" note="phone · stage">
+            <div className="pair" style={{ alignItems: "center" }}>
+              <div className="slot guest-card" style={{ width: 200 }}><DrawingSheet look="acetate"><SheetStrokes strokes={ACETATE} palette={MARKERS} /></DrawingSheet></div>
+              <div className="ohp-demo"><Projector uid="alex" strokes={ACETATE} /></div>
+            </div>
+            <Cap>The acetate (<code>.acetate-sheet</code>): a clear A4 sheet lying on the card, the paper showing through, a faint glare; never white paper. Flipchart's four markers and ↶ Undo; no clock and no send button. The projector (<code>.ohp</code>): the curtain darkened to a third, a keystoned square of warm light with a soft spill, blue and amber edges, the sheet on the glass turned half way round and a degree or two off straight. On the reveal a blurred, see-through hand puts it down and nudges it, a little differently for each guest</Cap>
+          </Sec>
+          <Sec title="Toilet roll, paper &amp; the ranked reveal" note="phone · stage · host">
+            <div className="pair" style={{ alignItems: "start", gridTemplateColumns: "160px 1fr" }}>
+              <div className="slot guest-card">
+                <div className="tp"><RollSvg /><div className="tp-win"><PaperStrip strokes={SNAKE} palette={MARKERS} top={1.6 * SHEET} bottom={0} height={1.1 * SHEET} /></div></div>
+              </div>
+              <div className="slot guest-card">
+                <DrawingSheet look="paper"><SheetStrokes strokes={DUCK} palette={RAINBOW} /></DrawingSheet>
+                <Pens palette={RAINBOW} marker={0} onMarker={noop} canUndo onUndo={noop} />
+              </div>
+            </div>
+            <Cap>The toilet roll (<code>RollSvg</code>, <code>PaperStrip</code>): a white roll across the top, its paper hanging down, 4 inches wide with faint perforations every sheet; swiped down to pull, up to wind back, at the finger's speed with a flick's momentum. At 0:00 it tears at the nearest perforation above what's showing and the piece falls. Plain paper (<code>.paper-sheet</code>): one white A4 page. The drawing core's markers: Flipchart's four (<code>MARKERS</code>) or, past five, two rows of the rainbow (<code>RAINBOW</code>: red, orange, yellow, green, blue, purple, pink, brown, grey, black) with ↶ Undo beside; never a fill tool</Cap>
+            <div className="pair" style={{ alignItems: "center" }}>
+              <ul className="ranked-list" style={{ width: 260 }}>
+                <li><span className="who">Tom</span><span className="len"><b>46½ in · 11 sheets</b><span className="rank">longest · 0</span></span></li>
+                <li><span className="who">Mei</span><span className="len"><b>42½ in · 9 sheets</b><span className="rank win">2nd longest · 5</span></span></li>
+                <li><span className="who">Greg<span className="sub warn">Under ½ inch wide in 1 spot</span></span><span className="len"><b>12½ in · 4 sheets</b><span className="rank">0</span></span></li>
+              </ul>
+              <div style={{ position: "relative", width: 240, height: 120 }}>
+                <span className="five shifted">5</span><span className="plus-one with-five">+1</span>
+              </div>
+            </div>
+            <Cap>The ranked list on the host's page (<code>.ranked-list</code>): the measures to read out, in the TV's order, the winner's outcome in burgundy, notes under the name (a thin spot in red). On the TV the winner gets the gold 5 tile (<code>.five</code>) and the best-picture bonus a round paper +1 (<code>.plus-one</code>), side by side when one guest has both; no 0 stamp. A thin spot is circled in red (<code>.thin-ring</code>) when the host asks</Cap>
           </Sec>
           <Sec title="QR codes &amp; help">
             <div className="pair" style={{ alignItems: "end" }}>

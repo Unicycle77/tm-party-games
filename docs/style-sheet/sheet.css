@@ -32,3 +32,7 @@
 .mosaic-steps { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .mosaic-steps .crop-frame { height: 6rem; }
 .clock-go-demo { display: grid; gap: 0.6rem; width: 220px; }
+
+/* the projector, at a size the sheet can hold (on the stage it's sized to the screen) */
+.ohp-demo .ohp { --lw: 240px; }
+.ohp-demo { padding: 0 60px; background: #1a0807; border-radius: 4px; }

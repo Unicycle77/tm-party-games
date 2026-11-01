@@ -16,7 +16,7 @@ import type { Display, Session } from "./types";
 
 /** How the status line names what a contestant has on the big screen. */
 const SHOWING: Partial<Record<Display["step"], string>> = {
-  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait",
+  before: "Before", after: "After", both: "Before and After", video: "video", photo: "photo", portrait: "portrait", acetate: "acetate",
 };
 
 /**
@@ -58,8 +58,8 @@ export function onScreenLine(session: Session): string {
   if (display.step === "list" && game.holdsScreen?.(session)) return "the clock";
   if (display.step === "curtain" && game.holdsScreen?.(session)) return "the curtain, while they draw";
   if (display.step === "list") return `the task, ${ready.length} of ${players.length} submitted`;
-  if (display.step === "curtain") return `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
-  return "everyone's entries";
+  if (display.step === "curtain") return game.together ? "the curtain" : `the curtain, ${ready.filter((uid) => shown[uid]).length} of ${ready.length} shown`;
+  return game.onScreen?.(session, display) ?? "everyone's entries";
 }
 
 /**
@@ -235,8 +235,11 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
   const shownCount = ready.filter(([uid]) => shown[uid]).length;
   const next = ready.find(([uid]) => !shown[uid]);
   const everyone = !collecting && ready.length > 0 && !next;
-  // A timed round (Flipchart) has its own gold control until it's over, and nobody is shown before then.
+  // A timed round (Flipchart, Acetate) has its own gold control until it's over, and nobody is shown before then.
   const hold = game.canShow?.(session) === false;
+
+  // Revealed all together (the snake race, the duck line-up): once the round is over, the Round is the whole page.
+  if (game.together && !hold) return <>{head}{game.Round && <game.Round code={code} session={session} />}</>;
 
   return (
     <>
@@ -244,7 +247,7 @@ export function GameControls({ code, session, quiet, head }: { code: string; ses
       {/* Once everyone has been shown the game is one line, and the gold moves to the points. Until then it's
           always rendered, so the gold button never moves: disabled with a reason when there's no one to show. */}
       {game.Round && <game.Round code={code} session={session} />}
-      {everyone ? <p className="muted">All {ready.length} shown.</p> : (
+      {game.together ? null : everyone ? <p className="muted">All {ready.length} shown.</p> : (
         <button className={quiet || hold ? undefined : "big"} disabled={!next || hold} onClick={() => next && show(next[0])}>
           {next ? `${shownCount === 0 ? "First up" : "Next"}: ${next[1].name} →` : "Waiting for entries"}
         </button>

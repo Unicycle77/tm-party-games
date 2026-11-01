@@ -31,7 +31,7 @@ export interface SetupTask {
   dqStays?: true;
   /** The arrival task: its words are the last step of check-in. One task at most. */
   checkin?: true;
-  /** Flipchart: what the guests draw, and the minutes they get. */
+  /** Flipchart and Acetate: what the guests draw. Flipchart: the minutes they get. */
   draw?: string;
   minutes?: number;
 }

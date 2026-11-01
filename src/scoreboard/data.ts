@@ -1,5 +1,8 @@
 import { push, ref, remove, set, update } from "firebase/database";
 import { flipchartDefaults } from "../games/flipchart/data";
+import { acetateDefaults } from "../games/acetate/data";
+import { snakeDefaults } from "../games/snake/data";
+import { duckDefaults } from "../games/duck/data";
 import { db, storage } from "../firebase";
 import { DEFAULT_WORDS } from "../games/secretTasks/data";
 import { shrinkImage } from "../media";
@@ -12,7 +15,7 @@ import { currentPoints } from "./scoring";
 const at = (code: string, path = "") => ref(db(), `sessions/${code}/scoreboard${path ? `/${path}` : ""}`);
 
 /** What the host enters on a task, from which its points are worked out. */
-const ENTERED = ["given", "results", "restarts", "dq", "overDq", "dqStays", "bonus"] as const;
+const ENTERED = ["given", "results", "sheets", "restarts", "dq", "overDq", "dqStays", "bonus"] as const;
 
 const nextOrder = (items: Record<string, { order: number }> | undefined) =>
   Math.max(-1, ...Object.values(items ?? {}).map((i) => i.order)) + 1;
@@ -81,7 +84,8 @@ export async function setHeadshotCrop(code: string, id: string, crop: HeadshotCr
 export async function addTask(code: string, board: Scoreboard | undefined, task: { name: string; description?: string } | { game: TaskGame }) {
   const key = push(at(code, "tasks")).key!;
   const entry: ScoreboardTask = "game" in task
-    ? { order: nextOrder(board?.tasks), game: task.game, ...(task.game === "secretTasks" && DEFAULT_WORDS), ...(task.game === "flipchart" && flipchartDefaults()) }
+    ? { order: nextOrder(board?.tasks), game: task.game, ...(task.game === "secretTasks" && DEFAULT_WORDS), ...(task.game === "flipchart" && flipchartDefaults()), ...(task.game === "acetate" && acetateDefaults()),
+      ...(task.game === "snake" && snakeDefaults()), ...(task.game === "duck" && duckDefaults()) }
     : { order: nextOrder(board?.tasks), name: task.name.trim(), ...(task.description?.trim() ? { description: task.description.trim() } : {}) };
   await set(at(code, `tasks/${key}`), entry);
   return key;
@@ -157,6 +161,7 @@ export interface TaskEntry {
   given?: Record<string, number | null>;
   results?: Record<string, number | null>;
   restarts?: Record<string, number | null>;
+  sheets?: Record<string, number | null>;
   dq?: Record<string, true | null>;
   overDq?: Record<string, true | null>;
   dqStays?: true | null;
@@ -185,6 +190,7 @@ export function enterPoints(code: string, board: Scoreboard | undefined, onScree
   if (entry.given) next.given = merged(next.given, entry.given);
   if (entry.results) next.results = merged(next.results, entry.results);
   if (entry.restarts) next.restarts = merged(next.restarts, entry.restarts);
+  if (entry.sheets) next.sheets = merged(next.sheets, entry.sheets);
   if (entry.dq) next.dq = merged<true>(next.dq, entry.dq);
   if (entry.overDq) next.overDq = merged<true>(next.overDq, entry.overDq);
   if (entry.dqStays !== undefined) next.dqStays = entry.dqStays ?? undefined;
