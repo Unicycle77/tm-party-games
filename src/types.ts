@@ -1,5 +1,5 @@
 /** Every game a session can play. The players are shared; each game keeps its own submissions. */
-export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize", "flipchart", "acetate", "snake", "duck"] as const;
+export const GAME_IDS = ["photos", "beforeAfter", "box", "noisemaster", "secretTasks", "headshots", "prize", "flipchart", "acetate", "snake", "duck", "fruit"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 /** What can be on the task list as an app game: a game, or the light (which runs all evening, so it's never started). */
 export type TaskGame = GameId | "light";
@@ -7,11 +7,11 @@ export type TaskGame = GameId | "light";
 /**
  * What the main screen is showing. Only host / first-player may write this.
  * "list" = the lobby. "curtain" = the curtain between contestants (with the portrait, if any). The other steps belong to the active game; a step without a uid shows everyone
- * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks; "portrait" = one guest's Flipchart portrait, "portraits" = everyone's; "acetate" = one guest's acetate on the projector, "acetates" = everyone's; "snakes" = every toilet roll unrolling at once; "ducks" = every duck in a line, smallest first).
+ * ("review" = everyone's before & after on one screen; "grid" = everyone's photo; "boxes" = [BLANK] in a Box; "soundboard" = Noisemaster; "envelopes" = Secret Tasks; "portrait" = one guest's Flipchart portrait, "portraits" = everyone's; "acetate" = one guest's acetate on the projector, "acetates" = everyone's; "snakes" = every toilet roll unrolling at once; "ducks" = every duck in a line, smallest first; "selfie" = one guest's fruit selfie, "selfies" = everyone's).
  * "scoreboard" belongs to no game: the party's scoreboard, which can go up whatever game is on. Nor does "tasktext":
  * a task's text on the paper task card (`task` says which).
  */
-export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "rules" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits" | "acetate" | "acetates" | "snakes" | "ducks";
+export type Step = "list" | "curtain" | "scoreboard" | "haul" | "tasktext" | "rules" | "before" | "after" | "both" | "video" | "review" | "photo" | "grid" | "boxes" | "soundboard" | "envelopes" | "portrait" | "portraits" | "acetate" | "acetates" | "snakes" | "ducks" | "selfie" | "selfies";
 
 export interface Display {
   uid?: string;
@@ -84,6 +84,14 @@ export interface DrawingData {
   unlocked?: Record<string, boolean>;
   /** Contestants the host has put on the big screen, for the running order's "Next". */
   shown?: Record<string, boolean>;
+  /** Fruit selfie: part 1 (the orange question) is on the phones and the big screen. */
+  asked?: true;
+  /** Fruit selfie: part 2 is up, and with it everyone's time. */
+  told?: true;
+  /** Fruit selfie: each guest's answer to "how long does it take you to eat an orange?", in ms, by uid. */
+  answers?: Record<string, number>;
+  /** Fruit selfie: when the host paused the clock (database time); absent while it runs. */
+  heldAt?: number;
 }
 
 /** The two boxes of [BLANK] in a Box: "L" starts with the left player, "R" with the right one. */
@@ -515,6 +523,8 @@ export interface Session {
     snake?: DrawingData;
     /** Median duck: one A4 page each, "p1". */
     duck?: DrawingData;
+    /** Fruit selfie: one A4 page each, "p1", and each guest's orange time. */
+    fruit?: DrawingData;
     box?: { round?: BoxRound; played?: Record<string, boolean> };
     /** `sounds`: the sound names the main screen found in its music folder's Noisemaster subfolder. */
     /**

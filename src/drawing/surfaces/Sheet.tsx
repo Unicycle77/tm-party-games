@@ -43,8 +43,8 @@ export function Sheet({ look, small = false, children }: { look: SheetLook; smal
 }
 
 /** A sheet's strokes, filling whatever box it's in: on the guest's card, the receipt, the TV and the download's sketches. */
-export function SheetStrokes({ strokes, draft, palette }: { strokes: Stroke[]; draft?: Stroke; palette: Palette }) {
-  return <StrokesSvg w={SHEET_W} h={SHEET_H} strokes={strokes} draft={draft} palette={palette} />;
+export function SheetStrokes({ strokes, draft, palette, width }: { strokes: Stroke[]; draft?: Stroke; palette: Palette; width?: number }) {
+  return <StrokesSvg w={SHEET_W} h={SHEET_H} strokes={strokes} draft={draft} palette={palette} width={width} />;
 }
 
 /**
@@ -52,14 +52,14 @@ export function SheetStrokes({ strokes, draft, palette }: { strokes: Stroke[]; d
  * takes none (before the clock, after it). Goes inside `Sheet`. To drop a stroke in progress (a page turned under it), give
  * the pad a new `key`.
  */
-export function SheetPad({ live, marker, palette, strokes, onStroke }: {
-  live: boolean; marker: number; palette: Palette; strokes: Stroke[]; onStroke: (s: Stroke) => void;
+export function SheetPad({ live, marker, palette, strokes, onStroke, width }: {
+  live: boolean; marker: number; palette: Palette; strokes: Stroke[]; onStroke: (s: Stroke) => void; width?: number;
 }) {
   const el = useRef<HTMLDivElement>(null);
   const pen = usePen({ live, marker, at: (e) => boxAt(el.current, SHEET_W, SHEET_H)(e), onStroke });
   return (
     <div ref={el} className={live ? "sheet-pad live" : "sheet-pad"} {...pen.handlers}>
-      <SheetStrokes strokes={strokes} draft={pen.draft} palette={palette} />
+      <SheetStrokes strokes={strokes} draft={pen.draft} palette={palette} width={width} />
     </div>
   );
 }

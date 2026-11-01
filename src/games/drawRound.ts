@@ -36,7 +36,7 @@ export function drawRound(game: DrawGame, limitMs: (task: ScoreboardTask | undef
     const now = useServerNow(running(session));
     if (data.closed) return 0;
     if (data.endsAt === undefined) return limitMs(taskOf(session));
-    return Math.max(0, data.endsAt - now);
+    return Math.max(0, data.endsAt - (data.heldAt ?? now));
   }
 
   /** Host: starts the clock for everyone ("Your time starts now"), and puts the clock on the big screen. */
@@ -68,22 +68,32 @@ export function drawRound(game: DrawGame, limitMs: (task: ScoreboardTask | undef
     if (!roundOver(session)) return Promise.resolve();
     if (keep && drewIn(session).length) return closed(session) ? Promise.resolve() : update(ref(db(), path(code)), { closed: true });
     const data = dataOf(session);
-    const patch: Record<string, null> = { startedAt: null, endsAt: null, closed: null };
+    const patch: Record<string, null> = { startedAt: null, endsAt: null, closed: null, heldAt: null, asked: null, told: null };
     for (const part of GUEST_PARTS) for (const uid of Object.keys(data[part] ?? {})) patch[`${part}/${uid}`] = null;
     return update(ref(db(), path(code)), patch);
+  }
+
+  /** Host: pauses the clock (⏸) or carries on (▶). Carrying on moves the start and the end on by the pause, so the time left is as it was. */
+  function hold(code: string, session: Session, offset: number) {
+    const data = dataOf(session);
+    const now = Date.now() + offset;
+    if (data.heldAt === undefined) return update(ref(db(), path(code)), { heldAt: now });
+    const paused = now - data.heldAt;
+    return update(ref(db(), path(code)), { heldAt: null, startedAt: (data.startedAt ?? now) + paused, endsAt: (data.endsAt ?? now) + paused });
   }
 
   /** Host: more time for everyone, while the clock runs. */
   const addTime = (code: string, endsAt: number, ms: number) => update(ref(db(), path(code)), { endsAt: endsAt + ms });
 
   /** Host: stops the clock now: every drawing is final as it is. */
-  const endNow = (code: string, offset: number) => update(ref(db(), path(code)), { closed: true, endsAt: Date.now() + offset });
+  const endNow = (code: string, offset: number) => update(ref(db(), path(code)), { closed: true, endsAt: Date.now() + offset, heldAt: null });
 
   /** The main screen closes the round when the clock runs out, so every drawing is final and the running order can start. */
   function useCloser(code: string, session: Session, enabled: boolean) {
     const offset = useServerOffset();
     const endsAt = dataOf(session).endsAt;
-    const live = enabled && session.game === game && running(session) && endsAt !== undefined;
+    // Paused (the fruit selfie's ⏸): nothing closes until it carries on.
+    const live = enabled && session.game === game && running(session) && endsAt !== undefined && dataOf(session).heldAt === undefined;
     useEffect(() => {
       if (!live) return;
       const wait = Math.max(0, endsAt! - (Date.now() + offset)) + 300;
@@ -92,7 +102,7 @@ export function drawRound(game: DrawGame, limitMs: (task: ScoreboardTask | undef
     }, [live, endsAt, offset, code]);
   }
 
-  return { game, path, taskOf, dataOf, started, closed, running, holdsScreen, status, sentCount, useRemaining, startClock, drewIn, roundOver, settleOldRound, addTime, endNow, useCloser };
+  return { game, path, taskOf, dataOf, started, closed, running, holdsScreen, status, sentCount, useRemaining, startClock, drewIn, roundOver, settleOldRound, addTime, endNow, hold, useCloser };
 }
 
 export type DrawRound = ReturnType<typeof drawRound>;

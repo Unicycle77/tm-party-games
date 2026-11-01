@@ -181,7 +181,7 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
         {game.Collecting ? <game.Collecting code={code} session={session} viewOnly={viewOnly} />
           : game.task ? <TaskCard lines={game.task}>{allIn && <span className="stamp all-in">✓ All submitted</span>}</TaskCard> : <h1 className="collecting-title">{game.heading(session)}</h1>}
       </section>
-      <aside className="collecting-side">
+      {game.Side ? <aside className="collecting-side"><game.Side code={code} session={session} viewOnly={viewOnly} /></aside> : <aside className="collecting-side">
         <h2>{submitted} of {players.length} submitted</h2>
         <ul className="tiles">
           {players.map(([uid, p]) => (
@@ -189,7 +189,7 @@ function ScreenStage({ code, session, viewOnly, footer }: { code: string; sessio
               onPick={viewOnly || game.canShow?.(session) === false ? undefined : () => void showContestant(code, game.id, { uid, step: game.firstStep })} />
           ))}
         </ul>
-      </aside>
+      </aside>}
       <CornerCode code={code} session={session} />
       {viewOnly && footer}
     </main>

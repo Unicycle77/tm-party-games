@@ -49,14 +49,15 @@ export function useClock(session: Session | undefined): ClockView {
   const owner = !!round;
   const now = Date.now() + offset;
   const own = readClock(state, now);
-  const left = round ? Math.max(0, round.dataOf(session!).endsAt! - now) : 0;
-  const live = owner ? left > 0 : own.phase === "running";
+  const held = round?.dataOf(session!).heldAt;
+  const left = round ? Math.max(0, round.dataOf(session!).endsAt! - (held ?? now)) : 0;
+  const live = owner ? left > 0 && held === undefined : own.phase === "running";
   useEffect(() => {
     if (!live) return;
     const t = window.setInterval(() => tick((n) => n + 1), 100);
     return () => window.clearInterval(t);
   }, [live]);
-  if (round) return { state, owner: round.game, up: false, phase: left > 0 ? "running" : "done", ms: left, shown: true };
+  if (round) return { state, owner: round.game, up: false, phase: held !== undefined ? "held" : left > 0 ? "running" : "done", ms: left, shown: true };
   return { state, up: state?.mode === "up", phase: own.phase, ms: own.ms, shown: !!state?.shown };
 }
 

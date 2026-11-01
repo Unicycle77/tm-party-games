@@ -3,11 +3,12 @@ import { acetateRound } from "./acetate/data";
 import { flipchartRound } from "./flipchart/data";
 import { snakeRound } from "./snake/data";
 import { duckRound } from "./duck/data";
+import { fruitRound } from "./fruit/data";
 import type { DrawRound } from "./drawRound";
 import type { DrawGame } from "./drawGames";
 
 /** Every drawing task's round (see drawRound). */
-export const ROUNDS: Record<DrawGame, DrawRound> = { flipchart: flipchartRound, acetate: acetateRound, snake: snakeRound, duck: duckRound };
+export const ROUNDS: Record<DrawGame, DrawRound> = { flipchart: flipchartRound, acetate: acetateRound, snake: snakeRound, duck: duckRound, fruit: fruitRound };
 
 /** The drawing round whose clock is the one in the party: its game is on and its time runs. */
 export function roundOwningClock(session: Session): DrawRound | undefined {

@@ -48,19 +48,23 @@ function bestLayout(count: number, cellW: number, cellH: number, w: number, h: n
  * `children` are the stage's backup controls. `art`: each player has a picture drawn in the app rather than a photo (the
  * Flipchart portraits), of this shape (a slot as tall as a photo's, as wide as the shape needs).
  */
-export function Review({ players, photosOf, labels, art, children }: {
+export function Review({ players, photosOf, labels, art, order, nameOf, children }: {
   players: Record<string, Player>;
   photosOf: (uid: string) => (string | undefined)[];
   /** What each photo is, for alt text (e.g. ["before", "after"]). */
   labels: string[];
   art?: { ratio: number; slot: [number, number]; has: (uid: string) => boolean; render: (uid: string) => React.ReactNode };
+  /** The order to hang them in (the fruit selfie: shortest time first). Default: the order they joined. */
+  order?: string[];
+  /** What each name plate says (the fruit selfie: "Greg · 0:45"). Default: the name. */
+  nameOf?: (uid: string) => string;
   children?: React.ReactNode;
 }) {
   const { w, h } = useViewport();
   const [slotW, slotH] = art?.slot ?? [SLOT_W, SLOT_H];
   const entries = Object.entries(players)
     .filter(([uid]) => art ? art.has(uid) : photosOf(uid).some((u) => u))
-    .sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
+    .sort(([u, a], [v, b]) => order ? order.indexOf(u) - order.indexOf(v) : (a.joinedAt ?? 0) - (b.joinedAt ?? 0));
   const cellW = cellWidth(labels.length, slotW);
   const { cols, s } = bestLayout(entries.length, cellW, cellHeight(slotH), w, h);
 
@@ -97,7 +101,7 @@ export function Review({ players, photosOf, labels, art, children }: {
                   <Pic key={labels[i]} src={src} alt={`${p.name} ${labels[i]}`} onSettled={onSettled} />
                 ))}
               </div>
-              <div className="review-name">{p.name}</div>
+              <div className="review-name">{nameOf ? nameOf(uid) : p.name}</div>
             </div>
           ))}
         </div>

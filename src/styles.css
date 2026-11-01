@@ -1739,3 +1739,19 @@ body:has(.ohp-stage)::before { filter: brightness(0.3) saturate(0.9); }
 .task-card.rules .wax-seal { position: static; order: 1; align-self: flex-end; flex: none; margin-top: 1.5vh; }
 .task-card.small.rules { padding-bottom: 1.3rem; }
 .task-card.small.rules .wax-seal { margin-top: 0.6rem; }
+
+/* ---- Fruit selfie: the page in the gold frame, the orange times on the big screen and the guest's answer ---- */
+.fruit-paper { position: relative; aspect-ratio: 1000 / 1414; background: #fff; line-height: 0; }
+.fruit-paper .fc-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.frame .fruit-paper { width: min(calc(100vw - 2 * var(--bw) - var(--pad)), calc((100vh - 2 * var(--bw) - var(--pad)) * var(--ratio, 1))); }
+.review .pic .fruit-paper { width: 100%; height: 100%; aspect-ratio: auto; }
+/* each name's orange time, where the stamp goes: burgundy typewriter, read across the room */
+.collecting-side .tile .time { font-family: var(--typewriter); font-size: clamp(1.3rem, 2.8vh, 1.9rem); color: var(--burgundy); font-variant-numeric: tabular-nums; }
+.guest-card .fruit-answer { margin: 0; font-family: var(--typewriter); font-size: 1.6rem; color: var(--burgundy); }
+/* the host's list while the clock runs: a stamp or the time on the right; a row asking to end it presses in */
+.fruit-round { display: grid; gap: 0.6rem; }
+.fruit-round .fc-clock { justify-self: center; }
+.fruit-round .row { display: flex; gap: 0.5rem; align-items: center; }
+.fruit-round .row .fc-clock { flex: 1; }
+/* The fruit selfie's labels carry a time as well as a name ("Priya · 3:00"), so they run smaller to fit under a frame. */
+.review:has(.fruit-paper) .review-name { font-size: calc(var(--s) * 0.36); padding: 0 calc(var(--s) * 0.3); }

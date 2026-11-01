@@ -198,7 +198,9 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
   const rows = !task.game && parts.length > 0;
   // Secret Tasks is the reveal: its words are on paper or the guests' phones already, so only Part 2 (the reveal's) can go up, never gold.
   const secret = task.game === "secretTasks";
-  const textFirst = !secret && !!task.text && !rows && !textSeen && !textOn;
+  // The fruit selfie puts its two parts up itself, part 1 before anyone knows why (see its Round): no "Show the task".
+  const ownParts = task.game === "fruit";
+  const textFirst = !secret && !ownParts && !!task.text && !rows && !textSeen && !textOn;
   const startable = task.game && task.game !== "light" && !playing;
   const partyLocked = lockedAt(board) !== undefined;
   const lock: TaskLock = {
@@ -221,11 +223,12 @@ export function TaskPage({ code, session, id, onBack, onLight }: {
       <OnScreen code={code} session={session} noClock={!!task.game && isDrawGame(task.game)} />
       <LowerIfUp code={code} session={session} />
       {secret ? parts.length > 1 && <ShowTask code={code} session={session} task={id} part={1} gold={false} onShown={() => setTextSeen(true)} />
-        : task.text && !rows && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
+        : task.text && !rows && !ownParts && <ShowTask code={code} session={session} task={id} gold={textFirst} onShown={() => setTextSeen(true)} />}
       <ReplayStrip code={code} session={session} id={id} task={task} />
       {task.song && <SongStrip code={code} session={session} song={task.song} />}
       {task.description && <p className="muted small sb-note">{task.description}</p>}
-      {task.text && !rows && !secret && <TaskTextCard type={typeOf(task)} text={task.text} />}
+      {task.text && !rows && !secret && !ownParts && <TaskTextCard type={typeOf(task)} text={task.text} />}
+      {ownParts && parts.map((p, i) => <TaskTextCard key={i} type={p.type} text={p.text} />)}
       {rows && <PartCards code={code} session={session} task={id} parts={parts} phones />}
       {!rows && <StartClock code={code} session={session} id={id} />}
       {startable && (
