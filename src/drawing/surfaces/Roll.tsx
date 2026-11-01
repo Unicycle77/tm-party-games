@@ -8,7 +8,7 @@ import { usePen } from "../usePen";
  * The toilet roll: a strip of toilet paper hanging from a roll at the top of the card. Its look (the cylinder, the quilted
  * paper, dashed perforations, a ragged tear that fits back together), its size (4 inches across, sheets 4.4 inches long,
  * 200 of them), its input rule (swipe the roll to unroll, a flick spins it out, rolling back only moves while the finger
- * drags; the paper itself only ever takes ink), where it would tear right now, and the tear itself. The game decides when,
+ * drags, all the way in if the guest likes; the paper itself only ever takes ink), where it would tear right now, and the tear itself. The game decides when,
  * and whether, it tears (`tearing`) and when to show the ✂ (`scissors`); it places the marker row and anything else.
  *
  * Roll units: 1000 across; along the paper they count from the free end, so a roll `out` units unrolled shows y' = out − y.
@@ -40,8 +40,14 @@ export function tearOf(out: number): number {
   return k >= 1 ? k * ROLL_SHEET : 0;
 }
 
-/** A saved length out, back to a number the roll can show: at least the first sheet, at most the whole roll. */
-export const outOf = (saved: unknown) => Math.min(ROLL_MAX, Math.max(ROLL_SHEET, Number(saved) || ROLL_SHEET));
+/**
+ * A saved length out, back to a number the roll can show: none saved is the first sheet hanging, as a new roll starts;
+ * 0 is rolled all the way in; at most the whole roll.
+ */
+export function outOf(saved: unknown): number {
+  const n = saved === undefined || saved === null || saved === "" ? NaN : Number(saved);
+  return Number.isFinite(n) ? Math.min(ROLL_MAX, Math.max(0, n)) : ROLL_SHEET;
+}
 
 /** The roll to measure on, kept from `tear` on (0: nothing tore). */
 export const rollSurface = (tear = 0): Surface => ({ w: ROLL_W, unitsPerInch: ROLL_UNITS_PER_INCH, edge: tear });
@@ -223,7 +229,7 @@ export function RollPad({ live, marker, palette, strokes, onStroke, initialOut, 
   const scale = (width * 0.85333) / ROLL_W;
 
   const moveTo = (next: number) => {
-    const v = Math.min(ROLL_MAX, Math.max(ROLL_SHEET, next));
+    const v = Math.min(ROLL_MAX, Math.max(0, next));
     if (v === outRef.current) return false;
     outRef.current = v;
     setOut(v);
@@ -274,7 +280,8 @@ export function RollPad({ live, marker, palette, strokes, onStroke, initialOut, 
     at: (e) => {
       const r = win.current!.getBoundingClientRect();
       const x = ((e.clientX - r.left) / r.width) * ROLL_W, y = ((e.clientY - r.top) / r.width) * ROLL_W;
-      if (y < 0 || y > VIEW) return undefined;
+      // Only on the paper: rolled up shorter than a sheet, the space below its end takes nothing.
+      if (y < 0 || y > Math.min(VIEW, outRef.current)) return undefined;
       return [Math.round(Math.min(ROLL_W, Math.max(0, x))), Math.round(outRef.current - y)];
     },
     onStroke,
@@ -302,14 +309,18 @@ export function RollPad({ live, marker, palette, strokes, onStroke, initialOut, 
   );
 }
 
-/** A roll as it was left: what still hangs from the free end or the tear (ragged if it tore), up to one sheet. The receipt. */
+/**
+ * A roll as it was left: what still hangs from the free end or the tear (ragged if it tore), up to one sheet; nothing if it
+ * was rolled all the way in. The receipt.
+ */
 export function RollStill({ strokes, palette, out, small = false }: { strokes: Stroke[]; palette: Palette; out: number; small?: boolean }) {
   const tear = tearOf(out);
+  const hang = Math.min(VIEW, out - tear);
   return (
     <div className={small ? "tp small" : "tp"}>
       <RollSvg aria-hidden="true" />
       <div className="tp-win">
-        <PaperStrip strokes={clipFrom(strokes, tear)} palette={palette} top={out} bottom={tear} height={Math.min(VIEW, out - tear)} torn={tear > 0 ? "below" : undefined} />
+        {hang > 0 && <PaperStrip strokes={clipFrom(strokes, tear)} palette={palette} top={out} bottom={tear} height={hang} torn={tear > 0 ? "below" : undefined} />}
       </div>
     </div>
   );
