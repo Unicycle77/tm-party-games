@@ -62,6 +62,8 @@ export function pendingIds(board: Scoreboard | undefined): string[] {
 /** Everyone on the scoreboard has points (or a DQ) for this task. */
 export const allScored = (board: Scoreboard | undefined, t: ScoreboardTask) => {
   const contestants = Object.keys(board?.contestants ?? {});
+  // The light: one guess each, and anyone who didn't guess right has 0, so it's never waiting on anyone.
+  if (t.game === "light") return contestants.length > 0;
   return contestants.length > 0 && contestants.every((c) => t.scores?.[c] !== undefined || t.dq?.[c]);
 };
 
