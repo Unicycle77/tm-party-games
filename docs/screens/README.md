@@ -50,6 +50,7 @@ Guest phone (`/play`, 390px wide), redrawn on 2026-10-18 in the host remote's la
 | `snake-guest-start.jpg` | Second longest snake at 3:00: Alex's card, "TASK 8 OF 8 · TOILET ROLL", the roll across the top with "Pull the paper down" on it, one sheet hanging, no task words (2026-11-01) |
 | `snake-guest-pulling.jpg` | Alex mid-task, paper pulled out, his snake's two sides drawn down the roll, the hint gone (2026-11-01) |
 | `snake-guest-rollup.jpg` | 0:18 left: Alex winding his roll back up, the burgundy ✂ in the margin at the perforation it will tear at (2026-11-01) |
+| `snake-guest-rolled-in.jpg` | Alex has wound his roll all the way in, the last sheet too: nothing hangs, so nothing can tear (2026-11-01) |
 | `snake-guest-tear.jpg` | 0:00: Alex didn't wind up in time; his roll tears at the perforation, ragged, and the first sheet falls away (2026-11-01) |
 | `snake-guest-sent.jpg` | The receipt: the roll small with what still hangs (ragged), "✓ Submitted" and the locked line (2026-11-01) |
 | `snake-main-clock.jpg` | The big screen while they draw: the show's clock only (2026-11-01) |

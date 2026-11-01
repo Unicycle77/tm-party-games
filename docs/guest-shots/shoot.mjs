@@ -181,6 +181,8 @@ const SHOTS = {
   "snake-guest-start": ["task-snake-start", "&who=alex"],
   "snake-guest-pulling": ["task-snake-pulling", "&who=alex"],
   "snake-guest-rollup": ["task-snake-rollup", "&who=alex"],
+  // Alex wound all the way in: nothing hangs
+  "snake-guest-rolled-in": ["task-snake-rollup", "&who=alex", rollIn],
   "snake-guest-tear": ["task-snake-tear", "&who=alex&motion=1", async (p) => { await p.waitForTimeout(1750); }],
   "snake-guest-sent": ["task-snake-sent", "&who=alex"],
   // the TV: the clock, the rolls before the race, mid-race, and the lengths up (Greg's thin spot circled, Alex's +1); a winner with the bonus too
@@ -327,6 +329,16 @@ const SHOTS = {
   }],
   "lock-guest-join": ["join-locked"],
 };
+// Swipes up on the toilet roll until it's wound all the way in.
+async function rollIn(p) {
+  const bb = await p.locator(".tp-roll").boundingBox();
+  const x = bb.x + bb.width / 2, y = bb.y + bb.height / 2;
+  for (let n = 0; n < 4; n++) {
+    await p.mouse.move(x, y); await p.mouse.down();
+    for (let i = 1; i <= 40; i++) { await p.mouse.move(x, y - i * 12); await p.waitForTimeout(16); }
+    await p.mouse.up();
+  }
+}
 async function openThings(p) { await p.getByRole("button", { name: /Useless conversions/ }).click(); await p.getByRole("button", { name: /a thing/ }).click(); }
 // The grid of everyone's photos waits on each photo's load event, which the in-memory data URLs don't always fire here:
 // once its 10 s fallback has shown the grid, mark the frames ready, as they are once a real photo loads.

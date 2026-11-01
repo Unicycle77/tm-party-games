@@ -93,7 +93,7 @@ export function Stage({ session, display }: { code: string; session: Session; di
               <div className="race-roll">
                 <RollSvg empty={s.done} aria-hidden="true" />
                 <div className={display.circle === r.uid && m.thinAll ? "race-paper all-thin" : "race-paper"}>
-                  <PaperStrip strokes={clipFrom(s.strokes, s.tear)} palette={MARKERS} top={s.tear + s.shown} bottom={s.tear} height={s.shown} torn={s.tear > 0 ? "below" : undefined} marks={rings} />
+                  {s.shown > 0 && <PaperStrip strokes={clipFrom(s.strokes, s.tear)} palette={MARKERS} top={s.tear + s.shown} bottom={s.tear} height={s.shown} torn={s.tear > 0 ? "below" : undefined} marks={rings} />}
                   {s.tear > 0 && (
                     <div className="race-torn" style={{ marginTop: `${(GAP * rollW * 0.85333) / 1000}px` }}>
                       <span className="tape left" /><span className="tape right" />
