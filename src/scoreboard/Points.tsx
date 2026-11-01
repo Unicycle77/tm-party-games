@@ -190,9 +190,12 @@ function MeasuredRow({ name, total, timed, light, wrong, unit, lo, over, line, r
     <li className={dq ? "dq" : undefined}>
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
-        <div className="choices marks sb-dq">
+        {/* The light has no DQ: one guess each, right or wrong, and nothing else to break. */}
+        {light ? <span /> : (
+          <div className="choices marks sb-dq">
           <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
         </div>
+        )}
         {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result !== undefined ? `got it ${ordinal(result)}` : wrong ? "guessed wrong" : "didn't guess"}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
             placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
