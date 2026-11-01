@@ -17,7 +17,7 @@ import { Projector } from "../../src/games/acetate/Projector";
 import { acetateSheets } from "../guest-shots/acetates";
 import { MARKERS, RAINBOW } from "../../src/drawing/palettes";
 import { Pens } from "../../src/drawing/Pens";
-import { PaperStrip, RollSvg } from "../../src/games/snake/Roll";
+import { PaperStrip, RollSvg } from "../../src/drawing/surfaces/Roll";
 import { SHEET } from "../../src/games/snake/data";
 import { snakeRolls, duckPages } from "../guest-shots/snakes";
 import { decodePage } from "../../src/drawing/strokes";
@@ -376,7 +376,7 @@ function Sheet() {
           <Sec title="Toilet roll, paper &amp; the ranked reveal" note="phone · stage · host">
             <div className="pair" style={{ alignItems: "start", gridTemplateColumns: "160px 1fr" }}>
               <div className="slot guest-card">
-                <div className="tp"><RollSvg /><div className="tp-win"><PaperStrip strokes={SNAKE} top={1.6 * SHEET} bottom={0} height={1.1 * SHEET} /></div></div>
+                <div className="tp"><RollSvg /><div className="tp-win"><PaperStrip strokes={SNAKE} palette={MARKERS} top={1.6 * SHEET} bottom={0} height={1.1 * SHEET} /></div></div>
               </div>
               <div className="slot guest-card">
                 <DrawingSheet look="paper"><SheetStrokes strokes={DUCK} palette={RAINBOW} /></DrawingSheet>

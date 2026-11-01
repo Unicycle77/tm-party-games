@@ -3,6 +3,7 @@ import { limitsOf } from "../../clock/timesIn";
 import { MARKERS } from "../../drawing/palettes";
 import { measureSnake, type SnakeLength } from "../../drawing/measure";
 import { decodePage, type Stroke } from "../../drawing/strokes";
+import { ROLL_SHEET, ROLL_UNITS_PER_INCH, ROLL_W, outOf, tearOf } from "../../drawing/surfaces/Roll";
 import { drawRound } from "../drawRound";
 
 /** The show's words (Jeffrey's, 2026-10-31), a paragraph a line, the "-" line kept. */
@@ -22,28 +23,12 @@ export const DEFAULT_MS = 180_000;
 /** The time the host set in ✎, else the one the task's words give ("after 3 minutes"), else three minutes. */
 export const limitOf = (task: ScoreboardTask | undefined) => limitsOf(task)[0]?.ms ?? DEFAULT_MS;
 
-// ---- the roll: one strip of toilet paper, in roll units ----
+// ---- drawn on the toilet roll (src/drawing/surfaces/Roll.tsx), in roll units ----
 
-/** The roll is 1000 units across, about 4 inches. */
-export const ROLL_W = 1000;
-export const UNITS_PER_INCH = 250;
-/** One sheet, about 4.4 inches long: a sheet's shape is 10 across to 11 down. */
-export const SHEET = 1100;
+/** One sheet of the roll, for the TV's lengths and layout. */
+export const SHEET = ROLL_SHEET;
 /** Half an inch: the narrowest a snake may be. */
-export const MIN_WIDTH = UNITS_PER_INCH / 2;
-/** The most paper a roll has, in units: 200 sheets. */
-export const MAX_OUT = 200 * SHEET;
-/** A perforation closer to the roll than this (in units) is in the roll, not in view. */
-const IN_VIEW = 20;
-
-/**
- * Where the paper tears at 0:00, `out` units unrolled (measured along the paper from the free end): at the perforation
- * nearest the roll that's in view. 0 when none is (only the first sheet hangs): nothing tears.
- */
-export function tearOf(out: number): number {
-  const k = Math.ceil((out - IN_VIEW) / SHEET) - 1;
-  return k >= 1 ? k * SHEET : 0;
-}
+export const MIN_WIDTH = ROLL_UNITS_PER_INCH / 2;
 
 const round = drawRound("snake", limitOf);
 export const snakeRound = round;
@@ -52,10 +37,10 @@ export const { dataOf, started, closed, running, holdsScreen, sentCount, useRema
 /** In at time (no send button: what's still out tears off, and the rest goes in). */
 export const snakeStatus = round.status;
 
-/** A guest's roll as saved: the strokes (y along the paper from the free end), how far it's out, and where it tears. */
+/** A guest's roll as saved: the strokes (y along the paper from the free end), how far it's out, and where it tears at 0:00. */
 export function rollOf(session: Session, uid: string): { strokes: Stroke[]; out: number; tear: number } {
   const page = dataOf(session).pages?.[uid];
-  const out = Math.min(MAX_OUT, Math.max(SHEET, Number(page?.out) || SHEET));
+  const out = outOf(page?.out);
   return { strokes: decodePage(page?.p1, MARKERS.length), out, tear: tearOf(out) };
 }
 
@@ -67,7 +52,7 @@ export function lengthOf(session: Session, uid: string): SnakeLength {
   const key = `${tear}|${page?.p1 ?? ""}`;
   let m = measured.get(key);
   if (!m) {
-    m = measureSnake(strokes, { w: ROLL_W, unitsPerInch: UNITS_PER_INCH, sheet: SHEET, from: tear, minWidth: MIN_WIDTH });
+    m = measureSnake(strokes, { w: ROLL_W, unitsPerInch: ROLL_UNITS_PER_INCH, sheet: SHEET, from: tear, minWidth: MIN_WIDTH });
     if (measured.size > 64) measured.clear();
     measured.set(key, m);
   }
