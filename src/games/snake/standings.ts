@@ -1,6 +1,7 @@
 import { winnersOf } from "../../scoreboard/ranked";
 import type { ScoreboardTask, Session } from "../../types";
 import { bonusOf } from "../../scoreboard/measured";
+import { dqOf } from "../../scoreboard/blank";
 import { lengthOf, racersOf, rollOf, snakeTask, stripOf, unrollMs, UNROLL_DELAY } from "./data";
 
 export interface Standing {
@@ -23,7 +24,8 @@ export interface Standing {
 
 /**
  * Every snake in the race, in running order, with what the room and the host need: the measure (the task's own result
- * wins, so a number the host corrected on Points is the one everyone sees), the DQ and bonus from Points, who won.
+ * wins, so a number the host corrected on Points is the one everyone sees), the DQ and bonus from Points (a blank roll is a
+ * DQ: see blank.ts), who won: by the rule the whole race started with, DQs or not (see ranked.ts).
  */
 export function standingsOf(session: Session, task: ScoreboardTask | undefined = snakeTask(session)): Standing[] {
   const rows = racersOf(session).map((uid): Standing => {
@@ -35,7 +37,7 @@ export function standingsOf(session: Session, task: ScoreboardTask | undefined =
       uid, name: player?.name ?? "", contestant: c,
       inches: (c ? task?.results?.[c] : undefined) ?? m.inches,
       sheets: (c ? task?.sheets?.[c] : undefined) ?? m.sheets,
-      dq: !!(c && task?.dq?.[c]),
+      dq: dqOf(task, c, m.shapes === 0),
       won: false,
       bonus: c && task ? bonusOf(task, c) : 0,
       torn: rollOf(session, uid).tear > 0,
@@ -46,7 +48,7 @@ export function standingsOf(session: Session, task: ScoreboardTask | undefined =
   const inRunning = rows.filter((r) => !r.dq).map((r) => r.uid);
   const values = Object.fromEntries(rows.map((r) => [r.uid, r.inches]));
   const sheets = Object.fromEntries(rows.map((r) => [r.uid, r.sheets]));
-  const won = new Set(winnersOf("second", inRunning, values, sheets));
+  const won = new Set(winnersOf("second", inRunning, values, sheets, rows.length));
   for (const r of rows) r.won = won.has(r.uid);
   return rows;
 }

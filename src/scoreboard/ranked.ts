@@ -3,12 +3,15 @@
  * target rank gets 5; everyone else gets 0. The bonus point is the host's, by hand, as on every task.
  *
  * - **Second** (the snake): longest first, by length, then by sheets used for the tied (more sheets first). The second in
- *   that order wins; anyone exactly level with it (same length to the half inch and same sheets) shares the 5. With one or
- *   two drawings the longest wins instead (Jeffrey: otherwise it's boring).
+ *   that order wins; anyone exactly level with it (same length to the half inch and same sheets) shares the 5. In a field
+ *   of one or two the longest wins instead (Jeffrey: otherwise it's boring).
  * - **Median** (the duck): smallest first. Odd: the middle one. Even: of the two middle ones, the one closer to the mean of
- *   all the ducks; exactly as close, both. With two ducks the biggest wins; one duck wins. Anyone level with a winner shares.
+ *   all the ducks; exactly as close, both. In a field of two the biggest wins. Anyone level with a winner shares.
  *
  * DQ'd drawings are left out before this is worked out (see measured.ts), so a DQ changes who's second or in the middle.
+ * But the win condition is the one the field started with (`field`: everyone who drew in, DQ'd or not), not the one the
+ * DQs leave (Jeffrey, 2026-11-01: three were told "second longest", so a DQ doesn't turn it into "longest"). Only when a
+ * single drawing is left does it win by default; none left, nobody wins.
  */
 export type Target = "second" | "median";
 
@@ -38,15 +41,17 @@ function stableReverse(sorted: string[], key: (c: string) => [number, number]) {
   return groups.reverse().flat();
 }
 
-/** Who gets the 5 among `ids`. */
-export function winnersOf(target: Target, ids: string[], values: Values, sheets?: Values): string[] {
+/** Who gets the 5 among `ids`, in a field that started with `field` drawings (DQ'd ones too; `ids` if left out). */
+export function winnersOf(target: Target, ids: string[], values: Values, sheets?: Values, field = ids.length): string[] {
   if (!ids.length) return [];
   const key = keyOf(target, values, sheets);
   const order = orderOf(target, ids, values, sheets);
   const n = order.length;
+  const small = Math.max(field, n) <= 2;
   let picks: string[];
-  if (target === "second") picks = [order[n <= 2 ? 0 : 1]!];
-  else if (n <= 2) picks = [order[n - 1]!];
+  if (n === 1) picks = [order[0]!];
+  else if (target === "second") picks = [order[small ? 0 : 1]!];
+  else if (small) picks = [order[n - 1]!];
   else if (n % 2) picks = [order[(n - 1) / 2]!];
   else {
     const mean = ids.reduce((sum, c) => sum + (values[c] ?? 0), 0) / n;
@@ -67,8 +72,8 @@ export function placesOf(target: Target, ids: string[], values: Values, sheets?:
 }
 
 /** The points: 5 for the winners, 0 for everyone else, and each one's place. */
-export function targetPoints(target: Target, ids: string[], values: Values, sheets?: Values): { points: Values; place: Values } {
-  const won = new Set(winnersOf(target, ids, values, sheets));
+export function targetPoints(target: Target, ids: string[], values: Values, sheets?: Values, field = ids.length): { points: Values; place: Values } {
+  const won = new Set(winnersOf(target, ids, values, sheets, field));
   return { points: Object.fromEntries(ids.map((c) => [c, won.has(c) ? 5 : 0])), place: placesOf(target, ids, values, sheets) };
 }
 
