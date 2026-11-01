@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { clipBefore, clipFrom } from "../measure";
+import type { Surface } from "../measure";
 import type { Palette, Stroke } from "../strokes";
 import { StrokeMarks } from "../StrokesSvg";
 import { usePen } from "../usePen";
@@ -42,6 +42,59 @@ export function tearOf(out: number): number {
 
 /** A saved length out, back to a number the roll can show: at least the first sheet, at most the whole roll. */
 export const outOf = (saved: unknown) => Math.min(ROLL_MAX, Math.max(ROLL_SHEET, Number(saved) || ROLL_SHEET));
+
+/** The roll to measure on, kept from `tear` on (0: nothing tore). */
+export const rollSurface = (tear = 0): Surface => ({ w: ROLL_W, unitsPerInch: ROLL_UNITS_PER_INCH, edge: tear });
+
+/** How many sheets a drawing touches, from how far it reaches along the roll. */
+export const sheetsOf = ({ top, bottom }: { top: number; bottom: number }) => Math.floor(bottom / ROLL_SHEET) - Math.floor(top / ROLL_SHEET) + 1;
+
+/** The strokes on the paper from `from` on (y ≥ from): a stroke crossing the line is cut where it crosses. */
+export function clipFrom(strokes: Stroke[], from: number): Stroke[] {
+  if (from <= 0) return strokes;
+  const out: Stroke[] = [];
+  for (const s of strokes) {
+    let cur: number[] = [];
+    const flush = () => { if (cur.length >= 2) out.push({ c: s.c, p: cur }); cur = []; };
+    for (let i = 0; i < s.p.length; i += 2) {
+      const x = s.p[i]!, y = s.p[i + 1]!;
+      if (y >= from) {
+        if (!cur.length && i > 0 && s.p[i - 1]! < from) {
+          const px = s.p[i - 2]!, py = s.p[i - 1]!;
+          cur.push(px + ((x - px) * (from - py)) / (y - py), from);
+        }
+        cur.push(x, y);
+      } else {
+        if (cur.length) {
+          const px = s.p[i - 2]!, py = s.p[i - 1]!;
+          cur.push(px + ((x - px) * (from - py)) / (y - py), from);
+        }
+        flush();
+      }
+    }
+    flush();
+  }
+  return out;
+}
+
+/** The strokes before `to` (y < to): the torn-off piece's. */
+export function clipBefore(strokes: Stroke[], to: number): Stroke[] {
+  return clipFrom(strokes.map((s) => ({ c: s.c, p: s.p.map((v, i) => (i % 2 ? -v : v)) })), -to)
+    .map((s) => ({ c: s.c, p: s.p.map((v, i) => (i % 2 ? -v : v)) }));
+}
+
+/**
+ * The strokes on the paper kept after a tear at `tear`, ready to measure: cut where they cross the tear, and the tear edge
+ * closes an outline it cut through, as the paper's edge would (crossings joined in pairs along the tear).
+ */
+export function keptOf(strokes: Stroke[], tear: number): Stroke[] {
+  const kept = clipFrom(strokes, tear);
+  if (tear > 0) {
+    const cuts = kept.flatMap((s) => [0, s.p.length - 2].filter((i) => s.p[i + 1] === tear).map((i) => s.p[i]!)).sort((a, b) => a - b);
+    for (let i = 0; i + 1 < cuts.length; i += 2) kept.push({ c: 0, p: [cuts[i]!, tear, cuts[i + 1]!, tear] });
+  }
+  return kept;
+}
 
 /**
  * The toilet roll, seen from the front: a fat white cylinder the same width as its paper, both ends round, the left end

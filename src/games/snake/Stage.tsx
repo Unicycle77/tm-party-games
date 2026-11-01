@@ -2,10 +2,9 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { TaskCard } from "../../TaskCard";
 import type { Display, Session } from "../../types";
 import { FlipClock } from "../../clock/FlipClock";
-import { clipBefore, clipFrom } from "../../drawing/measure";
 import { useServerOffset } from "../noisemaster/data";
 import { SHEET, SNAKE_WORDS, UNROLL_DELAY, UNROLL_SPEED, closed, inchesText, lengthOf, running, sheetsText, snakeTask, stripOf, useRemaining } from "./data";
-import { PaperStrip, RollSvg } from "../../drawing/surfaces/Roll";
+import { PaperStrip, RollSvg, clipBefore, clipFrom } from "../../drawing/surfaces/Roll";
 import { MARKERS } from "../../drawing/palettes";
 import { standingsOf } from "./standings";
 

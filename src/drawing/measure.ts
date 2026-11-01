@@ -1,13 +1,14 @@
 import { LINE, type Stroke } from "./strokes";
 
 /**
- * Measuring a drawing from its strokes (the median duck's size, the second longest snake's length). Everything works on a
- * small bitmap of the strokes, so it's the same on every screen:
+ * Measuring a drawing from its strokes, on whatever surface it was drawn: `areaOf` (the median duck's size) and `lengthOf`
+ * (the second longest snake's length). A surface gives its width and its inches (`Surface`), so a game never passes sizes by
+ * hand. Everything works on a small bitmap of the strokes, so it's the same on every screen:
  *
  * 1. **Ink**: each stroke stamped as a round marker line, a little fatter than drawn so a hairline gap in an outline closes.
  * 2. **Silhouette**: the ink plus everything it encloses (an outline counts as filled in; colouring in changes nothing).
- * 3. **Shapes**: the silhouette's separate pieces. Only the biggest duck shape, or the longest snake shape, counts.
- * 4. **Snake length**: the shape thinned to its centre line, the longest path along it, smoothed so pixel steps aren't
+ * 3. **Shapes**: the silhouette's separate pieces. Only the largest shape counts (the biggest by area, the longest by length).
+ * 4. **Length**: the shape thinned to its centre line, the longest path along it, smoothed so pixel steps aren't
  *    over-counted. **Width**: twice the distance from the centre line to the edge.
  *
  * No DOM: it runs anywhere (the host phone, the TV, a test).
@@ -21,6 +22,13 @@ const GROW = 4;
 const SPECK = 24;
 
 export interface Mask { w: number; h: number; data: Uint8Array }
+
+/**
+ * What measuring needs to know about a surface, in its own units: how wide it is, how tall (a sheet; a roll goes on), and
+ * how many units to the inch. `edge`: where the paper starts along y, when it doesn't start at 0 (a torn roll); ink beyond
+ * it is off the paper.
+ */
+export interface Surface { w: number; h?: number; unitsPerInch: number; edge?: number }
 
 /** The ink of `strokes` in the box `x0..x1` × `y0..y1` (surface units), one byte per pixel. */
 export function inkOf(strokes: Stroke[], x0: number, y0: number, x1: number, y1: number): Mask {
@@ -106,9 +114,9 @@ export function maskOfPiece(m: Mask, piece: Int32Array): Mask {
   return { w: m.w, h: m.h, data };
 }
 
-// ---- the duck ----
+// ---- area ----
 
-export interface DuckSize {
+export interface Area {
   /** The biggest shape's silhouette, in square inches, to the whole square inch. 0 for a blank page. */
   sqIn: number;
   /** How many shapes are on the page (only the biggest counts). */
@@ -117,8 +125,9 @@ export interface DuckSize {
   mask?: Mask;
 }
 
-/** A duck's size: the area of the biggest shape's silhouette, on a `w` × `h` page `unitsPerInch` to the inch. */
-export function measureDuck(strokes: Stroke[], w: number, h: number, unitsPerInch: number): DuckSize {
+/** The area of the biggest shape's silhouette (everything inside its outline, plus the ink), on a sheet. */
+export function areaOf(strokes: Stroke[], surface: Surface & { h: number }): Area {
+  const { w, h, unitsPerInch } = surface;
   if (!strokes.length) return { sqIn: 0, shapes: 0 };
   const sil = silhouetteOf(inkOf(strokes, 0, 0, w, h));
   const pieces = piecesOf(sil);
@@ -127,7 +136,7 @@ export function measureDuck(strokes: Stroke[], w: number, h: number, unitsPerInc
   return { sqIn: Math.round(pieces[0]!.length * px * px), shapes: pieces.length, mask: maskOfPiece(sil, pieces[0]!) };
 }
 
-// ---- the snake ----
+// ---- length ----
 
 /** Zhang–Suen thinning: the shape worn down to a centre line one pixel wide. */
 function thin(m: Mask): Uint8Array {
@@ -237,12 +246,12 @@ function smoothLength(path: number[], w: number): number {
   return len;
 }
 
-export interface SnakeLength {
+export interface Length {
   /** Along the centre line of the longest shape, to the nearest half inch. */
   inches: number;
-  /** The whole sheets that shape touches. */
-  sheets: number;
-  /** How many shapes are on the roll (only the longest counts). */
+  /** How far that shape reaches along y, in surface units (first and last row): a roll counts its sheets from it. */
+  extent: { top: number; bottom: number };
+  /** How many shapes there are (only the longest counts). */
   shapes: number;
   /** Spots under the minimum width, where the TV's ring goes: centre in roll units (x across, y along the roll). */
   thin: { x: number; y: number; r: number }[];
@@ -251,20 +260,14 @@ export interface SnakeLength {
 }
 
 /**
- * A snake's length on a roll `w` units wide, `unitsPerInch` to the inch, sheets every `sheet` units, counting only the paper
- * from `from` on (what was torn off doesn't count). `minWidth` is the narrowest the rules allow, in units.
+ * The length of the longest shape, along its centre line, on a surface (strokes already on the paper: a roll cuts at its tear
+ * first). `minWidth` is the narrowest the rules allow, in surface units: narrower spots are listed in `thin`.
  */
-export function measureSnake(strokes: Stroke[], opts: { w: number; unitsPerInch: number; sheet: number; from: number; minWidth: number }): SnakeLength {
-  const { w: W, unitsPerInch, sheet, from, minWidth } = opts;
-  const none: SnakeLength = { inches: 0, sheets: 0, shapes: 0, thin: [], thinAll: false };
-  // Only the kept paper: a stroke cut by the tear keeps its part on the kept side.
-  const kept = clipFrom(strokes, from);
+export function lengthOf(strokes: Stroke[], surface: Surface, { minWidth }: { minWidth: number }): Length {
+  const { w: W, unitsPerInch, edge: from = 0 } = surface;
+  const none: Length = { inches: 0, extent: { top: 0, bottom: 0 }, shapes: 0, thin: [], thinAll: false };
+  const kept = strokes;
   if (!kept.length) return none;
-  // The tear edge closes an outline it cut through, as the paper's edge would: crossings joined in pairs along the tear.
-  if (from > 0) {
-    const cuts = kept.flatMap((s) => [0, s.p.length - 2].filter((i) => s.p[i + 1] === from).map((i) => s.p[i]!)).sort((a, b) => a - b);
-    for (let i = 0; i + 1 < cuts.length; i += 2) kept.push({ c: 0, p: [cuts[i]!, from, cuts[i + 1]!, from] });
-  }
   let top = Infinity, bottom = -Infinity;
   for (const s of kept) for (let i = 1; i < s.p.length; i += 2) { top = Math.min(top, s.p[i]!); bottom = Math.max(bottom, s.p[i]!); }
   const pad = LINE + GROW * 2 + UNIT * 2;
@@ -286,8 +289,8 @@ export function measureSnake(strokes: Stroke[], opts: { w: number; unitsPerInch:
   const dist = distanceIn(mask);
   const len = best!.len + (path.length ? dist[path[0]!]! + dist[path[path.length - 1]!]! : 0);
   const toIn = UNIT / unitsPerInch;
-  const touched = new Set<number>();
-  for (const i of piece) touched.add(Math.floor((y0 + (Math.floor(i / sil.w) + 0.5) * UNIT) / sheet));
+  let firstRow = Infinity, lastRow = -Infinity;
+  for (const i of piece) { const row = Math.floor(i / sil.w); firstRow = Math.min(firstRow, row); lastRow = Math.max(lastRow, row); }
 
   // Width along the centre line, leaving out an inch at each end (a head and a tail taper to a point).
   const skip = unitsPerInch / UNIT;
@@ -304,7 +307,7 @@ export function measureSnake(strokes: Stroke[], opts: { w: number; unitsPerInch:
     thinAt.push(isThin);
     if (inner) { counted++; if (isThin) thinCount++; }
   }
-  const thinSpots: SnakeLength["thin"] = [];
+  const thinSpots: Length["thin"] = [];
   for (let k = 0; k < path.length; k++) {
     if (!thinAt[k]) continue;
     let e = k;
@@ -317,43 +320,9 @@ export function measureSnake(strokes: Stroke[], opts: { w: number; unitsPerInch:
   const thinAll = counted > 0 && thinCount / counted > 0.8;
   return {
     inches: Math.round(len * toIn * 2) / 2,
-    sheets: touched.size,
+    extent: { top: y0 + (firstRow + 0.5) * UNIT, bottom: y0 + (lastRow + 0.5) * UNIT },
     shapes: pieces.length,
     thin: thinAll ? [] : thinSpots,
     thinAll,
   };
-}
-
-/** The strokes on the paper from `from` on (y ≥ from): a stroke crossing the line is cut where it crosses. */
-export function clipFrom(strokes: Stroke[], from: number): Stroke[] {
-  if (from <= 0) return strokes;
-  const out: Stroke[] = [];
-  for (const s of strokes) {
-    let cur: number[] = [];
-    const flush = () => { if (cur.length >= 2) out.push({ c: s.c, p: cur }); cur = []; };
-    for (let i = 0; i < s.p.length; i += 2) {
-      const x = s.p[i]!, y = s.p[i + 1]!;
-      if (y >= from) {
-        if (!cur.length && i > 0 && s.p[i - 1]! < from) {
-          const px = s.p[i - 2]!, py = s.p[i - 1]!;
-          cur.push(px + ((x - px) * (from - py)) / (y - py), from);
-        }
-        cur.push(x, y);
-      } else {
-        if (cur.length) {
-          const px = s.p[i - 2]!, py = s.p[i - 1]!;
-          cur.push(px + ((x - px) * (from - py)) / (y - py), from);
-        }
-        flush();
-      }
-    }
-    flush();
-  }
-  return out;
-}
-
-/** The strokes before `to` (y < to): the torn-off piece's. */
-export function clipBefore(strokes: Stroke[], to: number): Stroke[] {
-  return clipFrom(strokes.map((s) => ({ c: s.c, p: s.p.map((v, i) => (i % 2 ? -v : v)) })), -to)
-    .map((s) => ({ c: s.c, p: s.p.map((v, i) => (i % 2 ? -v : v)) }));
 }

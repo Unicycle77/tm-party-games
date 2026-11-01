@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import type { Surface } from "../measure";
 import type { Palette, Stroke } from "../strokes";
 import { StrokesSvg } from "../StrokesSvg";
 import { boxAt, usePen } from "../usePen";
@@ -20,6 +21,9 @@ const INCHES_ACROSS: Record<SheetLook, number> = { flipchart: 23.39, paper: 8.27
 
 /** Surface units to the inch, for measuring a drawing on this sheet. */
 export const unitsPerInch = (look: SheetLook) => SHEET_W / INCHES_ACROSS[look];
+
+/** The sheet to measure on. */
+export const sheetSurface = (look: SheetLook): Surface & { h: number } => ({ w: SHEET_W, h: SHEET_H, unitsPerInch: unitsPerInch(look) });
 
 /**
  * The sheet's look around what's on it. Flipchart: an off-white page under a grey binding strip. Paper: plain white with a
