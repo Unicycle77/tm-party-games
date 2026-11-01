@@ -1,10 +1,20 @@
 import type { ScoreboardTask } from "../types";
+import { targetPoints, type Target } from "./ranked";
 
 type Points = Record<string, number>;
 
-/** How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time, the light by who got it first). */
-export const scoringOf = (t: ScoreboardTask): "hand" | "highest" | "lowest" =>
-  t.game === "noisemaster" || t.game === "light" ? "lowest" : t.scoring ?? "hand";
+/**
+ * How a task is won: by hand, or from the numbers (Noisemaster always by the fastest time, the light by who got it first,
+ * the snake by being second longest and the duck by being the median: see ranked.ts).
+ */
+export const scoringOf = (t: ScoreboardTask): "hand" | "highest" | "lowest" | Target =>
+  t.game === "noisemaster" || t.game === "light" ? "lowest" : t.game === "snake" ? "second" : t.game === "duck" ? "median" : t.scoring ?? "hand";
+
+/** The snake and the duck: only one rank wins (see ranked.ts). */
+export const targetOf = (t: ScoreboardTask): Target | undefined => {
+  const s = scoringOf(t);
+  return s === "second" || s === "median" ? s : undefined;
+};
 
 export const isMeasured = (t: ScoreboardTask) => scoringOf(t) !== "hand";
 
@@ -51,16 +61,23 @@ export function workOut(t: ScoreboardTask): Worked {
   if (isMeasured(t)) {
     const results = t.results ?? {};
     const lowest = scoringOf(t) === "lowest";
+    const target = targetOf(t);
     const all = Object.keys(results);
-    const everyone = places(results, all, lowest);
-    const ranked = places(results, all.filter((c) => !dq[c]), lowest);
+    // Places and the points they're worth, among `ids`: by place, or 5 for the target rank and 0 for the rest.
+    const rank = (ids: string[]) => {
+      if (target) return targetPoints(target, ids, results, t.sheets);
+      const place = places(results, ids, lowest);
+      return { place, points: Object.fromEntries(ids.map((c) => [c, pointsForPlace(place[c]!)])) };
+    };
+    const everyone = rank(all);
+    const ranked = rank(all.filter((c) => !dq[c]));
     for (const c of all) {
-      const was = pointsForPlace(everyone[c]!);
+      const was = everyone.points[c]!;
       held[c] = t.given?.[c] ?? was;
       if (dq[c]) continue;
-      const now = pointsForPlace(ranked[c]!);
+      const now = ranked.points[c]!;
       if (now !== was) moved++;
-      place[c] = moves ? ranked[c]! : everyone[c]!;
+      place[c] = moves ? ranked.place[c]! : everyone.place[c]!;
       auto[c] = moves ? now : was;
       if (moves && now !== was && t.given?.[c] === undefined) before[c] = was;
       points[c] = t.given?.[c] ?? auto[c]!;

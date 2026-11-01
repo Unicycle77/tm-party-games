@@ -37,7 +37,7 @@ export function taskOn(session: Session): GuestFrame["task"] {
   const t = tasks[i]?.[1];
   const name = t?.name?.trim();
   return {
-    label: i >= 0 ? `Task ${i + 1} of ${tasks.length} · ${game.name}` : game.name,
+    label: i >= 0 ? `Task ${i + 1} of ${tasks.length} · ${game.medium ?? game.name}` : game.medium ?? game.name,
     title: name ? name[0]!.toUpperCase() + name.slice(1) : undefined,
     text: t?.text?.trim() || undefined,
   };

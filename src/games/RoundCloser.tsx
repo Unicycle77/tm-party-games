@@ -5,5 +5,7 @@ import { ROUNDS } from "./rounds";
 export function RoundCloser({ code, session }: { code: string; session: Session }) {
   ROUNDS.flipchart.useCloser(code, session, true);
   ROUNDS.acetate.useCloser(code, session, true);
+  ROUNDS.snake.useCloser(code, session, true);
+  ROUNDS.duck.useCloser(code, session, true);
   return null;
 }

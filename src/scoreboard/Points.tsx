@@ -4,7 +4,7 @@ import { ReadOut } from "../conversions/ReadOut";
 import type { Scoreboard, Session } from "../types";
 import { enterPoints, type TaskEntry } from "./data";
 import { LockedLine, LockState, useTaskLock } from "./partyLock";
-import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, workOut } from "./measured";
+import { bonusOf, isMeasured, LO, ordinal, overLine, parseClock, targetOf, workOut } from "./measured";
 import { currentTotals } from "./scoring";
 import { allScored, LIGHT, list, plural } from "./tasks";
 
@@ -29,6 +29,9 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
   const loud = task.unit?.kind === "loudness";
   // The light's order comes from 💡, where it's marked: here it's only shown.
   const light = task.game === "light";
+  // The snake and the duck: one rank wins, measured from the drawings (see ranked.ts).
+  const target = targetOf(task);
+  const unit = task.unit?.name ?? (target === "second" ? "in" : target === "median" ? "sq in" : undefined);
   // Whose number was typed last, for "Read it out".
   const [last, setLast] = useState<string>();
   const lock = useTaskLock();
@@ -49,7 +52,8 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
   const status = light
     ? `Fastest wins · order from the light · ${contestants.filter(([c]) => task.results?.[c] !== undefined).length} of ${contestants.length} got it`
     : measured
-    ? `${timed ? "Fastest wins · times from the soundboard" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
+    ? `${timed ? "Fastest wins · times from the soundboard" : target === "second" ? "Second longest wins · lengths from the rolls"
+      : target === "median" ? "The median wins · sizes from the pages" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
       loud && task.dqOver !== undefined ? ` · over ${task.dqOver} dB is a DQ` : ""} · ${
       contestants.filter(([c]) => task.results?.[c] !== undefined || task.dq?.[c]).length} of ${contestants.length} ${timed ? "played" : "measured"}`
     : `${contestants.filter(([c]) => worked.points[c] !== undefined).length} of ${contestants.length} scored`;
@@ -81,7 +85,7 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
       )}
       <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
         {contestants.map(([c, con]) => <Fragment key={c}>{measured
-          ? <MeasuredRow name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={task.unit?.name}
+          ? <MeasuredRow name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={unit}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
               result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={bonusOf(task, c)}

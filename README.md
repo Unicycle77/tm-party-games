@@ -25,6 +25,12 @@ Players join with a 4-letter code (or QR) on their phone. A session has several 
 
   **Where it comes from:** Flipchart is based on [this video](https://youtu.be/huB67xaX47A?t=1039&is=VDg4xvuEvGGdvLPT).
 
+- **Second longest snake**: each player draws a snake on a roll of toilet paper on their phone, swiping the roll to pull more paper or roll it back up, against a 3-minute clock. At 0:00 anything still out tears off at the nearest perforation and doesn't count. On the big screen every roll unrolls at once at one speed, so the longest finishes last. The app measures each snake along its centre line (inches) and counts the sheets it touches, flags spots under half an inch wide for the host, and only the second longest scores: 5, everyone else 0 (with one or two players the longest wins). The best-snake bonus is the host's.
+
+- **Median duck**: each player draws a duck on a sheet of paper in ten markers, against a 100-second clock, and can send it early. The app measures each duck's silhouette (outline filled in, largest shape only, in square inches). On the big screen the ducks line up in size order and the host knocks out the smallest and the biggest a pair at a time until the median duck is left: it alone scores 5 (with an even number, the one closer to the average). The best-duck bonus is the host's.
+
+  **How these two differ:** both are scored by the app from the drawings, onto the task's Points, where the host can correct a number or DQ someone (which changes who's second, or in the middle). Their drawing surfaces (the roll, the paper) sit on the same drawing core as Flipchart and Acetate (`src/drawing`): strokes, the markers, undo, saving and measuring.
+
 - **Prize task**: each player brings a prize and submits one or more photos of it, any time from check-in. The host presents each prize in whatever order they like, picking which photo goes on the big screen. When the winner is declared at the end of the party, the big screen hangs the whole haul around the winner's headshot.
 
   Like Headshot, it isn't on the game picker: it's only added as a task from the scoreboard's "+ App game".

@@ -173,6 +173,34 @@ const SHOTS = {
   "acetate-host-start": ["host-acetate"],
   "acetate-host-live": ["host-acetate-live"],
   "acetate-host-edit": ["host-acetate-edit"],
+  // Second longest snake: Alex's phone at 3:00 (the hint on the roll), pulling paper, winding up with 0:18 left (the ✂), the
+  // tear at 0:00, and the receipt
+  "snake-guest-start": ["task-snake-start", "&who=alex"],
+  "snake-guest-pulling": ["task-snake-pulling", "&who=alex"],
+  "snake-guest-rollup": ["task-snake-rollup", "&who=alex"],
+  "snake-guest-tear": ["task-snake-tear", "&who=alex&motion=1", async (p) => { await p.waitForTimeout(1750); }],
+  "snake-guest-sent": ["task-snake-sent", "&who=alex"],
+  // the TV: the clock, the rolls before the race, mid-race, and the lengths up (Greg's thin spot circled, Alex's +1); a winner with the bonus too
+  "snake-main-clock": ["tv-snake-clock"],
+  "snake-main-race-start": ["tv-snake-race-start"],
+  "snake-main-race-mid": ["tv-snake-race-mid"],
+  "snake-main-lengths": ["tv-snake-lengths"],
+  "snake-main-lengths-bonus": ["tv-snake-lengths-both"],
+  // the host: before the start, and the lengths to read out
+  "snake-host-start": ["host-snake"],
+  "snake-host-lengths": ["host-snake-lengths"],
+  // Median duck: Greg's phone drawing, asking before it sends, and the receipt
+  "duck-guest-drawing": ["task-duck-drawing", "&who=greg"],
+  "duck-guest-confirm": ["task-duck-drawing", "&who=greg", async (p) => { await p.getByRole("button", { name: "Send my duck" }).click(); }],
+  "duck-guest-sent": ["task-duck-sent", "&who=greg"],
+  // the TV: a duck's gold wash, the line-up in size order, the first knock-out falling, and the median with the sizes up
+  "duck-main-wash": ["tv-duck-wash", "&motion=1", async (p) => { await p.waitForTimeout(100); }],
+  "duck-main-lineup": ["tv-duck-lineup"],
+  "duck-main-knockout": ["tv-duck-knockout", "&motion=1", async (p) => { await p.waitForTimeout(1050); }],
+  "duck-main-median": ["tv-duck-median"],
+  // the host: the gold knock-out button, and the sizes at the end
+  "duck-host-knockout": ["host-duck-knockout"],
+  "duck-host-sizes": ["host-duck-sizes"],
   "clock-host-set": ["host-cd-set"],
   "clock-host-song": ["host-cd-song"],
   "clock-host-running": ["host-cd-running"],

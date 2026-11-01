@@ -1,5 +1,5 @@
 /** The drawing tasks: guests draw on their phones against one clock the host starts, and whatever's drawn goes in at time. */
-export const DRAW_GAMES = ["flipchart", "acetate"] as const;
+export const DRAW_GAMES = ["flipchart", "acetate", "snake", "duck"] as const;
 export type DrawGame = (typeof DRAW_GAMES)[number];
 
 /** Each guest's part of a drawing round, kept by uid. */

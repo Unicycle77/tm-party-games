@@ -5,8 +5,8 @@ import { encodePage, type Stroke } from "./strokes";
 
 /**
  * One surface's strokes, kept on the phone and saved a moment after each change (so a reloaded or swapped phone has
- * them, and whatever's saved at 0:00 is what goes in). `path` is the guest's page in the database, `extra` anything saved
- * beside it (the roll's length out). Writes after the round closed are refused, and that's fine: what was saved stands.
+ * them, and whatever's saved at 0:00 is what goes in). `base` is the game's place in the database and `key` the guest's page
+ * under it; `keep` saves anything else beside it (the roll's length out). Writes after the round closed are refused, and that's fine: what was saved stands.
  */
 export function useSavedStrokes(code: string, base: string, key: string, initial: Stroke[]) {
   const [strokes, setStrokes] = useState(initial);
@@ -15,9 +15,10 @@ export function useSavedStrokes(code: string, base: string, key: string, initial
   const dirty = useRef<Record<string, unknown>>({});
   const timer = useRef<number>();
 
-  const flush = () => {
+  /** Saves now, with `extra` in the same write (sending a drawing: its last strokes and "submitted" go together). */
+  const flush = (extra: Record<string, unknown> = {}) => {
     window.clearTimeout(timer.current);
-    const patch = dirty.current;
+    const patch = { ...dirty.current, ...extra };
     if (!Object.keys(patch).length) return;
     dirty.current = {};
     update(ref(db(), base), patch).catch(() => { /* the time ran out first: what was saved stands */ });
