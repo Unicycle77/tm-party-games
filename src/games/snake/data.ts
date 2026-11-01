@@ -1,9 +1,9 @@
 import type { ScoreboardTask, Session } from "../../types";
 import { limitsOf } from "../../clock/timesIn";
 import { MARKERS } from "../../drawing/palettes";
-import { measureSnake, type SnakeLength } from "../../drawing/measure";
+import { lengthOf as lengthOfDrawing, type Length } from "../../drawing/measure";
 import { decodePage, type Stroke } from "../../drawing/strokes";
-import { ROLL_SHEET, ROLL_UNITS_PER_INCH, ROLL_W, outOf, tearOf } from "../../drawing/surfaces/Roll";
+import { ROLL_SHEET, ROLL_UNITS_PER_INCH, keptOf, outOf, rollSurface, sheetsOf, tearOf } from "../../drawing/surfaces/Roll";
 import { drawRound } from "../drawRound";
 
 /** The show's words (Jeffrey's, 2026-10-31), a paragraph a line, the "-" line kept. */
@@ -44,6 +44,9 @@ export function rollOf(session: Session, uid: string): { strokes: Stroke[]; out:
   return { strokes: decodePage(page?.p1, MARKERS.length), out, tear: tearOf(out) };
 }
 
+/** A snake, measured: its length (see `Length`) and the whole sheets it touches. */
+export type SnakeLength = Omit<Length, "extent"> & { sheets: number };
+
 const measured = new Map<string, SnakeLength>();
 /** A guest's snake, measured on the paper they kept (worked out once per drawing: the TV and the host phone ask often). */
 export function lengthOf(session: Session, uid: string): SnakeLength {
@@ -52,7 +55,8 @@ export function lengthOf(session: Session, uid: string): SnakeLength {
   const key = `${tear}|${page?.p1 ?? ""}`;
   let m = measured.get(key);
   if (!m) {
-    m = measureSnake(strokes, { w: ROLL_W, unitsPerInch: ROLL_UNITS_PER_INCH, sheet: SHEET, from: tear, minWidth: MIN_WIDTH });
+    const { extent, ...length } = lengthOfDrawing(keptOf(strokes, tear), rollSurface(tear), { minWidth: MIN_WIDTH });
+    m = { ...length, sheets: length.shapes ? sheetsOf(extent) : 0 };
     if (measured.size > 64) measured.clear();
     measured.set(key, m);
   }
