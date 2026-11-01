@@ -1,10 +1,11 @@
 // Sample portraits for the Flipchart shots: a face drawn once across the whole 4 x 4 chart, then cut into the 16 pages the way a
 // guest's pen would have, the four pages printed upside down drawn upside down.
 import { encodePage, type Stroke } from "../../src/drawing/strokes";
-import { PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN } from "../../src/games/flipchart/strokes";
+import { PATTERN, UPSIDE_DOWN } from "../../src/games/flipchart/strokes";
+import { SHEET_H, SHEET_W } from "../../src/drawing/surfaces/Sheet";
 
 type Pt = [number, number];
-const W = 4 * PAGE_W, H = 4 * PAGE_H;
+const W = 4 * SHEET_W, H = 4 * SHEET_H;
 
 const ellipse = (cx: number, cy: number, rx: number, ry: number, from = 0, to = Math.PI * 2): Pt[] => {
   const n = Math.ceil(((to - from) * Math.max(rx, ry)) / 25);
@@ -59,10 +60,10 @@ const pageAt = (col: number, row: number, how: Reading) =>
 
 /** Where a point is on its page, as a pen on that page would draw it: clamped to the page, and turned for the pages printed upside down if the guest turned them. */
 const onPage = (x: number, y: number, col: number, row: number, how: Reading): number[] => {
-  const lx = Math.round(Math.min(PAGE_W, Math.max(0, x - col * PAGE_W))), ly = Math.round(Math.min(PAGE_H, Math.max(0, y - row * PAGE_H)));
-  return how === "pattern" && UPSIDE_DOWN.has(PATTERN[row]![col]!) ? [PAGE_W - lx, PAGE_H - ly] : [lx, ly];
+  const lx = Math.round(Math.min(SHEET_W, Math.max(0, x - col * SHEET_W))), ly = Math.round(Math.min(SHEET_H, Math.max(0, y - row * SHEET_H)));
+  return how === "pattern" && UPSIDE_DOWN.has(PATTERN[row]![col]!) ? [SHEET_W - lx, SHEET_H - ly] : [lx, ly];
 };
-const cellOf = (x: number, y: number): [number, number] => [Math.min(3, Math.max(0, Math.floor(x / PAGE_W))), Math.min(3, Math.max(0, Math.floor(y / PAGE_H)))];
+const cellOf = (x: number, y: number): [number, number] => [Math.min(3, Math.max(0, Math.floor(x / SHEET_W))), Math.min(3, Math.max(0, Math.floor(y / SHEET_H)))];
 
 /** The 16 pages, `p1`…`p16`, as the strokes a guest's phone would have saved. */
 export function portraitPages(variant: number, how: Reading = "pattern"): Record<string, string> {

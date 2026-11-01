@@ -11,15 +11,13 @@ import { PinField } from "../../src/HostPin";
 import { GuestCard, NameTag, Quote, Status, TodoList } from "../../src/guest";
 import { SongStrip } from "../../src/SongStrip";
 import { FlipClock } from "../../src/clock/FlipClock";
-import { PageSvg, Portrait } from "../../src/games/flipchart/Portrait";
-import { Sheet as AcetateSheet } from "../../src/games/acetate/PlayerView";
+import { Portrait } from "../../src/games/flipchart/Portrait";
+import { Sheet as DrawingSheet, SheetStrokes } from "../../src/drawing/surfaces/Sheet";
 import { Projector } from "../../src/games/acetate/Projector";
 import { acetateSheets } from "../guest-shots/acetates";
 import { MARKERS, RAINBOW } from "../../src/drawing/palettes";
 import { Pens } from "../../src/drawing/Pens";
-import { StrokesSvg } from "../../src/drawing/StrokesSvg";
 import { PaperStrip, RollSvg } from "../../src/games/snake/Roll";
-import { Paper } from "../../src/games/duck/PlayerView";
 import { SHEET } from "../../src/games/snake/data";
 import { snakeRolls, duckPages } from "../guest-shots/snakes";
 import { decodePage } from "../../src/drawing/strokes";
@@ -370,7 +368,7 @@ function Sheet() {
           </Sec>
           <Sec title="Acetate &amp; projector" note="phone · stage">
             <div className="pair" style={{ alignItems: "center" }}>
-              <div className="slot guest-card" style={{ width: 200 }}><AcetateSheet><PageSvg strokes={ACETATE} /></AcetateSheet></div>
+              <div className="slot guest-card" style={{ width: 200 }}><DrawingSheet look="acetate"><SheetStrokes strokes={ACETATE} palette={MARKERS} /></DrawingSheet></div>
               <div className="ohp-demo"><Projector uid="alex" strokes={ACETATE} /></div>
             </div>
             <Cap>The acetate (<code>.acetate-sheet</code>): a clear A4 sheet lying on the card, the paper showing through, a faint glare; never white paper. Flipchart's four markers and ↶ Undo; no clock and no send button. The projector (<code>.ohp</code>): the curtain darkened to a third, a keystoned square of warm light with a soft spill, blue and amber edges, the sheet on the glass turned half way round and a degree or two off straight. On the reveal a blurred, see-through hand puts it down and nudges it, a little differently for each guest</Cap>
@@ -381,7 +379,7 @@ function Sheet() {
                 <div className="tp"><RollSvg /><div className="tp-win"><PaperStrip strokes={SNAKE} top={1.6 * SHEET} bottom={0} height={1.1 * SHEET} /></div></div>
               </div>
               <div className="slot guest-card">
-                <Paper><StrokesSvg w={1000} h={1414} strokes={DUCK} palette={RAINBOW} /></Paper>
+                <DrawingSheet look="paper"><SheetStrokes strokes={DUCK} palette={RAINBOW} /></DrawingSheet>
                 <Pens palette={RAINBOW} marker={0} onMarker={noop} canUndo onUndo={noop} />
               </div>
             </div>

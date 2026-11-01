@@ -1,6 +1,7 @@
 import type { ScoreboardTask, Session } from "../../types";
 import { limitsOf } from "../../clock/timesIn";
 import { RAINBOW } from "../../drawing/palettes";
+import { SHEET_H, SHEET_W, unitsPerInch } from "../../drawing/surfaces/Sheet";
 import { measureDuck, type DuckSize } from "../../drawing/measure";
 import { decodePage, type Stroke } from "../../drawing/strokes";
 import { drawRound } from "../drawRound";
@@ -22,10 +23,8 @@ export const DEFAULT_MS = 100_000;
 /** The time the host set in ✎, else the one the task's words give ("You have 100 seconds"), else 100 seconds. */
 export const limitOf = (task: ScoreboardTask | undefined) => limitsOf(task)[0]?.ms ?? DEFAULT_MS;
 
-/** A sheet of A4, 1000 units across: about 8¼ × 11¾ inches. */
-export const PAGE_W = 1000;
-export const PAGE_H = 1414;
-export const UNITS_PER_INCH = PAGE_W / 8.27;
+/** The duck is drawn on plain paper: a sheet of A4, about 8¼ × 11¾ inches. */
+export const UNITS_PER_INCH = unitsPerInch("paper");
 /** The duck's markers: ten, in rainbow order. */
 export const PALETTE = RAINBOW;
 
@@ -45,7 +44,7 @@ export function sizeOf(session: Session, uid: string): DuckSize {
   const key = dataOf(session).pages?.[uid]?.p1 ?? "";
   let m = measured.get(key);
   if (!m) {
-    m = measureDuck(pageOf(session, uid), PAGE_W, PAGE_H, UNITS_PER_INCH);
+    m = measureDuck(pageOf(session, uid), SHEET_W, SHEET_H, UNITS_PER_INCH);
     if (measured.size > 64) measured.clear();
     measured.set(key, m);
   }

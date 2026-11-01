@@ -1,14 +1,12 @@
 import { ref, update } from "firebase/database";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { MARKERS } from "../../drawing/palettes";
 import { Pens } from "../../drawing/Pens";
-import { boxAt, usePen } from "../../drawing/usePen";
+import { Sheet, SheetPad, SheetStrokes } from "../../drawing/surfaces/Sheet";
 import { useSavedStrokes } from "../../drawing/useSaved";
 import { GuestCard, Quote, Status, afterwards, useGuest } from "../../guest";
 import type { Session } from "../../types";
-import { PageSvg } from "../flipchart/Portrait";
-import { PAGE_H, PAGE_W } from "../flipchart/strokes";
 import { SHEET, acetateTask, closed, dataOf, drawOf, sheetOf, started, titleOfDraw, useRemaining } from "./data";
 
 const path = (code: string) => `sessions/${code}/games/acetate`;
@@ -39,23 +37,14 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   );
 }
 
-/** The sheet itself: clear, A4's shape, the card's paper showing through. `small` on the receipt. */
-export function Sheet({ children, small = false }: { children?: React.ReactNode; small?: boolean }) {
-  return <div className={small ? "acetate-sheet small" : "acetate-sheet"}>{children}</div>;
-}
-
 function Acetate({ code, uid, session, live }: { code: string; uid: string; session: Session; live: boolean }) {
   const { strokes, latest, change } = useSavedStrokes(code, path(code), `pages/${uid}/${SHEET}`, sheetOf(session, uid));
   const [marker, setMarker] = useState(0);
-  const surface = useRef<HTMLDivElement>(null);
-  const pen = usePen({ live, marker, at: (e) => boxAt(surface.current, PAGE_W, PAGE_H)(e), onStroke: (s) => change([...latest.current, s]) });
 
   return (
     <>
-      <Sheet>
-        <div ref={surface} className={live ? "acetate-surface live" : "acetate-surface"} {...pen.handlers}>
-          <PageSvg strokes={strokes} draft={pen.draft} />
-        </div>
+      <Sheet look="acetate">
+        <SheetPad live={live} marker={marker} palette={MARKERS} strokes={strokes} onStroke={(s) => change([...latest.current, s])} />
       </Sheet>
       {live && <Pens palette={MARKERS} marker={marker} onMarker={setMarker} canUndo={strokes.length > 0} onUndo={() => change(latest.current.slice(0, -1))} />}
     </>
@@ -72,7 +61,7 @@ function Receipt({ code, uid, session, label, title, left }: { code: string; uid
     <>
       <Status>{afterwards("Time's up. Acetate in.", left)}</Status>
       <GuestCard label={label} title={title}>
-        <Sheet small><PageSvg strokes={sheetOf(session, uid)} /></Sheet>
+        <Sheet look="acetate" small><SheetStrokes strokes={sheetOf(session, uid)} palette={MARKERS} /></Sheet>
         <span className="stamp">✓ Submitted</span>
         <p className="slot-hint">🔒 Your acetate is locked in. You'll see it on the projector.</p>
       </GuestCard>

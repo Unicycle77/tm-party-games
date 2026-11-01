@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { PageSvg } from "../flipchart/Portrait";
+import { MARKERS } from "../../drawing/palettes";
+import { SheetStrokes } from "../../drawing/surfaces/Sheet";
 import type { Stroke } from "../../drawing/strokes";
 import { handOf } from "./data";
 
@@ -43,7 +44,7 @@ export function Projector({ uid, strokes, landing = false, small = false }: { ui
       <div className="ohp-spill" />
       <div className="ohp-light">
         <div className="ohp-sheet" style={sheet}>
-          <div className="ohp-ink"><PageSvg strokes={strokes} /></div>
+          <div className="ohp-ink"><SheetStrokes strokes={strokes} palette={MARKERS} /></div>
           {!still && (
             <div className={["ohp-hand", hand.side, handOn ? "on" : "off"].join(" ")}>
               <HandShadow />

@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { MARKERS } from "../../drawing/palettes";
 import type { Stroke } from "../../drawing/strokes";
-import { StrokesSvg } from "../../drawing/StrokesSvg";
-import { PAGES, PAGE_H, PAGE_W, PATTERN, UPSIDE_DOWN } from "./strokes";
+import { SheetStrokes } from "../../drawing/surfaces/Sheet";
+import { PAGES, PATTERN, UPSIDE_DOWN } from "./strokes";
 
-/** A page's strokes as one SVG, filling whatever box it's in (which is A1's shape), in the four markers. */
-export function PageSvg({ strokes, draft }: { strokes: Stroke[]; draft?: Stroke }) {
-  return <StrokesSvg w={PAGE_W} h={PAGE_H} strokes={strokes} draft={draft} palette={MARKERS} />;
-}
 
 /** A page's place on the portrait, from its number: row and column of the pattern. */
 const SPOT = new Map<number, [number, number]>(PATTERN.flatMap((row, r) => row.map((n, c): [number, [number, number]] => [n, [r, c]])));
@@ -56,7 +52,7 @@ export function Portrait({ pages, landing = false }: { pages: Stroke[][]; landin
         return (
           <div key={n} className={["fc-page", landed && !settled && n === down && "dropping"].filter(Boolean).join(" ")}
             style={{ left: `${c * 25}%`, top: `${r * 25}%`, opacity: landed ? 1 : 0, transform: `translate(${shift[0]}%, ${shift[1]}%) rotate(${turn + tilt}deg)` }}>
-            <PageSvg strokes={pages[n - 1] ?? []} />
+            <SheetStrokes strokes={pages[n - 1] ?? []} palette={MARKERS} />
           </div>
         );
       })}

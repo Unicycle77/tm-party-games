@@ -4,10 +4,9 @@ import { db } from "../../firebase";
 import { GuestCard, Status, afterwards, useGuest } from "../../guest";
 import type { Session } from "../../types";
 import { Pens } from "../../drawing/Pens";
-import { StrokesSvg } from "../../drawing/StrokesSvg";
-import { boxAt, usePen } from "../../drawing/usePen";
+import { Sheet, SheetPad, SheetStrokes } from "../../drawing/surfaces/Sheet";
 import { useSavedStrokes } from "../../drawing/useSaved";
-import { PAGE_H, PAGE_W, PALETTE, closed, dataOf, pageOf, started, useRemaining } from "./data";
+import { PALETTE, closed, dataOf, pageOf, started, useRemaining } from "./data";
 
 const path = (code: string) => `sessions/${code}/games/duck`;
 
@@ -42,26 +41,17 @@ export function PlayerView({ code, uid, session }: { code: string; uid: string; 
   );
 }
 
-/** Plain paper: a white A4 sheet. `small` on the receipt. */
-export function Paper({ children, small = false }: { children?: React.ReactNode; small?: boolean }) {
-  return <div className={small ? "paper-sheet small" : "paper-sheet"}>{children}</div>;
-}
-
 function Duck({ code, uid, session, live }: { code: string; uid: string; session: Session; live: boolean }) {
   const { strokes, latest, change, flush } = useSavedStrokes(code, path(code), `pages/${uid}/p1`, pageOf(session, uid));
   const [marker, setMarker] = useState(0);
   const [confirming, setConfirming] = useState(false);
-  const surface = useRef<HTMLDivElement>(null);
-  const pen = usePen({ live, marker, at: (e) => boxAt(surface.current, PAGE_W, PAGE_H)(e), onStroke: (s) => change([...latest.current, s]) });
   const sendIt = () => flush({ [`submitted/${uid}`]: true, [`unlocked/${uid}`]: null });
 
   return (
     <>
-      <Paper>
-        <div ref={surface} className={live ? "paper-surface live" : "paper-surface"} {...pen.handlers}>
-          <StrokesSvg w={PAGE_W} h={PAGE_H} strokes={strokes} draft={pen.draft} palette={PALETTE} />
-        </div>
-      </Paper>
+      <Sheet look="paper">
+        <SheetPad live={live} marker={marker} palette={PALETTE} strokes={strokes} onStroke={(s) => change([...latest.current, s])} />
+      </Sheet>
       {live && <Pens palette={PALETTE} marker={marker} onMarker={setMarker} canUndo={strokes.length > 0} onUndo={() => change(latest.current.slice(0, -1))} />}
       {live && strokes.length > 0 && (confirming ? (
         <div className="fc-confirm">
@@ -86,7 +76,7 @@ function Receipt({ code, uid, session, sent, label, title, left }: { code: strin
     <>
       <Status>{afterwards(timesUp ? "Time's up. Duck sent." : "Duck sent.", left)}</Status>
       <GuestCard label={label} title={title}>
-        <Paper small><StrokesSvg w={PAGE_W} h={PAGE_H} strokes={pageOf(session, uid)} palette={PALETTE} /></Paper>
+        <Sheet look="paper" small><SheetStrokes strokes={pageOf(session, uid)} palette={PALETTE} /></Sheet>
         <span className="stamp">✓ Submitted</span>
         <p className="slot-hint">🔒 Your duck is locked in. You'll see it on the big screen.</p>
       </GuestCard>
