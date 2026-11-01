@@ -59,9 +59,10 @@ export function pendingIds(board: Scoreboard | undefined): string[] {
   return sorted(board?.tasks).map(([id]) => id).filter((id) => !same(now[id], shown[id]));
 }
 
-/** Everyone on the scoreboard has points (or a DQ) for this task. */
+/** Everyone on the scoreboard has points (or a DQ) for this task. The light always has: no right guess is 0. */
 export const allScored = (board: Scoreboard | undefined, t: ScoreboardTask) => {
   const contestants = Object.keys(board?.contestants ?? {});
+  if (t.game === "light") return contestants.length > 0;
   return contestants.length > 0 && contestants.every((c) => t.scores?.[c] !== undefined || t.dq?.[c]);
 };
 

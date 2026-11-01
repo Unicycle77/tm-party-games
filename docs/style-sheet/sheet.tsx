@@ -260,10 +260,10 @@ function Sheet() {
             </div>
             <Cap>The finale (<code>.up-next.the-finale</code>): the Up next card once every task has points</Cap>
             <div className="mini-phone" style={{ width: "100%", marginTop: 12 }}>
-              <GotIt code="HVQB" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 } }, scoreboard: { contestants: Object.fromEntries(
-                ["Sam", "Priya", "Mei", "Alex", "Jo"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
+              <GotIt code="ABCD" session={{ hostUid: "", light: { got: { sam: 1, priya: 2 }, wrong: { alex: true } }, scoreboard: { contestants: Object.fromEntries(
+                ["Sam", "Priya", "Mei", "Alex", "Greg"].map((name, order) => [name.toLowerCase(), { name, order }])) } }} />
             </div>
-            <Cap>The light's "Got it" list (<code>.light-got</code>): a row per guesser (place, name, points); everyone keeps a chip in place, dimmed with ✓ once on the list</Cap>
+            <Cap>The light's Guesses list (<code>.light-got</code>): a row per contestant, Right and Wrong until they've guessed, then the place and points or "✗ wrong · 0 pts", locked in</Cap>
           </Sec>
         </div>
 

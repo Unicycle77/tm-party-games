@@ -29,6 +29,12 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
   const loud = task.unit?.kind === "loudness";
   // The light's order comes from 💡, where it's marked: here it's only shown.
   const light = task.game === "light";
+  // One guess each: anyone who didn't guess right has 0, whether they guessed wrong or never guessed.
+  const wrong = (c: string) => !!session.light?.wrong?.[c] && task.results?.[c] === undefined;
+  const lightCounts = (all: string[]) => {
+    const got = all.filter((c) => task.results?.[c] !== undefined).length, missed = all.filter(wrong).length;
+    return [`${got} got it`, missed && `${missed} wrong`, all.length - got - missed && `${all.length - got - missed} didn't guess`].filter(Boolean).join(" · ");
+  };
   // The snake and the duck: one rank wins, measured from the drawings (see ranked.ts).
   const target = targetOf(task);
   const unit = task.unit?.name ?? (target === "second" ? "in" : target === "median" ? "sq in" : undefined);
@@ -50,7 +56,7 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
   const outs = contestants.map(([c]) => c).filter((c) => task.dq?.[c] && (measured ? task.results?.[c] : (task.given ?? task.scores)?.[c]) !== undefined);
   const before = Object.keys(worked.before).length > 0;
   const status = light
-    ? `Fastest wins · order from the light · ${contestants.filter(([c]) => task.results?.[c] !== undefined).length} of ${contestants.length} got it`
+    ? `Fastest wins · order from the light · ${lightCounts(contestants.map(([c]) => c))}`
     : measured
     ? `${timed ? "Fastest wins · times from the soundboard" : target === "second" ? "Second longest wins · lengths from the rolls"
       : target === "median" ? "The median wins · sizes from the pages" : task.scoring === "lowest" ? "Lowest wins" : "Highest wins"}${
@@ -85,7 +91,7 @@ export function Points({ code, session, board, onScreen, id, onDone, onLight }: 
       )}
       <ul className={measured ? "sb-rows sb-measured" : "sb-rows"}>
         {contestants.map(([c, con]) => <Fragment key={c}>{measured
-          ? <MeasuredRow name={con.name} total={totals[c] ?? 0} timed={timed} light={light} unit={unit}
+          ? <MeasuredRow name={con.name} total={totals[c] ?? 0} timed={timed} light={light} wrong={wrong(c)} unit={unit}
               lo={loud && task.scoring === "lowest"} over={task.overDq?.[c] ? task.dqOver : undefined}
               line={loud ? (reading) => overLine(task, c, reading) : undefined}
               result={task.results?.[c]} restarts={task.restarts?.[c]} dq={!!task.dq?.[c]} given={task.given?.[c]} bonus={bonusOf(task, c)}
@@ -164,8 +170,8 @@ function PointsRow({ name, total, points, given, dq, bonus, before, onEnter }: {
  * a point set by hand sticks. On a dB task, `line` is what its DQ line makes of a reading (see overLine), `over` the
  * line they went over, and `lo` offers LO, under the box while it's being typed in.
  */
-function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter, locked, onLocked }: {
-  name: string; total: number; timed: boolean; light: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
+function MeasuredRow({ name, total, timed, light, wrong, unit, lo, over, line, result, restarts, dq, given, bonus, points, auto, place, before, onEnter, locked, onLocked }: {
+  name: string; total: number; timed: boolean; light: boolean; wrong?: boolean; unit?: string; lo?: boolean; over?: number; line?: (reading: number | undefined) => Omit<TaskEntry, "results">;
   result?: number; restarts?: number; dq: boolean; given?: number; bonus: number; points?: number; auto?: number; place?: number; before?: number; onEnter: EntryFor;
   /** A locked party: the box can't be typed in, and tapping it says why. */
   locked: boolean; onLocked: () => void;
@@ -185,27 +191,32 @@ function MeasuredRow({ name, total, timed, light, unit, lo, over, line, result, 
   const overridden = given !== undefined && !dq;
   const autoLine = auto !== undefined && place !== undefined ? `${auto} for ${ordinal(place)}` : undefined;
   return (
-    <li className={dq ? "dq" : undefined}>
+    <li className={dq && !light ? "dq" : undefined}>
       <div className="sb-measure">
         <span className="sb-name">{name}<span className="muted small sb-now">now {total}</span></span>
-        <div className="choices marks sb-dq">
-          <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
-        </div>
-        {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result === undefined ? "not yet" : `got it ${ordinal(result)}`}</span> : (
+        {/* The light has no DQ: one guess each, right or wrong, and nothing else to break. */}
+        {light ? <span /> : (
+          <div className="choices marks sb-dq">
+            <button aria-pressed={dq} aria-label={`Disqualify ${name}`} onClick={() => { setOpen(false); onEnter((c) => ({ dq: one(c, dq ? null : true), overDq: one(c, null) })); }}>DQ</button>
+          </div>
+        )}
+        {light ? <span className={`sb-got${result === undefined ? " muted" : ""}`}>{result !== undefined ? `got it ${ordinal(result)}` : wrong ? "guessed wrong" : "didn't guess"}</span> : (
           <input className="sb-result" type="text" inputMode="decimal" value={typing ?? (result === undefined ? "" : format(result))}
             placeholder={timed ? "not played" : "—"} aria-label={`${name}'s ${timed ? "time" : unit ?? "result"}`}
             readOnly={locked} onChange={(e) => type(e.target.value)} onFocus={() => locked ? onLocked() : setFocused(true)}
             onBlur={() => { setTyping(undefined); setFocused(false); }} />
         )}
         <span className="sb-unit muted">{timed ? (restarts !== undefined ? `↺ ${restarts}` : "") : unit ?? ""}</span>
-        {points !== undefined
+        {/* The light's points come only from the order on 💡: nothing to set by hand, and no bonus. */}
+        {light ? <span className={`sb-pts${points === undefined ? " muted" : ""}`}><b>{points ?? 0}</b><span className="small">{place !== undefined ? ordinal(place) : ""}</span></span>
+          : points !== undefined
           ? <button className={`sb-pts${open ? " open" : ""}`} aria-expanded={open} aria-label={`${name}'s points: ${points}. Change them`}
               disabled={dq} onClick={() => setOpen(!open)}>
               <b>{points}{overridden && <span className="sb-hand">✎</span>}{before !== undefined && <span className="sb-before">{before}</span>}</b>
               <span className="small">{dq ? (over !== undefined ? `over ${over}` : "DQ") : place !== undefined ? ordinal(place) : ""}</span>
             </button>
           : <span />}
-        <BonusChip name={name} bonus={bonus} onEnter={onEnter} />
+        {!light && <BonusChip name={name} bonus={bonus} onEnter={onEnter} />}
       </div>
       {lo && focused && (
         <div className="sb-override sb-lo">
