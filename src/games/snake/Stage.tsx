@@ -5,7 +5,8 @@ import { FlipClock } from "../../clock/FlipClock";
 import { clipBefore, clipFrom } from "../../drawing/measure";
 import { useServerOffset } from "../noisemaster/data";
 import { SHEET, SNAKE_WORDS, UNROLL_DELAY, UNROLL_SPEED, closed, inchesText, lengthOf, running, sheetsText, snakeTask, stripOf, useRemaining } from "./data";
-import { PaperStrip, RollSvg } from "./Roll";
+import { PaperStrip, RollSvg } from "../../drawing/surfaces/Roll";
+import { MARKERS } from "../../drawing/palettes";
 import { standingsOf } from "./standings";
 
 /** While they draw: the show's clock. Before and after it, the task's words, with the stamp once everyone's roll is in. */
@@ -93,11 +94,11 @@ export function Stage({ session, display }: { code: string; session: Session; di
               <div className="race-roll">
                 <RollSvg empty={s.done} aria-hidden="true" />
                 <div className={display.circle === r.uid && m.thinAll ? "race-paper all-thin" : "race-paper"}>
-                  <PaperStrip strokes={clipFrom(s.strokes, s.tear)} top={s.tear + s.shown} bottom={s.tear} height={s.shown} torn={s.tear > 0 ? "below" : undefined} marks={rings} />
+                  <PaperStrip strokes={clipFrom(s.strokes, s.tear)} palette={MARKERS} top={s.tear + s.shown} bottom={s.tear} height={s.shown} torn={s.tear > 0 ? "below" : undefined} marks={rings} />
                   {s.tear > 0 && (
                     <div className="race-torn" style={{ marginTop: `${(GAP * rollW * 0.85333) / 1000}px` }}>
                       <span className="tape left" /><span className="tape right" />
-                      <PaperStrip strokes={clipBefore(s.strokes, s.tear)} top={s.tear} bottom={0} height={s.tear} torn="above" />
+                      <PaperStrip strokes={clipBefore(s.strokes, s.tear)} palette={MARKERS} top={s.tear} bottom={0} height={s.tear} torn="above" />
                     </div>
                   )}
                 </div>
